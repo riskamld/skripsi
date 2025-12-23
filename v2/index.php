@@ -231,6 +231,39 @@ let watchId = null;
 let searchInterval = null;
 let selectedMarker = null;
 
+// Function to format business status
+function formatBusinessStatus(status) {
+    switch(status) {
+        case 'OPERATIONAL':
+            return { text: '🟢 Operational', class: 'badge bg-success' };
+        case 'CLOSED_TEMPORARILY':
+            return { text: '🟡 Tutup Sementara', class: 'badge bg-warning' };
+        case 'CLOSED_PERMANENTLY':
+            return { text: '🔴 Tutup Permanen', class: 'badge bg-danger' };
+        default:
+            return { text: '⚪ Status Tidak Diketahui', class: 'badge bg-secondary' };
+    }
+}
+
+// Function to format category
+function formatCategory(category) {
+    if (!category) return '';
+    // Convert common types to readable format
+    const typeMap = {
+        'restaurant': '🍽️ Restoran',
+        'gas_station': '⛽ SPBU',
+        'store': '🏪 Toko',
+        'hospital': '🏥 Rumah Sakit',
+        'pharmacy': '💊 Apotek',
+        'hotel': '🏨 Hotel',
+        'cafe': '☕ Cafe',
+        'bank': '🏦 Bank',
+        'school': '🏫 Sekolah',
+        'park': '🌳 Taman'
+    };
+    return typeMap[category] || `🏢 ${category.charAt(0).toUpperCase() + category.slice(1).replace('_', ' ')}`;
+}
+
 // Function to format review count
 function formatReviewCount(count) {
     if (count >= 1000) {
@@ -304,8 +337,13 @@ function search(){
                     .bindPopup(popupContent);
             markers.push(m);
 
-            // CARD
+            // CARD with new fields
             let waBtn = wa ? `<a href="${wa}" target="_blank" class="btn btn-success btn-sm w-100 mt-2">📞 WhatsApp</a>` : '';
+
+            // Format business status and category
+            const statusInfo = formatBusinessStatus(p.status_bisnis);
+            const categoryInfo = formatCategory(p.kategori_utama);
+
             let cardId = `card-${markers.length - 1}`;
             document.getElementById('result').innerHTML += `
             <div class="col-lg-3 col-md-4 col-sm-6">
@@ -314,7 +352,12 @@ function search(){
                     <div class="card-body">
                         <b>${p.nama}</b><br>
                         ⭐ ${p.rating} (${p.ulasan})<br>
-                        <small>${p.alamat}</small>
+                        <small>${p.alamat}</small><br>
+                        <small class="text-muted">ID: ${p.id}</small><br>
+                        <div class="mb-2">
+                            <span class="${statusInfo.class} me-1">${statusInfo.text}</span>
+                            ${categoryInfo ? `<span class="badge bg-info">${categoryInfo}</span>` : ''}
+                        </div>
                         ${waBtn}
                     </div>
                 </div>
