@@ -120,6 +120,12 @@ body {
     background: #28a745;
     color: white;
 }
+
+.result-card.selected {
+    border: 3px solid #007bff !important;
+    box-shadow: 0 0 15px rgba(0, 123, 255, 0.6) !important;
+    transform: scale(1.02) !important;
+}
 </style>
 </head>
 
@@ -186,6 +192,7 @@ let currentLocationMarker = null;
 let drivingMode = false;
 let watchId = null;
 let searchInterval = null;
+let selectedMarker = null;
 
 function search(){
     let keyword = document.getElementById('keyword').value.trim();
@@ -199,8 +206,16 @@ function search(){
       .then(r=>r.json())
       .then(data=>{
         document.getElementById('result').innerHTML = `<div class="col-12 mb-3"><div class="alert alert-info text-center fw-bold">Menampilkan ${data.length} hasil</div></div>`;
-        markers.forEach(m=>map.removeLayer(m));
-        markers=[];
+
+        // Remove all markers except the selected one
+        markers.forEach(m => {
+            if (m !== selectedMarker) {
+                map.removeLayer(m);
+            }
+        });
+
+        // Filter out non-selected markers from the array
+        markers = markers.filter(m => m === selectedMarker);
 
         data.forEach(p=>{
             // WA LINK
@@ -221,9 +236,10 @@ function search(){
 
             // CARD
             let waBtn = wa ? `<a href="${wa}" target="_blank" class="btn btn-success btn-sm w-100 mt-2">📞 WhatsApp</a>` : '';
+            let cardId = `card-${markers.length - 1}`;
             document.getElementById('result').innerHTML += `
             <div class="col-lg-3 col-md-4 col-sm-6">
-                <div class="card h-100 shadow-sm">
+                <div class="card h-100 shadow-sm result-card" id="${cardId}" data-lat="${p.lat}" data-lng="${p.lng}" data-marker-index="${markers.length - 1}">
                     <img src="${p.foto}" class="card-img-top">
                     <div class="card-body">
                         <b>${p.nama}</b><br>
@@ -255,34 +271,24 @@ let locateControl = L.control.locate({
     }
 }).addTo(map);
 
+// Store original locate control function
+const originalOnLocationFound = locateControl._onLocationFound;
+
 // Override locate control to handle driving mode
 locateControl._onLocationFound = function(e) {
-    if (this.options.drawCircle) {
-        var radius = e.accuracy / 2;
-        this._circle = L.circle(e.latlng, radius, this.options.circleStyle).addTo(this._map);
-    }
+    // Call original function first
+    originalOnLocationFound.call(this, e);
 
+    // Store current location marker reference
     if (this._marker) {
-        this._map.removeLayer(this._marker);
+        currentLocationMarker = this._marker;
     }
 
-    this._marker = L.marker(e.latlng, this.options.markerStyle).addTo(this._map);
-    currentLocationMarker = this._marker;
-
-    if (this.options.drawMarker) {
-        this._marker = L.marker(e.latlng, this.options.markerStyle).addTo(this._map);
+    // Additional handling for driving mode
+    if (drivingMode && this.options.setView) {
+        // In driving mode, don't change zoom level, just center
+        this._map.setView(e.latlng, this._map.getZoom());
     }
-
-    if (this.options.setView) {
-        if (drivingMode) {
-            this._map.setView(e.latlng, this._map.getZoom());
-        } else {
-            this._map.setView(e.latlng, this.options.keepCurrentZoomLevel ? this._map.getZoom() : this.options.initialZoomLevel);
-        }
-    }
-
-    this._eventData = e;
-    this.fire('locationfound', e);
 };
 
 // Add driving mode button
@@ -363,6 +369,67 @@ function toggleDrivingMode() {
         }
     }
 }
+
+// Add click event for result cards
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.result-card')) {
+        const card = e.target.closest('.result-card');
+        const markerIndex = parseInt(card.dataset.markerIndex);
+
+        // Reset previously selected marker
+        if (selectedMarker) {
+            selectedMarker.setIcon(L.icon({
+                iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+                shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            }));
+        }
+
+        // Set new selected marker
+        if (markers[markerIndex]) {
+            const marker = markers[markerIndex];
+            selectedMarker = marker;
+
+            // Create selected marker icon (different color/size)
+            const selectedIcon = L.divIcon({
+                className: 'selected-marker',
+                html: '🏷️',
+                iconSize: [35, 35],
+                iconAnchor: [17, 35],
+                popupAnchor: [0, -35]
+            });
+
+            marker.setIcon(selectedIcon);
+
+            // Pan and zoom to the marker
+            map.setView(marker.getLatLng(), 16);
+
+            // Open popup
+            marker.openPopup();
+
+            // Highlight the card
+            document.querySelectorAll('.result-card').forEach(c => {
+                c.classList.remove('selected');
+            });
+            card.classList.add('selected');
+        }
+    }
+});
+
+// Change cursor when hovering over markers
+map.on('mouseover', function(e) {
+    const target = e.originalEvent.target;
+    if (target && target.closest && target.closest('.leaflet-marker-icon')) {
+        document.body.style.cursor = 'pointer';
+    }
+});
+
+map.on('mouseout', function(e) {
+    document.body.style.cursor = '';
+});
 
 // Auto search on map move (only when not in driving mode)
 map.on('moveend', function() {
