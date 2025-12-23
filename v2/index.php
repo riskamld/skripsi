@@ -433,6 +433,47 @@ function getWeatherIcon(weathercode) {
     return '🌤️'; // Default
 }
 
+// Function to calculate Haversine distance between two points
+function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Earth's radius in kilometers
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a =
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const distance = R * c;
+    return distance;
+}
+
+// Function to estimate travel time
+function estimateTravelTime(distanceKm) {
+    // Average speeds for Indonesian cities
+    const carSpeed = 35; // km/h (accounting for traffic)
+    const motorcycleSpeed = 45; // km/h (more flexible)
+
+    const carTimeMinutes = Math.round((distanceKm / carSpeed) * 60);
+    const motorcycleTimeMinutes = Math.round((distanceKm / motorcycleSpeed) * 60);
+
+    return {
+        car: carTimeMinutes,
+        motorcycle: motorcycleTimeMinutes
+    };
+}
+
+// Function to format distance and time display
+function formatDistanceTime(distanceKm, times) {
+    const distance = distanceKm < 1 ?
+        `${(distanceKm * 1000).toFixed(0)}m` :
+        `${distanceKm.toFixed(1)} km`;
+
+    const carTime = times.car < 1 ? '<1' : times.car;
+    const motorcycleTime = times.motorcycle < 1 ? '<1' : times.motorcycle;
+
+    return `📍 ${distance} • 🚗 ~${carTime} min • 🏍️ ~${motorcycleTime} min`;
+}
+
 async function search(){
     let keyword = document.getElementById('keyword').value.trim();
     if(!keyword) return; // Skip if no keyword
@@ -444,6 +485,26 @@ async function search(){
     fetch(url)
       .then(r=>r.json())
       .then(async data=>{
+
+        // Get current user location for distance calculation
+        let userLocation = null;
+        if (currentLocationMarker) {
+            userLocation = currentLocationMarker.getLatLng();
+        } else if (navigator.geolocation) {
+            // Try to get current location if not available
+            try {
+                const position = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject, {
+                        enableHighAccuracy: true,
+                        timeout: 5000,
+                        maximumAge: 300000 // 5 minutes
+                    });
+                });
+                userLocation = L.latLng(position.coords.latitude, position.coords.longitude);
+            } catch (error) {
+                console.log('Could not get user location for distance calculation');
+            }
+        }
         document.getElementById('result').innerHTML = `<div class="col-12 mb-3"><div class="alert alert-info text-center fw-bold">Menampilkan ${data.length} hasil</div></div>`;
 
         // Remove all markers except the selected one
@@ -456,10 +517,22 @@ async function search(){
         // Filter out non-selected markers from the array
         markers = markers.filter(m => m === selectedMarker);
 
-        // Process places with weather data
+        // Process places with weather and distance data
         const placePromises = data.map(async (p) => {
             // Fetch weather data for this location
             const weatherData = await getWeatherData(p.lat, p.lng);
+
+            // Calculate distance and time if user location is available
+            let distanceInfo = null;
+            if (userLocation) {
+                const distance = calculateDistance(userLocation.lat, userLocation.lng, p.lat, p.lng);
+                const travelTimes = estimateTravelTime(distance);
+                distanceInfo = {
+                    distance: distance,
+                    times: travelTimes,
+                    formatted: formatDistanceTime(distance, travelTimes)
+                };
+            }
 
             // WA LINK
             let wa = '';
@@ -495,7 +568,7 @@ async function search(){
                     .bindPopup(popupContent);
             markers.push(m);
 
-            return { ...p, weatherData };
+            return { ...p, weatherData, distanceInfo };
         });
 
         // Wait for all weather data to be fetched
@@ -581,6 +654,11 @@ async function search(){
                 weatherInfo = `<span class="weather-info">${p.weatherData.icon} ${p.weatherData.temperature}°C, ${p.weatherData.condition}</span>`;
             }
 
+            let distanceInfo = '';
+            if (p.distanceInfo) {
+                distanceInfo = `<span class="distance-info">${p.distanceInfo.formatted}</span>`;
+            }
+
             let parkingInfo = '';
             if (p.ada_parkir) {
                 parkingInfo = '<span class="text-success">🅿️ Parkir tersedia</span>';
@@ -606,6 +684,7 @@ async function search(){
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="${starColor}" style="display: inline-block; margin-right: 4px;">
                             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                         </svg>${p.rating} (${p.ulasan})<br>
+                        ${distanceInfo ? distanceInfo + '<br>' : ''}
                         ${weatherInfo ? weatherInfo + '<br>' : ''}
                         <small>${p.alamat}</small><br>
                         <small class="text-muted">ID: ${p.id}</small><br>
