@@ -737,6 +737,11 @@ function toggleDrivingMode() {
 
 // Add click event for result cards
 document.addEventListener('click', function(e) {
+    // Ignore clicks on carousel elements to prevent map refresh
+    if (e.target.closest('.interactive-carousel, .carousel-control-prev, .carousel-control-next, .carousel-indicators button')) {
+        return;
+    }
+
     if (e.target.closest('.result-card')) {
         const card = e.target.closest('.result-card');
         const markerIndex = parseInt(card.dataset.markerIndex);
