@@ -126,6 +126,43 @@ body {
     box-shadow: 0 0 15px rgba(0, 123, 255, 0.6) !important;
     transform: scale(1.02) !important;
 }
+
+.marker-container {
+    position: relative;
+    width: 35px;
+    height: 35px;
+}
+
+.marker-icon {
+    font-size: 24px;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.review-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ff6b35;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.custom-marker {
+    background: none !important;
+    border: none !important;
+}
 </style>
 </head>
 
@@ -194,6 +231,22 @@ let watchId = null;
 let searchInterval = null;
 let selectedMarker = null;
 
+// Function to format review count
+function formatReviewCount(count) {
+    if (count >= 1000) {
+        return (count / 1000).toFixed(1).replace('.0', '') + 'K';
+    }
+    return count.toString();
+}
+
+// Function to get badge size based on content length
+function getBadgeSize(content) {
+    const length = content.length;
+    if (length <= 2) return { width: 18, height: 18, fontSize: 10 };
+    if (length <= 3) return { width: 22, height: 18, fontSize: 9 };
+    return { width: 26, height: 18, fontSize: 8 };
+}
+
 function search(){
     let keyword = document.getElementById('keyword').value.trim();
     if(!keyword) return; // Skip if no keyword
@@ -225,12 +278,29 @@ function search(){
                 wa = `https://wa.me/62${no}`;
             }
 
-            // MARKER
+            // Format review count
+            const formattedReviews = formatReviewCount(p.ulasan);
+            const badgeSize = getBadgeSize(formattedReviews);
+
+            // MARKER with review badge
             let popupContent = `<b>${p.nama}</b><br>${p.ulasan} ulasan`;
             if(p.telepon) popupContent += `<br>📞 ${p.telepon}`;
             popupContent += `<br><a href="https://maps.google.com/maps?q=${p.lat},${p.lng}" target="_blank">🗺️ Navigasi</a>`;
             popupContent += `<br><a href="https://www.google.com/maps/place/?q=place_id:${p.id}" target="_blank">⭐ Lihat Ulasan</a>`;
-            let m = L.marker([p.lat,p.lng]).addTo(map)
+
+            // Create marker with review badge
+            let markerIcon = L.divIcon({
+                className: 'custom-marker',
+                html: `<div class="marker-container">
+                          <div class="marker-icon">🎯</div>
+                          <div class="review-badge" style="width: ${badgeSize.width}px; height: ${badgeSize.height}px; font-size: ${badgeSize.fontSize}px;">${formattedReviews}</div>
+                       </div>`,
+                iconSize: [35, 35],
+                iconAnchor: [17, 35],
+                popupAnchor: [0, -35]
+            });
+
+            let m = L.marker([p.lat,p.lng], {icon: markerIcon}).addTo(map)
                     .bindPopup(popupContent);
             markers.push(m);
 
