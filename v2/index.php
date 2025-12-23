@@ -477,7 +477,7 @@ async function search(){
             let popupContent = `<b>${p.nama}</b><br>${p.ulasan} ulasan`;
             if(p.telepon) popupContent += `<br>📞 ${p.telepon}`;
             popupContent += `<br><a href="https://maps.google.com/maps?q=${p.lat},${p.lng}" target="_blank">🗺️ Navigasi</a>`;
-            popupContent += `<br><a href="https://www.google.com/maps/place/?q=place_id:${p.id}" target="_blank">⭐ Lihat Ulasan</a>`;
+            popupContent += `<br><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.nama)}&query_place_id=${p.id}" target="_blank">⭐ Lihat Ulasan</a>`;
 
             // Create marker with review badge
             let markerIcon = L.divIcon({
@@ -553,8 +553,17 @@ async function search(){
                         <span class="visually-hidden">Next</span>
                     </button>
                 </div>`;
-            } else {
+            } else if(p.foto_utama) {
                 photoHtml = `<img src="${p.foto_utama}" class="card-img-top" loading="lazy">`;
+            } else {
+                photoHtml = `<div class="card-img-top d-flex align-items-center justify-content-center bg-light text-muted" style="height: 160px;">
+                    <div class="text-center">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor" opacity="0.3">
+                            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                        </svg>
+                        <div class="mt-2">Tidak ada gambar</div>
+                    </div>
+                </div>`;
             }
 
             // Format additional info - simplified opening hours
@@ -597,11 +606,11 @@ async function search(){
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="${starColor}" style="display: inline-block; margin-right: 4px;">
                             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                         </svg>${p.rating} (${p.ulasan})<br>
+                        ${weatherInfo ? weatherInfo + '<br>' : ''}
                         <small>${p.alamat}</small><br>
                         <small class="text-muted">ID: ${p.id}</small><br>
                         <div class="mb-1">
                             ${openingHoursInfo ? openingHoursInfo + '<br>' : ''}
-                            ${weatherInfo ? weatherInfo + '<br>' : ''}
                             ${parkingInfo ? parkingInfo + '<br>' : ''}
                         </div>
                         <div class="mb-2">
