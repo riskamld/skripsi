@@ -179,6 +179,22 @@ body {
     background: #28a745;
     color: white;
 }
+
+.card-rating-excellent {
+    border-left: 4px solid #007bff !important; /* Biru - sangat bagus */
+}
+
+.card-rating-good {
+    border-left: 4px solid #28a745 !important; /* Hijau - bagus */
+}
+
+.card-rating-average {
+    border-left: 4px solid #fd7e14 !important; /* Orange - biasa */
+}
+
+.card-rating-poor {
+    border-left: 4px solid #dc3545 !important; /* Merah - buruk */
+}
 </style>
 </head>
 
@@ -296,6 +312,30 @@ function getBadgeSize(content) {
     return { width: 26, height: 18, fontSize: 8 };
 }
 
+// Function to get badge color based on review count
+function getBadgeColor(reviewCount) {
+    if (reviewCount >= 1000) return '#dc3545'; // Merah - sangat populer
+    if (reviewCount >= 100) return '#007bff';  // Biru - populer
+    if (reviewCount >= 10) return '#28a745';   // Hijau - cukup populer
+    return '#6c757d'; // Abu-abu - kurang populer
+}
+
+// Function to get card class based on rating
+function getCardClass(rating) {
+    if (rating >= 4.6) return 'card-rating-excellent'; // 4.6-5 - Biru
+    if (rating >= 4.1) return 'card-rating-good';       // 4.1-4.5 - Hijau
+    if (rating >= 3.1) return 'card-rating-average';    // 3.1-4.0 - Orange
+    return 'card-rating-poor'; // 1-3 - Merah
+}
+
+// Function to get star color based on rating
+function getStarColor(rating) {
+    if (rating >= 4.6) return '#007bff'; // Biru - excellent
+    if (rating >= 4.1) return '#28a745'; // Hijau - good
+    if (rating >= 3.1) return '#fd7e14'; // Orange - average
+    return '#dc3545'; // Merah - poor
+}
+
 function search(){
     let keyword = document.getElementById('keyword').value.trim();
     if(!keyword) return; // Skip if no keyword
@@ -327,9 +367,10 @@ function search(){
                 wa = `https://wa.me/62${no}`;
             }
 
-            // Format review count
+            // Format review count and get badge color
             const formattedReviews = formatReviewCount(p.ulasan);
             const badgeSize = getBadgeSize(formattedReviews);
+            const badgeColor = getBadgeColor(p.ulasan);
 
             // MARKER with review badge
             let popupContent = `<b>${p.nama}</b><br>${p.ulasan} ulasan`;
@@ -342,7 +383,7 @@ function search(){
                 className: 'custom-marker',
                 html: `<div class="marker-container">
                           <div class="marker-icon">🎯</div>
-                          <div class="review-badge" style="width: ${badgeSize.width}px; height: ${badgeSize.height}px; font-size: ${badgeSize.fontSize}px;">${formattedReviews}</div>
+                          <div class="review-badge" style="width: ${badgeSize.width}px; height: ${badgeSize.height}px; font-size: ${badgeSize.fontSize}px; background-color: ${badgeColor};">${formattedReviews}</div>
                        </div>`,
                 iconSize: [35, 35],
                 iconAnchor: [17, 35],
@@ -373,15 +414,19 @@ function search(){
             // Format business status and category
             const statusInfo = formatBusinessStatus(p.status_bisnis);
             const categoryInfo = formatCategory(p.kategori_utama);
+            const cardRatingClass = getCardClass(p.rating);
+            const starColor = getStarColor(p.rating);
 
             let cardId = `card-${markers.length - 1}`;
             document.getElementById('result').innerHTML += `
             <div class="col-lg-3 col-md-4 col-sm-6">
-                <div class="card h-100 shadow-sm result-card" id="${cardId}" data-lat="${p.lat}" data-lng="${p.lng}" data-marker-index="${markers.length - 1}">
+                <div class="card h-100 shadow-sm result-card ${cardRatingClass}" id="${cardId}" data-lat="${p.lat}" data-lng="${p.lng}" data-marker-index="${markers.length - 1}">
                     <img src="${p.foto}" class="card-img-top">
                     <div class="card-body">
                         <b>${p.nama}</b><br>
-                        ⭐ ${p.rating} (${p.ulasan})<br>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="${starColor}" style="display: inline-block; margin-right: 4px;">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>${p.rating} (${p.ulasan})<br>
                         <small>${p.alamat}</small><br>
                         <small class="text-muted">ID: ${p.id}</small><br>
                         <div class="mb-2">
