@@ -247,6 +247,7 @@ body {
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.js"></script>
 
@@ -801,6 +802,63 @@ map.on('moveend', function() {
         search();
     }
 });
+
+// Interactive carousel functionality - auto-play on hover
+function initializeInteractiveCarousels() {
+    // Helper function to safely check closest
+    function findClosest(element, selector) {
+        if (!element || typeof element.closest !== 'function') return null;
+        return element.closest(selector);
+    }
+
+    // Use event delegation for dynamically created carousels
+    document.addEventListener('mouseenter', function(e) {
+        const carousel = findClosest(e.target, '.interactive-carousel');
+        if (carousel) {
+            // Start auto-play on mouse enter
+            if (!carousel.hasAttribute('data-bs-ride')) {
+                const bsCarousel = new bootstrap.Carousel(carousel, {
+                    ride: 'carousel',
+                    interval: 2500, // Faster auto-play: 2.5 seconds
+                    wrap: true
+                });
+                carousel.setAttribute('data-bs-ride', 'carousel');
+            } else {
+                // If already cycling, ensure it continues
+                const bsCarousel = bootstrap.Carousel.getInstance(carousel);
+                if (bsCarousel) {
+                    bsCarousel.cycle();
+                }
+            }
+        }
+    }, true);
+
+    document.addEventListener('mouseleave', function(e) {
+        const carousel = findClosest(e.target, '.interactive-carousel');
+        if (carousel) {
+            // Pause on mouse leave
+            const bsCarousel = bootstrap.Carousel.getInstance(carousel);
+            if (bsCarousel) {
+                bsCarousel.pause();
+            }
+        }
+    });
+
+    // Prevent card selection when clicking on carousel
+    document.addEventListener('click', function(e) {
+        const carouselElement = findClosest(e.target, '.interactive-carousel, .carousel-control-prev, .carousel-control-next, .carousel-indicators button');
+        if (carouselElement) {
+            e.stopPropagation();
+        }
+    });
+}
+
+// Initialize interactive carousels when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeInteractiveCarousels);
+} else {
+    initializeInteractiveCarousels();
+}
 </script>
 
 </body>
