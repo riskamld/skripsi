@@ -553,7 +553,7 @@ async function search(){
                         <span class="visually-hidden">Next</span>
                     </button>
                 </div>`;
-            } else if(p.foto_utama) {
+            } else if(p.foto_utama && p.foto_utama.trim() !== '') {
                 photoHtml = `<img src="${p.foto_utama}" class="card-img-top" loading="lazy">`;
             } else {
                 photoHtml = `<div class="card-img-top d-flex align-items-center justify-content-center bg-light text-muted" style="height: 160px;">
