@@ -8,11 +8,118 @@
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet">
+<link href="https://unpkg.com/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.css" rel="stylesheet">
 
 <style>
-#map { height: 420px; }
-.card-img-top { height:160px; object-fit:cover; }
-.card-body { min-height: 120px; }
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.container-fluid {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    margin: 20px auto;
+    max-width: 1400px;
+    padding: 20px;
+}
+
+#map {
+    height: 420px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.card-img-top {
+    height:160px;
+    object-fit:cover;
+    border-radius: 10px 10px 0 0;
+}
+
+.card-body {
+    min-height: 120px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, #007bff, #0056b3);
+    border: none;
+    border-radius: 25px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(45deg, #0056b3, #004085);
+    transform: scale(1.05);
+}
+
+.btn-success {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    border: none;
+    border-radius: 20px;
+    font-weight: bold;
+}
+
+.form-control {
+    border-radius: 25px;
+    border: 2px solid #ddd;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 10px rgba(0,123,255,0.3);
+}
+
+#count {
+    font-size: 1.2rem;
+    text-align: center;
+    padding: 10px;
+    background: rgba(0,123,255,0.1);
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+#driving-mode-btn {
+    position: absolute;
+    top: 10px;
+    right: 40px;
+    z-index: 1000;
+    background: white;
+    border: 2px solid #28a745;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+#driving-mode-btn:hover {
+    background: #f8f9fa;
+}
+
+#driving-mode-btn.active {
+    background: #28a745;
+    color: white;
+}
 </style>
 </head>
 
@@ -31,11 +138,14 @@
 
 <div id="map" class="mb-4"></div>
 
+<div id="count" class="mb-3 fw-bold text-primary"></div>
+
 <div id="result" class="row g-3"></div>
 
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.js"></script>
 
 <script>
 let map = L.map('map').setView([-8.1727,113.6995], 13); // Jember
@@ -48,9 +158,22 @@ let satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/service
     attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
 });
 
+let satelliteLabels = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Tiles &copy; Esri &mdash; Source: Esri',
+    opacity: 0.8
+});
+
+let placeLabels = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Tiles &copy; Esri &mdash; Source: Esri',
+    opacity: 0.9
+});
+
+let satelliteWithLabels = L.layerGroup([satellite, satelliteLabels, placeLabels]);
+
 let baseLayers = {
     "Normal": osm,
-    "Satellite": satellite
+    "Satellite": satellite,
+    "Satellite with Labels": satelliteWithLabels
 };
 
 L.control.layers(baseLayers).addTo(map);
@@ -59,6 +182,10 @@ L.control.layers(baseLayers).addTo(map);
 satellite.addTo(map);
 
 let markers = [];
+let currentLocationMarker = null;
+let drivingMode = false;
+let watchId = null;
+let searchInterval = null;
 
 function search(){
     let keyword = document.getElementById('keyword').value.trim();
@@ -71,7 +198,7 @@ function search(){
     fetch(url)
       .then(r=>r.json())
       .then(data=>{
-        document.getElementById('result').innerHTML = '';
+        document.getElementById('result').innerHTML = `<div class="col-12 mb-3"><div class="alert alert-info text-center fw-bold">Menampilkan ${data.length} hasil</div></div>`;
         markers.forEach(m=>map.removeLayer(m));
         markers=[];
 
@@ -87,6 +214,7 @@ function search(){
             let popupContent = `<b>${p.nama}</b><br>${p.ulasan} ulasan`;
             if(p.telepon) popupContent += `<br>📞 ${p.telepon}`;
             popupContent += `<br><a href="https://maps.google.com/maps?q=${p.lat},${p.lng}" target="_blank">🗺️ Navigasi</a>`;
+            popupContent += `<br><a href="https://www.google.com/maps/place/?q=place_id:${p.id}" target="_blank">⭐ Lihat Ulasan</a>`;
             let m = L.marker([p.lat,p.lng]).addTo(map)
                     .bindPopup(popupContent);
             markers.push(m);
@@ -106,11 +234,142 @@ function search(){
                 </div>
             </div>`;
         });
+
       });
 }
 
-// Auto search on map move
-map.on('moveend', search);
+// Add current location control
+let locateControl = L.control.locate({
+    position: 'topright',
+    strings: {
+        title: "Tampilkan lokasi saya"
+    },
+    locateOptions: {
+        enableHighAccuracy: true,
+        watch: true,
+        maximumAge: 10000,
+        timeout: 10000
+    },
+    onLocationError: function(err) {
+        alert("Tidak dapat mengakses lokasi: " + err.message);
+    }
+}).addTo(map);
+
+// Override locate control to handle driving mode
+locateControl._onLocationFound = function(e) {
+    if (this.options.drawCircle) {
+        var radius = e.accuracy / 2;
+        this._circle = L.circle(e.latlng, radius, this.options.circleStyle).addTo(this._map);
+    }
+
+    if (this._marker) {
+        this._map.removeLayer(this._marker);
+    }
+
+    this._marker = L.marker(e.latlng, this.options.markerStyle).addTo(this._map);
+    currentLocationMarker = this._marker;
+
+    if (this.options.drawMarker) {
+        this._marker = L.marker(e.latlng, this.options.markerStyle).addTo(this._map);
+    }
+
+    if (this.options.setView) {
+        if (drivingMode) {
+            this._map.setView(e.latlng, this._map.getZoom());
+        } else {
+            this._map.setView(e.latlng, this.options.keepCurrentZoomLevel ? this._map.getZoom() : this.options.initialZoomLevel);
+        }
+    }
+
+    this._eventData = e;
+    this.fire('locationfound', e);
+};
+
+// Add driving mode button
+const drivingModeBtn = document.createElement('div');
+drivingModeBtn.id = 'driving-mode-btn';
+drivingModeBtn.innerHTML = '🚗';
+drivingModeBtn.title = 'Mode Berkendara';
+drivingModeBtn.onclick = toggleDrivingMode;
+document.body.appendChild(drivingModeBtn);
+
+function toggleDrivingMode() {
+    drivingMode = !drivingMode;
+    const btn = document.getElementById('driving-mode-btn');
+
+    if (drivingMode) {
+        btn.classList.add('active');
+        btn.innerHTML = '🛑';
+        btn.title = 'Stop Mode Berkendara';
+
+        // Start continuous location tracking
+        if (navigator.geolocation) {
+            watchId = navigator.geolocation.watchPosition(function(position) {
+                const latlng = L.latLng(position.coords.latitude, position.coords.longitude);
+
+                // Update current location marker
+                if (currentLocationMarker) {
+                    map.removeLayer(currentLocationMarker);
+                }
+                currentLocationMarker = L.marker(latlng, {
+                    icon: L.divIcon({
+                        className: 'current-location-icon',
+                        html: '📍',
+                        iconSize: [30, 30],
+                        iconAnchor: [15, 30]
+                    })
+                }).addTo(map);
+
+                // Center map on current location
+                map.setView(latlng, map.getZoom());
+
+                // Search for places in current area
+                if (document.getElementById('keyword').value.trim()) {
+                    search();
+                }
+
+            }, function(error) {
+                console.error('GPS Error:', error);
+                alert('GPS Error: ' + error.message);
+            }, {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 5000
+            });
+        }
+
+        // Auto search every 30 seconds
+        searchInterval = setInterval(function() {
+            if (document.getElementById('keyword').value.trim()) {
+                search();
+            }
+        }, 30000);
+
+    } else {
+        btn.classList.remove('active');
+        btn.innerHTML = '🚗';
+        btn.title = 'Mode Berkendara';
+
+        // Stop location tracking
+        if (watchId) {
+            navigator.geolocation.clearWatch(watchId);
+            watchId = null;
+        }
+
+        // Stop auto search
+        if (searchInterval) {
+            clearInterval(searchInterval);
+            searchInterval = null;
+        }
+    }
+}
+
+// Auto search on map move (only when not in driving mode)
+map.on('moveend', function() {
+    if (!drivingMode) {
+        search();
+    }
+});
 </script>
 
 </body>

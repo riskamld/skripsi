@@ -25,7 +25,7 @@ curl_setopt_array($ch,[
   CURLOPT_HTTPHEADER=>[
     "Content-Type: application/json",
     "X-Goog-Api-Key: ".GOOGLE_API_KEY,
-    "X-Goog-FieldMask: places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.location,places.photos,places.nationalPhoneNumber"
+    "X-Goog-FieldMask: places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.location,places.photos,places.nationalPhoneNumber,places.id"
   ],
   CURLOPT_POSTFIELDS=>json_encode($body)
 ]);
@@ -49,7 +49,8 @@ foreach($res['places'] ?? [] as $p){
         "lat"=>$p['location']['latitude'],
         "lng"=>$p['location']['longitude'],
         "foto"=>$foto,
-        "telepon"=>$p['nationalPhoneNumber'] ?? ''
+        "telepon"=>$p['nationalPhoneNumber'] ?? '',
+        "id"=>$p['id']
     ];
 }
 
