@@ -214,6 +214,15 @@ body {
 .carousel-item {
     position: relative;
 }
+
+/* Weather info styling */
+.weather-info {
+    font-weight: 500;
+    color: #2c3e50;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
 </style>
 </head>
 
@@ -355,7 +364,75 @@ function getStarColor(rating) {
     return '#dc3545'; // Merah - poor
 }
 
-function search(){
+// Function to fetch weather data from Open-Meteo
+async function getWeatherData(lat, lng) {
+    try {
+        const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true&timezone=Asia/Jakarta`);
+        const data = await response.json();
+
+        if (data.current_weather) {
+            const weather = data.current_weather;
+            return {
+                temperature: Math.round(weather.temperature),
+                weathercode: weather.weathercode,
+                windspeed: Math.round(weather.windspeed),
+                condition: getWeatherCondition(weather.weathercode),
+                icon: getWeatherIcon(weather.weathercode)
+            };
+        }
+    } catch (error) {
+        console.error('Weather API error:', error);
+    }
+    return null;
+}
+
+// Function to get weather condition text from weathercode
+function getWeatherCondition(weathercode) {
+    const conditions = {
+        0: 'Cerah',
+        1: 'Sebagian Berawan',
+        2: 'Sebagian Berawan',
+        3: 'Berawan',
+        45: 'Berkabut',
+        48: 'Berkabut',
+        51: 'Gerimis Ringan',
+        53: 'Gerimis',
+        55: 'Gerimis Lebat',
+        56: 'Gerimis Beku',
+        57: 'Gerimis Beku Lebat',
+        61: 'Hujan Ringan',
+        63: 'Hujan',
+        65: 'Hujan Lebat',
+        66: 'Hujan Beku',
+        67: 'Hujan Beku Lebat',
+        71: 'Salju Ringan',
+        73: 'Salju',
+        75: 'Salju Lebat',
+        77: 'Butiran Salju',
+        80: 'Hujan Ringan',
+        81: 'Hujan',
+        82: 'Hujan Lebat',
+        85: 'Salju Ringan',
+        86: 'Salju Lebat',
+        95: 'Badai',
+        96: 'Badai dengan Hail',
+        99: 'Badai dengan Hail'
+    };
+    return conditions[weathercode] || 'Tidak diketahui';
+}
+
+// Function to get weather icon emoji
+function getWeatherIcon(weathercode) {
+    if (weathercode === 0) return '☀️'; // Clear sky
+    if (weathercode >= 1 && weathercode <= 3) return '⛅'; // Partly cloudy
+    if (weathercode >= 45 && weathercode <= 48) return '🌫️'; // Foggy
+    if (weathercode >= 51 && weathercode <= 67) return '🌦️'; // Rainy
+    if (weathercode >= 71 && weathercode <= 86) return '❄️'; // Snowy
+    if (weathercode >= 95) return '⛈️'; // Thunderstorm
+    return '🌤️'; // Default
+}
+
+async function search(){
     let keyword = document.getElementById('keyword').value.trim();
     if(!keyword) return; // Skip if no keyword
 
@@ -365,7 +442,7 @@ function search(){
 
     fetch(url)
       .then(r=>r.json())
-      .then(data=>{
+      .then(async data=>{
         document.getElementById('result').innerHTML = `<div class="col-12 mb-3"><div class="alert alert-info text-center fw-bold">Menampilkan ${data.length} hasil</div></div>`;
 
         // Remove all markers except the selected one
@@ -378,7 +455,11 @@ function search(){
         // Filter out non-selected markers from the array
         markers = markers.filter(m => m === selectedMarker);
 
-        data.forEach(p=>{
+        // Process places with weather data
+        const placePromises = data.map(async (p) => {
+            // Fetch weather data for this location
+            const weatherData = await getWeatherData(p.lat, p.lng);
+
             // WA LINK
             let wa = '';
             if(p.telepon){
@@ -412,6 +493,14 @@ function search(){
             let m = L.marker([p.lat,p.lng], {icon: markerIcon}).addTo(map)
                     .bindPopup(popupContent);
             markers.push(m);
+
+            return { ...p, weatherData };
+        });
+
+        // Wait for all weather data to be fetched
+        const placesWithWeather = await Promise.all(placePromises);
+
+        placesWithWeather.forEach(p=>{
 
             // CARD with new fields
             let contactBtns = '';
@@ -467,6 +556,36 @@ function search(){
                 photoHtml = `<img src="${p.foto_utama}" class="card-img-top" loading="lazy">`;
             }
 
+            // Format additional info - simplified opening hours
+            let openingHoursInfo = '';
+            if (p.status_buka && p.status_buka !== 'Tidak diketahui') {
+                const statusColor = p.status_buka === 'Buka' ? 'text-success' : 'text-danger';
+                openingHoursInfo = `<span class="${statusColor}">🕐 ${p.status_buka}</span>`;
+                if (p.jam_buka_text) {
+                    openingHoursInfo += ` hari ini: ${p.jam_buka_text}`;
+                }
+            }
+
+            let weatherInfo = '';
+            if (p.weatherData) {
+                weatherInfo = `<span class="weather-info">${p.weatherData.icon} ${p.weatherData.temperature}°C, ${p.weatherData.condition}</span>`;
+            }
+
+            let parkingInfo = '';
+            if (p.ada_parkir) {
+                parkingInfo = '<span class="text-success">🅿️ Parkir tersedia</span>';
+            }
+
+            let priceInfo = '';
+            if (p.harga_level) {
+                priceInfo = `<span class="badge bg-warning">${p.harga_level}</span>`;
+            }
+
+            let websiteInfo = '';
+            if (p.website) {
+                websiteInfo = `<a href="${p.website}" target="_blank" class="badge bg-primary">🌐 Website</a>`;
+            }
+
             let cardId = `card-${markers.length - 1}`;
             document.getElementById('result').innerHTML += `
             <div class="col-lg-3 col-md-4 col-sm-6">
@@ -479,9 +598,16 @@ function search(){
                         </svg>${p.rating} (${p.ulasan})<br>
                         <small>${p.alamat}</small><br>
                         <small class="text-muted">ID: ${p.id}</small><br>
+                        <div class="mb-1">
+                            ${openingHoursInfo ? openingHoursInfo + '<br>' : ''}
+                            ${weatherInfo ? weatherInfo + '<br>' : ''}
+                            ${parkingInfo ? parkingInfo + '<br>' : ''}
+                        </div>
                         <div class="mb-2">
                             <span class="${statusInfo.class} me-1">${statusInfo.text}</span>
                             ${categoryInfo ? `<span class="badge bg-info">${categoryInfo}</span>` : ''}
+                            ${priceInfo ? priceInfo : ''}
+                            ${websiteInfo ? websiteInfo : ''}
                         </div>
                         ${contactBtns}
                     </div>
