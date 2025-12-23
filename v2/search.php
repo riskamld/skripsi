@@ -41,6 +41,14 @@ foreach($res['places'] ?? [] as $p){
         $foto = "https://places.googleapis.com/v1/".$p['photos'][0]['name']."/media?maxWidthPx=400&key=".GOOGLE_API_KEY;
     }
 
+        // Get multiple photos if available
+    $fotos = [];
+    if(!empty($p['photos'])){
+        foreach(array_slice($p['photos'], 0, 5) as $photo){ // Limit to 5 photos
+            $fotos[] = "https://places.googleapis.com/v1/".$photo['name']."/media?maxWidthPx=400&key=".GOOGLE_API_KEY;
+        }
+    }
+
     $hasil[]=[
         "nama"=>$p['displayName']['text'],
         "alamat"=>$p['formattedAddress'] ?? '',
@@ -48,7 +56,8 @@ foreach($res['places'] ?? [] as $p){
         "ulasan"=>$p['userRatingCount'] ?? 0,
         "lat"=>$p['location']['latitude'],
         "lng"=>$p['location']['longitude'],
-        "foto"=>$foto,
+        "foto_utama"=>$foto,
+        "fotos"=>$fotos,
         "telepon"=>$p['nationalPhoneNumber'] ?? '',
         "id"=>$p['id'],
         "status_bisnis"=>$p['businessStatus'] ?? 'UNKNOWN',

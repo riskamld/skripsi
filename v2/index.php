@@ -195,6 +195,25 @@ body {
 .card-rating-poor {
     border-left: 4px solid #dc3545 !important; /* Merah - buruk */
 }
+
+/* Photo counter styling */
+.photo-counter {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    z-index: 10;
+}
+
+/* Carousel positioning for counter */
+.carousel-item {
+    position: relative;
+}
 </style>
 </head>
 
@@ -417,11 +436,42 @@ function search(){
             const cardRatingClass = getCardClass(p.rating);
             const starColor = getStarColor(p.rating);
 
+            // Create photo display with carousel if multiple photos
+            let photoHtml = '';
+            if(p.fotos && p.fotos.length > 1) {
+                const carouselId = `carousel-${Date.now()}-${markers.length}`;
+                photoHtml = `<div id="${carouselId}" class="carousel slide interactive-carousel" data-bs-ride="carousel" data-bs-interval="3000">
+                    <div class="carousel-indicators">`;
+                p.fotos.forEach((foto, index) => {
+                    photoHtml += `<button type="button" data-bs-target="#${carouselId}" data-bs-slide-to="${index}" class="${index === 0 ? 'active' : ''}" aria-current="${index === 0 ? 'true' : 'false'}" aria-label="Foto ${index + 1}"></button>`;
+                });
+                photoHtml += `</div>
+                    <div class="carousel-inner">`;
+                p.fotos.forEach((foto, index) => {
+                    photoHtml += `<div class="carousel-item ${index === 0 ? 'active' : ''}">
+                        <img src="${foto}" class="d-block w-100" style="height: 160px; object-fit: cover;" alt="Foto ${index + 1}" loading="lazy">
+                        <div class="photo-counter">${index + 1} / ${p.fotos.length}</div>
+                    </div>`;
+                });
+                photoHtml += `</div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#${carouselId}" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#${carouselId}" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>`;
+            } else {
+                photoHtml = `<img src="${p.foto_utama}" class="card-img-top" loading="lazy">`;
+            }
+
             let cardId = `card-${markers.length - 1}`;
             document.getElementById('result').innerHTML += `
             <div class="col-lg-3 col-md-4 col-sm-6">
                 <div class="card h-100 shadow-sm result-card ${cardRatingClass}" id="${cardId}" data-lat="${p.lat}" data-lng="${p.lng}" data-marker-index="${markers.length - 1}">
-                    <img src="${p.foto}" class="card-img-top">
+                    ${photoHtml}
                     <div class="card-body">
                         <b>${p.nama}</b><br>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="${starColor}" style="display: inline-block; margin-right: 4px;">
