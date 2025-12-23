@@ -86,6 +86,7 @@ function search(){
             // MARKER
             let popupContent = `<b>${p.nama}</b><br>${p.ulasan} ulasan`;
             if(p.telepon) popupContent += `<br>📞 ${p.telepon}`;
+            popupContent += `<br><a href="https://maps.google.com/maps?q=${p.lat},${p.lng}" target="_blank">🗺️ Navigasi</a>`;
             let m = L.marker([p.lat,p.lng]).addTo(map)
                     .bindPopup(popupContent);
             markers.push(m);
