@@ -9,6 +9,7 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet">
 <link href="https://unpkg.com/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
 
 <style>
 body {
@@ -289,7 +290,7 @@ body.fullscreen-map {
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.js"></script>
 <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+
 
 <script>
 let map = L.map('map').setView([-8.1727,113.6995], 13); // Jember
@@ -321,7 +322,9 @@ let baseLayers = {
 
 L.control.layers(baseLayers).addTo(map);
 
-// Add geocoder control for search functionality
+
+
+// Add geocoder control for address/place search
 L.Control.geocoder({
     defaultMarkGeocode: false,
     position: 'topleft',
@@ -643,9 +646,25 @@ async function search(){
 
     let url = `search.php?keyword=${encodeURIComponent(keyword)}&nelat=${b.getNorth()}&nelng=${b.getEast()}&swlat=${b.getSouth()}&swlng=${b.getWest()}`;
 
-    fetch(url)
-      .then(r=>r.json())
+    console.log('Starting search for:', keyword);
+    console.log('Search URL:', url);
+
+    // Add timeout to the fetch request
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+
+    fetch(url, { signal: controller.signal })
+      .then(r => {
+        clearTimeout(timeoutId);
+        console.log('Fetch response status:', r.status);
+        if (!r.ok) {
+          throw new Error('Network response was not ok: ' + r.status);
+        }
+        return r.json();
+      })
       .then(async data=>{
+        console.log('Received data:', data);
+        console.log('Number of places:', data.length);
 
         // Get current user location for distance calculation
         let userLocation = null;
@@ -681,70 +700,78 @@ async function search(){
         });
 
         // Process places with weather and distance data
-        const placePromises = data.map(async (p) => {
-            // Fetch weather data for this location
-            const weatherData = await getWeatherData(p.lat, p.lng);
+        const placesWithWeather = [];
+        for (const p of data) {
+            try {
+                // Fetch weather data for this location (with timeout)
+                const weatherPromise = getWeatherData(p.lat, p.lng);
+                const weatherTimeout = new Promise((resolve) => {
+                    setTimeout(() => resolve(null), 3000); // 3 second timeout for weather
+                });
+                const weatherData = await Promise.race([weatherPromise, weatherTimeout]);
 
-            // Calculate distance and time if user location is available
-            let distanceInfo = null;
-            if (userLocation) {
-                const distance = calculateDistance(userLocation.lat, userLocation.lng, p.lat, p.lng);
-                const travelTimes = estimateTravelTime(distance);
-                distanceInfo = {
-                    distance: distance,
-                    times: travelTimes,
-                    formatted: formatDistanceTime(distance, travelTimes)
-                };
+                // Calculate distance and time if user location is available
+                let distanceInfo = null;
+                if (userLocation) {
+                    const distance = calculateDistance(userLocation.lat, userLocation.lng, p.lat, p.lng);
+                    const travelTimes = estimateTravelTime(distance);
+                    distanceInfo = {
+                        distance: distance,
+                        times: travelTimes,
+                        formatted: formatDistanceTime(distance, travelTimes)
+                    };
+                }
+
+                // WA LINK
+                let wa = '';
+                if(p.telepon){
+                    let no = p.telepon.replace(/\D/g, '').replace(/^0+/, '');
+                    wa = `https://wa.me/62${no}`;
+                }
+
+                // Format review count and get badge color
+                const formattedReviews = formatReviewCount(p.ulasan);
+                const badgeSize = getBadgeSize(formattedReviews);
+                const badgeColor = getBadgeColor(p.ulasan);
+
+                // MARKER with review badge
+                let popupContent = `<b>${p.nama}</b><br>${p.ulasan} ulasan`;
+                if(p.telepon) popupContent += `<br>📞 ${p.telepon}`;
+
+                // Add crowd level to popup
+                const crowdInfo = formatCrowdLevel(p.crowd_level);
+                if (crowdInfo) {
+                    popupContent += `<br>👥 Keramaian: ${crowdInfo.fullText}`;
+                }
+
+                popupContent += `<br><a href="https://maps.google.com/maps?q=${p.lat},${p.lng}" target="_blank">🗺️ Navigasi</a>`;
+                popupContent += `<br><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.nama)}&query_place_id=${p.id}" target="_blank">⭐ Lihat Ulasan</a>`;
+
+                // Create marker with review badge
+                let markerIcon = L.divIcon({
+                    className: 'custom-marker',
+                    html: `<div class="marker-container">
+                              <div class="marker-icon">🎯</div>
+                              <div class="review-badge" style="width: ${badgeSize.width}px; height: ${badgeSize.height}px; font-size: ${badgeSize.fontSize}px; background-color: ${badgeColor};">${formattedReviews}</div>
+                           </div>`,
+                    iconSize: [25, 25],
+                    iconAnchor: [12, 25],
+                    popupAnchor: [0, -25]
+                });
+
+                let m = L.marker([p.lat,p.lng], {icon: markerIcon}).addTo(map)
+                        .bindPopup(popupContent);
+                markers.push(m);
+                markersById.set(p.id, m); // Store marker by place ID
+                console.log(`Created marker for ${p.nama} (ID: ${p.id}) at:`, p.lat, p.lng);
+
+                placesWithWeather.push({ ...p, weatherData, distanceInfo });
+            } catch (error) {
+                console.error('Failed to process place:', p.nama, error);
+                // Still add the place without weather data
+                placesWithWeather.push({ ...p, weatherData: null, distanceInfo: null });
             }
-
-            // WA LINK
-            let wa = '';
-            if(p.telepon){
-                let no = p.telepon.replace(/\D/g, '').replace(/^0+/, '');
-                wa = `https://wa.me/62${no}`;
-            }
-
-            // Format review count and get badge color
-            const formattedReviews = formatReviewCount(p.ulasan);
-            const badgeSize = getBadgeSize(formattedReviews);
-            const badgeColor = getBadgeColor(p.ulasan);
-
-            // MARKER with review badge
-            let popupContent = `<b>${p.nama}</b><br>${p.ulasan} ulasan`;
-            if(p.telepon) popupContent += `<br>📞 ${p.telepon}`;
-
-            // Add crowd level to popup
-            const crowdInfo = formatCrowdLevel(p.crowd_level);
-            if (crowdInfo) {
-                popupContent += `<br>👥 Keramaian: ${crowdInfo.fullText}`;
-            }
-
-            popupContent += `<br><a href="https://maps.google.com/maps?q=${p.lat},${p.lng}" target="_blank">🗺️ Navigasi</a>`;
-            popupContent += `<br><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.nama)}&query_place_id=${p.id}" target="_blank">⭐ Lihat Ulasan</a>`;
-
-            // Create marker with review badge
-            let markerIcon = L.divIcon({
-                className: 'custom-marker',
-                html: `<div class="marker-container">
-                          <div class="marker-icon">🎯</div>
-                          <div class="review-badge" style="width: ${badgeSize.width}px; height: ${badgeSize.height}px; font-size: ${badgeSize.fontSize}px; background-color: ${badgeColor};">${formattedReviews}</div>
-                       </div>`,
-                iconSize: [25, 25],
-                iconAnchor: [12, 25],
-                popupAnchor: [0, -25]
-            });
-
-            let m = L.marker([p.lat,p.lng], {icon: markerIcon}).addTo(map)
-                    .bindPopup(popupContent);
-            markers.push(m);
-            markersById.set(p.id, m); // Store marker by place ID
-            console.log(`Created marker for ${p.nama} (ID: ${p.id}) at:`, p.lat, p.lng);
-
-            return { ...p, weatherData, distanceInfo };
-        });
-
-        // Wait for all weather data to be fetched
-        const placesWithWeather = await Promise.all(placePromises);
+        }
 
         placesWithWeather.forEach((p, index)=>{
 
@@ -882,6 +909,14 @@ async function search(){
             </div>`;
         });
 
+      })
+      .catch(error => {
+        console.error('Search error:', error);
+        if (error.name === 'AbortError') {
+          document.getElementById('result').innerHTML = `<div class="col-12 mb-3"><div class="alert alert-warning text-center">Pencarian timeout. Coba lagi.</div></div>`;
+        } else {
+          document.getElementById('result').innerHTML = `<div class="col-12 mb-3"><div class="alert alert-danger text-center">Terjadi kesalahan: ${error.message}</div></div>`;
+        }
       });
 }
 
