@@ -1,3 +1,0 @@
-<?php
-// SIMPAN API KEY DI FILE TERPISAH
-define('GOOGLE_API_KEY', 'AIzaSyDiv_tUGv01Lhb8R6dy1LshZhQTLlEsNiA');

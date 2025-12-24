@@ -250,6 +250,8 @@ body {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.js"></script>
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
 
 <script>
 let map = L.map('map').setView([-8.1727,113.6995], 13); // Jember
@@ -281,6 +283,66 @@ let baseLayers = {
 };
 
 L.control.layers(baseLayers).addTo(map);
+
+// Add geocoder control for search functionality
+L.Control.geocoder({
+    defaultMarkGeocode: false,
+    position: 'topleft',
+    placeholder: 'Cari alamat, tempat, atau koordinat...'
+}).on('markgeocode', function(e) {
+    // When a search result is selected, zoom to that location
+    const bbox = e.geocode.bbox;
+    const poly = L.polygon([
+        bbox.getSouthEast(),
+        bbox.getNorthEast(),
+        bbox.getNorthWest(),
+        bbox.getSouthWest()
+    ]);
+    map.fitBounds(poly.getBounds());
+
+    // Add a marker at the result location
+    L.marker(e.geocode.center, {
+        icon: L.icon({
+            iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+            shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34]
+        })
+    }).addTo(map)
+    .bindPopup(`<strong>${e.geocode.name}</strong><br>${e.geocode.html || ''}`)
+    .openPopup();
+}).addTo(map);
+
+// Add reverse geocoding on map click
+map.on('click', function(e) {
+    // Only do reverse geocoding if not clicking on existing markers
+    const clickedOnMarker = e.originalEvent.target.closest('.leaflet-marker-icon');
+    if (!clickedOnMarker) {
+        // Use Nominatim for reverse geocoding (free)
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${e.latlng.lat}&lon=${e.latlng.lng}&zoom=18&addressdetails=1`)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.display_name) {
+                    // Show popup with address
+                    L.popup()
+                        .setLatLng(e.latlng)
+                        .setContent(`
+                            <div style="max-width: 200px;">
+                                <strong>📍 Lokasi:</strong><br>
+                                ${data.display_name}<br><br>
+                                <strong>📌 Koordinat:</strong><br>
+                                ${e.latlng.lat.toFixed(6)}, ${e.latlng.lng.toFixed(6)}
+                            </div>
+                        `)
+                        .openOn(map);
+                }
+            })
+            .catch(error => {
+                console.error('Reverse geocoding error:', error);
+            });
+    }
+});
 
 // Default to Satellite
 satellite.addTo(map);
