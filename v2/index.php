@@ -432,11 +432,13 @@ map.addControl(new FullScreenControl());
 hybrid.addTo(map);
 
 let markers = [];
+let markersById = new Map(); // Store markers by place ID for reliable lookup
 let currentLocationMarker = null;
 let drivingMode = false;
 let watchId = null;
 let searchInterval = null;
 let selectedMarker = null;
+let isCardClick = false; // Flag to prevent auto search on card click
 
 // Function to format business status
 function formatBusinessStatus(status) {
@@ -666,15 +668,17 @@ async function search(){
         }
         document.getElementById('result').innerHTML = `<div class="col-12 mb-3"><div class="alert alert-info text-center fw-bold">Menampilkan ${data.length} hasil</div></div>`;
 
-        // Remove all markers except the selected one
+        // Remove all markers and clear selection for fresh search
         markers.forEach(m => {
-            if (m !== selectedMarker) {
-                map.removeLayer(m);
-            }
+            map.removeLayer(m);
         });
+        markers = [];
+        selectedMarker = null;
 
-        // Filter out non-selected markers from the array
-        markers = markers.filter(m => m === selectedMarker);
+        // Clear card selections
+        document.querySelectorAll('.result-card').forEach(c => {
+            c.classList.remove('selected');
+        });
 
         // Process places with weather and distance data
         const placePromises = data.map(async (p) => {
@@ -733,6 +737,8 @@ async function search(){
             let m = L.marker([p.lat,p.lng], {icon: markerIcon}).addTo(map)
                     .bindPopup(popupContent);
             markers.push(m);
+            markersById.set(p.id, m); // Store marker by place ID
+            console.log(`Created marker for ${p.nama} (ID: ${p.id}) at:`, p.lat, p.lng);
 
             return { ...p, weatherData, distanceInfo };
         });
@@ -740,7 +746,7 @@ async function search(){
         // Wait for all weather data to be fetched
         const placesWithWeather = await Promise.all(placePromises);
 
-        placesWithWeather.forEach(p=>{
+        placesWithWeather.forEach((p, index)=>{
 
             // CARD with new fields
             let contactBtns = '';
@@ -842,10 +848,10 @@ async function search(){
                 websiteInfo = `<a href="${p.website}" target="_blank" class="badge bg-primary">🌐 Website</a>`;
             }
 
-            let cardId = `card-${markers.length - 1}`;
+            let cardId = `card-${index}`;
             document.getElementById('result').innerHTML += `
             <div class="col-lg-3 col-md-4 col-sm-6">
-                <div class="card h-100 shadow-sm result-card ${cardRatingClass}" id="${cardId}" data-lat="${p.lat}" data-lng="${p.lng}" data-marker-index="${markers.length - 1}">
+                <div class="card h-100 shadow-sm result-card ${cardRatingClass}" id="${cardId}" data-lat="${p.lat}" data-lng="${p.lng}" data-place-id="${p.id}" data-marker-index="${index}">
                     ${photoHtml}
                     <div class="card-body">
                         <b>${p.nama}</b><br>
@@ -1013,7 +1019,7 @@ document.addEventListener('click', function(e) {
 
     if (e.target.closest('.result-card')) {
         const card = e.target.closest('.result-card');
-        const markerIndex = parseInt(card.dataset.markerIndex);
+        const placeId = card.dataset.placeId;
 
         // Reset previously selected marker
         if (selectedMarker) {
@@ -1027,9 +1033,10 @@ document.addEventListener('click', function(e) {
             }));
         }
 
-        // Set new selected marker
-        if (markers[markerIndex]) {
-            const marker = markers[markerIndex];
+        // Set new selected marker using place ID
+        const marker = markersById.get(placeId);
+        if (marker) {
+            console.log(`Card for place ${placeId} clicked - Marker at:`, marker.getLatLng());
             selectedMarker = marker;
 
             // Create selected marker icon (different color/size)
@@ -1043,8 +1050,13 @@ document.addEventListener('click', function(e) {
 
             marker.setIcon(selectedIcon);
 
-            // Pan and zoom to the marker
+            // Set flag to prevent auto search, then pan and zoom to the marker
+            isCardClick = true;
             map.setView(marker.getLatLng(), 16);
+            // Reset flag after a short delay
+            setTimeout(() => {
+                isCardClick = false;
+            }, 500);
 
             // Open popup
             marker.openPopup();
@@ -1070,9 +1082,9 @@ map.on('mouseout', function(e) {
     document.body.style.cursor = '';
 });
 
-// Auto search on map move (only when not in driving mode)
+// Auto search on map move (only when not in driving mode and not from card click)
 map.on('moveend', function() {
-    if (!drivingMode) {
+    if (!drivingMode && !isCardClick) {
         search();
     }
 });

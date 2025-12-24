@@ -94,26 +94,26 @@ foreach($res['places'] ?? [] as $p){
         $ada_parkir = true;
     }
 
-    $hasil[]=[
-        "nama"=>$p['displayName']['text'],
-        "alamat"=>$p['formattedAddress'] ?? '',
-        "rating"=>$p['rating'] ?? 0,
-        "ulasan"=>$p['userRatingCount'] ?? 0,
-        "lat"=>$p['location']['latitude'],
-        "lng"=>$p['location']['longitude'],
-        "foto_utama"=>$foto,
-        "fotos"=>$fotos,
-        "telepon"=>$p['nationalPhoneNumber'] ?? '',
-        "id"=>$p['id'],
-        "status_bisnis"=>$p['businessStatus'] ?? 'UNKNOWN',
-        "kategori_utama"=>$p['primaryTypeDisplayName']['text'] ?? '',
-        "kategori_type"=>$p['types'] ?? [],
-        "status_buka"=>$status_buka,
-        "jam_buka_text"=>$jam_buka_text,
-        "harga_level"=>$harga_level,
-        "ada_parkir"=>$ada_parkir,
-        "website"=>$p['websiteUri'] ?? ''
-    ];
+$hasil[]=[
+    "nama"=>$p['displayName']['text'],
+    "alamat"=>$p['formattedAddress'] ?? '',
+    "rating"=>$p['rating'] ?? 0,
+    "ulasan"=>$p['userRatingCount'] ?? 0,
+    "lat"=>$p['location']['latitude'],
+    "lng"=>$p['location']['longitude'],
+    "foto_utama"=>$foto,
+    "fotos"=>$fotos,
+    "telepon"=>$p['nationalPhoneNumber'] ?? '',
+    "id"=>$p['id'],
+    "status_bisnis"=>$p['businessStatus'] ?? 'UNKNOWN',
+    "kategori_utama"=>$p['primaryTypeDisplayName']['text'] ?? '',
+    "kategori_type"=>$p['types'] ?? [],
+    "status_buka"=>$status_buka,
+    "jam_buka_text"=>$jam_buka_text,
+    "harga_level"=>$harga_level,
+    "ada_parkir"=>$ada_parkir,
+    "website"=>$p['websiteUri'] ?? ''
+];
 }
 
 // Function to determine crowd level based on time and place type
