@@ -412,7 +412,7 @@ const FullScreenControl = L.Control.extend({
     onAdd: function(map) {
         const container = L.DomUtil.create('div', 'leaflet-control-fullscreen leaflet-bar leaflet-control');
         const link = L.DomUtil.create('a', 'leaflet-control-fullscreen-button leaflet-bar-part', container);
-        link.innerHTML = '⛶';
+        link.innerHTML = '⌞ ⌝';
         link.href = '#';
         link.title = 'Full Screen';
 
