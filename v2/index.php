@@ -1010,8 +1010,8 @@ function toggleDrivingMode() {
             }).openTooltip();
         });
 
-        // Disable locate control to prevent conflicts
-        locateControl.stop();
+        // Keep locate control active for current location marker
+        // Note: locate control will show blue current location marker
 
         // Start continuous location tracking
         if (navigator.geolocation) {
