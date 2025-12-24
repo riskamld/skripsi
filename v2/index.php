@@ -511,6 +511,19 @@ function getStarColor(rating) {
     return '#dc3545'; // Merah - poor
 }
 
+// Function to format crowd level display
+function formatCrowdLevel(crowdLevel) {
+    switch(crowdLevel) {
+        case 'sepi':
+            return { text: 'Sepi', emoji: '🟢', class: 'badge bg-success', fullText: '🟢 Sepi' };
+        case 'ramai':
+            return { text: 'Ramai', emoji: '🟠', class: 'badge bg-warning', fullText: '🟠 Ramai' };
+        case 'normal':
+        default:
+            return { text: 'Normal', emoji: '🟡', class: 'badge bg-secondary', fullText: '🟡 Normal' };
+    }
+}
+
 // Function to fetch weather data from Open-Meteo
 async function getWeatherData(lat, lng) {
     try {
@@ -695,6 +708,13 @@ async function search(){
             // MARKER with review badge
             let popupContent = `<b>${p.nama}</b><br>${p.ulasan} ulasan`;
             if(p.telepon) popupContent += `<br>📞 ${p.telepon}`;
+
+            // Add crowd level to popup
+            const crowdInfo = formatCrowdLevel(p.crowd_level);
+            if (crowdInfo) {
+                popupContent += `<br>👥 Keramaian: ${crowdInfo.fullText}`;
+            }
+
             popupContent += `<br><a href="https://maps.google.com/maps?q=${p.lat},${p.lng}" target="_blank">🗺️ Navigasi</a>`;
             popupContent += `<br><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.nama)}&query_place_id=${p.id}" target="_blank">⭐ Lihat Ulasan</a>`;
 
@@ -839,6 +859,10 @@ async function search(){
                         <div class="mb-1">
                             ${openingHoursInfo ? openingHoursInfo + '<br>' : ''}
                             ${parkingInfo ? parkingInfo + '<br>' : ''}
+                            ${(() => {
+                                const crowdInfo = formatCrowdLevel(p.crowd_level);
+                                return crowdInfo ? `<span class="${crowdInfo.class}">${crowdInfo.fullText}</span><br>` : '';
+                            })()}
                         </div>
                         <div class="mb-2">
                             <span class="${statusInfo.class} me-1">${statusInfo.text}</span>

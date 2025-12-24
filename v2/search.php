@@ -116,6 +116,97 @@ foreach($res['places'] ?? [] as $p){
     ];
 }
 
+// Function to determine crowd level based on time and place type
+function getCrowdLevel($placeTypes, $currentHour, $dayOfWeek) {
+    // Convert to lowercase for easier matching
+    $types = array_map('strtolower', $placeTypes);
+
+    // Weekend check
+    $isWeekend = in_array($dayOfWeek, [0, 6]); // 0 = Sunday, 6 = Saturday
+
+    // Default crowd level
+    $crowdLevel = 'normal';
+
+    // Restaurant/Makanan logic
+    if (in_array('restaurant', $types) || in_array('food', $types) || in_array('cafe', $types)) {
+        if (($currentHour >= 11 && $currentHour <= 14) || ($currentHour >= 18 && $currentHour <= 21)) {
+            $crowdLevel = 'ramai'; // Lunch and dinner hours
+        } elseif ($currentHour >= 6 && $currentHour <= 10) {
+            $crowdLevel = 'sepi'; // Early morning
+        }
+    }
+
+    // Store/Toko logic
+    elseif (in_array('store', $types) || in_array('shopping_mall', $types) || in_array('department_store', $types)) {
+        if ($isWeekend && $currentHour >= 10 && $currentHour <= 17) {
+            $crowdLevel = 'ramai'; // Weekend shopping hours
+        } elseif ($currentHour >= 9 && $currentHour <= 11) {
+            $crowdLevel = 'ramai'; // Morning shopping
+        } elseif ($currentHour >= 22 || $currentHour <= 6) {
+            $crowdLevel = 'sepi'; // Late night/early morning
+        }
+    }
+
+    // Gas station logic
+    elseif (in_array('gas_station', $types)) {
+        if ($currentHour >= 6 && $currentHour <= 9) {
+            $crowdLevel = 'ramai'; // Morning commute
+        } elseif ($currentHour >= 16 && $currentHour <= 19) {
+            $crowdLevel = 'ramai'; // Evening commute
+        }
+    }
+
+    // Bank/ATM logic
+    elseif (in_array('bank', $types) || in_array('atm', $types)) {
+        if ($currentHour >= 8 && $currentHour <= 10) {
+            $crowdLevel = 'ramai'; // Banking hours morning
+        } elseif ($currentHour >= 15 && $currentHour <= 17) {
+            $crowdLevel = 'ramai'; // Banking hours afternoon
+        } elseif (!$isWeekend && ($currentHour < 8 || $currentHour > 17)) {
+            $crowdLevel = 'sepi'; // Outside banking hours on weekdays
+        }
+    }
+
+    // Hospital/Medical logic
+    elseif (in_array('hospital', $types) || in_array('pharmacy', $types) || in_array('doctor', $types)) {
+        if ($currentHour >= 8 && $currentHour <= 11) {
+            $crowdLevel = 'ramai'; // Morning consultation hours
+        } elseif ($currentHour >= 13 && $currentHour <= 16) {
+            $crowdLevel = 'ramai'; // Afternoon consultation hours
+        } elseif ($currentHour >= 22 || $currentHour <= 5) {
+            $crowdLevel = 'sepi'; // Late night hours
+        }
+    }
+
+    // General logic for other places
+    else {
+        if ($isWeekend) {
+            if ($currentHour >= 10 && $currentHour <= 17) {
+                $crowdLevel = 'ramai'; // Weekend daytime
+            }
+        } else {
+            if ($currentHour >= 7 && $currentHour <= 9) {
+                $crowdLevel = 'ramai'; // Morning commute
+            } elseif ($currentHour >= 17 && $currentHour <= 19) {
+                $crowdLevel = 'ramai'; // Evening commute
+            } elseif ($currentHour >= 22 || $currentHour <= 6) {
+                $crowdLevel = 'sepi'; // Late night/early morning
+            }
+        }
+    }
+
+    return $crowdLevel;
+}
+
+// Get current time for crowd calculation
+$currentHour = (int) date('H'); // 0-23
+$currentDayOfWeek = (int) date('w'); // 0=Sunday, 1=Monday, etc.
+
+// Add crowd level to each place
+foreach($hasil as &$place) {
+    $place['crowd_level'] = getCrowdLevel($place['kategori_type'], $currentHour, $currentDayOfWeek);
+}
+
 // 🔥 SORT BERDASARKAN ULASAN TERBANYAK
 usort($hasil, fn($a,$b)=>$b['ulasan']<=>$a['ulasan']);
 
