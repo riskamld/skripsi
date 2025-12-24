@@ -298,10 +298,6 @@ let osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: 'Mafaza Fortuna'
 });
 
-let satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-    attribution: 'Mafaza Fortuna'
-});
-
 let satelliteLabels = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}', {
     attribution: 'Mafaza Fortuna',
     opacity: 0.8
@@ -312,12 +308,15 @@ let placeLabels = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/servi
     opacity: 0.9
 });
 
-let satelliteWithLabels = L.layerGroup([satellite, satelliteLabels, placeLabels]);
+let satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Mafaza Fortuna'
+});
+
+let hybrid = L.layerGroup([satellite, satelliteLabels, placeLabels]);
 
 let baseLayers = {
     "Normal": osm,
-    "Satellite": satellite,
-    "Satellite with Labels": satelliteWithLabels
+    "Hybrid": hybrid
 };
 
 L.control.layers(baseLayers).addTo(map);
@@ -429,8 +428,8 @@ const FullScreenControl = L.Control.extend({
 map.addControl(new DrivingModeControl());
 map.addControl(new FullScreenControl());
 
-// Default to Satellite
-satellite.addTo(map);
+// Default to Hybrid (satellite with labels)
+hybrid.addTo(map);
 
 let markers = [];
 let currentLocationMarker = null;
