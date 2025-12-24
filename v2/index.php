@@ -1040,8 +1040,8 @@ function toggleDrivingMode() {
                         map.setView(latlng, map.getZoom());
                     }
 
-                    // Search for places in current area (every GPS update)
-                    if (document.getElementById('keyword').value.trim()) {
+                    // Only search if keyword exists and user has moved significantly
+                    if (document.getElementById('keyword').value.trim() && distance > 50) {
                         search();
                     }
 
@@ -1089,9 +1089,9 @@ function toggleDrivingMode() {
             searchInterval = null;
         }
 
-        // Re-enable locate control
+        // Stop locate control to prevent unwanted map movements
         if (locateControl) {
-            locateControl.start();
+            locateControl.stop();
         }
     }
 }
@@ -1169,9 +1169,19 @@ map.on('mouseout', function(e) {
 });
 
 // Auto search on map move (only when not in driving mode and not from card click)
+let lastSearchBounds = null;
 map.on('moveend', function() {
-    if (!drivingMode && !isCardClick) {
-        search();
+    if (!drivingMode && !isCardClick && document.getElementById('keyword').value.trim()) {
+        const currentBounds = map.getBounds();
+        // Only search if bounds have changed significantly or this is the first search
+        if (!lastSearchBounds ||
+            Math.abs(currentBounds.getNorth() - lastSearchBounds.getNorth()) > 0.01 ||
+            Math.abs(currentBounds.getEast() - lastSearchBounds.getEast()) > 0.01 ||
+            Math.abs(currentBounds.getSouth() - lastSearchBounds.getSouth()) > 0.01 ||
+            Math.abs(currentBounds.getWest() - lastSearchBounds.getWest()) > 0.01) {
+            lastSearchBounds = currentBounds;
+            search();
+        }
     }
 });
 
