@@ -515,7 +515,7 @@ function getStarColor(rating) {
 function formatCrowdLevel(crowdLevel) {
     switch(crowdLevel) {
         case 'sepi':
-            return { text: 'Sepi', emoji: '🟢', class: 'badge bg-success', fullText: '🟢 Sepi' };
+            return { text: 'Sepi', emoji: '🟢', class: 'badge bg-info', fullText: '🟢 Sepi' };
         case 'ramai':
             return { text: 'Ramai', emoji: '🟠', class: 'badge bg-warning', fullText: '🟠 Ramai' };
         case 'normal':
