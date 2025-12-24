@@ -825,23 +825,27 @@ function toggleDrivingMode() {
         btn.innerHTML = '🛑';
         btn.title = 'Stop Mode Berkendara';
 
+        // Disable locate control to prevent conflicts
+        locateControl.stop();
+
         // Start continuous location tracking
         if (navigator.geolocation) {
             watchId = navigator.geolocation.watchPosition(function(position) {
                 const latlng = L.latLng(position.coords.latitude, position.coords.longitude);
 
-                // Update current location marker
+                // Update current location marker position (don't create new markers)
                 if (currentLocationMarker) {
-                    map.removeLayer(currentLocationMarker);
+                    currentLocationMarker.setLatLng(latlng);  // Just update position
+                } else {
+                    currentLocationMarker = L.marker(latlng, {
+                        icon: L.divIcon({
+                            className: 'current-location-icon',
+                            html: '📍',
+                            iconSize: [30, 30],
+                            iconAnchor: [15, 30]
+                        })
+                    }).addTo(map);
                 }
-                currentLocationMarker = L.marker(latlng, {
-                    icon: L.divIcon({
-                        className: 'current-location-icon',
-                        html: '📍',
-                        iconSize: [30, 30],
-                        iconAnchor: [15, 30]
-                    })
-                }).addTo(map);
 
                 // Center map on current location
                 map.setView(latlng, map.getZoom());
@@ -883,6 +887,11 @@ function toggleDrivingMode() {
         if (searchInterval) {
             clearInterval(searchInterval);
             searchInterval = null;
+        }
+
+        // Re-enable locate control
+        if (locateControl) {
+            locateControl.start();
         }
     }
 }
