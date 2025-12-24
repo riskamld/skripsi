@@ -257,20 +257,20 @@ body {
 let map = L.map('map').setView([-8.1727,113.6995], 13); // Jember
 
 let osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap'
+    attribution: 'Mafaza Fortuna'
 });
 
 let satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+    attribution: 'Mafaza Fortuna'
 });
 
 let satelliteLabels = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}', {
-    attribution: 'Tiles &copy; Esri &mdash; Source: Esri',
+    attribution: 'Mafaza Fortuna',
     opacity: 0.8
 });
 
 let placeLabels = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
-    attribution: 'Tiles &copy; Esri &mdash; Source: Esri',
+    attribution: 'Mafaza Fortuna',
     opacity: 0.9
 });
 
@@ -358,7 +358,7 @@ let selectedMarker = null;
 function formatBusinessStatus(status) {
     switch(status) {
         case 'OPERATIONAL':
-            return { text: '🟢', class: 'status-indicator operational', showText: false };
+            return { text: '🟢', class: '', showText: false };
         case 'CLOSED_TEMPORARILY':
             return { text: '🟡 Tutup Sementara', class: 'badge bg-warning', showText: true };
         case 'CLOSED_PERMANENTLY':
