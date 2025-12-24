@@ -202,6 +202,18 @@ body.fullscreen-map {
     box-shadow: 0 1px 3px rgba(0,0,0,0.3);
 }
 
+/* Driving mode tooltips styling */
+.driving-tooltip {
+    background: rgba(0, 0, 0, 0.8) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 4px !important;
+    font-size: 12px !important;
+    font-weight: bold !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+    white-space: nowrap !important;
+}
+
 .custom-marker {
     background: none !important;
     border: none !important;
@@ -761,6 +773,17 @@ async function search(){
 
                 let m = L.marker([p.lat,p.lng], {icon: markerIcon}).addTo(map)
                         .bindPopup(popupContent);
+
+                // Add tooltip if driving mode is active
+                if (drivingMode) {
+                    m.bindTooltip(p.nama, {
+                        permanent: true,
+                        direction: 'top',
+                        offset: [0, -20],
+                        className: 'driving-tooltip'
+                    }).openTooltip();
+                }
+
                 markers.push(m);
                 markersById.set(p.id, m); // Store marker by place ID
                 console.log(`Created marker for ${p.nama} (ID: ${p.id}) at:`, p.lat, p.lng);
@@ -963,6 +986,7 @@ let drivingModeControlInstance = null;
 // Function to toggle driving mode
 function toggleDrivingMode() {
     drivingMode = !drivingMode;
+    localStorage.setItem('drivingMode', drivingMode ? 'true' : 'false'); // Save state
     const controlElement = document.querySelector('.leaflet-control-driving-mode-button');
 
     if (drivingMode) {
@@ -1261,6 +1285,20 @@ document.addEventListener('keydown', function(e) {
         toggleFullscreen();
     }
 });
+
+// Restore driving mode state on page load
+const savedDrivingMode = localStorage.getItem('drivingMode');
+if (savedDrivingMode === 'true') {
+    // Set driving mode to true but don't apply tooltips yet (no markers exist)
+    drivingMode = true;
+    const controlElement = document.querySelector('.leaflet-control-driving-mode-button');
+    if (controlElement) {
+        controlElement.innerHTML = '🛑';
+        controlElement.title = 'Stop Mode Berkendara';
+        controlElement.classList.add('active');
+    }
+    console.log('Driving mode restored from localStorage');
+}
 
 // Initialize interactive carousels when DOM is ready
 if (document.readyState === 'loading') {
