@@ -1013,41 +1013,43 @@ function toggleDrivingMode() {
         // Keep locate control active for current location marker
         // Note: locate control will show blue current location marker
 
-        // Start continuous location tracking
+        // Start GPS tracking with 3-second intervals
         if (navigator.geolocation) {
-            watchId = navigator.geolocation.watchPosition(function(position) {
+            // Initial position
+            navigator.geolocation.getCurrentPosition(function(position) {
                 const latlng = L.latLng(position.coords.latitude, position.coords.longitude);
-
-                // Update current location marker position (don't create new markers)
-                if (currentLocationMarker) {
-                    currentLocationMarker.setLatLng(latlng);  // Just update position
-                } else {
-                    currentLocationMarker = L.marker(latlng, {
-                        icon: L.divIcon({
-                            className: 'current-location-icon',
-                            html: '📍',
-                            iconSize: [30, 30],
-                            iconAnchor: [15, 30]
-                        })
-                    }).addTo(map);
-                }
-
-                // Center map on current location
                 map.setView(latlng, map.getZoom());
-
-                // Search for places in current area
                 if (document.getElementById('keyword').value.trim()) {
                     search();
                 }
-
-            }, function(error) {
-                console.error('GPS Error:', error);
-                alert('GPS Error: ' + error.message);
-            }, {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 5000
             });
+
+            // Update position every 3 seconds
+            watchId = setInterval(function() {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const latlng = L.latLng(position.coords.latitude, position.coords.longitude);
+
+                    // Smooth map centering (only if significant movement)
+                    const currentCenter = map.getCenter();
+                    const distance = map.distance(currentCenter, latlng);
+
+                    if (distance > 10) { // Only update if moved more than 10 meters
+                        map.setView(latlng, map.getZoom());
+                    }
+
+                    // Search for places in current area (every GPS update)
+                    if (document.getElementById('keyword').value.trim()) {
+                        search();
+                    }
+
+                }, function(error) {
+                    console.error('GPS Error:', error);
+                }, {
+                    enableHighAccuracy: true,
+                    timeout: 5000,
+                    maximumAge: 3000
+                });
+            }, 3000); // Every 3 seconds
         }
 
         // Auto search every 30 seconds
