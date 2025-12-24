@@ -30,6 +30,27 @@ body {
     height: 420px;
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+#map.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 9999;
+    border-radius: 0;
+    background: black !important;
+}
+
+body.fullscreen-map .container-fluid {
+    display: none;
+}
+
+body.fullscreen-map {
+    overflow: hidden;
+    background: black !important;
 }
 
 .card-img-top {
@@ -86,39 +107,11 @@ body {
     box-shadow: 0 0 10px rgba(0,123,255,0.3);
 }
 
-#count {
-    font-size: 1.2rem;
-    text-align: center;
-    padding: 10px;
-    background: rgba(0,123,255,0.1);
-    border-radius: 10px;
-    margin-bottom: 20px;
-}
 
-#driving-mode-btn {
-    position: absolute;
-    top: 10px;
-    right: 40px;
-    z-index: 1000;
-    background: white;
-    border: 2px solid #28a745;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-}
 
-#driving-mode-btn:hover {
-    background: #f8f9fa;
-}
-
-#driving-mode-btn.active {
-    background: #28a745;
-    color: white;
+.leaflet-control-driving-mode-button.active {
+    background-color: #28a745 !important;
+    color: white !important;
 }
 
 .result-card.selected {
@@ -129,12 +122,12 @@ body {
 
 .marker-container {
     position: relative;
-    width: 35px;
-    height: 35px;
+    width: 25px;
+    height: 25px;
 }
 
 .marker-icon {
-    font-size: 24px;
+    font-size: 18px;
     position: absolute;
     bottom: 0;
     left: 50%;
@@ -228,23 +221,19 @@ body {
 
 <body>
 
-<div class="container-fluid p-3">
-
-<div class="row mb-3">
-    <div class="col-md-4">
-        <input id="keyword" class="form-control" placeholder="Cari: toko buah, apotek, dll">
-    </div>
-    <div class="col-md-2">
-        <button class="btn btn-primary w-100" onclick="search()">🔍 Search</button>
-    </div>
-</div>
-
 <div id="map" class="mb-4"></div>
 
-<div id="count" class="mb-3 fw-bold text-primary"></div>
+<div class="container-fluid p-3">
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <input id="keyword" class="form-control" placeholder="Cari: toko buah, apotek, dll">
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-primary w-100" onclick="search()">🔍 Search</button>
+        </div>
+    </div>
 
-<div id="result" class="row g-3"></div>
-
+    <div id="result" class="row g-3"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -343,6 +332,53 @@ map.on('click', function(e) {
             });
     }
 });
+
+// Add driving mode control
+const DrivingModeControl = L.Control.extend({
+    options: {
+        position: 'topright'
+    },
+
+    onAdd: function(map) {
+        const container = L.DomUtil.create('div', 'leaflet-control-driving-mode leaflet-bar leaflet-control');
+        const link = L.DomUtil.create('a', 'leaflet-control-driving-mode-button leaflet-bar-part', container);
+        link.innerHTML = '🚗';
+        link.href = '#';
+        link.title = 'Mode Berkendara';
+
+        L.DomEvent.on(link, 'click', L.DomEvent.stop)
+                  .on(link, 'click', function() {
+                      toggleDrivingMode();
+                  });
+
+        return container;
+    }
+});
+
+// Add fullscreen control
+const FullScreenControl = L.Control.extend({
+    options: {
+        position: 'topright'
+    },
+
+    onAdd: function(map) {
+        const container = L.DomUtil.create('div', 'leaflet-control-fullscreen leaflet-bar leaflet-control');
+        const link = L.DomUtil.create('a', 'leaflet-control-fullscreen-button leaflet-bar-part', container);
+        link.innerHTML = '⛶';
+        link.href = '#';
+        link.title = 'Full Screen';
+
+        L.DomEvent.on(link, 'click', L.DomEvent.stop)
+                  .on(link, 'click', function() {
+                      toggleFullscreen();
+                  });
+
+        return container;
+    }
+});
+
+map.addControl(new DrivingModeControl());
+map.addControl(new FullScreenControl());
 
 // Default to Satellite
 satellite.addTo(map);
@@ -621,9 +657,9 @@ async function search(){
                           <div class="marker-icon">🎯</div>
                           <div class="review-badge" style="width: ${badgeSize.width}px; height: ${badgeSize.height}px; font-size: ${badgeSize.fontSize}px; background-color: ${badgeColor};">${formattedReviews}</div>
                        </div>`,
-                iconSize: [35, 35],
-                iconAnchor: [17, 35],
-                popupAnchor: [0, -35]
+                iconSize: [25, 25],
+                iconAnchor: [12, 25],
+                popupAnchor: [0, -25]
             });
 
             let m = L.marker([p.lat,p.lng], {icon: markerIcon}).addTo(map)
@@ -808,22 +844,20 @@ locateControl._onLocationFound = function(e) {
     }
 };
 
-// Add driving mode button
-const drivingModeBtn = document.createElement('div');
-drivingModeBtn.id = 'driving-mode-btn';
-drivingModeBtn.innerHTML = '🚗';
-drivingModeBtn.title = 'Mode Berkendara';
-drivingModeBtn.onclick = toggleDrivingMode;
-document.body.appendChild(drivingModeBtn);
+// Store reference to driving mode control
+let drivingModeControlInstance = null;
 
+// Function to toggle driving mode
 function toggleDrivingMode() {
     drivingMode = !drivingMode;
-    const btn = document.getElementById('driving-mode-btn');
+    const controlElement = document.querySelector('.leaflet-control-driving-mode-button');
 
     if (drivingMode) {
-        btn.classList.add('active');
-        btn.innerHTML = '🛑';
-        btn.title = 'Stop Mode Berkendara';
+        if (controlElement) {
+            controlElement.innerHTML = '🛑';
+            controlElement.title = 'Stop Mode Berkendara';
+            controlElement.classList.add('active');
+        }
 
         // Disable locate control to prevent conflicts
         locateControl.stop();
@@ -873,9 +907,11 @@ function toggleDrivingMode() {
         }, 30000);
 
     } else {
-        btn.classList.remove('active');
-        btn.innerHTML = '🚗';
-        btn.title = 'Mode Berkendara';
+        if (controlElement) {
+            controlElement.innerHTML = '🚗';
+            controlElement.title = 'Mode Berkendara';
+            controlElement.classList.remove('active');
+        }
 
         // Stop location tracking
         if (watchId) {
@@ -1018,6 +1054,72 @@ function initializeInteractiveCarousels() {
         }
     });
 }
+
+// Full screen toggle function
+function toggleFullscreen() {
+    const mapElement = document.getElementById('map');
+    const body = document.body;
+
+    if (!document.fullscreenElement) {
+        // Enter browser full screen
+        document.documentElement.requestFullscreen().then(() => {
+            mapElement.classList.add('fullscreen');
+            body.classList.add('fullscreen-map');
+            // Trigger map resize
+            setTimeout(() => {
+                map.invalidateSize();
+            }, 300);
+        }).catch(err => {
+            console.error('Error attempting to enable full-screen mode:', err);
+            // Fallback to pseudo-fullscreen
+            mapElement.classList.add('fullscreen');
+            body.classList.add('fullscreen-map');
+            setTimeout(() => {
+                map.invalidateSize();
+            }, 300);
+        });
+    } else {
+        // Exit browser full screen
+        document.exitFullscreen().then(() => {
+            mapElement.classList.remove('fullscreen');
+            body.classList.remove('fullscreen-map');
+            // Trigger map resize
+            setTimeout(() => {
+                map.invalidateSize();
+            }, 300);
+        }).catch(err => {
+            console.error('Error attempting to exit full-screen mode:', err);
+            // Fallback
+            mapElement.classList.remove('fullscreen');
+            body.classList.remove('fullscreen-map');
+            setTimeout(() => {
+                map.invalidateSize();
+            }, 300);
+        });
+    }
+}
+
+// Handle fullscreen change events
+document.addEventListener('fullscreenchange', function() {
+    if (!document.fullscreenElement) {
+        // Exited fullscreen
+        const mapElement = document.getElementById('map');
+        const body = document.body;
+        mapElement.classList.remove('fullscreen');
+        body.classList.remove('fullscreen-map');
+        // Trigger map resize
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 300);
+    }
+});
+
+// Handle ESC key as backup
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && document.body.classList.contains('fullscreen-map')) {
+        toggleFullscreen();
+    }
+});
 
 // Initialize interactive carousels when DOM is ready
 if (document.readyState === 'loading') {
