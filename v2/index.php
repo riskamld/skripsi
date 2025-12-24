@@ -972,6 +972,20 @@ function toggleDrivingMode() {
             controlElement.classList.add('active');
         }
 
+        // Add permanent tooltips to all markers for navigation
+        markers.forEach(marker => {
+            // Get place name from popup content (first line before <br>)
+            const popupContent = marker.getPopup().getContent();
+            const placeName = popupContent.split('<br>')[0]; // Get name from first line
+
+            marker.bindTooltip(placeName, {
+                permanent: true,
+                direction: 'top',
+                offset: [0, -20],
+                className: 'driving-tooltip'
+            }).openTooltip();
+        });
+
         // Disable locate control to prevent conflicts
         locateControl.stop();
 
@@ -1025,6 +1039,14 @@ function toggleDrivingMode() {
             controlElement.title = 'Mode Berkendara';
             controlElement.classList.remove('active');
         }
+
+        // Remove all permanent tooltips
+        markers.forEach(marker => {
+            if (marker.getTooltip()) {
+                marker.closeTooltip();
+                marker.unbindTooltip();
+            }
+        });
 
         // Stop location tracking
         if (watchId) {
