@@ -21,4 +21,9 @@ class ScrapeLog extends Model
     protected $casts = [
         'meta' => 'array',
     ];
+
+    public function place()
+    {
+        return $this->belongsTo(Place::class, 'place_id', 'place_id');
+    }
 }

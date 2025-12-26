@@ -45,13 +45,10 @@ class PlaceController extends Controller
 
         // 3. Insert scrape_logs
         ScrapeLog::create([
-            'source' => 'google_maps',
-            'query' => $request->name,
-            'total_found' => 1,
-            'total_saved' => 1,
+            'place_id' => $place->place_id, // Use the Google place_id, not the auto-increment ID
             'status' => 'success',
-            'message' => 'Place saved from Chrome extension',
-            'meta' => ['place_id' => $place->id],
+            'error_message' => null,
+            'raw_payload' => json_encode($request->all()),
         ]);
 
         // 4. Queue scraping

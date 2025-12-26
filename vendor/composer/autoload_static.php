@@ -531,7 +531,13 @@ class ComposerStaticInitc514d8f7b9fc5970bdd94287905ef584
     );
 
     public static $classMap = array (
+        'App\\Http\\Controllers\\Api\\PlaceController' => __DIR__ . '/../..' . '/app/Http/Controllers/Api/PlaceController.php',
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
+        'App\\Http\\Middleware\\ApiTokenAuth' => __DIR__ . '/../..' . '/app/Http/Middleware/ApiTokenAuth.php',
+        'App\\Jobs\\ScrapePlaceJob' => __DIR__ . '/../..' . '/app/Jobs/ScrapePlaceJob.php',
+        'App\\Models\\ApiToken' => __DIR__ . '/../..' . '/app/Models/ApiToken.php',
+        'App\\Models\\Place' => __DIR__ . '/../..' . '/app/Models/Place.php',
+        'App\\Models\\ScrapeLog' => __DIR__ . '/../..' . '/app/Models/ScrapeLog.php',
         'App\\Models\\User' => __DIR__ . '/../..' . '/app/Models/User.php',
         'App\\Providers\\AppServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AppServiceProvider.php',
         'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',

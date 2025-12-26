@@ -35,4 +35,9 @@ class Place extends Model
         'lat' => 'float',
         'lng' => 'float',
     ];
+
+    public function scrapeLogs()
+    {
+        return $this->hasMany(ScrapeLog::class, 'place_id', 'place_id');
+    }
 }
