@@ -1,8 +1,0 @@
-{
-  "name": "Pencarian Tempat",
-  "short_name": "Pencarian",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#007bff"
-}
