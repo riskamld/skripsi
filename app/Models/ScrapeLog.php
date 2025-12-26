@@ -9,17 +9,14 @@ class ScrapeLog extends Model
     protected $table = 'scrape_logs';
 
     protected $fillable = [
-        'source',
-        'query',
-        'total_found',
-        'total_saved',
+        'place_id',
         'status',
-        'message',
-        'meta',
+        'error_message',
+        'raw_payload',
     ];
 
     protected $casts = [
-        'meta' => 'array',
+        'raw_payload' => 'array',
     ];
 
     public function place()

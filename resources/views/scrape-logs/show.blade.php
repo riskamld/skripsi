@@ -149,7 +149,7 @@
     </div>
 </div>
 
-<!-- Raw Payload -->
+<!-- Raw Data -->
 @if($scrapeLog->raw_payload)
 <div class="row">
     <div class="col-12">
@@ -157,11 +157,34 @@
             <div class="card-header">
                 <h5 class="mb-0">
                     <i class="bi bi-code me-2"></i>
-                    Raw Payload Data
+                    Raw Scrape Data
                 </h5>
             </div>
             <div class="card-body">
-                <pre class="bg-light p-3 rounded"><code>{{ json_encode(json_decode($scrapeLog->raw_payload), JSON_PRETTY_PRINT) }}</code></pre>
+                @if(isset($scrapeLog->raw_payload['raw_text']) && $scrapeLog->raw_payload['raw_text'])
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Raw Text</label>
+                        <div class="bg-light p-3 rounded">
+                            <pre class="mb-0">{{ $scrapeLog->raw_payload['raw_text'] }}</pre>
+                        </div>
+                    </div>
+                @endif
+
+                @if(isset($scrapeLog->raw_payload['raw_html']) && $scrapeLog->raw_payload['raw_html'])
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Raw HTML</label>
+                        <div class="bg-light p-3 rounded">
+                            <pre class="mb-0"><code>{{ $scrapeLog->raw_payload['raw_html'] }}</code></pre>
+                        </div>
+                    </div>
+                @endif
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Full Payload Data</label>
+                    <div class="bg-light p-3 rounded">
+                        <pre class="mb-0"><code>{{ json_encode($scrapeLog->raw_payload, JSON_PRETTY_PRINT) }}</code></pre>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

@@ -34,10 +34,15 @@ class PlaceController extends Controller
             'category' => 'nullable|string|max:255',
             'address' => 'nullable|string',
             'phone' => 'nullable|string|max:50',
-            'website' => 'nullable|string|max:255',
+            'website' => 'nullable|url',
             'raw_text' => 'nullable|string',
             'raw_html' => 'nullable|string',
             'parser_version' => 'nullable|string|max:20',
+            'opening_hours' => 'nullable|string',
+            'image_1' => 'nullable|url',
+            'image_2' => 'nullable|url',
+            'image_3' => 'nullable|url',
+            'image_4' => 'nullable|url',
         ]);
 
         if ($validator->fails()) {

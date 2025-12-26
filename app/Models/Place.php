@@ -26,6 +26,11 @@ class Place extends Model
         'source',
         'is_valid',
         'last_scraped_at',
+        'opening_hours',
+        'image_1',
+        'image_2',
+        'image_3',
+        'image_4',
     ];
 
     protected $casts = [

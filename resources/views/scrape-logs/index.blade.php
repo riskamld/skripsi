@@ -14,7 +14,6 @@
                 <form action="{{ route('scrape-logs.clear-all') }}" method="POST" class="d-inline"
                       onsubmit="return confirm('Are you sure you want to clear all scrape logs? This action cannot be undone.')">
                     @csrf
-                    @method('DELETE')
                     <button type="submit" class="btn btn-danger">
                         <i class="bi bi-trash me-1"></i>
                         Clear All Logs
@@ -111,6 +110,7 @@
                     <tr>
                         <th>Status</th>
                         <th>Place</th>
+                        <th>Raw Data</th>
                         <th>Message</th>
                         <th>Timestamp</th>
                         <th>Actions</th>
@@ -137,6 +137,25 @@
                                     </div>
                                 @else
                                     <span class="text-muted">Unknown Place</span>
+                                @endif
+                            </td>
+                            <td>
+                                @php
+                                    $payload = json_decode($log->raw_payload, true);
+                                    $hasRawText = isset($payload['raw_text']) && !empty($payload['raw_text']);
+                                    $hasRawHtml = isset($payload['raw_html']) && !empty($payload['raw_html']);
+                                @endphp
+                                @if($hasRawText || $hasRawHtml)
+                                    <div>
+                                        @if($hasRawText)
+                                            <span class="badge bg-info">Text</span>
+                                        @endif
+                                        @if($hasRawHtml)
+                                            <span class="badge bg-secondary">HTML</span>
+                                        @endif
+                                    </div>
+                                @else
+                                    <span class="text-muted">-</span>
                                 @endif
                             </td>
                             <td>
@@ -169,7 +188,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="text-center py-4">
+                            <td colspan="6" class="text-center py-4">
                                 <i class="bi bi-journal-x text-muted fs-1 mb-3"></i>
                                 <h5 class="text-muted">No scrape logs found</h5>
                                 <p class="text-muted">Try adjusting your filters or check if scraping has been performed.</p>

@@ -15,7 +15,6 @@
                     <form action="{{ route('places.clear-all') }}" method="POST" class="d-inline"
                           onsubmit="return confirm('Are you sure you want to clear all places? This action cannot be undone.')">
                         @csrf
-                        @method('DELETE')
                         <button type="submit" class="btn btn-danger">
                             <i class="bi bi-trash me-1"></i>
                             Clear All Places
@@ -124,6 +123,7 @@
                     <tr>
                         <th>Name</th>
                         <th>Category</th>
+                        <th>Images</th>
                         <th>Rating</th>
                         <th>Reviews</th>
                         <th>Location</th>
@@ -145,6 +145,24 @@
                             <td>
                                 @if($place->category)
                                     <span class="badge bg-secondary">{{ $place->category }}</span>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
+                            </td>
+                            <td>
+                                @php
+                                    $imageCount = 0;
+                                    for ($i = 1; $i <= 4; $i++) {
+                                        if ($place->{'image_' . $i}) {
+                                            $imageCount++;
+                                        }
+                                    }
+                                @endphp
+                                @if($imageCount > 0)
+                                    <span class="badge bg-info">
+                                        <i class="bi bi-images me-1"></i>
+                                        {{ $imageCount }}
+                                    </span>
                                 @else
                                     <span class="text-muted">-</span>
                                 @endif
@@ -204,7 +222,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="text-center py-4">
+                            <td colspan="9" class="text-center py-4">
                                 <i class="bi bi-geo-alt text-muted fs-1 mb-3"></i>
                                 <h5 class="text-muted">No places found</h5>
                                 <p class="text-muted">Try adjusting your search criteria or add a new place.</p>

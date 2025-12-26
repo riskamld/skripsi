@@ -112,10 +112,49 @@
                                             <a href="{{ $place->website }}" target="_blank" rel="noopener">
                                                 {{ $place->website }}
                                                 <i class="bi bi-box-arrow-up-right ms-1"></i>
-                                            </a>
+                                            </a><br>
+                                        @endif
+                                        @if($place->opening_hours)
+                                            <strong>Opening Hours:</strong> {{ $place->opening_hours }}
                                         @endif
                                     </div>
                                 @endif
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
+                @php
+                    $images = [];
+                    for ($i = 1; $i <= 4; $i++) {
+                        if ($place->{'image_' . $i}) {
+                            $images[] = $place->{'image_' . $i};
+                        }
+                    }
+                @endphp
+
+                @if(count($images) > 0)
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6>Images ({{ count($images) }})</h6>
+                            <div class="row g-3">
+                                @foreach($images as $index => $imageUrl)
+                                    <div class="col-md-6 col-lg-3">
+                                        <div class="card">
+                                            <div class="position-relative">
+                                                <img src="{{ $imageUrl }}" class="card-img-top" alt="Place image {{ $index + 1 }}"
+                                                     style="height: 150px; object-fit: cover;"
+                                                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='; this.alt='Image failed to load';">
+                                                <div class="card-body p-2">
+                                                    <small class="text-muted">Image {{ $index + 1 }}</small>
+                                                    <a href="{{ $imageUrl }}" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
                             </div>
                         </div>
                     </div>

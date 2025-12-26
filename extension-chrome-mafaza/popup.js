@@ -18,11 +18,25 @@ class MafazaScraper {
     }
 
     async init() {
-        await this.loadSettings();
-        this.setupEventListeners();
-        this.updateStatus('Ready', 'Extension is ready to scrape', 'success');
-        this.updateStats();
-        this.checkApiConnection();
+        try {
+            await this.loadSettings();
+            this.setupEventListeners();
+            this.updateStatus('Ready', 'Extension is ready to scrape', 'success');
+
+            // Delay stats update to avoid race conditions
+            setTimeout(() => {
+                this.updateStats();
+            }, 100);
+
+            // Delay API connection check
+            setTimeout(() => {
+                this.checkApiConnection();
+            }, 200);
+
+        } catch (error) {
+            console.error('Failed to initialize extension:', error);
+            this.updateStatus('Initialization Failed', 'Please reload the extension', 'error');
+        }
     }
 
     async loadSettings() {
@@ -60,10 +74,14 @@ class MafazaScraper {
             this.showAlert('Settings saved successfully!', 'success');
 
             // Update background script with new settings
-            chrome.runtime.sendMessage({
-                action: 'updateSettings',
-                settings: this.settings
-            });
+            try {
+                await chrome.runtime.sendMessage({
+                    action: 'updateSettings',
+                    settings: this.settings
+                });
+            } catch (error) {
+                console.error('Failed to update background settings:', error);
+            }
 
         } catch (error) {
             console.error('Failed to save settings:', error);
@@ -100,20 +118,27 @@ class MafazaScraper {
                     case 'clear':
                         this.clearData();
                         break;
-                    case 'save':
-                        this.saveSettings();
-                        break;
+                case 'save':
+                    this.saveSettings();
+                    break;
+                case 'debug':
+                    this.debugImageExtraction();
+                    break;
                 }
             });
         });
 
         // Settings tab
-        document.getElementById('auto-scraping-toggle').addEventListener('change', (e) => {
+        document.getElementById('auto-scraping-toggle').addEventListener('change', async (e) => {
             this.settings.autoScraping = e.target.checked;
-            chrome.runtime.sendMessage({
-                action: 'toggleAutoScraping',
-                enabled: e.target.checked
-            });
+            try {
+                await chrome.runtime.sendMessage({
+                    action: 'toggleAutoScraping',
+                    enabled: e.target.checked
+                });
+            } catch (error) {
+                console.error('Failed to toggle auto-scraping:', error);
+            }
         });
 
         // Listen for messages from background script
@@ -205,11 +230,25 @@ class MafazaScraper {
                 }
             } catch (error) {
                 console.error('Failed to get stats:', error);
+                // Set default stats on error
+                this.stats = { scrapedToday: 0, queuedCount: 0 };
             }
         }
 
-        document.getElementById('scraped-count').textContent = this.stats.scrapedToday || 0;
-        document.getElementById('queued-count').textContent = this.stats.queuedCount || 0;
+        // Update DOM elements safely
+        try {
+            const scrapedElement = document.getElementById('scraped-count');
+            const queuedElement = document.getElementById('queued-count');
+
+            if (scrapedElement) {
+                scrapedElement.textContent = this.stats.scrapedToday || 0;
+            }
+            if (queuedElement) {
+                queuedElement.textContent = this.stats.queuedCount || 0;
+            }
+        } catch (error) {
+            console.error('Failed to update stats display:', error);
+        }
     }
 
     showAlert(message, type = 'info') {
@@ -240,15 +279,34 @@ class MafazaScraper {
             // Show loading
             this.showLoading(true);
 
-            // Send message to content script to scrape
-            chrome.tabs.sendMessage(tab.id, {
-                action: 'scrapePage',
-                settings: this.settings
-            });
+            // Send message to content script to extract data
+            try {
+                const response = await chrome.tabs.sendMessage(tab.id, {
+                    action: 'extractPlaceData'
+                });
+
+                if (response && response.data) {
+                    // Send the extracted data to background script for processing
+                    await chrome.runtime.sendMessage({
+                        action: 'scrapeData',
+                        data: response.data
+                    });
+
+                    this.showAlert('Data sent to queue successfully!', 'success');
+                    this.updateStats(); // Refresh stats
+                } else {
+                    this.showAlert('No data received from page', 'error');
+                }
+
+            } catch (error) {
+                console.error('Failed to scrape page:', error);
+                this.showAlert('Failed to extract data. Try refreshing the page.', 'error');
+            }
 
         } catch (error) {
             console.error('Failed to scrape page:', error);
             this.showAlert('Failed to scrape page', 'error');
+        } finally {
             this.showLoading(false);
         }
     }
@@ -273,6 +331,37 @@ class MafazaScraper {
         } catch (error) {
             console.error('Failed to clear data:', error);
             this.showAlert('Failed to clear data', 'error');
+        }
+    }
+
+    async debugImageExtraction() {
+        try {
+            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+            if (!tab) {
+                this.showAlert('No active tab found', 'error');
+                return;
+            }
+
+            // Send debug message to content script
+            try {
+                const response = await chrome.tabs.sendMessage(tab.id, {
+                    action: 'debugImages'
+                });
+
+                if (response && response.success) {
+                    this.showAlert('Debug completed! Check browser console for detailed results.', 'success');
+                } else {
+                    this.showAlert('Debug failed - check console for errors', 'error');
+                }
+            } catch (error) {
+                console.error('Failed to send debug message to content script:', error);
+                this.showAlert('Failed to communicate with page. Try refreshing the page.', 'error');
+            }
+
+        } catch (error) {
+            console.error('Failed to debug image extraction:', error);
+            this.showAlert('Failed to debug image extraction', 'error');
         }
     }
 
