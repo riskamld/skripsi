@@ -5,10 +5,23 @@
 @section('content')
 <div class="row mb-4">
     <div class="col-12">
-        <h2>
-            <i class="bi bi-journal-text me-2"></i>
-            Scrape Logs
-        </h2>
+        <div class="d-flex justify-content-between align-items-center">
+            <h2>
+                <i class="bi bi-journal-text me-2"></i>
+                Scrape Logs
+            </h2>
+            @if($logs->count() > 0)
+                <form action="{{ route('scrape-logs.clear-all') }}" method="POST" class="d-inline"
+                      onsubmit="return confirm('Are you sure you want to clear all scrape logs? This action cannot be undone.')">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-1"></i>
+                        Clear All Logs
+                    </button>
+                </form>
+            @endif
+        </div>
     </div>
 </div>
 
@@ -139,9 +152,19 @@
                                 <small class="text-muted">{{ $log->created_at->diffForHumans() }}</small>
                             </td>
                             <td>
-                                <a href="{{ route('scrape-logs.show', $log) }}" class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-eye"></i>
-                                </a>
+                                <div class="btn-group" role="group">
+                                    <a href="{{ route('scrape-logs.show', $log) }}" class="btn btn-sm btn-outline-primary" title="View Details">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <form action="{{ route('scrape-logs.destroy', $log) }}" method="POST" class="d-inline"
+                                          onsubmit="return confirm('Are you sure you want to delete this scrape log?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty

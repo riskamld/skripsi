@@ -10,10 +10,23 @@
                 <i class="bi bi-geo-alt me-2"></i>
                 Places Management
             </h2>
-            <a href="{{ route('places.create') }}" class="btn btn-primary">
-                <i class="bi bi-plus-circle me-2"></i>
-                Add New Place
-            </a>
+            <div class="d-flex gap-2">
+                @if($places->count() > 0)
+                    <form action="{{ route('places.clear-all') }}" method="POST" class="d-inline"
+                          onsubmit="return confirm('Are you sure you want to clear all places? This action cannot be undone.')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash me-1"></i>
+                            Clear All Places
+                        </button>
+                    </form>
+                @endif
+                <a href="{{ route('places.create') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-2"></i>
+                    Add New Place
+                </a>
+            </div>
         </div>
     </div>
 </div>

@@ -63,4 +63,20 @@ class ScrapeLogController extends Controller
         $scrapeLog->load('place');
         return view('scrape-logs.show', compact('scrapeLog'));
     }
+
+    public function destroy(ScrapeLog $scrapeLog)
+    {
+        $scrapeLog->delete();
+
+        return redirect()->route('scrape-logs.index')
+            ->with('success', 'Scrape log deleted successfully');
+    }
+
+    public function clearAll(Request $request)
+    {
+        ScrapeLog::query()->delete();
+
+        return redirect()->route('scrape-logs.index')
+            ->with('success', 'All scrape logs cleared successfully');
+    }
 }

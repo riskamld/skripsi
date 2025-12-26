@@ -117,4 +117,12 @@ class PlaceController extends Controller
         return redirect()->route('places.index')
             ->with('success', 'Place deleted successfully');
     }
+
+    public function clearAll(Request $request)
+    {
+        Place::query()->delete();
+
+        return redirect()->route('places.index')
+            ->with('success', 'All places cleared successfully');
+    }
 }
