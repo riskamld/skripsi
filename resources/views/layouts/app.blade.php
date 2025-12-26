@@ -79,6 +79,10 @@
                             <i class="bi bi-journal-text me-2"></i>
                             Scrape Logs
                         </a>
+                        <a href="{{ route('api-tokens.index') }}" class="nav-link {{ request()->routeIs('api-tokens.*') ? 'active' : '' }}">
+                            <i class="bi bi-key me-2"></i>
+                            API Tokens
+                        </a>
                     </nav>
 
                     <hr class="my-4">

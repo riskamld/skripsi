@@ -11,6 +11,16 @@ use App\Jobs\ScrapePlaceJob;
 
 class PlaceController extends Controller
 {
+    public function index()
+    {
+        $places = Place::latest()->paginate(20);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $places,
+        ]);
+    }
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [

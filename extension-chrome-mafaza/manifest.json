@@ -1,0 +1,64 @@
+{
+  "manifest_version": 3,
+  "name": "Mafaza Fortuna - Place Scraper",
+  "version": "1.0.0",
+  "description": "Chrome extension untuk scraping data tempat dari berbagai website dan sinkronisasi dengan database Mafaza Fortuna",
+
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting",
+    "tabs",
+    "webRequest",
+    "webNavigation",
+    "notifications",
+    "contextMenus"
+  ],
+
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*",
+    "http://localhost/*"
+  ],
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.google.com/maps/*",
+        "https://maps.google.com/*",
+        "https://www.google.com/search*",
+        "https://www.bing.com/*",
+        "https://search.yahoo.com/*"
+      ],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_end"
+    }
+  ],
+
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Mafaza Fortuna Scraper",
+    "default_icon": "icons/icon16.svg"
+  },
+
+  "options_page": "options.html",
+
+  "icons": {
+    "16": "icons/icon16.svg",
+    "32": "icons/icon32.svg",
+    "48": "icons/icon48.svg",
+    "128": "icons/icon128.svg"
+  },
+
+  "web_accessible_resources": [
+    {
+      "resources": ["injected.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
