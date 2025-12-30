@@ -89,7 +89,7 @@
 
             <div class="d-flex align-items-center">
                 <label class="me-2">Sort by:</label>
-                <select class="form-select form-select-sm" style="width: auto;" onchange="changeSort(this.value)">
+                <select class="form-select form-select-sm ajax-sort" style="width: auto;" data-url="{{ route('places.index') }}" onchange="changeSort(this.value)">
                     <option value="created_at_desc" {{ request('sort', 'created_at') === 'created_at' && request('direction', 'desc') === 'desc' ? 'selected' : '' }}>
                         Newest First
                     </option>
@@ -262,72 +262,244 @@
     </div>
 </div>
 
-<!-- Pagination -->
-@if($places->hasPages())
-    <div class="row mt-4">
-        <div class="col-12">
-            <nav aria-label="Places pagination">
-                <div class="d-flex justify-content-between align-items-center">
-                    <!-- Page Info -->
-                    <div class="text-muted small">
-                        Page {{ $places->currentPage() }} of {{ $places->lastPage() }}
-                        ({{ $places->total() }} total places)
-                    </div>
+<!-- AJAX Pagination -->
+<div id="ajax-pagination-container" class="mt-4">
+    @if($places->hasPages())
+        <div class="row">
+            <div class="col-12">
+                <nav aria-label="Places pagination">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <!-- Page Info -->
+                        <div class="text-muted small">
+                            Page {{ $places->currentPage() }} of {{ $places->lastPage() }}
+                            ({{ $places->total() }} total places)
+                        </div>
 
-                    <!-- Pagination Links -->
-                    <ul class="pagination pagination-lg mb-0">
-                        {{-- Previous Page Link --}}
-                        @if ($places->onFirstPage())
-                            <li class="page-item disabled">
-                                <span class="page-link">&laquo; Previous</span>
-                            </li>
-                        @else
-                            <li class="page-item">
-                                <a class="page-link" href="{{ $places->previousPageUrl() }}" rel="prev">&laquo; Previous</a>
-                            </li>
-                        @endif
-
-                        {{-- Pagination Elements --}}
-                        @foreach ($places->getUrlRange(1, $places->lastPage()) as $page => $url)
-                            @if ($page == $places->currentPage())
-                                <li class="page-item active">
-                                    <span class="page-link">{{ $page }}</span>
+                        <!-- Pagination Links -->
+                        <ul class="pagination pagination-lg mb-0 ajax-pagination">
+                            {{-- Previous Page Link --}}
+                            @if ($places->onFirstPage())
+                                <li class="page-item disabled">
+                                    <span class="page-link">&laquo; Previous</span>
                                 </li>
                             @else
                                 <li class="page-item">
-                                    <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                                    <a class="page-link ajax-page-link" href="{{ $places->previousPageUrl() }}" rel="prev" data-page="{{ $places->currentPage() - 1 }}">&laquo; Previous</a>
                                 </li>
                             @endif
-                        @endforeach
 
-                        {{-- Next Page Link --}}
-                        @if ($places->hasMorePages())
-                            <li class="page-item">
-                                <a class="page-link" href="{{ $places->nextPageUrl() }}" rel="next">Next &raquo;</a>
-                            </li>
-                        @else
-                            <li class="page-item disabled">
-                                <span class="page-link">Next &raquo;</span>
-                            </li>
-                        @endif
-                    </ul>
-                </div>
-            </nav>
+                            {{-- Pagination Elements --}}
+                            @foreach ($places->getUrlRange(1, $places->lastPage()) as $page => $url)
+                                @if ($page == $places->currentPage())
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ $page }}</span>
+                                    </li>
+                                @else
+                                    <li class="page-item">
+                                        <a class="page-link ajax-page-link" href="{{ $url }}" data-page="{{ $page }}">{{ $page }}</a>
+                                    </li>
+                                @endif
+                            @endforeach
+
+                            {{-- Next Page Link --}}
+                            @if ($places->hasMorePages())
+                                <li class="page-item">
+                                    <a class="page-link ajax-page-link" href="{{ $places->nextPageUrl() }}" rel="next" data-page="{{ $places->currentPage() + 1 }}">Next &raquo;</a>
+                                </li>
+                            @else
+                                <li class="page-item disabled">
+                                    <span class="page-link">Next &raquo;</span>
+                                </li>
+                            @endif
+                        </ul>
+                    </div>
+                </nav>
+            </div>
         </div>
-    </div>
-@endif
+    @endif
+</div>
 
 @push('scripts')
 <script>
-function changeSort(value) {
-    const [sort, direction] = value.split('_');
-    const url = new URL(window.location);
+// AJAX Pagination and Sorting System
+$(document).ready(function() {
+    let isLoading = false;
 
-    if (sort) url.searchParams.set('sort', sort);
-    if (direction) url.searchParams.set('direction', direction);
+    // Handle AJAX pagination clicks
+    $(document).on('click', '.ajax-page-link', function(e) {
+        e.preventDefault();
+        if (isLoading) return;
 
-    window.location.href = url.toString();
-}
+        const url = $(this).attr('href');
+        const page = $(this).data('page');
+
+        loadPage(url, page);
+    });
+
+    // Handle AJAX sorting
+    $('.ajax-sort').on('change', function() {
+        if (isLoading) return;
+
+        const value = $(this).val();
+        const [sort, direction] = value.split('_');
+        const url = new URL($(this).data('url'), window.location.origin);
+
+        // Preserve existing query parameters
+        const currentUrl = new URL(window.location);
+        for (let [key, value] of currentUrl.searchParams) {
+            url.searchParams.set(key, value);
+        }
+
+        // Update sort parameters
+        if (sort) url.searchParams.set('sort', sort);
+        if (direction) url.searchParams.set('direction', direction);
+
+        // Reset to page 1 when sorting
+        url.searchParams.set('page', '1');
+
+        loadPage(url.toString(), 1);
+    });
+
+    // AJAX page loading function
+    function loadPage(url, pageNumber) {
+        if (isLoading) return;
+
+        isLoading = true;
+        showLoadingSpinner();
+
+        // Update URL without page reload
+        history.pushState({page: pageNumber}, '', url);
+
+        $.ajax({
+            url: url,
+            type: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+            },
+            success: function(response) {
+                // Extract table content and pagination from response
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(response, 'text/html');
+
+                // Update table content
+                const newTable = doc.querySelector('.table-responsive');
+                if (newTable) {
+                    $('.table-responsive').replaceWith(newTable);
+                }
+
+                // Update pagination
+                const newPagination = doc.querySelector('#ajax-pagination-container');
+                if (newPagination) {
+                    $('#ajax-pagination-container').replaceWith(newPagination);
+                }
+
+                // Update results summary
+                const newSummary = doc.querySelector('.row.mb-3');
+                if (newSummary) {
+                    $('.row.mb-3').replaceWith(newSummary);
+                }
+
+                // Scroll to top of table smoothly
+                $('html, body').animate({
+                    scrollTop: $('.card').offset().top - 20
+                }, 300);
+
+                // Update page title if needed
+                const newTitle = doc.querySelector('title');
+                if (newTitle) {
+                    document.title = newTitle.textContent;
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('AJAX Error:', error);
+                showErrorMessage('Failed to load page. Please try again.');
+
+                // Fallback to regular navigation
+                setTimeout(() => {
+                    window.location.href = url;
+                }, 2000);
+            },
+            complete: function() {
+                isLoading = false;
+                hideLoadingSpinner();
+            }
+        });
+    }
+
+    // Loading spinner functions
+    function showLoadingSpinner() {
+        if (!$('#ajax-loading-spinner').length) {
+            const spinner = `
+                <div id="ajax-loading-spinner" class="position-fixed" style="
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    z-index: 9999;
+                    background: rgba(255,255,255,0.9);
+                    padding: 20px;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                ">
+                    <div class="d-flex align-items-center">
+                        <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <span>Loading page...</span>
+                    </div>
+                </div>
+            `;
+            $('body').append(spinner);
+        }
+        $('#ajax-loading-spinner').show();
+    }
+
+    function hideLoadingSpinner() {
+        $('#ajax-loading-spinner').fadeOut(200, function() {
+            $(this).remove();
+        });
+    }
+
+    function showErrorMessage(message) {
+        // Remove existing error messages
+        $('.ajax-error-message').remove();
+
+        const errorDiv = `
+            <div class="ajax-error-message alert alert-danger alert-dismissible fade show position-fixed"
+                 style="top: 20px; right: 20px; z-index: 10000; min-width: 300px;">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        $('body').append(errorDiv);
+
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            $('.ajax-error-message').fadeOut();
+        }, 5000);
+    }
+
+    // Handle browser back/forward buttons
+    window.addEventListener('popstate', function(event) {
+        if (event.state && event.state.page) {
+            const url = new URL(window.location);
+            loadPage(url.toString(), event.state.page);
+        }
+    });
+
+    // Keyboard shortcuts for pagination
+    $(document).on('keydown', function(e) {
+        // Left arrow for previous page
+        if (e.keyCode === 37 && !$('.page-item:first-child').hasClass('disabled')) {
+            $('.ajax-page-link[rel="prev"]').click();
+        }
+        // Right arrow for next page
+        if (e.keyCode === 39 && !$('.page-item:last-child').hasClass('disabled')) {
+            $('.ajax-page-link[rel="next"]').click();
+        }
+    });
+});
 </script>
 @endpush
 @endsection

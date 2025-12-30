@@ -35,13 +35,21 @@ class PlaceController extends Controller
             $query->where('rating', '<=', $request->rating_max);
         }
 
-        // Sort options
+        // Sort options with NULL handling
         $sortBy = $request->get('sort', 'created_at');
         $sortDir = $request->get('direction', 'desc');
 
         $allowedSorts = ['name', 'rating', 'review_count', 'created_at', 'updated_at'];
         if (in_array($sortBy, $allowedSorts)) {
-            $query->orderBy($sortBy, $sortDir);
+            if ($sortBy === 'review_count') {
+                // Special handling for review_count: NULL values go to bottom
+                $query->orderByRaw("{$sortBy} {$sortDir} NULLS LAST");
+            } elseif ($sortBy === 'rating') {
+                // Special handling for rating: NULL values go to bottom
+                $query->orderByRaw("{$sortBy} {$sortDir} NULLS LAST");
+            } else {
+                $query->orderBy($sortBy, $sortDir);
+            }
         }
 
         $places = $query->paginate(15);
