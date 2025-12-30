@@ -1,210 +1,112 @@
 @extends('layouts.app')
 
 @section('page-title', 'Scrape Logs')
-
-@push('styles')
-<!-- Compact styles are now global in layout -->
-@endpush
+@section('page-subtitle', 'View scraping activity logs')
 
 @section('content')
+<!-- Action buttons -->
 <div class="row mb-4">
     <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center">
-            <h2>
-                <i class="bi bi-journal-text me-2"></i>
-                Scrape Logs
-            </h2>
-            @if($logs->count() > 0)
-                <form action="{{ route('scrape-logs.clear-all') }}" method="POST" class="d-inline"
-                      onsubmit="return confirm('Are you sure you want to clear all scrape logs? This action cannot be undone.')">
-                    @csrf
-                    <button type="submit" class="btn btn-danger">
-                        <i class="bi bi-trash me-1"></i>
-                        Clear All Logs
-                    </button>
-                </form>
-            @endif
-        </div>
-    </div>
-</div>
-
-<!-- Summary Cards -->
-<div class="row mb-4">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body text-center">
-                <i class="bi bi-check-circle-fill text-success fs-1 mb-2"></i>
-                <h3 class="text-success">{{ number_format($statusCounts['success']) }}</h3>
-                <p class="text-muted mb-0">Success</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body text-center">
-                <i class="bi bi-x-circle-fill text-danger fs-1 mb-2"></i>
-                <h3 class="text-danger">{{ number_format($statusCounts['failed']) }}</h3>
-                <p class="text-muted mb-0">Failed</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body text-center">
-                <i class="bi bi-pause-circle-fill text-warning fs-1 mb-2"></i>
-                <h3 class="text-warning">{{ number_format($statusCounts['skipped']) }}</h3>
-                <p class="text-muted mb-0">Skipped</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Search and Filter -->
-<div class="card mb-4">
-    <div class="card-body">
-        <form method="GET" class="row g-2">
-            <div class="col-md-3">
-                <select class="form-select" id="status" name="status">
-                    <option value="">📊 All Status</option>
-                    <option value="success" {{ request('status') === 'success' ? 'selected' : '' }}>✅ Success</option>
-                    <option value="failed" {{ request('status') === 'failed' ? 'selected' : '' }}>❌ Failed</option>
-                    <option value="skipped" {{ request('status') === 'skipped' ? 'selected' : '' }}>⏭️ Skipped</option>
-                </select>
-            </div>
-
-            <div class="col-md-3">
-                <input type="date" class="form-control" id="date_from" name="date_from"
-                       value="{{ request('date_from') }}" placeholder="📅 From Date">
-            </div>
-
-            <div class="col-md-3">
-                <input type="date" class="form-control" id="date_to" name="date_to"
-                       value="{{ request('date_to') }}" placeholder="📅 To Date">
-            </div>
-
-            <div class="col-md-3">
-                <input type="text" class="form-control" id="search" name="search"
-                       value="{{ request('search') }}" placeholder="🔍 Place name or error...">
-            </div>
-
-            <div class="col-12 d-flex gap-2">
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-search me-1"></i>
-                    Filter
-                </button>
-                <a href="{{ route('scrape-logs.index') }}" class="btn btn-outline-secondary">
-                    <i class="bi bi-x-circle me-1"></i>
-                    Clear Filters
-                </a>
-            </div>
+        <form method="POST" action="{{ route('scrape-logs.clear-all') }}" class="d-inline">
+            @csrf
+            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to clear all logs? This action cannot be undone.')">
+                <i class="fas fa-trash"></i> Clear All Logs
+            </button>
         </form>
     </div>
 </div>
 
-<!-- Logs Table -->
+<!-- Scrape Logs Table -->
 <div class="card">
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>Status</th>
-                        <th>Place</th>
-                        <th>Raw Data</th>
-                        <th>Message</th>
-                        <th>Timestamp</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($logs as $log)
-                        <tr>
-                            <td>
-                                @if($log->status === 'success')
-                                    <i class="bi bi-check-circle-fill text-success fs-5" title="Success"></i>
-                                @elseif($log->status === 'failed')
-                                    <i class="bi bi-x-circle-fill text-danger fs-5" title="Failed"></i>
-                                @else
-                                    <i class="bi bi-pause-circle-fill text-warning fs-5" title="Skipped"></i>
-                                @endif
-                            </td>
-                            <td>
-                                @if($log->place)
-                                    <div>
-                                        <strong>{{ $log->place->name }}</strong>
-                                        <br>
-                                        <small class="text-muted">{{ $log->place->place_id }}</small>
-                                    </div>
-                                @else
-                                    <span class="text-muted">Unknown Place</span>
-                                @endif
-                            </td>
-                            <td>
-                                @php
-                                    $payload = json_decode($log->raw_payload, true);
-                                    $hasRawText = isset($payload['raw_text']) && !empty($payload['raw_text']);
-                                    $hasRawHtml = isset($payload['raw_html']) && !empty($payload['raw_html']);
-                                @endphp
-                                @if($hasRawText || $hasRawHtml)
-                                    <div>
-                                        @if($hasRawText)
-                                            <span class="badge bg-info">Text</span>
-                                        @endif
-                                        @if($hasRawHtml)
-                                            <span class="badge bg-secondary">HTML</span>
-                                        @endif
-                                    </div>
-                                @else
-                                    <span class="text-muted">-</span>
-                                @endif
-                            </td>
-                            <td>
-                                @if($log->error_message)
-                                    <span class="text-danger">{{ Str::limit($log->error_message, 50) }}</span>
-                                @else
-                                    <span class="text-success">Place saved successfully</span>
-                                @endif
-                            </td>
-                            <td>
-                                <small class="text-muted">{{ $log->created_at->format('M d, Y H:i:s') }}</small>
-                                <br>
-                                <small class="text-muted">{{ $log->created_at->diffForHumans() }}</small>
-                            </td>
-                            <td>
-                                <div class="btn-group" role="group">
-                                    <a href="{{ route('scrape-logs.show', $log) }}" class="btn btn-sm btn-outline-primary" title="View Details">
-                                        <i class="bi bi-eye"></i>
-                                    </a>
-                                    <form action="{{ route('scrape-logs.destroy', $log) }}" method="POST" class="d-inline"
-                                          onsubmit="return confirm('Are you sure you want to delete this scrape log?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="text-center py-4">
-                                <i class="bi bi-journal-x text-muted fs-1 mb-3"></i>
-                                <h5 class="text-muted">No scrape logs found</h5>
-                                <p class="text-muted">Try adjusting your filters or check if scraping has been performed.</p>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+    <div class="card-header">
+        <h3 class="card-title">All Scrape Logs</h3>
+
+        <div class="card-tools">
+            <div class="input-group input-group-sm" style="width: 150px;">
+                <input type="text" name="table_search" class="form-control float-right" placeholder="Search logs">
+
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-default">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
-</div>
-
-<!-- Pagination -->
-@if($logs->hasPages())
-    <div class="mt-4">
-        {{ $logs->appends(request()->query())->links('vendor.pagination.bootstrap-4') }}
+    <!-- /.card-header -->
+    <div class="card-body table-responsive p-0">
+        <table class="table table-hover text-nowrap table-sm">
+            <thead>
+                <tr>
+                    <th style="width: 20%;">Place Name</th>
+                    <th style="width: 15%;">Status</th>
+                    <th style="width: 40%;">Message</th>
+                    <th style="width: 15%;">Created</th>
+                    <th style="width: 10%;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($scrapeLogs ?? [] as $log)
+                <tr style="height: 45px;">
+                    <td style="padding: 8px 12px; vertical-align: middle;">
+                        <div style="font-size: 0.875rem; font-weight: 600;">{{ Str::limit($log->place_name ?? 'Unknown Place', 18) }}</div>
+                    </td>
+                    <td style="padding: 8px 12px; vertical-align: middle;">
+                        @if($log->status === 'success')
+                            <span class="badge badge-success" style="font-size: 0.75rem;">
+                                <i class="fas fa-check"></i> Success
+                            </span>
+                        @elseif($log->status === 'error')
+                            <span class="badge badge-danger" style="font-size: 0.75rem;">
+                                <i class="fas fa-times"></i> Error
+                            </span>
+                        @elseif($log->status === 'warning')
+                            <span class="badge badge-warning" style="font-size: 0.75rem;">
+                                <i class="fas fa-exclamation-triangle"></i> Warning
+                            </span>
+                        @else
+                            <span class="badge badge-secondary" style="font-size: 0.75rem;">
+                                <i class="fas fa-clock"></i> {{ ucfirst($log->status ?? 'pending') }}
+                            </span>
+                        @endif
+                    </td>
+                    <td style="padding: 8px 12px; vertical-align: middle;">
+                        <span title="{{ $log->message ?? '' }}" style="font-size: 0.875rem;">
+                            {{ Str::limit($log->message ?? 'No message', 40) }}
+                        </span>
+                    </td>
+                    <td style="padding: 8px 12px; vertical-align: middle;">
+                        <span title="{{ $log->created_at->format('Y-m-d H:i:s') }}" style="font-size: 0.875rem;">
+                            {{ $log->created_at->diffForHumans() }}
+                        </span>
+                    </td>
+                    <td style="padding: 8px 12px; vertical-align: middle;">
+                        <a href="{{ route('scrape-logs.show', $log) }}" class="btn btn-info btn-xs">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="5" class="text-center py-4">
+                        <div class="text-muted">
+                            <i class="fas fa-history fa-2x mb-2"></i>
+                            <h5>No scrape logs found</h5>
+                            <p style="font-size: 0.875rem;">No scraping activities have been logged yet.</p>
+                        </div>
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
-@endif
+    <!-- /.card-body -->
+
+    @if(isset($scrapeLogs) && $scrapeLogs->hasPages())
+    <div class="card-footer">
+        {{ $scrapeLogs->links() }}
+    </div>
+    @endif
+</div>
+<!-- /.card -->
 @endsection

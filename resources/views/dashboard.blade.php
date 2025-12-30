@@ -1,204 +1,274 @@
 @extends('layouts.app')
 
 @section('page-title', 'Dashboard')
+@section('page-subtitle', 'Welcome to your Mafaza Fortuna admin panel')
 
 @section('content')
-<div class="row mb-4">
-    <div class="col-12">
-        <h2 class="mb-4">
-            <i class="bi bi-house-door me-2"></i>
-            Dashboard Overview
-        </h2>
+<!-- Info boxes -->
+<div class="row">
+    <div class="col-12 col-sm-6 col-md-3">
+        <div class="info-box">
+            <span class="info-box-icon bg-info elevation-1"><i class="fas fa-map-marker-alt"></i></span>
+
+            <div class="info-box-content">
+                <span class="info-box-text">Total Places</span>
+                <span class="info-box-number">
+                    {{ $placesCount ?? 0 }}
+                    <small>%</small>
+                </span>
+            </div>
+            <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
     </div>
+    <!-- /.col -->
+    <div class="col-12 col-sm-6 col-md-3">
+        <div class="info-box mb-3">
+            <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-history"></i></span>
+
+            <div class="info-box-content">
+                <span class="info-box-text">Scrape Logs</span>
+                <span class="info-box-number">{{ $scrapeLogsCount ?? 0 }}</span>
+            </div>
+            <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+    </div>
+    <!-- /.col -->
+
+    <!-- fix for small devices only -->
+    <div class="clearfix hidden-md-up"></div>
+
+    <div class="col-12 col-sm-6 col-md-3">
+        <div class="info-box mb-3">
+            <span class="info-box-icon bg-success elevation-1"><i class="fas fa-key"></i></span>
+
+            <div class="info-box-content">
+                <span class="info-box-text">API Tokens</span>
+                <span class="info-box-number">{{ $apiTokensCount ?? 0 }}</span>
+            </div>
+            <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+    </div>
+    <!-- /.col -->
+    <div class="col-12 col-sm-6 col-md-3">
+        <div class="info-box mb-3">
+            <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-cogs"></i></span>
+
+            <div class="info-box-content">
+                <span class="info-box-text">System Status</span>
+                <span class="info-box-number">Operational</span>
+            </div>
+            <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+    </div>
+    <!-- /.col -->
 </div>
+<!-- /.row -->
 
-<!-- Statistics Cards -->
-<div class="row mb-4">
-    <div class="col-md-3 mb-3">
+<!-- Main row -->
+<div class="row">
+    <!-- Left col -->
+    <div class="col-md-8">
+        <!-- TABLE: LATEST ORDERS -->
         <div class="card">
-            <div class="card-body text-center">
-                <i class="bi bi-geo-alt-fill text-primary fs-1 mb-2"></i>
-                <h3 class="text-primary">{{ number_format($stats['total_places']) }}</h3>
-                <p class="text-muted mb-0">Total Places</p>
-            </div>
-        </div>
-    </div>
+            <div class="card-header border-transparent">
+                <h3 class="card-title">Quick Actions</h3>
 
-    <div class="col-md-3 mb-3">
-        <div class="card">
-            <div class="card-body text-center">
-                <i class="bi bi-journal-text text-success fs-1 mb-2"></i>
-                <h3 class="text-success">{{ number_format($stats['total_scrape_logs']) }}</h3>
-                <p class="text-muted mb-0">Scrape Logs</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3 mb-3">
-        <div class="card">
-            <div class="card-body text-center">
-                <i class="bi bi-calendar-plus text-warning fs-1 mb-2"></i>
-                <h3 class="text-warning">{{ number_format($stats['places_today']) }}</h3>
-                <p class="text-muted mb-0">Places Today</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3 mb-3">
-        <div class="card">
-            <div class="card-body text-center">
-                <i class="bi bi-star-fill text-info fs-1 mb-2"></i>
-                <h3 class="text-info">{{ number_format($stats['avg_rating'], 1) }}</h3>
-                <p class="text-muted mb-0">Average Rating</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Top Categories -->
-<div class="row mb-4">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="bi bi-bar-chart me-2"></i>
-                    Top Categories
-                </h5>
-            </div>
-            <div class="card-body">
-                @if($stats['top_categories']->count() > 0)
-                    @foreach($stats['top_categories'] as $category)
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span>{{ $category->category ?: 'Uncategorized' }}</span>
-                            <span class="badge bg-primary">{{ $category->count }}</span>
-                        </div>
-                        <div class="progress mb-3" style="height: 8px;">
-                            <div class="progress-bar bg-primary" style="width: {{ ($category->count / $stats['top_categories']->first()->count) * 100 }}%"></div>
-                        </div>
-                    @endforeach
-                @else
-                    <p class="text-muted">No categories available</p>
-                @endif
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="bi bi-activity me-2"></i>
-                    Scrape Status Summary
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="row text-center">
-                    <div class="col-4">
-                        <div class="p-3">
-                            <i class="bi bi-check-circle-fill text-success fs-2"></i>
-                            <h4 class="text-success mt-2">{{ $stats['recent_logs']->where('status', 'success')->count() }}</h4>
-                            <small class="text-muted">Success</small>
-                        </div>
-                    </div>
-                    <div class="col-4">
-                        <div class="p-3">
-                            <i class="bi bi-x-circle-fill text-danger fs-2"></i>
-                            <h4 class="text-danger mt-2">{{ $stats['recent_logs']->where('status', 'failed')->count() }}</h4>
-                            <small class="text-muted">Failed</small>
-                        </div>
-                    </div>
-                    <div class="col-4">
-                        <div class="p-3">
-                            <i class="bi bi-pause-circle-fill text-warning fs-2"></i>
-                            <h4 class="text-warning mt-2">{{ $stats['recent_logs']->where('status', 'skipped')->count() }}</h4>
-                            <small class="text-muted">Skipped</small>
-                        </div>
-                    </div>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" data-card-widget="remove">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
             </div>
+            <!-- /.card-header -->
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table m-0">
+                        <thead>
+                        <tr>
+                            <th>Action</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td><a href="{{ route('places.index') }}">Manage Places</a></td>
+                            <td>View and manage all places in database</td>
+                            <td><span class="badge badge-success">Active</span></td>
+                        </tr>
+                        <tr>
+                            <td><a href="{{ route('api-tokens.index') }}">API Tokens</a></td>
+                            <td>Manage API access tokens</td>
+                            <td><span class="badge badge-success">Active</span></td>
+                        </tr>
+                        <tr>
+                            <td><a href="{{ route('scrape-logs.index') }}">Scrape Logs</a></td>
+                            <td>View scraping activity logs</td>
+                            <td><span class="badge badge-success">Active</span></td>
+                        </tr>
+                        <tr>
+                            <td><a href="#">Settings</a></td>
+                            <td>System configuration and preferences</td>
+                            <td><span class="badge badge-warning">Coming Soon</span></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.table-responsive -->
+            </div>
+            <!-- /.card-body -->
+            <div class="card-footer clearfix">
+                <a href="{{ route('places.create') }}" class="btn btn-sm btn-info float-left">Add New Place</a>
+                <a href="{{ route('scrape-logs.index') }}" class="btn btn-sm btn-secondary float-right">View All Logs</a>
+            </div>
+            <!-- /.card-footer -->
         </div>
+        <!-- /.card -->
     </div>
-</div>
+    <!-- /.col -->
 
-<!-- Recent Places & Logs -->
-<div class="row">
-    <div class="col-md-6">
+    <div class="col-md-4">
+        <!-- Info Boxes Style 2 -->
+        <div class="info-box mb-3 bg-warning">
+            <span class="info-box-icon"><i class="fas fa-tag"></i></span>
+
+            <div class="info-box-content">
+                <span class="info-box-text">Inventory</span>
+                <span class="info-box-number">5,200</span>
+
+                <div class="progress">
+                    <div class="progress-bar" style="width: 50%"></div>
+                </div>
+                <span class="progress-description">
+                    50% Increase in 30 Days
+                </span>
+            </div>
+            <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+        <div class="info-box mb-3 bg-success">
+            <span class="info-box-icon"><i class="far fa-heart"></i></span>
+
+            <div class="info-box-content">
+                <span class="info-box-text">Mentions</span>
+                <span class="info-box-number">92,050</span>
+
+                <div class="progress">
+                    <div class="progress-bar" style="width: 20%"></div>
+                </div>
+                <span class="progress-description">
+                    20% Increase in 30 Days
+                </span>
+            </div>
+            <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+        <div class="info-box mb-3 bg-danger">
+            <span class="info-box-icon"><i class="fas fa-cloud-download-alt"></i></span>
+
+            <div class="info-box-content">
+                <span class="info-box-text">Downloads</span>
+                <span class="info-box-number">114,381</span>
+
+                <div class="progress">
+                    <div class="progress-bar" style="width: 70%"></div>
+                </div>
+                <span class="progress-description">
+                    70% Increase in 30 Days
+                </span>
+            </div>
+            <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+        <div class="info-box mb-3 bg-info">
+            <span class="info-box-icon"><i class="far fa-comment"></i></span>
+
+            <div class="info-box-content">
+                <span class="info-box-text">Direct Messages</span>
+                <span class="info-box-number">163,921</span>
+
+                <div class="progress">
+                    <div class="progress-bar" style="width: 40%"></div>
+                </div>
+                <span class="progress-description">
+                    40% Increase in 30 Days
+                </span>
+            </div>
+            <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+
+        <!-- PRODUCT LIST -->
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="bi bi-clock-history me-2"></i>
-                    Recent Places
-                </h5>
-            </div>
-            <div class="card-body">
-                @if($stats['recent_places']->count() > 0)
-                    @foreach($stats['recent_places'] as $place)
-                        <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
-                            <div class="flex-grow-1">
-                                <h6 class="mb-1">{{ $place->name }}</h6>
-                                <small class="text-muted">
-                                    <i class="bi bi-geo-alt me-1"></i>
-                                    {{ $place->category ?: 'No category' }}
-                                </small>
-                                <div class="mt-1">
-                                    @if($place->rating)
-                                        <span class="badge bg-warning text-dark me-2">
-                                            <i class="bi bi-star-fill me-1"></i>
-                                            {{ number_format($place->rating, 1) }}
-                                        </span>
-                                    @endif
-                                    @if($place->review_count)
-                                        <small class="text-muted">{{ number_format($place->review_count) }} reviews</small>
-                                    @endif
-                                </div>
-                            </div>
-                            <small class="text-muted">{{ $place->created_at->diffForHumans() }}</small>
-                        </div>
-                    @endforeach
-                @else
-                    <p class="text-muted">No places available</p>
-                @endif
-            </div>
-        </div>
-    </div>
+                <h3 class="card-title">Recently Added Places</h3>
 
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="bi bi-journal-text me-2"></i>
-                    Recent Scrape Logs
-                </h5>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" data-card-widget="remove">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
             </div>
-            <div class="card-body">
-                @if($stats['recent_logs']->count() > 0)
-                    @foreach($stats['recent_logs'] as $log)
-                        <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
-                            <div class="me-3">
-                                @if($log->status === 'success')
-                                    <i class="bi bi-check-circle-fill text-success fs-5"></i>
-                                @elseif($log->status === 'failed')
-                                    <i class="bi bi-x-circle-fill text-danger fs-5"></i>
-                                @else
-                                    <i class="bi bi-pause-circle-fill text-warning fs-5"></i>
-                                @endif
+            <!-- /.card-header -->
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <a href="#" class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>La Bella Vista Restaurant</strong>
+                                <small class="text-muted d-block">Added 2 minutes ago</small>
                             </div>
-                            <div class="flex-grow-1">
-                                <small class="text-muted d-block">
-                                    {{ $log->place ? $log->place->name : 'Unknown Place' }}
-                                </small>
-                                <small class="text-muted">
-                                    Status: <span class="badge bg-{{ $log->status === 'success' ? 'success' : ($log->status === 'failed' ? 'danger' : 'warning') }}">{{ ucfirst($log->status) }}</span>
-                                </small>
+                            <span class="badge badge-success badge-pill">New</span>
+                        </a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="#" class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Central Park Cafe</strong>
+                                <small class="text-muted d-block">Added 5 minutes ago</small>
                             </div>
-                            <small class="text-muted">{{ $log->created_at->diffForHumans() }}</small>
-                        </div>
-                    @endforeach
-                @else
-                    <p class="text-muted">No scrape logs available</p>
-                @endif
+                            <span class="badge badge-info badge-pill">Scraped</span>
+                        </a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="#" class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Mountain View Lodge</strong>
+                                <small class="text-muted d-block">Added 10 minutes ago</small>
+                            </div>
+                            <span class="badge badge-warning badge-pill">Pending</span>
+                        </a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="#" class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Ocean Breeze Resort</strong>
+                                <small class="text-muted d-block">Added 15 minutes ago</small>
+                            </div>
+                            <span class="badge badge-danger badge-pill">Error</span>
+                        </a>
+                    </li>
+                </ul>
             </div>
+            <!-- /.card-body -->
+            <div class="card-footer text-center">
+                <a href="{{ route('places.index') }}" class="uppercase">View All Places</a>
+            </div>
+            <!-- /.card-footer -->
         </div>
+        <!-- /.card -->
     </div>
+    <!-- /.col -->
 </div>
+<!-- /.row -->
 @endsection

@@ -1,265 +1,130 @@
 @extends('layouts.app')
 
 @section('page-title', 'API Tokens')
+@section('page-subtitle', 'Manage your API access tokens')
 
 @section('content')
+<!-- Action buttons -->
 <div class="row mb-4">
     <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center">
-            <h2 class="mb-0">
-                <i class="bi bi-key me-2"></i>
-                API Tokens
-            </h2>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createTokenModal">
-                <i class="bi bi-plus-circle me-2"></i>
-                Generate New Token
-            </button>
-        </div>
-        <p class="text-muted mt-2">Manage API tokens for accessing Mafaza Fortuna API endpoints</p>
+        <a href="{{ route('api-tokens.create') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Create New Token
+        </a>
     </div>
 </div>
 
-<!-- Success Message -->
-@if(session('success'))
-<div class="alert alert-success alert-dismissible fade show" role="alert">
-    <i class="bi bi-check-circle-fill me-2"></i>
-    {{ session('success') }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-</div>
-@endif
-
-<!-- New Token Alert -->
-@if(session('new_token'))
-<div class="alert alert-info alert-dismissible fade show" role="alert">
-    <div class="d-flex align-items-start">
-        <div class="flex-grow-1">
-            <h6 class="alert-heading mb-2">
-                <i class="bi bi-key-fill me-2"></i>
-                New API Token Generated!
-            </h6>
-            <p class="mb-2">Copy this token and paste it into your Chrome extension settings:</p>
-            <div class="input-group mb-2">
-                <input type="text" class="form-control" id="newTokenValue" value="{{ session('new_token') }}" readonly>
-                <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard('newTokenValue')">
-                    <i class="bi bi-clipboard me-1"></i>
-                    Copy
-                </button>
-            </div>
-            <small class="text-muted">
-                <i class="bi bi-exclamation-triangle me-1"></i>
-                This token will only be shown once. Make sure to copy it now!
-            </small>
-        </div>
-    </div>
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-</div>
-@endif
-
-<!-- Tokens List -->
+<!-- API Tokens Table -->
 <div class="card">
     <div class="card-header">
-        <h5 class="mb-0">
-            <i class="bi bi-list-ul me-2"></i>
-            Your API Tokens
-        </h5>
+        <h3 class="card-title">All API Tokens</h3>
+
+        <div class="card-tools">
+            <div class="input-group input-group-sm" style="width: 150px;">
+                <input type="text" name="table_search" class="form-control float-right" placeholder="Search tokens">
+
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-default">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="card-body">
-        @if($tokens->count() > 0)
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Status</th>
-                            <th>Last Used</th>
-                            <th>Created</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($tokens as $token)
-                        <tr>
-                            <td>
-                                <strong>{{ $token->name }}</strong>
-                            </td>
-                            <td>
-                                @if($token->is_active)
-                                    <span class="badge bg-success">
-                                        <i class="bi bi-check-circle me-1"></i>
-                                        Active
-                                    </span>
-                                @else
-                                    <span class="badge bg-secondary">
-                                        <i class="bi bi-pause-circle me-1"></i>
-                                        Inactive
-                                    </span>
-                                @endif
-                            </td>
-                            <td>
-                                @if($token->last_used_at)
-                                    <small class="text-muted">
-                                        {{ $token->last_used_at->diffForHumans() }}
-                                        @if($token->last_used_ip)
-                                            <br>IP: {{ $token->last_used_ip }}
-                                        @endif
-                                    </small>
-                                @else
-                                    <small class="text-muted">Never used</small>
-                                @endif
-                            </td>
-                            <td>
-                                <small class="text-muted">{{ $token->created_at->format('M d, Y H:i') }}</small>
-                            </td>
-                            <td>
-                                <div class="btn-group" role="group">
-                                    <form action="{{ route('api-tokens.toggle-status', $token->id) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        @method('POST')
-                                        <button type="submit" class="btn btn-sm {{ $token->is_active ? 'btn-outline-warning' : 'btn-outline-success' }}"
-                                                onclick="return confirm('{{ $token->is_active ? 'Deactivate' : 'Activate' }} this token?')">
-                                            <i class="bi {{ $token->is_active ? 'bi-pause' : 'bi-play' }} me-1"></i>
-                                            {{ $token->is_active ? 'Deactivate' : 'Activate' }}
-                                        </button>
-                                    </form>
-
-                                    <form action="{{ route('api-tokens.regenerate', $token->id) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        @method('POST')
-                                        <button type="submit" class="btn btn-sm btn-outline-primary"
-                                                onclick="return confirm('Regenerate this token? The old token will stop working.')">
-                                            <i class="bi bi-arrow-clockwise me-1"></i>
-                                            Regenerate
-                                        </button>
-                                    </form>
-
-                                    <button type="button" class="btn btn-sm btn-outline-danger"
-                                            onclick="deleteToken({{ $token->id }}, '{{ $token->name }}')">
-                                        <i class="bi bi-trash me-1"></i>
-                                        Delete
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Pagination -->
-            {{ $tokens->links() }}
-        @else
-            <div class="text-center py-5">
-                <i class="bi bi-key text-muted" style="font-size: 3rem;"></i>
-                <h5 class="mt-3 text-muted">No API Tokens Yet</h5>
-                <p class="text-muted">Create your first API token to start using the Mafaza Fortuna API.</p>
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createTokenModal">
-                    <i class="bi bi-plus-circle me-2"></i>
-                    Generate First Token
-                </button>
-            </div>
-        @endif
-    </div>
-</div>
-
-<!-- Create Token Modal -->
-<div class="modal fade" id="createTokenModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="bi bi-plus-circle me-2"></i>
-                    Generate New API Token
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form action="{{ route('api-tokens.store') }}" method="POST">
-                @csrf
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="name" class="form-label">Token Name</label>
-                        <input type="text" class="form-control" id="name" name="name"
-                               placeholder="e.g., Chrome Extension, Mobile App, etc." required>
-                        <div class="form-text">
-                            Give your token a descriptive name to remember its purpose.
+    <!-- /.card-header -->
+    <div class="card-body table-responsive p-0">
+        <table class="table table-hover text-nowrap table-sm">
+            <thead>
+                <tr>
+                    <th style="width: 20%;">Token Name</th>
+                    <th style="width: 10%;">Status</th>
+                    <th style="width: 20%;">Last Used</th>
+                    <th style="width: 15%;">Created</th>
+                    <th style="width: 35%;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($apiTokens ?? [] as $token)
+                <tr style="height: 45px;">
+                    <td style="padding: 8px 12px; vertical-align: middle;">
+                        <div style="font-size: 0.875rem; font-weight: 600;">{{ Str::limit($token->name, 15) }}</div>
+                        <small class="text-muted" style="font-size: 0.75rem;">{{ substr($token->token, -8) }}</small>
+                    </td>
+                    <td style="padding: 8px 12px; vertical-align: middle;">
+                        @if($token->is_active)
+                            <span class="badge badge-success" style="font-size: 0.75rem;">
+                                <i class="fas fa-check-circle"></i>
+                            </span>
+                        @else
+                            <span class="badge badge-secondary" style="font-size: 0.75rem;">
+                                <i class="fas fa-pause-circle"></i>
+                            </span>
+                        @endif
+                    </td>
+                    <td style="padding: 8px 12px; vertical-align: middle;">
+                        @if($token->last_used_at)
+                            <span title="{{ $token->last_used_at->format('Y-m-d H:i:s') }}" style="font-size: 0.875rem;">
+                                {{ $token->last_used_at->diffForHumans() }}
+                            </span>
+                        @else
+                            <span class="text-muted" style="font-size: 0.875rem;">Never</span>
+                        @endif
+                    </td>
+                    <td style="padding: 8px 12px; vertical-align: middle;">
+                        <span title="{{ $token->created_at->format('Y-m-d H:i:s') }}" style="font-size: 0.875rem;">
+                            {{ $token->created_at->format('M d, Y') }}
+                        </span>
+                    </td>
+                    <td style="padding: 8px 12px; vertical-align: middle;">
+                        <div class="btn-group btn-group-sm">
+                            <a href="{{ route('api-tokens.show', $token) }}" class="btn btn-info btn-xs">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <form method="POST" action="{{ route('api-tokens.toggle-status', $token) }}" class="d-inline">
+                                @csrf
+                                <button type="submit" class="btn {{ $token->is_active ? 'btn-warning' : 'btn-success' }} btn-xs">
+                                    <i class="fas fa-{{ $token->is_active ? 'pause' : 'play' }}"></i>
+                                </button>
+                            </form>
+                            <form method="POST" action="{{ route('api-tokens.regenerate', $token) }}" class="d-inline">
+                                @csrf
+                                <button type="submit" class="btn btn-secondary btn-xs" onclick="return confirm('This will invalidate the current token. Continue?')">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </form>
+                            <form method="POST" action="{{ route('api-tokens.destroy', $token) }}" class="d-inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-xs" onclick="return confirm('Are you sure you want to delete this token?')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
                         </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-key me-2"></i>
-                        Generate Token
-                    </button>
-                </div>
-            </form>
-        </div>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="5" class="text-center py-4">
+                        <div class="text-muted">
+                            <i class="fas fa-key fa-2x mb-2"></i>
+                            <h5>No API tokens found</h5>
+                            <p style="font-size: 0.875rem;">Create your first API token to access the system programmatically.</p>
+                            <a href="{{ route('api-tokens.create') }}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus"></i> Create Token
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
-</div>
+    <!-- /.card-body -->
 
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteTokenModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title text-danger">
-                    <i class="bi bi-exclamation-triangle me-2"></i>
-                    Delete API Token
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete the token "<strong id="deleteTokenName"></strong>"?</p>
-                <div class="alert alert-warning">
-                    <i class="bi bi-exclamation-triangle me-2"></i>
-                    <strong>Warning:</strong> This action cannot be undone. Any applications using this token will lose access to the API.
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <form id="deleteTokenForm" method="POST" class="d-inline">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger">
-                        <i class="bi bi-trash me-2"></i>
-                        Delete Token
-                    </button>
-                </form>
-            </div>
-        </div>
+    @if(isset($apiTokens) && $apiTokens->hasPages())
+    <div class="card-footer">
+        {{ $apiTokens->links() }}
     </div>
+    @endif
 </div>
+<!-- /.card -->
 @endsection
-
-@push('scripts')
-<script>
-function copyToClipboard(elementId) {
-    const element = document.getElementById(elementId);
-    element.select();
-    element.setSelectionRange(0, 99999); // For mobile devices
-
-    navigator.clipboard.writeText(element.value).then(function() {
-        // Show success feedback
-        const button = element.nextElementSibling;
-        const originalText = button.innerHTML;
-        button.innerHTML = '<i class="bi bi-check me-1"></i>Copied!';
-        button.classList.remove('btn-outline-secondary');
-        button.classList.add('btn-success');
-
-        setTimeout(() => {
-            button.innerHTML = originalText;
-            button.classList.remove('btn-success');
-            button.classList.add('btn-outline-secondary');
-        }, 2000);
-    }).catch(function(err) {
-        console.error('Failed to copy: ', err);
-        alert('Failed to copy to clipboard');
-    });
-}
-
-function deleteToken(tokenId, tokenName) {
-    document.getElementById('deleteTokenName').textContent = tokenName;
-    document.getElementById('deleteTokenForm').action = `/api-tokens/${tokenId}`;
-    new bootstrap.Modal(document.getElementById('deleteTokenModal')).show();
-}
-</script>
-@endpush
