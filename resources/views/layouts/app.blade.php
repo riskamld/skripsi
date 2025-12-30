@@ -191,34 +191,205 @@
             margin-bottom: 0.75rem !important;
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
+        /* Enhanced responsive design for all devices */
+        @media (max-width: 1200px) {
             .sidebar {
-                width: 200px;
+                width: 220px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: -100%;
+                width: 280px;
+                height: 100vh;
+                z-index: 1050;
+                transition: left 0.3s ease;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            }
+
+            .sidebar.show {
+                left: 0;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            /* Mobile navbar */
+            .navbar-toggler {
+                display: block !important;
+            }
+
+            .navbar-brand {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            /* Ultra compact mobile layout */
+            .sidebar {
+                width: 100%;
+                position: fixed;
+                top: 0;
+                left: -100%;
+                z-index: 1050;
+                transition: left 0.3s ease;
             }
 
             .navbar {
-                padding: 0.25rem 0.5rem;
-                height: 45px;
+                padding: 0.25rem 0.75rem;
+                height: 50px;
+            }
+
+            .navbar-brand {
+                font-size: 0.9rem;
             }
 
             .container-fluid.p-4 {
                 padding: 0.5rem !important;
             }
 
-            .btn {
+            /* Mobile-first table design */
+            .table-responsive {
                 font-size: 0.75rem;
-                padding: 0.25rem 0.5rem;
             }
 
             .table th, .table td {
-                padding: 0.2rem;
-                font-size: 0.75rem;
+                padding: 0.3rem 0.2rem;
+                font-size: 0.7rem;
+                white-space: nowrap;
+                max-width: 80px;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
 
             .table th {
-                font-size: 0.7rem;
+                font-size: 0.65rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                writing-mode: horizontal-tb;
             }
+
+            /* Hide less important columns on mobile */
+            .table th:nth-child(6),
+            .table td:nth-child(6),
+            .table th:nth-child(7),
+            .table td:nth-child(7),
+            .table th:nth-child(8),
+            .table td:nth-child(8),
+            .table th:nth-child(9),
+            .table td:nth-child(9) {
+                display: none;
+            }
+
+            /* Compact buttons on mobile */
+            .btn {
+                font-size: 0.7rem;
+                padding: 0.2rem 0.4rem;
+                border-radius: 0.25rem;
+            }
+
+            .btn-group .btn {
+                padding: 0.15rem 0.2rem;
+                font-size: 0.65rem;
+            }
+
+            /* Compact pagination on mobile */
+            .pagination .page-link {
+                padding: 0.15rem 0.3rem;
+                font-size: 0.7rem;
+                margin: 0 1px;
+            }
+
+            /* Stack form elements vertically on mobile */
+            .row.g-3 > div {
+                margin-bottom: 0.5rem;
+            }
+
+            /* Compact cards on mobile */
+            .card-body {
+                padding: 0.5rem;
+            }
+
+            /* Smaller headings on mobile */
+            h1, h2, h3, h4, h5, h6 {
+                font-size: calc(1.1rem - 0.2rem);
+                margin-bottom: 0.5rem;
+            }
+
+            h2 {
+                font-size: 1rem;
+            }
+
+            /* Compact alerts */
+            .alert {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            /* Extra small screens */
+            .sidebar {
+                width: 100%;
+            }
+
+            .navbar-brand {
+                font-size: 0.8rem;
+            }
+
+            .table th, .table td {
+                padding: 0.2rem 0.15rem;
+                font-size: 0.65rem;
+                max-width: 60px;
+            }
+
+            .btn {
+                font-size: 0.65rem;
+                padding: 0.15rem 0.3rem;
+            }
+
+            /* Hide more columns on very small screens */
+            .table th:nth-child(4),
+            .table td:nth-child(4),
+            .table th:nth-child(5),
+            .table td:nth-child(5) {
+                display: none;
+            }
+        }
+
+        /* Mobile menu toggle */
+        .navbar-toggler {
+            display: none;
+            border: none;
+            background: none;
+            color: #6c757d;
+            font-size: 1.2rem;
+            padding: 0.25rem;
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: none;
+        }
+
+        /* Overlay for mobile sidebar */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1040;
+        }
+
+        .sidebar-overlay.show {
+            display: block;
         }
     </style>
 
@@ -269,6 +440,9 @@
             <div class="col-md-9 col-lg-10 px-0 main-content">
                 <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom px-4">
                     <div class="container-fluid">
+                        <button class="navbar-toggler me-3" type="button" onclick="toggleSidebar()">
+                            <i class="bi bi-list"></i>
+                        </button>
                         <span class="navbar-brand mb-0 h1">@yield('page-title', 'Dashboard')</span>
 
                         <div class="d-flex">
@@ -282,6 +456,9 @@
                     </div>
                 </nav>
 
+                <!-- Mobile sidebar overlay -->
+                <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
                 <div class="container-fluid p-4">
                     @yield('content')
                 </div>
@@ -293,6 +470,43 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- jQuery for AJAX functionality -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        // Mobile sidebar toggle functionality
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+
+            if (sidebar.classList.contains('show')) {
+                sidebar.classList.remove('show');
+                overlay.classList.remove('show');
+                document.body.style.overflow = '';
+            } else {
+                sidebar.classList.add('show');
+                overlay.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        // Close sidebar when clicking on nav links (mobile)
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.sidebar .nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth < 992) {
+                        toggleSidebar();
+                    }
+                });
+            });
+
+            // Close sidebar on escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && document.querySelector('.sidebar.show')) {
+                    toggleSidebar();
+                }
+            });
+        });
+    </script>
 
     @stack('scripts')
 </body>
