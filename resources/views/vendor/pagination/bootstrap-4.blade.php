@@ -1,6 +1,17 @@
 @if ($paginator->hasPages())
     <nav aria-label="Page navigation">
         <ul class="pagination justify-content-center">
+            {{-- First Page Link --}}
+            @if ($paginator->onFirstPage())
+                <li class="page-item disabled">
+                    <span class="page-link">First</span>
+                </li>
+            @else
+                <li class="page-item">
+                    <a class="page-link" href="{{ $paginator->url(1) }}">First</a>
+                </li>
+            @endif
+
             {{-- Previous Page Link --}}
             @if ($paginator->onFirstPage())
                 <li class="page-item disabled">
@@ -59,15 +70,20 @@
                     </span>
                 </li>
             @endif
+
+            {{-- Last Page Link --}}
+            @if ($paginator->hasMorePages())
+                <li class="page-item">
+                    <a class="page-link" href="{{ $paginator->url($paginator->lastPage()) }}">Last</a>
+                </li>
+            @else
+                <li class="page-item disabled">
+                    <span class="page-link">Last</span>
+                </li>
+            @endif
         </ul>
 
-        {{-- Pagination Info --}}
-        <div class="d-flex justify-content-center mt-2">
-            <small class="text-muted">
-                Showing {{ $paginator->firstItem() }} to {{ $paginator->lastItem() }} of {{ $paginator->total() }} results
-                (Page {{ $paginator->currentPage() }} of {{ $paginator->lastPage() }})
-            </small>
-        </div>
+
     </nav>
 @endif
 

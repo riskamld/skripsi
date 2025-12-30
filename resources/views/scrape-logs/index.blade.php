@@ -46,10 +46,10 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse($scrapeLogs ?? [] as $log)
+                @forelse($logs ?? [] as $log)
                 <tr style="height: 45px;">
                     <td style="padding: 8px 12px; vertical-align: middle;">
-                        <div style="font-size: 0.875rem; font-weight: 600;">{{ Str::limit($log->place_name ?? 'Unknown Place', 18) }}</div>
+                        <div style="font-size: 0.875rem; font-weight: 600;">{{ Str::limit($log->place->name ?? 'Unknown Place', 18) }}</div>
                     </td>
                     <td style="padding: 8px 12px; vertical-align: middle;">
                         @if($log->status === 'success')
@@ -81,7 +81,7 @@
                         </span>
                     </td>
                     <td style="padding: 8px 12px; vertical-align: middle;">
-                        <a href="{{ route('scrape-logs.show', $log) }}" class="btn btn-info btn-xs">
+                        <a href="{{ route('scrape-logs.show', $log) }}" class="btn btn-info btn-sm">
                             <i class="fas fa-eye"></i>
                         </a>
                     </td>
@@ -102,9 +102,20 @@
     </div>
     <!-- /.card-body -->
 
-    @if(isset($scrapeLogs) && $scrapeLogs->hasPages())
+    @if(isset($logs) && $logs->hasPages())
     <div class="card-footer">
-        {{ $scrapeLogs->links() }}
+        <div class="row">
+            <div class="col-sm-12 col-md-5">
+                <div class="dataTables_info" role="status" aria-live="polite">
+                    Showing {{ $logs->firstItem() }} to {{ $logs->lastItem() }} of {{ $logs->total() }} entries
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-7">
+                <div class="dataTables_paginate paging_simple_numbers">
+                    {{ $logs->appends(request()->query())->links('vendor.pagination.bootstrap-4') }}
+                </div>
+            </div>
+        </div>
     </div>
     @endif
 </div>

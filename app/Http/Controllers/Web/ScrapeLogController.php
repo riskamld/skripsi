@@ -46,7 +46,7 @@ class ScrapeLogController extends Controller
             $query->orderBy($sortBy, $sortDir);
         }
 
-        $logs = $query->paginate(20);
+        $logs = $query->paginate(20)->onEachSide(2);
 
         // Get status counts for summary
         $statusCounts = [

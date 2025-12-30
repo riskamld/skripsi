@@ -13,8 +13,7 @@
             <div class="info-box-content">
                 <span class="info-box-text">Total Places</span>
                 <span class="info-box-number">
-                    {{ $placesCount ?? 0 }}
-                    <small>%</small>
+                    {{ $stats['total_places'] ?? 0 }}
                 </span>
             </div>
             <!-- /.info-box-content -->
@@ -28,7 +27,7 @@
 
             <div class="info-box-content">
                 <span class="info-box-text">Scrape Logs</span>
-                <span class="info-box-number">{{ $scrapeLogsCount ?? 0 }}</span>
+                <span class="info-box-number">{{ $stats['total_scrape_logs'] ?? 0 }}</span>
             </div>
             <!-- /.info-box-content -->
         </div>
@@ -41,11 +40,11 @@
 
     <div class="col-12 col-sm-6 col-md-3">
         <div class="info-box mb-3">
-            <span class="info-box-icon bg-success elevation-1"><i class="fas fa-key"></i></span>
+            <span class="info-box-icon bg-success elevation-1"><i class="fas fa-star"></i></span>
 
             <div class="info-box-content">
-                <span class="info-box-text">API Tokens</span>
-                <span class="info-box-number">{{ $apiTokensCount ?? 0 }}</span>
+                <span class="info-box-text">Avg Rating</span>
+                <span class="info-box-number">{{ number_format($stats['avg_rating'] ?? 0, 1) }}</span>
             </div>
             <!-- /.info-box-content -->
         </div>
@@ -54,11 +53,11 @@
     <!-- /.col -->
     <div class="col-12 col-sm-6 col-md-3">
         <div class="info-box mb-3">
-            <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-cogs"></i></span>
+            <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-calendar-day"></i></span>
 
             <div class="info-box-content">
-                <span class="info-box-text">System Status</span>
-                <span class="info-box-number">Operational</span>
+                <span class="info-box-text">Places Today</span>
+                <span class="info-box-number">{{ $stats['places_today'] ?? 0 }}</span>
             </div>
             <!-- /.info-box-content -->
         </div>
@@ -67,6 +66,81 @@
     <!-- /.col -->
 </div>
 <!-- /.row -->
+
+<!-- Charts Row -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-chart-pie mr-2"></i>
+                    Places by Category
+                </h3>
+            </div>
+            <div class="card-body">
+                <canvas id="categoryChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-chart-line mr-2"></i>
+                    Weekly Activity
+                </h3>
+            </div>
+            <div class="card-body">
+                <canvas id="activityChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-clock mr-2"></i>
+                    Recent Activity
+                </h3>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped m-0">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Action</th>
+                                <th>Place</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($stats['recent_logs'] ?? [] as $log)
+                            <tr>
+                                <td>{{ $log->created_at->diffForHumans() }}</td>
+                                <td>{{ ucfirst($log->action ?? 'Scraped') }}</td>
+                                <td>{{ $log->place->name ?? 'Unknown' }}</td>
+                                <td>
+                                    <span class="badge badge-{{ $log->status === 'success' ? 'success' : ($log->status === 'error' ? 'danger' : 'warning') }}">
+                                        {{ ucfirst($log->status ?? 'Unknown') }}
+                                    </span>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="{{ route('scrape-logs.index') }}" class="btn btn-sm btn-primary">View All Logs</a>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Main row -->
 <div class="row">
@@ -114,9 +188,9 @@
                             <td><span class="badge badge-success">Active</span></td>
                         </tr>
                         <tr>
-                            <td><a href="#">Settings</a></td>
-                            <td>System configuration and preferences</td>
-                            <td><span class="badge badge-warning">Coming Soon</span></td>
+                            <td><a href="/extension-chrome-mafaza.zip" download>Download Chrome Extension</a></td>
+                            <td>Download the Chrome extension for Mafaza Fortuna</td>
+                            <td><span class="badge badge-success">Available</span></td>
                         </tr>
                         </tbody>
                     </table>
@@ -133,142 +207,73 @@
         <!-- /.card -->
     </div>
     <!-- /.col -->
-
-    <div class="col-md-4">
-        <!-- Info Boxes Style 2 -->
-        <div class="info-box mb-3 bg-warning">
-            <span class="info-box-icon"><i class="fas fa-tag"></i></span>
-
-            <div class="info-box-content">
-                <span class="info-box-text">Inventory</span>
-                <span class="info-box-number">5,200</span>
-
-                <div class="progress">
-                    <div class="progress-bar" style="width: 50%"></div>
-                </div>
-                <span class="progress-description">
-                    50% Increase in 30 Days
-                </span>
-            </div>
-            <!-- /.info-box-content -->
-        </div>
-        <!-- /.info-box -->
-        <div class="info-box mb-3 bg-success">
-            <span class="info-box-icon"><i class="far fa-heart"></i></span>
-
-            <div class="info-box-content">
-                <span class="info-box-text">Mentions</span>
-                <span class="info-box-number">92,050</span>
-
-                <div class="progress">
-                    <div class="progress-bar" style="width: 20%"></div>
-                </div>
-                <span class="progress-description">
-                    20% Increase in 30 Days
-                </span>
-            </div>
-            <!-- /.info-box-content -->
-        </div>
-        <!-- /.info-box -->
-        <div class="info-box mb-3 bg-danger">
-            <span class="info-box-icon"><i class="fas fa-cloud-download-alt"></i></span>
-
-            <div class="info-box-content">
-                <span class="info-box-text">Downloads</span>
-                <span class="info-box-number">114,381</span>
-
-                <div class="progress">
-                    <div class="progress-bar" style="width: 70%"></div>
-                </div>
-                <span class="progress-description">
-                    70% Increase in 30 Days
-                </span>
-            </div>
-            <!-- /.info-box-content -->
-        </div>
-        <!-- /.info-box -->
-        <div class="info-box mb-3 bg-info">
-            <span class="info-box-icon"><i class="far fa-comment"></i></span>
-
-            <div class="info-box-content">
-                <span class="info-box-text">Direct Messages</span>
-                <span class="info-box-number">163,921</span>
-
-                <div class="progress">
-                    <div class="progress-bar" style="width: 40%"></div>
-                </div>
-                <span class="progress-description">
-                    40% Increase in 30 Days
-                </span>
-            </div>
-            <!-- /.info-box-content -->
-        </div>
-        <!-- /.info-box -->
-
-        <!-- PRODUCT LIST -->
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Recently Added Places</h3>
-
-                <div class="card-tools">
-                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                        <i class="fas fa-minus"></i>
-                    </button>
-                    <button type="button" class="btn btn-tool" data-card-widget="remove">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            </div>
-            <!-- /.card-header -->
-            <div class="card-body p-0">
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item">
-                        <a href="#" class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>La Bella Vista Restaurant</strong>
-                                <small class="text-muted d-block">Added 2 minutes ago</small>
-                            </div>
-                            <span class="badge badge-success badge-pill">New</span>
-                        </a>
-                    </li>
-                    <li class="list-group-item">
-                        <a href="#" class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>Central Park Cafe</strong>
-                                <small class="text-muted d-block">Added 5 minutes ago</small>
-                            </div>
-                            <span class="badge badge-info badge-pill">Scraped</span>
-                        </a>
-                    </li>
-                    <li class="list-group-item">
-                        <a href="#" class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>Mountain View Lodge</strong>
-                                <small class="text-muted d-block">Added 10 minutes ago</small>
-                            </div>
-                            <span class="badge badge-warning badge-pill">Pending</span>
-                        </a>
-                    </li>
-                    <li class="list-group-item">
-                        <a href="#" class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>Ocean Breeze Resort</strong>
-                                <small class="text-muted d-block">Added 15 minutes ago</small>
-                            </div>
-                            <span class="badge badge-danger badge-pill">Error</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            <!-- /.card-body -->
-            <div class="card-footer text-center">
-                <a href="{{ route('places.index') }}" class="uppercase">View All Places</a>
-            </div>
-            <!-- /.card-footer -->
-        </div>
-        <!-- /.card -->
-    </div>
-    <!-- /.col -->
 </div>
 <!-- /.row -->
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+$(function () {
+    // Category Pie Chart
+    var categoryData = @json($stats['top_categories'] ?? []);
+    var categoryLabels = categoryData.map(function(item) { return item.category || 'Unknown'; });
+    var categoryCounts = categoryData.map(function(item) { return item.count; });
+
+    var categoryChartCanvas = $('#categoryChart').get(0).getContext('2d');
+    var categoryChart = new Chart(categoryChartCanvas, {
+        type: 'pie',
+        data: {
+            labels: categoryLabels,
+            datasets: [{
+                data: categoryCounts,
+                backgroundColor: [
+                    '#007bff',
+                    '#28a745',
+                    '#ffc107',
+                    '#dc3545',
+                    '#6f42c1'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+    // Activity Line Chart (mock data for demonstration)
+    var activityLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    var activityData = [12, 19, 3, 5, 2, 3, 9]; // Mock data
+
+    var activityChartCanvas = $('#activityChart').get(0).getContext('2d');
+    var activityChart = new Chart(activityChartCanvas, {
+        type: 'line',
+        data: {
+            labels: activityLabels,
+            datasets: [{
+                label: 'Places Added',
+                data: activityData,
+                borderColor: '#007bff',
+                backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+});
+</script>
 @endsection

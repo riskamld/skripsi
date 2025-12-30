@@ -27,16 +27,16 @@
             <div class="card-body">
                 <dl class="row">
                     <dt class="col-sm-4">Token ID:</dt>
-                    <dd class="col-sm-8">{{ $apiToken->id }}</dd>
+                    <dd class="col-sm-8">{{ $token->id }}</dd>
 
                     <dt class="col-sm-4">Token Name:</dt>
                     <dd class="col-sm-8">
-                        <strong>{{ $apiToken->name }}</strong>
+                        <strong>{{ $token->name }}</strong>
                     </dd>
 
                     <dt class="col-sm-4">Status:</dt>
                     <dd class="col-sm-8">
-                        @if($apiToken->is_active)
+                        @if($token->is_active)
                             <span class="badge badge-success">
                                 <i class="fas fa-check-circle"></i> Active
                             </span>
@@ -50,12 +50,12 @@
                     <dt class="col-sm-4">Token:</dt>
                     <dd class="col-sm-8">
                         <div class="input-group">
-                            <input type="text" class="form-control" value="{{ $apiToken->token }}" readonly id="tokenField">
+                            <input type="text" class="form-control" value="{{ $token->token }}" readonly id="tokenField">
                             <div class="input-group-append">
-                                <button class="btn btn-outline-secondary" type="button" onclick="copyToken()">
+                                <button class="btn btn-outline-secondary btn-sm" type="button" onclick="copyToken()">
                                     <i class="fas fa-copy"></i>
                                 </button>
-                                <button class="btn btn-outline-secondary" type="button" onclick="toggleTokenVisibility()">
+                                <button class="btn btn-outline-secondary btn-sm" type="button" onclick="toggleTokenVisibility()">
                                     <i class="fas fa-eye" id="toggleIcon"></i>
                                 </button>
                             </div>
@@ -64,10 +64,10 @@
                     </dd>
 
                     <dt class="col-sm-4">Created:</dt>
-                    <dd class="col-sm-8">{{ $apiToken->created_at->format('M d, Y \a\t H:i:s') }}</dd>
+                    <dd class="col-sm-8">{{ $token->created_at->format('M d, Y \a\t H:i:s') }}</dd>
 
                     <dt class="col-sm-4">Updated:</dt>
-                    <dd class="col-sm-8">{{ $apiToken->updated_at->format('M d, Y \a\t H:i:s') }}</dd>
+                    <dd class="col-sm-8">{{ $token->updated_at->format('M d, Y \a\t H:i:s') }}</dd>
                 </dl>
             </div>
         </div>
@@ -87,8 +87,8 @@
                             <div class="info-box-content">
                                 <span class="info-box-text">Last Used</span>
                                 <span class="info-box-number">
-                                    @if($apiToken->last_used_at)
-                                        {{ $apiToken->last_used_at->diffForHumans() }}
+                                    @if($token->last_used_at)
+                                        {{ $token->last_used_at->diffForHumans() }}
                                     @else
                                         Never
                                     @endif
@@ -101,7 +101,7 @@
                             <div class="info-box-content">
                                 <span class="info-box-text">Last IP Address</span>
                                 <span class="info-box-number">
-                                    {{ $apiToken->last_used_ip ?? 'N/A' }}
+                                    {{ $token->last_used_ip ?? 'N/A' }}
                                 </span>
                             </div>
                         </div>
@@ -122,25 +122,25 @@
                 </h3>
             </div>
             <div class="card-body">
-                <form method="POST" action="{{ route('api-tokens.toggle-status', $apiToken) }}" class="mb-3">
+                <form method="POST" action="{{ route('api-tokens.toggle-status', $token) }}" class="mb-3">
                     @csrf
-                    <button type="submit" class="btn {{ $apiToken->is_active ? 'btn-warning' : 'btn-success' }} btn-block">
-                        <i class="fas fa-{{ $apiToken->is_active ? 'pause' : 'play' }}"></i>
-                        {{ $apiToken->is_active ? 'Deactivate Token' : 'Activate Token' }}
+                    <button type="submit" class="btn {{ $token->is_active ? 'btn-warning' : 'btn-success' }} btn-block btn-sm">
+                        <i class="fas fa-{{ $token->is_active ? 'pause' : 'play' }}"></i>
+                        {{ $token->is_active ? 'Deactivate Token' : 'Activate Token' }}
                     </button>
                 </form>
 
-                <form method="POST" action="{{ route('api-tokens.regenerate', $apiToken) }}" class="mb-3">
+                <form method="POST" action="{{ route('api-tokens.regenerate', $token) }}" class="mb-3">
                     @csrf
-                    <button type="submit" class="btn btn-secondary btn-block" onclick="return confirm('This will invalidate the current token. Continue?')">
+                    <button type="submit" class="btn btn-secondary btn-block btn-sm" onclick="return confirm('This will invalidate the current token. Continue?')">
                         <i class="fas fa-sync-alt"></i> Regenerate Token
                     </button>
                 </form>
 
-                <form method="POST" action="{{ route('api-tokens.destroy', $apiToken) }}">
+                <form method="POST" action="{{ route('api-tokens.destroy', $token) }}">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="btn btn-danger btn-block" onclick="return confirm('Are you sure you want to delete this token?')">
+                    <button type="submit" class="btn btn-danger btn-block btn-sm" onclick="return confirm('Are you sure you want to delete this token?')">
                         <i class="fas fa-trash"></i> Delete Token
                     </button>
                 </form>
@@ -178,7 +178,7 @@
             </div>
             <div class="card-body">
                 <h6>How to use this token:</h6>
-                <pre class="bg-light p-2 rounded"><code>Authorization: Bearer {{ $apiToken->token }}</code></pre>
+                <pre class="bg-light p-2 rounded"><code>Authorization: Bearer {{ $token->token }}</code></pre>
                 <small class="text-muted">Include this header in all API requests</small>
             </div>
         </div>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\Place;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class PlaceController extends Controller
 {
@@ -40,7 +41,7 @@ class PlaceController extends Controller
         $sortDir = $request->get('direction', 'desc');
 
         // Debug logging
-        \Log::info('Sort parameters', ['sort' => $sortBy, 'direction' => $sortDir, 'all_params' => $request->all()]);
+        Log::info('Sort parameters', ['sort' => $sortBy, 'direction' => $sortDir, 'all_params' => $request->all()]);
 
         $allowedSorts = ['name', 'rating', 'review_count', 'created_at', 'updated_at'];
         if (in_array($sortBy, $allowedSorts)) {
@@ -63,7 +64,7 @@ class PlaceController extends Controller
             }
         }
 
-        $places = $query->paginate(50);
+        $places = $query->paginate(50)->onEachSide(2);
 
         // Get unique categories for filter dropdown
         $categories = Place::whereNotNull('category')

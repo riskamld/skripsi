@@ -27,6 +27,11 @@ class DashboardController extends Controller
             'recent_logs' => ScrapeLog::with('place')->latest()->limit(10)->get(),
         ];
 
-        return view('dashboard', compact('stats'));
+        // Also pass individual variables for backward compatibility
+        $placesCount = $stats['total_places'];
+        $scrapeLogsCount = $stats['total_scrape_logs'];
+        $apiTokensCount = \App\Models\ApiToken::count();
+
+        return view('dashboard', compact('stats', 'placesCount', 'scrapeLogsCount', 'apiTokensCount'));
     }
 }

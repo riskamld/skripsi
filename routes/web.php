@@ -17,6 +17,6 @@ Route::post('/scrape-logs/clear-all', [ScrapeLogController::class, 'clearAll'])-
 Route::resource('scrape-logs', ScrapeLogController::class)->except(['create', 'store', 'edit', 'update']);
 
 // API Tokens routes
-Route::resource('api-tokens', ApiTokenController::class)->except(['create', 'edit']);
+Route::resource('api-tokens', ApiTokenController::class)->except(['edit']);
 Route::post('/api-tokens/{id}/toggle-status', [ApiTokenController::class, 'toggleStatus'])->name('api-tokens.toggle-status');
 Route::post('/api-tokens/{id}/regenerate', [ApiTokenController::class, 'regenerate'])->name('api-tokens.regenerate');

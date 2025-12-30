@@ -63,7 +63,7 @@
                         @if($place->phone)
                             <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $place->phone) }}"
                                target="_blank"
-                               class="btn btn-xs btn-success"
+                               class="btn btn-sm btn-success"
                                title="Chat via WhatsApp">
                                 <i class="fab fa-whatsapp"></i> {{ Str::limit($place->phone, 12) }}
                             </a>
@@ -73,7 +73,7 @@
                     </td>
                     <td style="padding: 8px 12px; vertical-align: middle;">
                         @if($place->website)
-                            <a href="{{ $place->website }}" target="_blank" class="btn btn-xs btn-outline-primary">
+                            <a href="{{ $place->website }}" target="_blank" class="btn btn-sm btn-outline-primary">
                                 <i class="fas fa-external-link-alt"></i>
                             </a>
                         @else
@@ -91,16 +91,16 @@
                     </td>
                     <td style="padding: 8px 12px; vertical-align: middle;">
                         <div class="btn-group btn-group-sm">
-                            <a href="{{ route('places.show', $place) }}" class="btn btn-info btn-xs">
+                            <a href="{{ route('places.show', $place) }}" class="btn btn-info btn-sm">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            <a href="{{ route('places.edit', $place) }}" class="btn btn-warning btn-xs">
+                            <a href="{{ route('places.edit', $place) }}" class="btn btn-warning btn-sm">
                                 <i class="fas fa-edit"></i>
                             </a>
                             <form method="POST" action="{{ route('places.destroy', $place) }}" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-xs" onclick="return confirm('Are you sure?')">
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>
@@ -128,7 +128,18 @@
 
     @if(isset($places) && $places->hasPages())
     <div class="card-footer">
-        {{ $places->links() }}
+        <div class="row">
+            <div class="col-sm-12 col-md-5">
+                <div class="dataTables_info" role="status" aria-live="polite">
+                    Showing {{ $places->firstItem() }} to {{ $places->lastItem() }} of {{ $places->total() }} entries
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-7">
+                <div class="dataTables_paginate paging_simple_numbers">
+                    {{ $places->appends(request()->query())->links('vendor.pagination.bootstrap-4') }}
+                </div>
+            </div>
+        </div>
     </div>
     @endif
 </div>

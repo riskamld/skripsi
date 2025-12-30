@@ -169,6 +169,11 @@
                         <i class="fas fa-plus mr-2"></i>
                         Add Your First Place
                     </a>
+                    <br><br>
+                    <a href="/extension-chrome-mafaza.zip" download class="btn btn-outline-secondary btn-lg">
+                        <i class="fas fa-download mr-2"></i>
+                        Download Chrome Extension
+                    </a>
                 </div>
             </div>
         </div>

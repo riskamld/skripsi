@@ -11,7 +11,7 @@ class ApiTokenController extends Controller
 {
     public function index()
     {
-        $tokens = ApiToken::latest()->paginate(20);
+        $tokens = ApiToken::latest()->paginate(20)->onEachSide(2);
 
         return view('api-tokens.index', compact('tokens'));
     }

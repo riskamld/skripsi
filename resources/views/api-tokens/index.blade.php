@@ -43,7 +43,7 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse($apiTokens ?? [] as $token)
+                @forelse($tokens ?? [] as $token)
                 <tr style="height: 45px;">
                     <td style="padding: 8px 12px; vertical-align: middle;">
                         <div style="font-size: 0.875rem; font-weight: 600;">{{ Str::limit($token->name, 15) }}</div>
@@ -76,25 +76,25 @@
                     </td>
                     <td style="padding: 8px 12px; vertical-align: middle;">
                         <div class="btn-group btn-group-sm">
-                            <a href="{{ route('api-tokens.show', $token) }}" class="btn btn-info btn-xs">
+                            <a href="{{ route('api-tokens.show', $token) }}" class="btn btn-info btn-sm">
                                 <i class="fas fa-eye"></i>
                             </a>
                             <form method="POST" action="{{ route('api-tokens.toggle-status', $token) }}" class="d-inline">
                                 @csrf
-                                <button type="submit" class="btn {{ $token->is_active ? 'btn-warning' : 'btn-success' }} btn-xs">
+                                <button type="submit" class="btn {{ $token->is_active ? 'btn-warning' : 'btn-success' }} btn-sm">
                                     <i class="fas fa-{{ $token->is_active ? 'pause' : 'play' }}"></i>
                                 </button>
                             </form>
                             <form method="POST" action="{{ route('api-tokens.regenerate', $token) }}" class="d-inline">
                                 @csrf
-                                <button type="submit" class="btn btn-secondary btn-xs" onclick="return confirm('This will invalidate the current token. Continue?')">
+                                <button type="submit" class="btn btn-secondary btn-sm" onclick="return confirm('This will invalidate the current token. Continue?')">
                                     <i class="fas fa-sync-alt"></i>
                                 </button>
                             </form>
                             <form method="POST" action="{{ route('api-tokens.destroy', $token) }}" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-xs" onclick="return confirm('Are you sure you want to delete this token?')">
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this token?')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>
@@ -120,9 +120,20 @@
     </div>
     <!-- /.card-body -->
 
-    @if(isset($apiTokens) && $apiTokens->hasPages())
+    @if(isset($tokens) && $tokens->hasPages())
     <div class="card-footer">
-        {{ $apiTokens->links() }}
+        <div class="row">
+            <div class="col-sm-12 col-md-5">
+                <div class="dataTables_info" role="status" aria-live="polite">
+                    Showing {{ $tokens->firstItem() }} to {{ $tokens->lastItem() }} of {{ $tokens->total() }} entries
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-7">
+                <div class="dataTables_paginate paging_simple_numbers">
+                    {{ $tokens->appends(request()->query())->links('vendor.pagination.bootstrap-4') }}
+                </div>
+            </div>
+        </div>
     </div>
     @endif
 </div>
