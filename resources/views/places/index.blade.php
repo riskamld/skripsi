@@ -40,11 +40,11 @@
         <table class="table table-hover text-nowrap table-sm">
             <thead>
                 <tr>
-                    <th style="width: 15%;">Name</th>
-                    <th style="width: 20%;">Address</th>
-                    <th style="width: 15%;">Phone</th>
-                    <th style="width: 15%;">Website</th>
-                    <th style="width: 10%;">
+                    <th style="width: 20%;">Name</th>
+                    <th style="width: 18%;">Address</th>
+                    <th style="width: 13%;">Phone</th>
+                    <th style="width: 13%;">Website</th>
+                    <th style="width: 9%;">
                         <a href="{{ route('places.index', array_merge(request()->query(), ['sort' => 'rating', 'direction' => (request('sort') === 'rating' && request('direction') === 'desc') ? 'asc' : 'desc'])) }}" class="text-decoration-none">
                             Rating
                             @if(request('sort') === 'rating')
@@ -82,7 +82,7 @@
                 <tr style="height: 45px;">
                     <td style="padding: 8px 12px; vertical-align: middle;">
                         <div style="font-size: 0.875rem; font-weight: 600;">{{ Str::limit($place->name, 20) }}</div>
-                        <small class="text-muted" style="font-size: 0.75rem;">{{ $place->created_at->format('M d') }}</small>
+                        <small class="text-info" style="font-size: 0.75rem;">{{ $place->category ? Str::limit($place->category, 15) : '-' }}</small>
                     </td>
                     <td style="padding: 8px 12px; vertical-align: middle;">
                         <div style="font-size: 0.875rem;">{{ Str::limit($place->address, 25) }}</div>
@@ -128,9 +128,10 @@
                     </td>
                     <td style="padding: 8px 12px; vertical-align: middle;">
                         @if($place->last_scraped_at)
-                            <span title="{{ $place->last_scraped_at->format('Y-m-d H:i:s') }}" style="font-size: 0.875rem;">
+                            <div style="font-size: 0.875rem; font-weight: 600;">{{ $place->last_scraped_at->format('M d') }}</div>
+                            <small title="{{ $place->last_scraped_at->format('Y-m-d H:i:s') }}" class="text-muted" style="font-size: 0.75rem;">
                                 {{ $place->last_scraped_at->diffForHumans() }}
-                            </span>
+                            </small>
                         @else
                             <span class="text-muted" style="font-size: 0.875rem;">Never</span>
                         @endif
