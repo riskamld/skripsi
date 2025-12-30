@@ -10,6 +10,5 @@ Route::get('/places', [PlaceController::class, 'index'])
 Route::post('/places', [PlaceController::class, 'store'])
     ->middleware(\App\Http\Middleware\ApiTokenAuth::class);
 
-// Product Prices API
-Route::apiResource('product-prices', ProductPriceController::class)
-    ->middleware(\App\Http\Middleware\ApiTokenAuth::class);
+// Product Prices API (removed to avoid route name conflicts)
+// API functionality handled through web routes with authentication
