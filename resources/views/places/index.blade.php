@@ -25,12 +25,11 @@
         <h3 class="card-title">All Places</h3>
 
         <div class="card-tools">
-            <div class="input-group input-group-sm" style="width: 150px;">
-                <input type="text" name="table_search" class="form-control float-right" placeholder="Search">
-
+            <div class="input-group input-group-sm" style="width: 250px;">
+                <input type="text" id="searchInput" class="form-control" placeholder="Search places (min 4 chars)">
                 <div class="input-group-append">
-                    <button type="submit" class="btn btn-default">
-                        <i class="fas fa-search"></i>
+                    <button type="button" id="clearSearch" class="btn btn-outline-secondary" style="display: none;">
+                        <i class="fas fa-times"></i>
                     </button>
                 </div>
             </div>
@@ -45,8 +44,37 @@
                     <th style="width: 20%;">Address</th>
                     <th style="width: 15%;">Phone</th>
                     <th style="width: 15%;">Website</th>
-                    <th style="width: 10%;">Rating</th>
-                    <th style="width: 25%;">Actions</th>
+                    <th style="width: 10%;">
+                        <a href="{{ route('places.index', array_merge(request()->query(), ['sort' => 'rating', 'direction' => (request('sort') === 'rating' && request('direction') === 'desc') ? 'asc' : 'desc'])) }}" class="text-decoration-none">
+                            Rating
+                            @if(request('sort') === 'rating')
+                                <i class="fas fa-sort-{{ request('direction') === 'desc' ? 'down' : 'up' }}"></i>
+                            @else
+                                <i class="fas fa-sort text-muted"></i>
+                            @endif
+                        </a>
+                    </th>
+                    <th style="width: 10%;">
+                        <a href="{{ route('places.index', array_merge(request()->query(), ['sort' => 'review_count', 'direction' => (request('sort') === 'review_count' && request('direction') === 'desc') ? 'asc' : 'desc'])) }}" class="text-decoration-none">
+                            Reviews
+                            @if(request('sort') === 'review_count')
+                                <i class="fas fa-sort-{{ request('direction') === 'desc' ? 'down' : 'up' }}"></i>
+                            @else
+                                <i class="fas fa-sort text-muted"></i>
+                            @endif
+                        </a>
+                    </th>
+                    <th style="width: 10%;">
+                        <a href="{{ route('places.index', array_merge(request()->query(), ['sort' => 'last_scraped_at', 'direction' => (request('sort') === 'last_scraped_at' && request('direction') === 'desc') ? 'asc' : 'desc'])) }}" class="text-decoration-none">
+                            Scraped
+                            @if(request('sort') === 'last_scraped_at')
+                                <i class="fas fa-sort-{{ request('direction') === 'desc' ? 'down' : 'up' }}"></i>
+                            @else
+                                <i class="fas fa-sort text-muted"></i>
+                            @endif
+                        </a>
+                    </th>
+                    <th style="width: 15%;">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -90,6 +118,24 @@
                         @endif
                     </td>
                     <td style="padding: 8px 12px; vertical-align: middle;">
+                        @if($place->review_count)
+                            <span class="badge badge-info" style="font-size: 0.75rem;">
+                                <i class="fas fa-comments"></i> {{ number_format($place->review_count) }}
+                            </span>
+                        @else
+                            <span class="badge badge-secondary" style="font-size: 0.75rem;">-</span>
+                        @endif
+                    </td>
+                    <td style="padding: 8px 12px; vertical-align: middle;">
+                        @if($place->last_scraped_at)
+                            <span title="{{ $place->last_scraped_at->format('Y-m-d H:i:s') }}" style="font-size: 0.875rem;">
+                                {{ $place->last_scraped_at->diffForHumans() }}
+                            </span>
+                        @else
+                            <span class="text-muted" style="font-size: 0.875rem;">Never</span>
+                        @endif
+                    </td>
+                    <td style="padding: 8px 12px; vertical-align: middle;">
                         <div class="btn-group btn-group-sm">
                             <a href="{{ route('places.show', $place) }}" class="btn btn-info btn-sm">
                                 <i class="fas fa-eye"></i>
@@ -109,7 +155,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" class="text-center py-4">
+                    <td colspan="8" class="text-center py-4">
                         <div class="text-muted">
                             <i class="fas fa-map-marker-alt fa-2x mb-2"></i>
                             <h5>No places found</h5>
@@ -144,4 +190,99 @@
     @endif
 </div>
 <!-- /.card -->
+
+<script>
+$(document).ready(function() {
+    let searchTimeout;
+    const searchInput = $('#searchInput');
+    const clearSearchBtn = $('#clearSearch');
+
+    // Real-time search with 4+ characters
+    searchInput.on('input', function() {
+        const query = $(this).val().trim();
+
+        // Show/hide clear button
+        clearSearchBtn.toggle(query.length > 0);
+
+        // Clear previous timeout
+        clearTimeout(searchTimeout);
+
+        if (query.length >= 4) {
+            // Debounce search - wait 300ms after user stops typing
+            searchTimeout = setTimeout(function() {
+                performSearch(query);
+            }, 300);
+        } else if (query.length === 0) {
+            // Clear search if input is empty
+            clearSearch();
+        }
+    });
+
+    // Clear search button
+    clearSearchBtn.on('click', function() {
+        searchInput.val('');
+        clearSearchBtn.hide();
+        clearSearch();
+    });
+
+    function performSearch(query) {
+        // Show loading indicator
+        searchInput.prop('disabled', true);
+        searchInput.css('opacity', '0.6');
+
+        // Get current URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+
+        // Update search parameter
+        urlParams.set('search', query);
+
+        // Remove pagination and sorting params for fresh search
+        urlParams.delete('page');
+
+        // Make AJAX request
+        $.ajax({
+            url: '{{ route("places.index") }}',
+            type: 'GET',
+            data: urlParams.toString(),
+            success: function(response) {
+                // Update the table content
+                const parser = new DOMParser();
+                const newDoc = parser.parseFromString(response, 'text/html');
+                const newTable = newDoc.querySelector('.table-responsive');
+                const newPagination = newDoc.querySelector('.card-footer');
+
+                $('.table-responsive').replaceWith(newTable);
+                $('.card-footer').replaceWith(newPagination || '');
+
+                // Update URL without page reload
+                const newUrl = '{{ route("places.index") }}' + '?' + urlParams.toString();
+                window.history.pushState({}, '', newUrl);
+            },
+            error: function(xhr, status, error) {
+                console.error('Search error:', error);
+                // Show error message
+                toastr.error('Search failed. Please try again.');
+            },
+            complete: function() {
+                // Re-enable input
+                searchInput.prop('disabled', false);
+                searchInput.css('opacity', '1');
+            }
+        });
+    }
+
+    function clearSearch() {
+        // Get current URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+
+        // Remove search parameter
+        urlParams.delete('search');
+        urlParams.delete('page');
+
+        // Redirect to clear search
+        const newUrl = '{{ route("places.index") }}' + (urlParams.toString() ? '?' + urlParams.toString() : '');
+        window.location.href = newUrl;
+    }
+});
+</script>
 @endsection

@@ -43,7 +43,7 @@ class PlaceController extends Controller
         // Debug logging
         Log::info('Sort parameters', ['sort' => $sortBy, 'direction' => $sortDir, 'all_params' => $request->all()]);
 
-        $allowedSorts = ['name', 'rating', 'review_count', 'created_at', 'updated_at'];
+        $allowedSorts = ['name', 'rating', 'review_count', 'created_at', 'updated_at', 'last_scraped_at'];
         if (in_array($sortBy, $allowedSorts)) {
             if ($sortBy === 'review_count') {
                 // MySQL compatible: NULL values go to bottom for review_count
