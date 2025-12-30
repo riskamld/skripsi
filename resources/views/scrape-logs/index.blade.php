@@ -203,8 +203,8 @@
 
 <!-- Pagination -->
 @if($logs->hasPages())
-    <div class="d-flex justify-content-center mt-4">
-        {{ $logs->appends(request()->query())->links() }}
+    <div class="mt-4">
+        {{ $logs->appends(request()->query())->links('vendor.pagination.bootstrap-4') }}
     </div>
 @endif
 @endsection

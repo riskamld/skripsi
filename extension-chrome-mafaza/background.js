@@ -101,6 +101,23 @@ class MafazaBackground {
                     break;
 
                 case 'scrapeData':
+                    console.log('📥 [BACKGROUND] Received scrapeData message');
+
+                    // Check if this is chunked data
+                    if (message.data && message.data.chunk_info) {
+                        console.log(`📦 [BACKGROUND] Processing chunk ${message.data.chunk_info.index}/${message.data.chunk_info.total} (${message.data.chunk_info.size} places)`);
+                        console.log('📊 [BACKGROUND] Chunk data sample:', {
+                            first_place: message.data.places?.[0]?.name || 'NOT FOUND',
+                            total_in_chunk: message.data.places?.length || 0
+                        });
+                    } else {
+                        console.log('📊 [BACKGROUND] Single data received:', {
+                            name: message.data?.name || 'NOT FOUND',
+                            place_id: message.data?.place_id || 'NOT FOUND',
+                            address: message.data?.address ? message.data.address.substring(0, 50) + '...' : 'NOT FOUND'
+                        });
+                    }
+
                     this.addToQueue(message.data);
                     sendResponse({ success: true, queued: true });
                     break;
@@ -122,22 +139,29 @@ class MafazaBackground {
     }
 
     setupContextMenu() {
-        // Create context menu for right-click scraping
-        chrome.contextMenus.create({
-            id: 'mafaza-scrape',
-            title: 'Scrape with Mafaza Fortuna',
-            contexts: ['page'],
-            documentUrlPatterns: [
-                'https://www.google.com/maps/*',
-                'https://maps.google.com/*'
-            ]
-        });
-
         // Handle context menu clicks
         chrome.contextMenus.onClicked.addListener((info, tab) => {
             if (info.menuItemId === 'mafaza-scrape') {
                 this.scrapeCurrentTab(tab);
             }
+        });
+
+        // Try to remove existing menu item first (ignore errors if it doesn't exist)
+        chrome.contextMenus.remove('mafaza-scrape', () => {
+            // Create context menu for right-click scraping
+            chrome.contextMenus.create({
+                id: 'mafaza-scrape',
+                title: 'Scrape with Mafaza Fortuna',
+                contexts: ['page'],
+                documentUrlPatterns: [
+                    'https://www.google.com/maps/*',
+                    'https://maps.google.com/*'
+                ]
+            }, () => {
+                if (chrome.runtime.lastError) {
+                    console.warn('Failed to create context menu:', chrome.runtime.lastError);
+                }
+            });
         });
     }
 
@@ -188,7 +212,7 @@ class MafazaBackground {
 
             let validPlacesCount = 0;
             data.places.forEach((place, index) => {
-                if (this.validatePlaceData(place)) {
+                if (this.validatePlaceData(place, true)) { // true = isBulkSearch
                     this.scrapingQueue.push({
                         ...place,
                         timestamp: Date.now(),
@@ -228,10 +252,19 @@ class MafazaBackground {
         }
     }
 
-    validatePlaceData(data) {
-        return data &&
-               typeof data === 'object' &&
-               (data.name || data.place_id) &&
+    validatePlaceData(data, isBulkSearch = false) {
+        // Basic validation
+        if (!data || typeof data !== 'object') {
+            return false;
+        }
+
+        // For bulk search data, be more lenient - accept any data with minimal info
+        if (isBulkSearch) {
+            return data.place_id || data.name || data.address || data.phone || data.website;
+        }
+
+        // For single place data, require more complete info
+        return (data.name || data.place_id) &&
                (data.lat !== undefined || data.location);
     }
 
@@ -274,21 +307,40 @@ class MafazaBackground {
     }
 
     async sendToApi(data) {
-        const response = await fetch(`${this.settings.apiUrl}/places`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-API-TOKEN': this.settings.apiToken
-            },
-            body: JSON.stringify(data)
+        console.log('🌐 [BACKGROUND] Sending data to API...');
+        console.log('📊 [BACKGROUND] API URL:', this.settings.apiUrl);
+        console.log('🔑 [BACKGROUND] API Token present:', !!this.settings.apiToken);
+        console.log('📦 [BACKGROUND] Data being sent:', {
+            name: data.name || 'NOT FOUND',
+            place_id: data.place_id || 'NOT FOUND',
+            address: data.address ? data.address.substring(0, 50) + '...' : 'NOT FOUND'
         });
 
-        if (!response.ok) {
-            throw new Error(`API request failed: ${response.status}`);
-        }
+        try {
+            const response = await fetch(`${this.settings.apiUrl}/places`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-API-TOKEN': this.settings.apiToken
+                },
+                body: JSON.stringify(data)
+            });
 
-        const result = await response.json();
-        return result;
+            console.log('📥 [BACKGROUND] API Response status:', response.status);
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('❌ [BACKGROUND] API Error response:', errorText);
+                throw new Error(`API request failed: ${response.status} - ${errorText}`);
+            }
+
+            const result = await response.json();
+            console.log('✅ [BACKGROUND] API Response success:', result);
+            return result;
+        } catch (error) {
+            console.error('❌ [BACKGROUND] API Request failed:', error);
+            throw error;
+        }
     }
 
     showNotification(title, message) {

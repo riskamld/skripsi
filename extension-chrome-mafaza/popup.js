@@ -272,42 +272,59 @@ class MafazaScraper {
 
     async scrapeCurrentPage() {
         try {
+            console.log('🔍 [POPUP] Starting scrapeCurrentPage...');
             const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
             if (!tab) {
+                console.error('❌ [POPUP] No active tab found');
                 this.showAlert('No active tab found', 'error');
                 return;
             }
+
+            console.log('✅ [POPUP] Found active tab:', tab.id, tab.url);
 
             // Show loading
             this.showLoading(true);
 
             // Send message to content script to extract data
             try {
+                console.log('📤 [POPUP] Sending extractPlaceData message to content script...');
                 const response = await chrome.tabs.sendMessage(tab.id, {
                     action: 'extractPlaceData'
                 });
 
+                console.log('📥 [POPUP] Received response from content script:', response);
+
                 if (response && response.data) {
+                    console.log('✅ [POPUP] Data received, sending to background script...');
+                    console.log('📊 [POPUP] Data summary:', {
+                        name: response.data.name || 'NOT FOUND',
+                        place_id: response.data.place_id || 'NOT FOUND',
+                        address: response.data.address ? response.data.address.substring(0, 50) + '...' : 'NOT FOUND'
+                    });
+
                     // Send the extracted data to background script for processing
-                    await chrome.runtime.sendMessage({
+                    const bgResponse = await chrome.runtime.sendMessage({
                         action: 'scrapeData',
                         data: response.data
                     });
 
+                    console.log('📥 [POPUP] Background script response:', bgResponse);
+
                     this.showAlert('Data sent to queue successfully!', 'success');
                     this.updateStats(); // Refresh stats
                 } else {
+                    console.error('❌ [POPUP] No data received from page. Response:', response);
                     this.showAlert('No data received from page', 'error');
                 }
 
             } catch (error) {
-                console.error('Failed to scrape page:', error);
+                console.error('❌ [POPUP] Failed to scrape page:', error);
                 this.showAlert('Failed to extract data. Try refreshing the page.', 'error');
             }
 
         } catch (error) {
-            console.error('Failed to scrape page:', error);
+            console.error('❌ [POPUP] Failed to scrape page:', error);
             this.showAlert('Failed to scrape page', 'error');
         } finally {
             this.showLoading(false);

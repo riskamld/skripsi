@@ -19,6 +19,7 @@ class MafazaContentScraper {
         // Auto-detect if we're on a scrapable page
         if (this.isOnScrapablePage()) {
             this.injectScrapingIndicator();
+            this.injectDebugPanel();
         }
     }
 
@@ -226,17 +227,17 @@ class MafazaContentScraper {
                 data = await this.extractGeneric();
             }
 
-            // Add metadata
-            data.source = 'chrome_extension';
-            data.scraped_at = new Date().toISOString();
-            data.page_url = url;
+        // Add metadata
+        data.source = 'chrome_extension';
+        data.scraped_at = new Date().toISOString();
+        data.page_url = url;
 
-            // Add raw content
-            data.raw_text = this.extractRawText();
-            data.raw_html = this.extractRawHtml();
+        // Add raw content
+        data.raw_text = this.extractRawText();
+        data.raw_html = this.extractRawHtml();
 
-            // Validate extracted data
-            data = this.validateAndCleanData(data);
+        // Validate extracted data
+        data = this.validateAndCleanData(data);
 
             // Log data in a more readable format to avoid truncation
             console.log('📊 [EXTRACTED] Place Data Summary:');
@@ -290,9 +291,14 @@ class MafazaContentScraper {
         // Revised Google Maps bulk scraping using the improved auto-scroll method
         console.log("%c V31: AUTO-SCROLL & WEB-LINK HUNTER ", "background: #27ae60; color: #ffffff; font-size: 15px; font-weight: bold;");
 
+        this.updateDebugStatus('Initializing scraper...', 'info');
+        this.addDebugLog('Starting bulk scraping process');
+
         const scrollContainer = document.querySelector('div[role="feed"]');
         if (!scrollContainer) {
             console.error("Elemen scroll tidak ditemukan. Pastikan Anda berada di panel hasil pencarian Google Maps.");
+            this.updateDebugStatus('Error: Scroll container not found', 'error');
+            this.addDebugLog('Error: Could not find scroll container');
             return {
                 bulk_results: true,
                 places_count: 0,
@@ -304,6 +310,9 @@ class MafazaContentScraper {
         }
 
         // --- FUNGSI AUTO SCROLL ---
+        this.updateDebugStatus('Auto-scrolling...', 'info');
+        this.addDebugLog('Starting auto-scroll to load all results');
+
         async function autoScroll() {
             let lastHeight = 0;
             let currentHeight = scrollContainer.scrollHeight;
@@ -320,6 +329,9 @@ class MafazaContentScraper {
 
         // Jalankan Scroll dahulu
         await autoScroll();
+
+        this.updateDebugStatus('Extracting data...', 'warning');
+        this.addDebugLog('Auto-scroll completed, now extracting place data');
 
         // --- PROSES EKSTRAKSI DATA ---
         let items = document.querySelectorAll('div[role="article"]');
@@ -403,11 +415,70 @@ class MafazaContentScraper {
         window.scrapedData = results;
         console.log(`%c BERHASIL! Mendapatkan ${results.length} data.`, "color: #2ecc71; font-weight: bold;");
 
-        // Return results with special format for bulk scraping
+        // Update debug panel with final results
+        this.updateDebugStatus('Data extracted successfully!', 'success');
+        this.updateDebugCount(results.length);
+        this.addDebugLog(`Successfully extracted ${results.length} places`);
+        this.addDebugLog('Sending data to background script in chunks...');
+
+        // Send data in chunks to avoid message size limits
+        const chunkSize = 10;
+        let sentChunks = 0;
+        const totalChunks = Math.ceil(results.length / chunkSize);
+
+        for (let i = 0; i < results.length; i += chunkSize) {
+            const chunk = results.slice(i, i + chunkSize);
+            const chunkIndex = Math.floor(i / chunkSize) + 1;
+
+            try {
+                await new Promise((resolve, reject) => {
+                    chrome.runtime.sendMessage({
+                        action: 'scrapeData',
+                        data: {
+                            bulk_results: true,
+                            places_count: results.length,
+                            places: chunk,
+                            chunk_info: {
+                                index: chunkIndex,
+                                total: totalChunks,
+                                size: chunk.length
+                            },
+                            search_url: window.location.href,
+                            extracted_at: new Date().toISOString()
+                        }
+                    }, (response) => {
+                        if (chrome.runtime.lastError) {
+                            reject(new Error(chrome.runtime.lastError.message));
+                        } else if (response && response.success) {
+                            sentChunks++;
+                            this.addDebugLog(`Chunk ${chunkIndex}/${totalChunks} sent (${chunk.length} places)`);
+                            resolve(response);
+                        } else {
+                            reject(new Error('Background script rejected chunk'));
+                        }
+                    });
+                });
+
+                // Small delay between chunks to avoid overwhelming
+                if (i + chunkSize < results.length) {
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                }
+
+            } catch (error) {
+                this.addDebugLog(`Error sending chunk ${chunkIndex}: ${error.message}`);
+                this.updateDebugStatus('Error sending data', 'error');
+                throw error;
+            }
+        }
+
+        this.addDebugLog(`All ${sentChunks} chunks sent successfully`);
+        this.updateDebugStatus('All data sent to background!', 'success');
+
+        // Return summary for compatibility
         return {
             bulk_results: true,
             places_count: results.length,
-            places: results,
+            chunks_sent: sentChunks,
             search_url: window.location.href,
             extracted_at: new Date().toISOString()
         };
@@ -2061,6 +2132,187 @@ class MafazaContentScraper {
         URL.revokeObjectURL(url);
 
         this.showNotification(`Downloaded ${results.length} records as CSV!`, 'green');
+    }
+
+    injectDebugPanel() {
+        // Create floating debug panel
+        const debugPanel = document.createElement('div');
+        debugPanel.id = 'mafaza-debug-panel';
+        debugPanel.innerHTML = `
+            <div class="debug-header">
+                <span class="debug-title">🔍 Mafaza Debug</span>
+                <button class="debug-close" onclick="this.parentElement.parentElement.style.display='none'">✕</button>
+            </div>
+            <div class="debug-content">
+                <div class="debug-section">
+                    <div class="debug-status">Status: <span id="debug-status">Ready</span></div>
+                    <div class="debug-progress">Progress: <span id="debug-progress">0/0</span></div>
+                    <div class="debug-count">Data Found: <span id="debug-count">0</span></div>
+                </div>
+                <div class="debug-logs" id="debug-logs">
+                    <div class="log-entry">Extension initialized - waiting for scrape...</div>
+                </div>
+                <div class="debug-actions">
+                    <button onclick="document.getElementById('mafaza-debug-panel').style.display='none'" class="debug-btn">Hide Panel</button>
+                </div>
+            </div>
+        `;
+
+        // Add CSS styles
+        const style = document.createElement('style');
+        style.textContent = `
+            #mafaza-debug-panel {
+                position: fixed;
+                top: 60px;
+                right: 10px;
+                width: 350px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border-radius: 12px;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+                z-index: 10000;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                font-size: 12px;
+                overflow: hidden;
+            }
+
+            .debug-header {
+                background: rgba(255,255,255,0.1);
+                padding: 8px 12px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 1px solid rgba(255,255,255,0.2);
+            }
+
+            .debug-title {
+                font-weight: bold;
+                font-size: 14px;
+            }
+
+            .debug-close {
+                background: none;
+                border: none;
+                color: white;
+                cursor: pointer;
+                font-size: 16px;
+                padding: 0;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: background 0.2s;
+            }
+
+            .debug-close:hover {
+                background: rgba(255,255,255,0.2);
+            }
+
+            .debug-content {
+                padding: 12px;
+            }
+
+            .debug-section {
+                margin-bottom: 12px;
+            }
+
+            .debug-section > div {
+                margin-bottom: 4px;
+                font-weight: 500;
+            }
+
+            .debug-logs {
+                background: rgba(255,255,255,0.1);
+                border-radius: 6px;
+                padding: 8px;
+                max-height: 150px;
+                overflow-y: auto;
+                margin-bottom: 12px;
+            }
+
+            .log-entry {
+                margin-bottom: 4px;
+                padding: 2px 0;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+            }
+
+            .log-entry:last-child {
+                border-bottom: none;
+            }
+
+            .debug-actions {
+                display: flex;
+                gap: 8px;
+            }
+
+            .debug-btn {
+                flex: 1;
+                background: rgba(255,255,255,0.2);
+                border: 1px solid rgba(255,255,255,0.3);
+                color: white;
+                padding: 6px 12px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 11px;
+                transition: all 0.2s;
+            }
+
+            .debug-btn:hover {
+                background: rgba(255,255,255,0.3);
+                transform: translateY(-1px);
+            }
+
+            .debug-status-success { color: #27ae60; }
+            .debug-status-error { color: #e74c3c; }
+            .debug-status-warning { color: #f39c12; }
+            .debug-status-info { color: #3498db; }
+        `;
+
+        document.head.appendChild(style);
+        document.body.appendChild(debugPanel);
+
+        // Initialize debug methods
+        this.updateDebugStatus('Ready', 'success');
+        this.addDebugLog('Debug panel initialized');
+    }
+
+    updateDebugStatus(status, type = 'info') {
+        const statusElement = document.getElementById('debug-status');
+        if (statusElement) {
+            statusElement.textContent = status;
+            statusElement.className = `debug-status-${type}`;
+        }
+    }
+
+    updateDebugProgress(current, total) {
+        const progressElement = document.getElementById('debug-progress');
+        if (progressElement) {
+            progressElement.textContent = `${current}/${total}`;
+        }
+    }
+
+    updateDebugCount(count) {
+        const countElement = document.getElementById('debug-count');
+        if (countElement) {
+            countElement.textContent = count;
+        }
+    }
+
+    addDebugLog(message) {
+        const logsElement = document.getElementById('debug-logs');
+        if (logsElement) {
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+
+            logsElement.appendChild(logEntry);
+            logsElement.scrollTop = logsElement.scrollHeight;
+        }
+
+        // Also log to console for debugging
+        console.log(`🔍 [DEBUG] ${message}`);
     }
 
     // Method to handle dynamic content loading
