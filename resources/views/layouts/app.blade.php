@@ -11,45 +11,214 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
 
     <style>
+        /* Ultra compact sidebar */
         .sidebar {
             min-height: 100vh;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            width: 220px;
         }
+
+        .sidebar .d-flex.flex-column.p-3 {
+            padding: 1rem 0.75rem !important;
+        }
+
+        .sidebar h5 {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
         .sidebar .nav-link {
             color: rgba(255,255,255,0.8);
             transition: all 0.3s ease;
+            font-size: 0.8rem;
+            padding: 0.4rem 0.75rem;
+            margin-bottom: 0.1rem;
         }
+
         .sidebar .nav-link:hover {
             color: white;
             background: rgba(255,255,255,0.1);
         }
+
         .sidebar .nav-link.active {
             background: rgba(255,255,255,0.2);
             color: white;
         }
+
+        .sidebar small {
+            font-size: 0.7rem;
+        }
+
+        /* Compact main content */
         .main-content {
             background: #f8f9fa;
             min-height: 100vh;
         }
+
+        /* Compact navbar */
+        .navbar {
+            padding: 0.5rem 1rem;
+            height: 50px;
+        }
+
+        .navbar-brand {
+            font-size: 1.1rem;
+        }
+
+        /* Compact container */
+        .container-fluid.p-4 {
+            padding: 1rem !important;
+        }
+
+        /* Ultra compact cards */
         .card {
             border: none;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.08);
         }
-        .btn-primary {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            border: none;
+
+        /* Compact buttons */
+        .btn {
+            font-size: 0.8rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: 0.375rem;
         }
-        .btn-primary:hover {
-            background: linear-gradient(45deg, #5a67d8, #6b46c1);
+
+        .btn-sm {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
         }
+
+        /* Compact table */
         .table-responsive {
-            border-radius: 10px;
+            border-radius: 8px;
             overflow: hidden;
         }
+
         .badge {
-            font-size: 0.75em;
+            font-size: 0.7rem;
+        }
+
+        /* Compact pagination (global) */
+        .pagination .page-link {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            margin: 0 1px;
+        }
+
+        /* Smaller headings */
+        h1, h2, h3, h4, h5, h6 {
+            font-size: calc(1.375rem - 0.1rem);
+            margin-bottom: 0.75rem;
+        }
+
+        h2 {
+            font-size: 1.15rem;
+        }
+
+        /* Compact spacing */
+        .mb-4 {
+            margin-bottom: 1rem !important;
+        }
+
+        .mb-3 {
+            margin-bottom: 0.75rem !important;
+        }
+
+        /* Ultra compact global styles for all pages */
+        .table th, .table td {
+            padding: 0.25rem 0.375rem;
+            vertical-align: middle;
+            font-size: 0.8rem;
+            line-height: 1.2;
+        }
+
+        .table th {
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0.375rem 0.375rem;
+        }
+
+        .badge {
+            font-size: 0.65rem !important;
+            padding: 0.2rem 0.375rem;
+            line-height: 1;
+        }
+
+        .btn-group .btn, .btn {
+            font-size: 0.8rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: 0.375rem;
+        }
+
+        .btn-sm {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.5rem;
+        }
+
+        .form-control, .form-select {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.5rem;
+        }
+
+        .form-label {
+            font-size: 0.75rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .pagination .page-link {
+            padding: 0.2rem 0.4rem;
+            font-size: 0.75rem;
+            margin: 0 1px;
+        }
+
+        .card-body {
+            padding: 0.75rem;
+        }
+
+        .table-responsive {
+            border-radius: 8px;
+        }
+
+        .mb-4 {
+            margin-bottom: 1rem !important;
+        }
+
+        .mb-3 {
+            margin-bottom: 0.75rem !important;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .navbar {
+                padding: 0.25rem 0.5rem;
+                height: 45px;
+            }
+
+            .container-fluid.p-4 {
+                padding: 0.5rem !important;
+            }
+
+            .btn {
+                font-size: 0.75rem;
+                padding: 0.25rem 0.5rem;
+            }
+
+            .table th, .table td {
+                padding: 0.2rem;
+                font-size: 0.75rem;
+            }
+
+            .table th {
+                font-size: 0.7rem;
+            }
         }
     </style>
 
@@ -122,6 +291,8 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery for AJAX functionality -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     @stack('scripts')
 </body>

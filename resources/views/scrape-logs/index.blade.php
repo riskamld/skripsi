@@ -2,6 +2,10 @@
 
 @section('page-title', 'Scrape Logs')
 
+@push('styles')
+<!-- Compact styles are now global in layout -->
+@endpush
+
 @section('content')
 <div class="row mb-4">
     <div class="col-12">

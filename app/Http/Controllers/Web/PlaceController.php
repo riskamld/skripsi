@@ -35,24 +35,35 @@ class PlaceController extends Controller
             $query->where('rating', '<=', $request->rating_max);
         }
 
-        // Sort options with NULL handling
+        // Sort options with MySQL-compatible NULL handling
         $sortBy = $request->get('sort', 'created_at');
         $sortDir = $request->get('direction', 'desc');
+
+        // Debug logging
+        \Log::info('Sort parameters', ['sort' => $sortBy, 'direction' => $sortDir, 'all_params' => $request->all()]);
 
         $allowedSorts = ['name', 'rating', 'review_count', 'created_at', 'updated_at'];
         if (in_array($sortBy, $allowedSorts)) {
             if ($sortBy === 'review_count') {
-                // Special handling for review_count: NULL values go to bottom
-                $query->orderByRaw("{$sortBy} {$sortDir} NULLS LAST");
+                // MySQL compatible: NULL values go to bottom for review_count
+                if ($sortDir === 'desc') {
+                    $query->orderByRaw('review_count IS NULL ASC, review_count DESC');
+                } else {
+                    $query->orderByRaw('review_count IS NULL ASC, review_count ASC');
+                }
             } elseif ($sortBy === 'rating') {
-                // Special handling for rating: NULL values go to bottom
-                $query->orderByRaw("{$sortBy} {$sortDir} NULLS LAST");
+                // MySQL compatible: NULL values go to bottom for rating
+                if ($sortDir === 'desc') {
+                    $query->orderByRaw('rating IS NULL ASC, rating DESC');
+                } else {
+                    $query->orderByRaw('rating IS NULL ASC, rating ASC');
+                }
             } else {
                 $query->orderBy($sortBy, $sortDir);
             }
         }
 
-        $places = $query->paginate(15);
+        $places = $query->paginate(50);
 
         // Get unique categories for filter dropdown
         $categories = Place::whereNotNull('category')

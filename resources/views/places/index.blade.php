@@ -2,6 +2,10 @@
 
 @section('page-title', 'Places')
 
+@push('styles')
+<!-- Compact styles are now global in layout -->
+@endpush
+
 @section('content')
 <div class="row mb-4">
     <div class="col-12">
@@ -89,7 +93,7 @@
 
             <div class="d-flex align-items-center">
                 <label class="me-2">Sort by:</label>
-                <select class="form-select form-select-sm ajax-sort" style="width: auto;" data-url="{{ route('places.index') }}" onchange="changeSort(this.value)">
+                <select class="form-select form-select-sm ajax-sort" style="width: auto;" data-url="{{ route('places.index') }}">
                     <option value="created_at_desc" {{ request('sort', 'created_at') === 'created_at' && request('direction', 'desc') === 'desc' ? 'selected' : '' }}>
                         Newest First
                     </option>
@@ -105,8 +109,14 @@
                     <option value="rating_desc" {{ request('sort') === 'rating' && request('direction') === 'desc' ? 'selected' : '' }}>
                         Highest Rating
                     </option>
+                    <option value="rating_asc" {{ request('sort') === 'rating' && request('direction') === 'asc' ? 'selected' : '' }}>
+                        Lowest Rating
+                    </option>
                     <option value="review_count_desc" {{ request('sort') === 'review_count' && request('direction') === 'desc' ? 'selected' : '' }}>
                         Most Reviews
+                    </option>
+                    <option value="review_count_asc" {{ request('sort') === 'review_count' && request('direction') === 'asc' ? 'selected' : '' }}>
+                        Least Reviews
                     </option>
                 </select>
             </div>
@@ -341,13 +351,19 @@ $(document).ready(function() {
         if (isLoading) return;
 
         const value = $(this).val();
+        console.log('Sort changed to:', value);
+
         const [sort, direction] = value.split('_');
+        console.log('Parsed sort:', sort, 'direction:', direction);
+
         const url = new URL($(this).data('url'), window.location.origin);
 
-        // Preserve existing query parameters
+        // Preserve existing query parameters (except page and sort)
         const currentUrl = new URL(window.location);
         for (let [key, value] of currentUrl.searchParams) {
-            url.searchParams.set(key, value);
+            if (key !== 'page' && key !== 'sort' && key !== 'direction') {
+                url.searchParams.set(key, value);
+            }
         }
 
         // Update sort parameters
@@ -357,6 +373,7 @@ $(document).ready(function() {
         // Reset to page 1 when sorting
         url.searchParams.set('page', '1');
 
+        console.log('Final URL:', url.toString());
         loadPage(url.toString(), 1);
     });
 
