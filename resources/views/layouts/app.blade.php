@@ -27,6 +27,12 @@
 
     <!-- AdminLTE App -->
     <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Toastr for notifications -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
@@ -136,6 +142,65 @@
                         <a href="{{ route('api-tokens.index') }}" class="nav-link {{ request()->routeIs('api-tokens.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-key"></i>
                             <p>API Tokens</p>
+                        </a>
+                    </li>
+
+                    <!-- Product Prices -->
+                    <li class="nav-item">
+                        <a href="{{ url('/product-prices') }}" class="nav-link {{ request()->routeIs('product-prices.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-coins"></i>
+                            <p>Product Prices</p>
+                        </a>
+                    </li>
+
+                    <!-- Market Analysis -->
+                    <li class="nav-item {{ request()->routeIs('market-analysis.*') ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ request()->routeIs('market-analysis.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-chart-line"></i>
+                            <p>
+                                Market Analysis
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="{{ route('market-analysis.index') }}" class="nav-link {{ request()->routeIs('market-analysis.index') ? 'active' : '' }}">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Overview</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('market-analysis.supply-demand') }}" class="nav-link {{ request()->routeIs('market-analysis.supply-demand') ? 'active' : '' }}">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Supply & Demand</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('market-analysis.category-insights') }}" class="nav-link {{ request()->routeIs('market-analysis.category-insights') ? 'active' : '' }}">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Category Insights</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('market-analysis.geographic') }}" class="nav-link {{ request()->routeIs('market-analysis.geographic') ? 'active' : '' }}">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Geographic Analysis</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('market-analysis.price-predictions') }}" class="nav-link {{ request()->routeIs('market-analysis.price-predictions') ? 'active' : '' }}">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Price Predictions</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- Database Tools -->
+                    <li class="nav-item">
+                        <a href="{{ route('database.index') }}" class="nav-link {{ request()->routeIs('database.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-database"></i>
+                            <p>Database Tools</p>
                         </a>
                     </li>
 

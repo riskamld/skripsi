@@ -17,8 +17,8 @@ return new class extends Migration {
             $table->string('place_id')->unique();
             $table->string('name')->nullable();
 
-            $table->decimal('lat', 10, 7)->nullable();
-            $table->decimal('lng', 10, 7)->nullable();
+            $table->decimal('lat', 10, 8)->nullable();
+            $table->decimal('lng', 11, 8)->nullable();
 
             $table->text('maps_url')->nullable();
 
@@ -28,7 +28,14 @@ return new class extends Migration {
             $table->string('category')->nullable();
             $table->text('address')->nullable();
             $table->string('phone', 50)->nullable();
-            $table->string('website')->nullable();
+            $table->text('website')->nullable(); // Changed to TEXT for longer URLs
+
+            // Additional columns combined from other migrations
+            $table->text('image_1')->nullable();
+            $table->text('image_2')->nullable();
+            $table->text('image_3')->nullable();
+            $table->text('image_4')->nullable();
+            $table->text('opening_hours')->nullable();
 
             $table->mediumText('raw_text')->nullable();
             $table->mediumText('raw_html')->nullable();
@@ -41,10 +48,12 @@ return new class extends Migration {
 
             $table->timestamps();
 
-            $table->index('lat');
+            // Indexes for performance
+            $table->index(['lat', 'lng']);
             $table->index('rating');
             $table->index('review_count');
             $table->index('category');
+            $table->index('place_id');
         });
     }
 
