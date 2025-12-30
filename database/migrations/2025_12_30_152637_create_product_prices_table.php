@@ -25,7 +25,8 @@ return new class extends Migration
 
             // Location data
             $table->unsignedBigInteger('place_id');
-            $table->foreign('place_id')->references('id')->on('places')->onDelete('cascade');
+            // Foreign key constraint removed for hosting compatibility
+            // Relationship handled at application level in Laravel models
 
             // Geographic coordinates (for location-based analysis)
             $table->decimal('lat', 10, 8)->nullable();
