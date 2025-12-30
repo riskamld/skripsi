@@ -90,10 +90,78 @@
             padding: 0.25rem 0.5rem;
         }
 
-        /* Compact table */
+        /* Responsive table with proper horizontal scrolling */
         .table-responsive {
             border-radius: 8px;
-            overflow: hidden;
+            overflow-x: auto;
+            overflow-y: visible;
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        }
+
+        .table {
+            min-width: 100%;
+            table-layout: auto; /* Let browser determine column widths */
+            white-space: nowrap;
+        }
+
+        /* Set reasonable column widths to prevent overlapping */
+        .table th:nth-child(1), .table td:nth-child(1) { /* Name */
+            min-width: 200px;
+            max-width: 300px;
+            white-space: normal; /* Allow wrapping for names */
+        }
+
+        .table th:nth-child(2), .table td:nth-child(2) { /* Phone */
+            min-width: 120px;
+            width: 120px;
+        }
+
+        .table th:nth-child(3), .table td:nth-child(3) { /* Category */
+            min-width: 100px;
+            width: 100px;
+        }
+
+        .table th:nth-child(4), .table td:nth-child(4) { /* Images */
+            min-width: 80px;
+            width: 80px;
+        }
+
+        .table th:nth-child(5), .table td:nth-child(5) { /* Rating */
+            min-width: 80px;
+            width: 80px;
+        }
+
+        .table th:nth-child(6), .table td:nth-child(6) { /* Reviews */
+            min-width: 100px;
+            width: 100px;
+        }
+
+        .table th:nth-child(7), .table td:nth-child(7) { /* Navigate */
+            min-width: 60px;
+            width: 60px;
+        }
+
+        .table th:nth-child(8), .table td:nth-child(8) { /* Location */
+            min-width: 200px;
+            max-width: 300px;
+            white-space: normal; /* Allow wrapping for addresses */
+        }
+
+        .table th:nth-child(9), .table td:nth-child(9) { /* Created */
+            min-width: 100px;
+            width: 100px;
+        }
+
+        .table th:nth-child(10), .table td:nth-child(10) { /* Actions */
+            min-width: 120px;
+            width: 120px;
+        }
+
+        /* Ensure total table width allows scrolling when needed */
+        @media (min-width: 1200px) {
+            .table {
+                min-width: 1400px; /* Allow scrolling on very wide screens */
+            }
         }
 
         .badge {
@@ -252,18 +320,21 @@
                 padding: 0.5rem !important;
             }
 
-            /* Mobile-first table design */
+            /* Mobile table adjustments */
             .table-responsive {
                 font-size: 0.75rem;
+                margin: 0 -0.5rem;
+            }
+
+            .table {
+                min-width: 800px; /* Ensure horizontal scrolling works */
             }
 
             .table th, .table td {
-                padding: 0.3rem 0.2rem;
+                padding: 0.4rem 0.3rem;
                 font-size: 0.7rem;
                 white-space: nowrap;
-                max-width: 80px;
-                overflow: hidden;
-                text-overflow: ellipsis;
+                vertical-align: middle;
             }
 
             .table th {
@@ -271,19 +342,10 @@
                 font-weight: 700;
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
-                writing-mode: horizontal-tb;
-            }
-
-            /* Hide less important columns on mobile */
-            .table th:nth-child(6),
-            .table td:nth-child(6),
-            .table th:nth-child(7),
-            .table td:nth-child(7),
-            .table th:nth-child(8),
-            .table td:nth-child(8),
-            .table th:nth-child(9),
-            .table td:nth-child(9) {
-                display: none;
+                position: sticky;
+                top: 0;
+                background: #f8f9fa;
+                z-index: 10;
             }
 
             /* Compact buttons on mobile */
@@ -306,8 +368,35 @@
             }
 
             /* Stack form elements vertically on mobile */
-            .row.g-3 > div {
+            .row.g-2 > div, .row.g-3 > div {
+                margin-bottom: 0.75rem;
+            }
+
+            /* Make form controls more compact on mobile */
+            .form-control, .form-select {
+                font-size: 0.75rem;
+                padding: 0.375rem 0.5rem;
+                margin-bottom: 0.25rem;
+            }
+
+            /* Compact search forms on mobile */
+            .card-body form .row {
+                --bs-gutter-x: 0.5rem;
+            }
+
+            .card-body form .col-md-2,
+            .card-body form .col-md-3,
+            .card-body form .col-md-4 {
                 margin-bottom: 0.5rem;
+            }
+
+            /* Better button layout on mobile */
+            .d-flex.gap-1 {
+                gap: 0.25rem !important;
+            }
+
+            .d-flex.gap-2 {
+                gap: 0.375rem !important;
             }
 
             /* Compact cards on mobile */
@@ -329,6 +418,25 @@
             .alert {
                 padding: 0.5rem 0.75rem;
                 font-size: 0.8rem;
+            }
+
+            /* Mobile table scrollbar */
+            .table-responsive::-webkit-scrollbar {
+                height: 6px;
+            }
+
+            .table-responsive::-webkit-scrollbar-track {
+                background: #f1f1f1;
+                border-radius: 3px;
+            }
+
+            .table-responsive::-webkit-scrollbar-thumb {
+                background: #c1c1c1;
+                border-radius: 3px;
+            }
+
+            .table-responsive::-webkit-scrollbar-thumb:hover {
+                background: #a8a8a8;
             }
         }
 

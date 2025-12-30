@@ -62,37 +62,33 @@
 <!-- Search and Filter -->
 <div class="card mb-4">
     <div class="card-body">
-        <form method="GET" class="row g-3">
+        <form method="GET" class="row g-2">
             <div class="col-md-3">
-                <label for="status" class="form-label">Status</label>
                 <select class="form-select" id="status" name="status">
-                    <option value="">All Status</option>
-                    <option value="success" {{ request('status') === 'success' ? 'selected' : '' }}>Success</option>
-                    <option value="failed" {{ request('status') === 'failed' ? 'selected' : '' }}>Failed</option>
-                    <option value="skipped" {{ request('status') === 'skipped' ? 'selected' : '' }}>Skipped</option>
+                    <option value="">📊 All Status</option>
+                    <option value="success" {{ request('status') === 'success' ? 'selected' : '' }}>✅ Success</option>
+                    <option value="failed" {{ request('status') === 'failed' ? 'selected' : '' }}>❌ Failed</option>
+                    <option value="skipped" {{ request('status') === 'skipped' ? 'selected' : '' }}>⏭️ Skipped</option>
                 </select>
             </div>
 
             <div class="col-md-3">
-                <label for="date_from" class="form-label">From Date</label>
                 <input type="date" class="form-control" id="date_from" name="date_from"
-                       value="{{ request('date_from') }}">
+                       value="{{ request('date_from') }}" placeholder="📅 From Date">
             </div>
 
             <div class="col-md-3">
-                <label for="date_to" class="form-label">To Date</label>
                 <input type="date" class="form-control" id="date_to" name="date_to"
-                       value="{{ request('date_to') }}">
+                       value="{{ request('date_to') }}" placeholder="📅 To Date">
             </div>
 
             <div class="col-md-3">
-                <label for="search" class="form-label">Search</label>
                 <input type="text" class="form-control" id="search" name="search"
-                       value="{{ request('search') }}" placeholder="Place name or error...">
+                       value="{{ request('search') }}" placeholder="🔍 Place name or error...">
             </div>
 
-            <div class="col-12">
-                <button type="submit" class="btn btn-primary me-2">
+            <div class="col-12 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
                     <i class="bi bi-search me-1"></i>
                     Filter
                 </button>

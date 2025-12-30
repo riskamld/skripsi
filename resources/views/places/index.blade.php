@@ -37,17 +37,15 @@
 <!-- Search and Filter -->
 <div class="card mb-4">
     <div class="card-body">
-        <form method="GET" class="row g-3">
+        <form method="GET" class="row g-2">
             <div class="col-md-4">
-                <label for="search" class="form-label">Search</label>
                 <input type="text" class="form-control" id="search" name="search"
-                       value="{{ request('search') }}" placeholder="Search by name, category, address...">
+                       value="{{ request('search') }}" placeholder="🔍 Search by name, category, address...">
             </div>
 
             <div class="col-md-2">
-                <label for="category" class="form-label">Category</label>
                 <select class="form-select" id="category" name="category">
-                    <option value="">All Categories</option>
+                    <option value="">📂 All Categories</option>
                     @foreach($categories as $cat)
                         <option value="{{ $cat }}" {{ request('category') === $cat ? 'selected' : '' }}>
                             {{ $cat }}
@@ -57,25 +55,22 @@
             </div>
 
             <div class="col-md-2">
-                <label for="rating_min" class="form-label">Min Rating</label>
                 <input type="number" class="form-control" id="rating_min" name="rating_min"
-                       value="{{ request('rating_min') }}" step="0.1" min="0" max="5">
+                       value="{{ request('rating_min') }}" step="0.1" min="0" max="5" placeholder="⭐ Min Rating">
             </div>
 
             <div class="col-md-2">
-                <label for="rating_max" class="form-label">Max Rating</label>
                 <input type="number" class="form-control" id="rating_max" name="rating_max"
-                       value="{{ request('rating_max') }}" step="0.1" min="0" max="5">
+                       value="{{ request('rating_max') }}" step="0.1" min="0" max="5" placeholder="⭐ Max Rating">
             </div>
 
-            <div class="col-md-2 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary me-2">
+            <div class="col-md-2 d-flex align-items-end gap-1">
+                <button type="submit" class="btn btn-primary flex-fill">
                     <i class="bi bi-search me-1"></i>
                     Search
                 </button>
                 <a href="{{ route('places.index') }}" class="btn btn-outline-secondary">
-                    <i class="bi bi-x-circle me-1"></i>
-                    Clear
+                    <i class="bi bi-x-circle"></i>
                 </a>
             </div>
         </form>
