@@ -40,11 +40,11 @@
         <table class="table table-hover text-nowrap table-sm">
             <thead>
                 <tr>
-                    <th style="width: 20%;">Name</th>
-                    <th style="width: 18%;">Address</th>
-                    <th style="width: 13%;">Phone</th>
-                    <th style="width: 13%;">Website</th>
-                    <th style="width: 9%;">
+                    <th style="width: 35%;">Name</th>
+                    <th style="width: 12%;">Address</th>
+                    <th style="width: 8%;">Phone</th>
+                    <th style="width: 8%;">Website</th>
+                    <th style="width: 6%;">
                         <a href="{{ route('places.index', array_merge(request()->query(), ['sort' => 'rating', 'direction' => (request('sort') === 'rating' && request('direction') === 'desc') ? 'asc' : 'desc'])) }}" class="text-decoration-none">
                             Rating
                             @if(request('sort') === 'rating')
@@ -81,8 +81,8 @@
                 @forelse($places ?? [] as $place)
                 <tr style="height: 45px;">
                     <td style="padding: 8px 12px; vertical-align: middle;">
-                        <div style="font-size: 0.875rem; font-weight: 600;">{{ Str::limit($place->name, 20) }}</div>
-                        <small class="text-info" style="font-size: 0.75rem;">{{ $place->category ? Str::limit($place->category, 15) : '-' }}</small>
+                        <div style="font-size: 0.875rem; font-weight: 600;">{{ Str::limit($place->name, 30) }}</div>
+                        <small class="text-info" style="font-size: 0.75rem;">{{ $place->category ? Str::limit($place->category, 25) : '-' }}</small>
                     </td>
                     <td style="padding: 8px 12px; vertical-align: middle;">
                         <div style="font-size: 0.875rem;">{{ Str::limit($place->address, 25) }}</div>
