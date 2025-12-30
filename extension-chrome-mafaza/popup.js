@@ -112,6 +112,9 @@ class MafazaScraper {
                     case 'scrape':
                         this.scrapeCurrentPage();
                         break;
+                    case 'scrape-csv':
+                        this.scrapeCurrentPageCSV();
+                        break;
                     case 'dashboard':
                         this.openDashboard();
                         break;
@@ -305,6 +308,104 @@ class MafazaScraper {
 
         } catch (error) {
             console.error('Failed to scrape page:', error);
+            this.showAlert('Failed to scrape page', 'error');
+        } finally {
+            this.showLoading(false);
+        }
+    }
+
+    async scrapeCurrentPageCSV() {
+        try {
+            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+            if (!tab) {
+                this.showAlert('No active tab found', 'error');
+                return;
+            }
+
+            // Show loading
+            this.showLoading(true);
+
+            // Send message to content script to extract bulk data and download CSV
+            try {
+                const response = await chrome.tabs.sendMessage(tab.id, {
+                    action: 'extractPlaceData'
+                });
+
+                if (response && response.data && response.data.bulk_results) {
+                    // For bulk results, trigger CSV download directly in content script
+                    await chrome.tabs.sendMessage(tab.id, {
+                        action: 'downloadCSV',
+                        data: response.data.places
+                    });
+
+                    this.showAlert(`CSV download initiated for ${response.data.places_count} places!`, 'success');
+
+                    // Also send data to API if configured
+                    if (this.settings.apiUrl && this.settings.apiToken && response.data.places.length > 0) {
+                        try {
+                            // Send each place to the API
+                            let sentCount = 0;
+                            for (const place of response.data.places) {
+                                try {
+                                    // Convert CSV format to API format
+                                    const apiData = {
+                                        name: place.Nama,
+                                        category: place.Kategori,
+                                        rating: place.Rating !== '0' ? parseFloat(place.Rating.replace(',', '.')) : null,
+                                        review_count: place.Ulasan !== '0' ? parseInt(place.Ulasan) : null,
+                                        phone: place.Telepon || null,
+                                        address: place.Alamat !== 'Cek Manual' ? place.Alamat : null,
+                                        maps_url: place.Link,
+                                        source: 'chrome_extension_csv',
+                                        scraped_at: new Date().toISOString()
+                                    };
+
+                                    const apiResponse = await fetch(`${this.settings.apiUrl}/places`, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'X-API-TOKEN': this.settings.apiToken
+                                        },
+                                        body: JSON.stringify(apiData)
+                                    });
+
+                                    if (apiResponse.ok) {
+                                        sentCount++;
+                                    } else {
+                                        console.warn('Failed to send place to API:', place.Nama, apiResponse.status);
+                                    }
+
+                                    // Small delay between API calls
+                                    await new Promise(resolve => setTimeout(resolve, 200));
+
+                                } catch (apiError) {
+                                    console.warn('API error for place:', place.Nama, apiError);
+                                }
+                            }
+
+                            if (sentCount > 0) {
+                                this.showAlert(`Sent ${sentCount}/${response.data.places.length} places to database!`, 'success');
+                                this.updateStats();
+                            }
+
+                        } catch (apiError) {
+                            console.warn('Failed to send data to API:', apiError);
+                            this.showAlert('CSV downloaded but failed to send some data to database.', 'warning');
+                        }
+                    }
+
+                } else {
+                    this.showAlert('No bulk data found. Make sure you\'re on a Google Maps search results page.', 'error');
+                }
+
+            } catch (error) {
+                console.error('Failed to scrape page for CSV:', error);
+                this.showAlert('Failed to extract data. Try refreshing the page.', 'error');
+            }
+
+        } catch (error) {
+            console.error('Failed to scrape page for CSV:', error);
             this.showAlert('Failed to scrape page', 'error');
         } finally {
             this.showLoading(false);

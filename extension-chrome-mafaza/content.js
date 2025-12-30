@@ -1,10 +1,9 @@
 // Content script for Mafaza Fortuna Chrome Extension
-// This script runs on web pages and extracts place data
+// Simplified scraper using direct Google Maps extraction method
 
 class MafazaContentScraper {
     constructor() {
         this.settings = {};
-        this.selectors = this.getRobustSelectors();
         this.init();
     }
 
@@ -190,6 +189,11 @@ class MafazaContentScraper {
                     sendResponse({ success: true, data: scrapedData });
                     break;
 
+                case 'downloadCSV':
+                    this.downloadCSV(message.data);
+                    sendResponse({ success: true });
+                    break;
+
                 case 'debugImages':
                     const debugResult = this.debugImageExtraction();
                     sendResponse({ success: true, images: debugResult });
@@ -211,6 +215,11 @@ class MafazaContentScraper {
         try {
             if (url.includes('google.com/maps')) {
                 data = await this.extractFromGoogleMaps();
+
+                // If this is bulk search results, return directly without additional validation
+                if (data && data.bulk_results) {
+                    return data;
+                }
             } else if (url.includes('google.com/search')) {
                 data = await this.extractFromGoogleSearch();
             } else {
@@ -257,20 +266,524 @@ class MafazaContentScraper {
     }
 
     async extractFromGoogleMaps() {
-        const data = {};
-        const currentUrl = window.location.href;
+        const url = window.location.href;
+        let data = {};
 
-        // Check if this is a place details page or search results
-        if (currentUrl.includes('/place/')) {
-            // Individual place page
-            return await this.extractFromGoogleMapsPlacePage();
-        } else if (currentUrl.includes('/search')) {
-            // Search results page - try to get the first/top result
-            return await this.extractFromGoogleMapsSearchPage();
-        } else {
-            // Fallback to generic extraction
-            return await this.extractGeneric();
+        try {
+            if (url.includes('/place/')) {
+                // Individual place page
+                return await this.extractFromGoogleMapsPlacePage();
+            } else if (url.includes('/search')) {
+                // Search results page - bulk scraping mode
+                return await this.extractFromGoogleMapsSearchResults();
+            } else {
+                // Fallback to generic extraction
+                return await this.extractGeneric();
+            }
+        } catch (error) {
+            console.error('Error in extractFromGoogleMaps:', error);
+            throw error;
         }
+    }
+
+    async extractFromGoogleMapsSearchResults() {
+        // Revised Google Maps bulk scraping using the improved auto-scroll method
+        console.log("%c V31: AUTO-SCROLL & WEB-LINK HUNTER ", "background: #27ae60; color: #ffffff; font-size: 15px; font-weight: bold;");
+
+        const scrollContainer = document.querySelector('div[role="feed"]');
+        if (!scrollContainer) {
+            console.error("Elemen scroll tidak ditemukan. Pastikan Anda berada di panel hasil pencarian Google Maps.");
+            return {
+                bulk_results: true,
+                places_count: 0,
+                places: [],
+                search_url: window.location.href,
+                extracted_at: new Date().toISOString(),
+                error: "Scroll container not found"
+            };
+        }
+
+        // --- FUNGSI AUTO SCROLL ---
+        async function autoScroll() {
+            let lastHeight = 0;
+            let currentHeight = scrollContainer.scrollHeight;
+
+            while (lastHeight < currentHeight) {
+                lastHeight = scrollContainer.scrollHeight;
+                scrollContainer.scrollTo(0, lastHeight);
+                console.log("Scrolling... Mengambil data baru...");
+                await new Promise(resolve => setTimeout(resolve, 3000)); // Tunggu 3 detik untuk loading
+                currentHeight = scrollContainer.scrollHeight;
+            }
+            console.log("Selesai Scroll: Semua tempat telah dimuat.");
+        }
+
+        // Jalankan Scroll dahulu
+        await autoScroll();
+
+        // --- PROSES EKSTRAKSI DATA ---
+        let items = document.querySelectorAll('div[role="article"]');
+        let results = [];
+
+        items.forEach((item, i) => {
+            let nameElem = item.querySelector('.fontHeadlineSmall');
+            if (!nameElem) return;
+
+            let name = nameElem.innerText.trim();
+            let fullText = item.innerText.replace(/\n/g, ' | ');
+
+            // 1. Rating & Review
+            let ratingMatch = fullText.match(/(\d[.,]\d)\s*\(([\d,.]+)\)/);
+            let rating = ratingMatch ? ratingMatch[1].replace(',', '.') : "0";
+            let reviews = ratingMatch ? ratingMatch[2].replace(/[.,]/g, '') : "0";
+
+            // 2. Link Hunter (Website)
+            let website = "NULL";
+            let allLinks = Array.from(item.querySelectorAll('a[href]'));
+            for (let link of allLinks) {
+                let href = link.href;
+                if (!href.includes('googleusercontent.com') &&
+                    !href.includes('google.co.id/maps') &&
+                    !href.includes('search?') &&
+                    href.startsWith('http')) {
+                    website = href;
+                    break;
+                }
+            }
+
+            // 3. Ekstraksi Kategori
+            let segments = fullText.split('·').map(s => s.trim());
+            let rawCatSegment = segments.find(s => s.includes('(') || s.length > 3) || segments[0];
+            let cleanCategory = rawCatSegment
+                .replace(name, '').replace(/\(\d+[\d,.]*\)/, '').replace(/\d[.,]\d/, '')
+                .replace(/Tidak ada ulasan/g, '').replace(/Tutup pukul.*/i, '').replace(/Buka pukul.*/i, '')
+                .replace(/\bBuka\b/gi, '').replace(/\bRute\b/gi, '').replace(/\|/g, '')
+                .replace(/[^\x20-\x7E]/g, '').trim();
+
+            // 4. Alamat & Telepon
+            let address = segments.find(s =>
+                s.includes('Jl.') || s.includes('Dusun') || s.includes('Desa') ||
+                s.includes('Kec.') || s.includes('Kab.') || /[A-Z0-9]{4}\+/.test(s)
+            ) || "NULL";
+            let phoneMatch = fullText.match(/(?:\+62|08)[0-9\-\s]{8,20}/);
+
+            // 5. URL Maps & Koordinat
+            let mapsLinkElem = item.querySelector('a[href*="/maps/place/"]');
+            let mapsUrl = mapsLinkElem ? mapsLinkElem.href.split('?')[0] : "NULL";
+            let coordMatch = mapsUrl.match(/!3d([-.\d]+)!4d([-.\d]+)/);
+
+            // 6. Extract place_id from Maps URL or generate unique fallback
+            let placeId = mapsUrl.match(/place\/([^\/]+)\//)?.[1] || null;
+            if (!placeId || placeId === "NULL") {
+                // Generate unique place_id based on name, address, and coordinates
+                const uniqueString = `${name}_${address}_${coordMatch ? coordMatch[1] : '0'}_${coordMatch ? coordMatch[2] : '0'}`;
+                placeId = btoa(unescape(encodeURIComponent(uniqueString))).replace(/[^a-zA-Z0-9]/g, '').substring(0, 50);
+            }
+
+            results.push({
+                place_id: placeId,
+                name: name,
+                lat: coordMatch ? coordMatch[1] : "0",
+                lng: coordMatch ? coordMatch[2] : "0",
+                maps_url: mapsUrl,
+                rating: rating,
+                review_count: reviews,
+                category: cleanCategory || "NULL",
+                address: address.replace(/\|/g, '').replace(/Buka$/, '').trim(),
+                phone: phoneMatch ? phoneMatch[0].replace(/[^0-9+]/g, '') : "NULL",
+                website: website,
+                parser_version: "V31-AUTO-ID",
+                last_scraped_at: new Date().toISOString().slice(0, 19).replace('T', ' ')
+            });
+
+            console.log(`✅ [${i+1}] ${name} | Place ID: ${placeId} | Web: ${website}`);
+        });
+
+        console.table(results);
+        window.scrapedData = results;
+        console.log(`%c BERHASIL! Mendapatkan ${results.length} data.`, "color: #2ecc71; font-weight: bold;");
+
+        // Return results with special format for bulk scraping
+        return {
+            bulk_results: true,
+            places_count: results.length,
+            places: results,
+            search_url: window.location.href,
+            extracted_at: new Date().toISOString()
+        };
+    }
+
+    findSearchResultCards() {
+        // Find place cards in Google Maps search results
+        const cardSelectors = [
+            '[role="listitem"]',  // Individual result items
+            '.section-result',    // Result containers
+            '.place-result',      // Place result cards
+            '[data-result-index]', // Indexed results
+            '.Nv2PK'              // Result card containers
+        ];
+
+        let allCards = [];
+
+        cardSelectors.forEach(selector => {
+            try {
+                const cards = document.querySelectorAll(selector);
+                cards.forEach(card => {
+                    // Avoid duplicates
+                    if (!allCards.includes(card)) {
+                        allCards.push(card);
+                    }
+                });
+            } catch (error) {
+                // Skip invalid selectors
+            }
+        });
+
+        // Filter to only place/business results (not ads, etc.)
+        const placeCards = allCards.filter(card => {
+            const text = card.textContent.toLowerCase();
+            // Look for indicators that this is a business/place result
+            return text.includes('buka') || text.includes('tutup') ||
+                   text.includes('rating') || text.includes('ulasan') ||
+                   card.querySelector('h3, .place-name, [data-attrid*="title"]');
+        });
+
+        return placeCards.slice(0, 20); // Limit to 20 results
+    }
+
+    async extractPlaceFromCard(card, index) {
+        // Extract place data from a single search result card
+        const data = {
+            source: 'chrome_extension',
+            scraped_at: new Date().toISOString(),
+            search_result_index: index + 1,
+            page_url: window.location.href
+        };
+
+        try {
+            // Extract name - Google Maps search result cards have specific structure
+            // Try multiple approaches for search result cards
+            const nameSelectors = [
+                '.fontHeadlineSmall', // Main place name in search results
+                '.qBF1Pd', // Alternative place name class
+                'h3', // Fallback heading
+                '[role="heading"]', // ARIA heading
+                '.place-name', // Generic place name
+                'a[aria-label]', // Link with aria-label
+                '.section-result-title' // Result title
+            ];
+
+            for (const selector of nameSelectors) {
+                const nameElement = card.querySelector(selector);
+                if (nameElement) {
+                    const nameText = this.cleanUnicodeText(nameElement.textContent.trim());
+                    // Filter out generic text like "Hasil" or very short text
+                    if (nameText && nameText !== 'Hasil' && nameText.length > 2) {
+                        data.name = nameText;
+                        break;
+                    }
+                }
+            }
+
+            // Extract combined info (Google search results mix name, rating, category, address, phone)
+            const combinedInfoSelectors = [
+                '.fontBodyMedium', // Main info text in search results
+                '.LrzXr', // Specific combined info class
+                '[aria-label*="address"]', // ARIA labeled
+                '.section-result-content' // Result content
+            ];
+
+            let combinedText = '';
+            for (const selector of combinedInfoSelectors) {
+                const element = card.querySelector(selector);
+                if (element) {
+                    combinedText = this.cleanUnicodeText(element.textContent.trim());
+                    if (combinedText && combinedText.length > 10) {
+                        break;
+                    }
+                }
+            }
+
+            // Parse the combined text to extract different pieces of information
+            if (combinedText) {
+                // Extract rating and review count pattern like "4,9(17)" or "4.5(32)"
+                const ratingMatch = combinedText.match(/(\d+[,.]\d+)\s*\(\s*(\d+(?:[,.]\d+)*)\s*\)/);
+                if (ratingMatch) {
+                    data.rating = parseFloat(ratingMatch[1].replace(',', '.'));
+                    data.review_count = parseInt(ratingMatch[2].replace(/[,.]/g, ''));
+                }
+
+                // Extract phone number pattern (Indonesian format: 08xx-xxxx-xxxx)
+                const phoneMatches = combinedText.match(/(\+?62|0)[8-9]\d{1,2}[-.\s]?\d{3,4}[-.\s]?\d{3,4}/g);
+                if (phoneMatches && phoneMatches.length > 0) {
+                    // Take the last phone number found (usually the main one)
+                    data.phone = phoneMatches[phoneMatches.length - 1].replace(/\s+/g, '').replace(/[-.]/g, '-');
+                }
+
+                // Remove rating pattern from text before extracting category
+                let cleanedText = combinedText.replace(/\d+[,.]\d+\s*\(\s*\d+(?:[,.]\d+)*\s*\)/g, '');
+                
+                // Extract category - look for complete business type keywords
+                const categoryKeywords = [
+                    'Toko bahan makanan', 'Toko Swalayan', 'Toko Pakaian', 'Toko Roti',
+                    'Toko Kelontong', 'Toko Elektronik', 'Toko Bangunan', 'Toko Sembako',
+                    'Toko Alat Tulis', 'Toko Mainan', 'Toko Buah', 'Toko Kue',
+                    'Restoran', 'Rumah Makan', 'Warung Makan', 'Kedai Kopi',
+                    'Hotel', 'Penginapan', 'Bank', 'ATM', 'Apotek', 'Klinik',
+                    'Minimarket', 'Supermarket', 'Warung', 'Kafe', 'Cafe',
+                    'Bengkel', 'Salon', 'Barbershop', 'Laundry', 'Fotokopi',
+                    'Toko Hp', 'Toko Komputer', 'Toko Sepatu', 'Toko Tas',
+                    'Dealer', 'Showroom', 'Gudang', 'Pabrik', 'Kantor',
+                    'Sekolah', 'Universitas', 'Rumah Sakit', 'Puskesmas',
+                    'Masjid', 'Gereja', 'Vihara', 'Pura', 'SPBU', 'Pompa Bensin'
+                ];
+                
+                // Try to find category from known keywords (case-insensitive)
+                for (const keyword of categoryKeywords) {
+                    const regex = new RegExp(keyword, 'i');
+                    if (regex.test(cleanedText)) {
+                        data.category = keyword;
+                        break;
+                    }
+                }
+                
+                // If no exact match, try to extract generic patterns
+                if (!data.category) {
+                    const genericPatterns = [
+                        /(?:^|\s)(Toko\s+\w+(?:\s+\w+)?)/i,
+                        /(?:^|\s)(Warung\s+\w+)/i,
+                        /(?:^|\s)(Rumah\s+Makan\s*\w*)/i
+                    ];
+                    
+                    for (const pattern of genericPatterns) {
+                        const match = cleanedText.match(pattern);
+                        if (match && match[1] && match[1].length > 5 && 
+                            !match[1].includes('Buka') && !match[1].includes('Tutup')) {
+                            data.category = match[1].trim();
+                            break;
+                        }
+                    }
+                }
+
+                // Extract opening hours - look for patterns like "Buka · Tutup pukul 21.00"
+                const hoursMatch = combinedText.match(/(Buka\s*[·⋅]?\s*Tutup\s+pukul\s+\d{1,2}(?:[.:]\d{1,2})?)/i);
+                if (hoursMatch) {
+                    data.opening_hours = hoursMatch[1];
+                }
+
+                // Extract address - improved logic
+                // Combined text structure: "4,9(17)Toko bahan makanan · RCHR+PGQ, Jl. Sidomulyo · Buka"
+                let addressText = '';
+                
+                // Split by separator (·) and analyze each part
+                const parts = combinedText.split(/\s*[·⋅]\s*/);
+                console.log('🏠 [DEBUG] Address extraction - text parts:', parts);
+                
+                for (const part of parts) {
+                    const trimmedPart = part.trim();
+                    
+                    // Skip if it contains rating pattern
+                    if (/^\d+[,.]\d+\s*\(\d+\)/.test(trimmedPart)) continue;
+                    
+                    // Skip if it's a category keyword
+                    if (/^(Toko|Warung|Restoran|Rumah\s+Makan|Hotel|Bank|Apotek|Klinik|Minimarket|Supermarket)\s/i.test(trimmedPart)) continue;
+                    
+                    // Skip if it starts with Buka/Tutup
+                    if (/^(Buka|Tutup)/i.test(trimmedPart)) continue;
+                    
+                    // Skip if it's a phone number
+                    if (/^(\+?62|0)[8-9]\d/.test(trimmedPart)) continue;
+                    
+                    // Check if this looks like an address (has street name, plus code, or number)
+                    const isAddress = /R[A-Z]{2,}\+\w+/.test(trimmedPart) ||  // Plus code
+                                     /Jl\.|Jalan|No\.|Desa|Kec\.|Kel\.|Kab\./i.test(trimmedPart) ||  // Street indicators
+                                     /\d+[A-Za-z]?/.test(trimmedPart);  // Has numbers
+                    
+                    if (isAddress && trimmedPart.length > 5 && trimmedPart.length < 150) {
+                        addressText = trimmedPart;
+                        break;
+                    }
+                }
+                
+                // Fallback: try to find Plus Code or street name directly
+                if (!addressText) {
+                    // Look for Plus Code pattern
+                    const plusCodeMatch = combinedText.match(/([A-Z]{2,}\d*\+[A-Z0-9]+(?:,?\s*[^·⋅]+)?)/);
+                    if (plusCodeMatch) {
+                        let extracted = plusCodeMatch[1].trim();
+                        // Remove trailing Buka/Tutup
+                        extracted = extracted.replace(/\s*(Buka|Tutup).*$/i, '').trim();
+                        if (extracted.length > 5) {
+                            addressText = extracted;
+                        }
+                    }
+                }
+                
+                // Fallback: look for street name
+                if (!addressText) {
+                    const streetMatch = combinedText.match(/(Jl\.|Jalan)\s+[^·⋅]+/i);
+                    if (streetMatch) {
+                        let extracted = streetMatch[0].trim();
+                        extracted = extracted.replace(/\s*(Buka|Tutup).*$/i, '').trim();
+                        if (extracted.length > 5) {
+                            addressText = extracted;
+                        }
+                    }
+                }
+
+                // Final validation and assignment
+                if (addressText && addressText.trim() &&
+                    addressText !== data.name &&
+                    addressText !== data.category &&
+                    !addressText.includes('Buka') &&
+                    !addressText.includes('Tutup') &&
+                    !/^(\+?62|0)[8-9]/.test(addressText)) {
+                    data.address = addressText.trim();
+                    console.log('🏠 [DEBUG] Extracted address:', data.address);
+                }
+            }
+
+            // Don't override phone if already extracted from combined text
+            if (!data.phone) {
+                // Extract phone - may not be visible in search results, but check anyway
+                const phoneSelectors = [
+                    '[href^="tel:"]',
+                    '.phone-text',
+                    '[aria-label*="phone"]',
+                    '.section-result-phone'
+                ];
+
+                for (const selector of phoneSelectors) {
+                    const phoneElement = card.querySelector(selector);
+                    if (phoneElement) {
+                        if (phoneElement.href && phoneElement.href.startsWith('tel:')) {
+                            data.phone = phoneElement.href.replace('tel:', '');
+                            break;
+                        } else if (phoneElement.textContent) {
+                            const phoneText = phoneElement.textContent.trim();
+                            if (/[\d\-\(\)\s\+]{7,}/.test(phoneText)) {
+                                data.phone = phoneText;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Extract website - usually not shown in basic search results
+            const websiteSelectors = [
+                'a[href^="http"]:not([href*="google"]):not([href*="maps"])',
+                '.website-text',
+                '[aria-label*="website"]'
+            ];
+
+            for (const selector of websiteSelectors) {
+                const websiteElement = card.querySelector(selector);
+                if (websiteElement && websiteElement.href) {
+                    const href = websiteElement.href.toLowerCase();
+                    // Make sure it's not Google or Maps related
+                    if (!href.includes('google') && !href.includes('maps.google')) {
+                        data.website = websiteElement.href;
+                        break;
+                    }
+                }
+            }
+
+            // Try to extract place ID from links - this is most reliable
+            const links = card.querySelectorAll('a[href]');
+            for (const link of links) {
+                const href = link.href;
+                if (href && href.includes('/place/')) {
+                    data.place_url = href;
+                    // Try to extract Place ID from the URL
+                    data.place_id = this.extractGooglePlaceId(href);
+                    break;
+                }
+            }
+
+            // If no place ID from links, try to find it in the card's data attributes or other sources
+            if (!data.place_id) {
+                // Sometimes the place ID is in data attributes
+                const placeIdAttr = card.getAttribute('data-place-id') ||
+                                  card.getAttribute('data-pid') ||
+                                  card.getAttribute('data-result-id');
+                if (placeIdAttr) {
+                    data.place_id = placeIdAttr;
+                }
+            }
+
+            // Extract coordinates if available (usually not in basic search results)
+            if (data.place_id) {
+                data.lat = null; // Would need additional parsing from URL data
+                data.lng = null;
+            }
+
+            // Debug: Log what we found vs what we didn't
+            console.log(`🔍 [CARD ${index + 1}] Extracted data:`, {
+                name: data.name || 'NOT FOUND',
+                address: data.address || 'NOT FOUND',
+                rating: data.rating || 'NOT FOUND',
+                phone: data.phone || 'NOT FOUND',
+                website: data.website || 'NOT FOUND',
+                place_id: data.place_id || 'NOT FOUND'
+            });
+
+        } catch (error) {
+            console.warn(`❌ Error extracting data from card ${index}:`, error);
+        }
+
+        return data;
+    }
+
+    extractRatingFromCard(card, data) {
+        // Extract rating from search result card
+        try {
+            const ratingSelectors = ['.rating-text', '[aria-label*="rating"]', '.stars-container'];
+            for (const selector of ratingSelectors) {
+                const ratingElement = card.querySelector(selector);
+                if (ratingElement) {
+                    const text = ratingElement.textContent.trim();
+
+                    // Look for patterns like "4.8 (28)" or "4.8 28 ulasan"
+                    const ratingPatterns = [
+                        /(\d+[,.]\d+)\s*\(\s*(\d+(?:[,.]\d+)*)\s*\)/,  // "4.8 (28)"
+                        /(\d+[,.]\d+)\s+(\d+(?:[,.]\d+)*)/,             // "4.8 28"
+                        /(\d+[,.]\d+)/                                  // Just "4.8"
+                    ];
+
+                    for (const pattern of ratingPatterns) {
+                        const match = text.match(pattern);
+                        if (match) {
+                            data.rating = parseFloat(match[1].replace(',', '.'));
+                            if (match[2]) {
+                                data.review_count = parseInt(match[2].replace(/[,.]/g, ''));
+                            }
+                            return; // Found rating, exit
+                        }
+                    }
+                }
+            }
+        } catch (error) {
+            console.warn('Error extracting rating from card:', error);
+        }
+    }
+
+    validatePlaceData(data, isBulkSearch = false) {
+        // Validate that we have minimum required data for a place
+        // More lenient validation for bulk search results
+
+        if (!data || typeof data !== 'object') {
+            return false;
+        }
+
+        // For bulk search results, be more lenient - just need some basic info
+        if (isBulkSearch) {
+            return data.place_id || data.name || data.address || data.phone || data.website;
+        }
+
+        // For individual place pages, require more complete data
+        return (data.name || data.place_id) &&
+               (data.address || data.phone || data.website);
     }
 
     async extractFromGoogleMapsPlacePage() {
@@ -1521,6 +2034,33 @@ class MafazaContentScraper {
 
         // If no size info, assume medium preference
         return 60;
+    }
+
+    // Method to download CSV directly
+    downloadCSV(results) {
+        // Convert results to CSV format
+        let csvRows = ["Nama;Kategori;Rating;Ulasan;Telepon;Alamat;Link"];
+
+        results.forEach(r => {
+            csvRows.push(`"${r.Nama || ''}";"${r.Kategori || ''}";"${r.Rating || ''}";"${r.Ulasan || ''}";"${r.Telepon || ''}";"${r.Alamat || ''}";"${r.Link || ''}"`);
+        });
+
+        let csvContent = "\uFEFF" + csvRows.join("\n"); // Add BOM for Excel compatibility
+        let blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        let url = URL.createObjectURL(blob);
+
+        let link = document.createElement("a");
+        link.href = url;
+        link.download = `Database_Gmaps_${new Date().toISOString().split('T')[0]}.csv`;
+        link.style.display = 'none';
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        URL.revokeObjectURL(url);
+
+        this.showNotification(`Downloaded ${results.length} records as CSV!`, 'green');
     }
 
     // Method to handle dynamic content loading

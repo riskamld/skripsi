@@ -122,12 +122,13 @@
                 <thead class="table-light">
                     <tr>
                         <th>Name</th>
+                        <th>Phone</th>
                         <th>Category</th>
                         <th>Images</th>
                         <th>Rating</th>
                         <th>Reviews</th>
+                        <th>Navigate</th>
                         <th>Location</th>
-                        <th>Status</th>
                         <th>Created</th>
                         <th>Actions</th>
                     </tr>
@@ -141,6 +142,23 @@
                                     <br>
                                     <small class="text-muted">{{ $place->place_id }}</small>
                                 </div>
+                            </td>
+                            <td>
+                                @if($place->phone)
+                                    @php
+                                        // Clean phone number and create WhatsApp link
+                                        $cleanPhone = preg_replace('/[^\d+]/', '', $place->phone);
+                                        // Remove leading + if present for WhatsApp link
+                                        $whatsappPhone = ltrim($cleanPhone, '+');
+                                        $whatsappUrl = "https://wa.me/{$whatsappPhone}";
+                                    @endphp
+                                    <a href="{{ $whatsappUrl }}" target="_blank" class="text-decoration-none" title="Chat via WhatsApp">
+                                        <code>{{ $place->phone }}</code>
+                                        <i class="bi bi-whatsapp ms-1 text-success small"></i>
+                                    </a>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
                             </td>
                             <td>
                                 @if($place->category)
@@ -179,7 +197,23 @@
                             </td>
                             <td>
                                 @if($place->review_count)
-                                    {{ number_format($place->review_count) }}
+                                    <div class="d-flex align-items-center">
+                                        {{ number_format($place->review_count) }}
+                                        @if($place->review_count >= 100)
+                                            <i class="bi bi-star-fill text-warning ms-1" title="High Review Count"></i>
+                                        @elseif($place->review_count >= 50)
+                                            <i class="bi bi-star-half text-warning ms-1" title="Good Review Count"></i>
+                                        @endif
+                                    </div>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($place->maps_url)
+                                    <a href="{{ $place->maps_url }}" target="_blank" class="btn btn-sm btn-outline-success" title="Navigate to Google Maps">
+                                        <i class="bi bi-geo-alt-fill"></i>
+                                    </a>
                                 @else
                                     <span class="text-muted">-</span>
                                 @endif
@@ -189,13 +223,6 @@
                                     <small>{{ Str::limit($place->address, 30) }}</small>
                                 @else
                                     <span class="text-muted">-</span>
-                                @endif
-                            </td>
-                            <td>
-                                @if($place->is_valid)
-                                    <span class="badge bg-success">Active</span>
-                                @else
-                                    <span class="badge bg-danger">Inactive</span>
                                 @endif
                             </td>
                             <td>
@@ -222,7 +249,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="text-center py-4">
+                            <td colspan="10" class="text-center py-4">
                                 <i class="bi bi-geo-alt text-muted fs-1 mb-3"></i>
                                 <h5 class="text-muted">No places found</h5>
                                 <p class="text-muted">Try adjusting your search criteria or add a new place.</p>

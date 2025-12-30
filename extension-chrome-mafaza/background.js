@@ -181,8 +181,38 @@ class MafazaBackground {
     }
 
     addToQueue(data) {
-        // Validate data before adding to queue
-        if (this.validatePlaceData(data)) {
+        // Handle bulk data differently from single place data
+        if (data && data.bulk_results && data.places && Array.isArray(data.places)) {
+            // Handle bulk scraping results
+            console.log(`📦 Processing bulk data with ${data.places.length} places`);
+
+            let validPlacesCount = 0;
+            data.places.forEach((place, index) => {
+                if (this.validatePlaceData(place)) {
+                    this.scrapingQueue.push({
+                        ...place,
+                        timestamp: Date.now(),
+                        retries: 0,
+                        bulk_source: true,
+                        bulk_index: index
+                    });
+                    validPlacesCount++;
+                } else {
+                    console.warn(`❌ Invalid place in bulk data at index ${index}:`, place);
+                }
+            });
+
+            if (validPlacesCount > 0) {
+                this.stats.queuedCount += validPlacesCount;
+                this.updateBadge();
+                this.saveStats();
+                this.processQueue();
+                console.log(`✅ Added ${validPlacesCount} places from bulk data to queue`);
+            } else {
+                console.error('❌ No valid places found in bulk data');
+            }
+        } else if (this.validatePlaceData(data)) {
+            // Handle single place data
             this.scrapingQueue.push({
                 ...data,
                 timestamp: Date.now(),
@@ -194,7 +224,7 @@ class MafazaBackground {
             this.saveStats();
             this.processQueue();
         } else {
-            console.error('Invalid place data:', data);
+            console.error('❌ Invalid place data:', data);
         }
     }
 
@@ -202,7 +232,7 @@ class MafazaBackground {
         return data &&
                typeof data === 'object' &&
                (data.name || data.place_id) &&
-               (data.lat || data.location);
+               (data.lat !== undefined || data.location);
     }
 
     async processQueue() {

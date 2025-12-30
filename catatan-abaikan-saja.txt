@@ -1,0 +1,77 @@
+(async function() {
+    console.log("%c V30: WEB-LINK HUNTER & FINAL VALIDATION ", "background: #1289A7; color: #ffffff; font-size: 15px; font-weight: bold;");
+
+    let items = document.querySelectorAll('div[role="article"]');
+    let results = [];
+
+    items.forEach((item, i) => {
+        let nameElem = item.querySelector('.fontHeadlineSmall');
+        if (!nameElem) return;
+
+        let name = nameElem.innerText.trim();
+        let fullText = item.innerText.replace(/\n/g, ' | '); 
+        
+        // 1. Ambil Rating & Review
+        let ratingMatch = fullText.match(/(\d[.,]\d)\s*\(([\d,.]+)\)/);
+        let rating = ratingMatch ? ratingMatch[1].replace(',', '.') : "0";
+        let reviews = ratingMatch ? ratingMatch[2].replace(/[.,]/g, '') : "0";
+
+        // 2. Link Hunter (Mencari Website Asli)
+        let website = "NULL";
+        let allLinks = Array.from(item.querySelectorAll('a[href]'));
+        for (let link of allLinks) {
+            let href = link.href;
+            // Filter: Bukan link maps, bukan link google search, bukan link rute
+            if (!href.includes('google.com/maps') && 
+                !href.includes('google.co.id/maps') && 
+                !href.includes('search?') && 
+                href.startsWith('http')) {
+                website = href;
+                break; 
+            }
+        }
+
+        // 3. Ekstraksi Kategori (Logika V29 yang sudah bersih)
+        let segments = fullText.split('·').map(s => s.trim());
+        let rawCatSegment = segments.find(s => s.includes('(') || s.length > 3) || segments[0];
+        let cleanCategory = rawCatSegment
+            .replace(name, '').replace(/\(\d+[\d,.]*\)/, '').replace(/\d[.,]\d/, '')
+            .replace(/Tidak ada ulasan/g, '').replace(/Tutup pukul.*/i, '').replace(/Buka pukul.*/i, '')
+            .replace(/\bBuka\b/gi, '').replace(/\bRute\b/gi, '').replace(/\|/g, '')
+            .replace(/[^\x20-\x7E]/g, '').trim();
+
+        // 4. Alamat & Telepon
+        let address = segments.find(s => 
+            s.includes('Jl.') || s.includes('Dusun') || s.includes('Desa') || 
+            s.includes('Kec.') || s.includes('Kab.') || /[A-Z0-9]{4}\+/.test(s)
+        ) || "NULL";
+        let phoneMatch = fullText.match(/(?:\+62|08)[0-9\-\s]{8,20}/);
+
+        // 5. URL Maps & Koordinat
+        let mapsLinkElem = item.querySelector('a[href*="/maps/place/"]');
+        let mapsUrl = mapsLinkElem ? mapsLinkElem.href.split('?')[0] : "NULL";
+        let coordMatch = mapsUrl.match(/!3d([-.\d]+)!4d([-.\d]+)/);
+
+        results.push({
+            place_id: mapsUrl.match(/place\/([^\/]+)\//)?.[1] || "NULL",
+            name: name,
+            lat: coordMatch ? coordMatch[1] : "0",
+            lng: coordMatch ? coordMatch[2] : "0",
+            maps_url: mapsUrl,
+            rating: rating,
+            review_count: reviews,
+            category: cleanCategory || "NULL",
+            address: address.replace(/\|/g, '').replace(/Buka$/, '').trim(),
+            phone: phoneMatch ? phoneMatch[0].replace(/[^0-9+]/g, '') : "NULL",
+            website: website, // Hasil Link Hunter
+            parser_version: "V30-WEB-HUNTER",
+            last_scraped_at: new Date().toISOString().slice(0, 19).replace('T', ' ')
+        });
+
+        console.log(`✅ [${i+1}] ${name} | Web: ${website}`);
+    });
+
+    console.table(results);
+    window.scrapedData = results;
+    console.log("%c DATA LENGKAP! Ketik downloadCSV() untuk unduh final.", "color: #2ecc71; font-weight: bold;");
+})();
