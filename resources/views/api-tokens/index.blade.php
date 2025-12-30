@@ -120,22 +120,156 @@
     </div>
     <!-- /.card-body -->
 
-    @if(isset($tokens) && $tokens->hasPages())
-    <div class="card-footer">
-        <div class="row">
-            <div class="col-sm-12 col-md-5">
-                <div class="dataTables_info" role="status" aria-live="polite">
-                    Showing {{ $tokens->firstItem() }} to {{ $tokens->lastItem() }} of {{ $tokens->total() }} entries
-                </div>
-            </div>
-            <div class="col-sm-12 col-md-7">
-                <div class="dataTables_paginate paging_simple_numbers">
-                    {{ $tokens->appends(request()->query())->links('vendor.pagination.bootstrap-4') }}
-                </div>
-            </div>
+    <!-- Infinite Scroll Loading Indicator -->
+    <div id="loading-indicator" class="text-center py-3" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Loading...</span>
         </div>
+        <small class="text-muted ml-2">Loading more tokens...</small>
     </div>
-    @endif
+
+    <!-- End of Results Indicator -->
+    <div id="end-indicator" class="text-center py-3" style="display: none;">
+        <small class="text-muted">No more tokens to load</small>
+    </div>
 </div>
 <!-- /.card -->
+
+<script>
+$(document).ready(function() {
+    // Infinite Scroll Variables
+    let currentPage = {{ $tokens->currentPage() }};
+    let isLoading = false;
+    let hasMorePages = {{ $tokens->hasMorePages() ? 'true' : 'false' }};
+
+    // Infinite Scroll Implementation
+    $(window).on('scroll', function() {
+        if (isLoading || !hasMorePages) return;
+
+        const scrollTop = $(window).scrollTop();
+        const windowHeight = $(window).height();
+        const documentHeight = $(document).height();
+
+        // Load more when user is 200px from bottom
+        if (scrollTop + windowHeight >= documentHeight - 200) {
+            loadMoreTokens();
+        }
+    });
+
+    function loadMoreTokens() {
+        if (isLoading || !hasMorePages) return;
+
+        isLoading = true;
+        currentPage++;
+
+        // Show loading indicator
+        $('#loading-indicator').show();
+
+        // Get current URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        urlParams.set('page', currentPage);
+
+        $.ajax({
+            url: '{{ route("api-tokens.index") }}',
+            type: 'GET',
+            data: urlParams.toString(),
+            success: function(response) {
+                if (response.tokens && response.tokens.length > 0) {
+                    // Append new tokens to table
+                    const tbody = $('tbody');
+                    response.tokens.forEach(function(token) {
+                        const rowHtml = generateTokenRow(token);
+                        tbody.append(rowHtml);
+                    });
+
+                    hasMorePages = response.has_more;
+                } else {
+                    hasMorePages = false;
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Infinite scroll error:', error);
+                hasMorePages = false;
+            },
+            complete: function() {
+                isLoading = false;
+                $('#loading-indicator').hide();
+
+                if (!hasMorePages) {
+                    $('#end-indicator').show();
+                }
+            }
+        });
+    }
+
+    function generateTokenRow(token) {
+        // Generate HTML for a token row
+        let row = '<tr style="height: 35px;">';
+
+        // Token Name column
+        row += '<td style="padding: 8px 12px; vertical-align: middle;">';
+        row += '<div style="font-size: 0.875rem; font-weight: 600;">' + escapeHtml(token.name.substring(0, 15)) + (token.name.length > 15 ? '...' : '') + '</div>';
+        row += '<small class="text-muted" style="font-size: 0.75rem;">' + token.token.substring(-8) + '</small>';
+        row += '</td>';
+
+        // Status column
+        row += '<td style="padding: 8px 12px; vertical-align: middle;">';
+        if (token.is_active) {
+            row += '<span class="badge badge-success" style="font-size: 0.75rem;"><i class="fas fa-check-circle"></i></span>';
+        } else {
+            row += '<span class="badge badge-secondary" style="font-size: 0.75rem;"><i class="fas fa-pause-circle"></i></span>';
+        }
+        row += '</td>';
+
+        // Last Used column
+        row += '<td style="padding: 8px 12px; vertical-align: middle;">';
+        if (token.last_used_at) {
+            row += '<span title="' + token.last_used_at + '" style="font-size: 0.875rem;">Just now</span>';
+        } else {
+            row += '<span class="text-muted" style="font-size: 0.875rem;">Never</span>';
+        }
+        row += '</td>';
+
+        // Created column
+        row += '<td style="padding: 8px 12px; vertical-align: middle;">';
+        row += '<span title="' + token.created_at + '" style="font-size: 0.875rem;">' + new Date(token.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + '</span>';
+        row += '</td>';
+
+        // Actions column
+        row += '<td style="padding: 8px 12px; vertical-align: middle;">';
+        row += '<div class="btn-group btn-group-sm">';
+        row += '<a href="/api-tokens/' + token.id + '" class="btn btn-info btn-sm"><i class="fas fa-eye"></i></a>';
+        row += '<form method="POST" action="/api-tokens/' + token.id + '/toggle-status" class="d-inline">';
+        row += '<input type="hidden" name="_token" value="' + $('meta[name="csrf-token"]').attr('content') + '">';
+        row += '<button type="submit" class="btn ' + (token.is_active ? 'btn-warning' : 'btn-success') + ' btn-sm">';
+        row += '<i class="fas fa-' + (token.is_active ? 'pause' : 'play') + '"></i>';
+        row += '</button>';
+        row += '</form>';
+        row += '<form method="POST" action="/api-tokens/' + token.id + '/regenerate" class="d-inline">';
+        row += '<input type="hidden" name="_token" value="' + $('meta[name="csrf-token"]').attr('content') + '">';
+        row += '<button type="submit" class="btn btn-secondary btn-sm" onclick="return confirm(\'This will invalidate the current token. Continue?\')">';
+        row += '<i class="fas fa-sync-alt"></i>';
+        row += '</button>';
+        row += '</form>';
+        row += '<form method="POST" action="/api-tokens/' + token.id + '" class="d-inline">';
+        row += '<input type="hidden" name="_method" value="DELETE">';
+        row += '<input type="hidden" name="_token" value="' + $('meta[name="csrf-token"]').attr('content') + '">';
+        row += '<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Are you sure you want to delete this token?\')">';
+        row += '<i class="fas fa-trash"></i>';
+        row += '</button>';
+        row += '</form>';
+        row += '</div>';
+        row += '</td>';
+
+        row += '</tr>';
+        return row;
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+});
+</script>
 @endsection

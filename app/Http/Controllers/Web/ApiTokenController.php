@@ -11,6 +11,16 @@ class ApiTokenController extends Controller
 {
     public function index()
     {
+        // Handle AJAX requests for infinite scroll
+        if (request()->ajax()) {
+            $tokens = ApiToken::latest()->paginate(10); // Smaller chunks for infinite scroll
+            return response()->json([
+                'tokens' => $tokens->items(),
+                'has_more' => $tokens->hasMorePages(),
+                'next_page' => $tokens->hasMorePages() ? $tokens->currentPage() + 1 : null
+            ]);
+        }
+
         $tokens = ApiToken::latest()->paginate(20)->onEachSide(2);
 
         return view('api-tokens.index', compact('tokens'));

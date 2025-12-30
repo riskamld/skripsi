@@ -64,6 +64,16 @@ class PlaceController extends Controller
             }
         }
 
+        // Handle AJAX requests for infinite scroll
+        if (request()->ajax()) {
+            $places = $query->paginate(20); // Smaller chunks for infinite scroll
+            return response()->json([
+                'places' => $places->items(),
+                'has_more' => $places->hasMorePages(),
+                'next_page' => $places->hasMorePages() ? $places->currentPage() + 1 : null
+            ]);
+        }
+
         $places = $query->paginate(50)->onEachSide(2);
 
         // Get unique categories for filter dropdown

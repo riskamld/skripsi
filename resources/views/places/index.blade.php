@@ -173,22 +173,18 @@
     </div>
     <!-- /.card-body -->
 
-    @if(isset($places) && $places->hasPages())
-    <div class="card-footer">
-        <div class="row">
-            <div class="col-sm-12 col-md-5">
-                <div class="dataTables_info" role="status" aria-live="polite">
-                    Showing {{ $places->firstItem() }} to {{ $places->lastItem() }} of {{ $places->total() }} entries
-                </div>
-            </div>
-            <div class="col-sm-12 col-md-7">
-                <div class="dataTables_paginate paging_simple_numbers">
-                    {{ $places->appends(request()->query())->links('vendor.pagination.bootstrap-4') }}
-                </div>
-            </div>
+    <!-- Infinite Scroll Loading Indicator -->
+    <div id="loading-indicator" class="text-center py-3" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Loading...</span>
         </div>
+        <small class="text-muted ml-2">Loading more places...</small>
     </div>
-    @endif
+
+    <!-- End of Results Indicator -->
+    <div id="end-indicator" class="text-center py-3" style="display: none;">
+        <small class="text-muted">No more places to load</small>
+    </div>
 </div>
 <!-- /.card -->
 
@@ -283,6 +279,163 @@ $(document).ready(function() {
         // Redirect to clear search
         const newUrl = '{{ route("places.index") }}' + (urlParams.toString() ? '?' + urlParams.toString() : '');
         window.location.href = newUrl;
+    }
+
+    // Infinite Scroll Variables
+    let currentPage = {{ $places->currentPage() }};
+    let isLoading = false;
+    let hasMorePages = {{ $places->hasMorePages() ? 'true' : 'false' }};
+
+    // Infinite Scroll Implementation
+    $(window).on('scroll', function() {
+        if (isLoading || !hasMorePages) return;
+
+        const scrollTop = $(window).scrollTop();
+        const windowHeight = $(window).height();
+        const documentHeight = $(document).height();
+
+        // Load more when user is 200px from bottom
+        if (scrollTop + windowHeight >= documentHeight - 200) {
+            loadMorePlaces();
+        }
+    });
+
+    function loadMorePlaces() {
+        if (isLoading || !hasMorePages) return;
+
+        isLoading = true;
+        currentPage++;
+
+        // Show loading indicator
+        $('#loading-indicator').show();
+
+        // Get current URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        urlParams.set('page', currentPage);
+
+        $.ajax({
+            url: '{{ route("places.index") }}',
+            type: 'GET',
+            data: urlParams.toString(),
+            success: function(response) {
+                if (response.places && response.places.length > 0) {
+                    // Append new places to table
+                    const tbody = $('tbody');
+                    response.places.forEach(function(place) {
+                        const rowHtml = generatePlaceRow(place);
+                        tbody.append(rowHtml);
+                    });
+
+                    hasMorePages = response.has_more;
+                } else {
+                    hasMorePages = false;
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Infinite scroll error:', error);
+                hasMorePages = false;
+            },
+            complete: function() {
+                isLoading = false;
+                $('#loading-indicator').hide();
+
+                if (!hasMorePages) {
+                    $('#end-indicator').show();
+                }
+            }
+        });
+    }
+
+    function generatePlaceRow(place) {
+        // Generate HTML for a place row (similar to Blade template)
+        let row = '<tr style="height: 45px;">';
+
+        // Name column
+        row += '<td style="padding: 8px 12px; vertical-align: middle;">';
+        row += '<div style="font-size: 0.875rem; font-weight: 600;">' + escapeHtml(place.name.substring(0, 30)) + (place.name.length > 30 ? '...' : '') + '</div>';
+        row += '<small class="text-info" style="font-size: 0.75rem;">' + (place.category ? escapeHtml(place.category.substring(0, 25)) + (place.category.length > 25 ? '...' : '') : '-') + '</small>';
+        row += '</td>';
+
+        // Address column
+        row += '<td style="padding: 8px 12px; vertical-align: middle;">';
+        row += '<div style="font-size: 0.875rem;">' + (place.address ? escapeHtml(place.address.substring(0, 25)) + (place.address.length > 25 ? '...' : '') : 'N/A') + '</div>';
+        row += '</td>';
+
+        // Phone column
+        row += '<td style="padding: 8px 12px; vertical-align: middle;">';
+        if (place.phone) {
+            row += '<a href="https://wa.me/' + place.phone.replace(/\D/g, '') + '" target="_blank" class="btn btn-sm btn-success" title="Chat via WhatsApp">';
+            row += '<i class="fab fa-whatsapp"></i> ' + escapeHtml(place.phone.substring(0, 12)) + (place.phone.length > 12 ? '...' : '');
+            row += '</a>';
+        } else {
+            row += '<span style="font-size: 0.875rem;">N/A</span>';
+        }
+        row += '</td>';
+
+        // Website column
+        row += '<td style="padding: 8px 12px; vertical-align: middle;">';
+        if (place.website) {
+            row += '<a href="' + escapeHtml(place.website) + '" target="_blank" class="btn btn-sm btn-outline-primary">';
+            row += '<i class="fas fa-external-link-alt"></i>';
+            row += '</a>';
+        } else {
+            row += '<span style="font-size: 0.875rem;">N/A</span>';
+        }
+        row += '</td>';
+
+        // Rating column
+        row += '<td style="padding: 8px 12px; vertical-align: middle;">';
+        if (place.rating) {
+            row += '<span class="badge badge-warning" style="font-size: 0.75rem;">';
+            row += '<i class="fas fa-star"></i> ' + place.rating;
+            row += '</span>';
+        } else {
+            row += '<span class="badge badge-secondary" style="font-size: 0.75rem;">-</span>';
+        }
+        row += '</td>';
+
+        // Reviews column
+        row += '<td style="padding: 8px 12px; vertical-align: middle;">';
+        if (place.review_count) {
+            row += '<span class="badge badge-info" style="font-size: 0.75rem;">';
+            row += '<i class="fas fa-comments"></i> ' + place.review_count.toLocaleString();
+            row += '</span>';
+        } else {
+            row += '<span class="badge badge-secondary" style="font-size: 0.75rem;">-</span>';
+        }
+        row += '</td>';
+
+        // Scraped column
+        row += '<td style="padding: 8px 12px; vertical-align: middle;">';
+        if (place.last_scraped_at) {
+            row += '<div style="font-size: 0.875rem; font-weight: 600;">' + new Date(place.last_scraped_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + '</div>';
+            row += '<small class="text-muted" style="font-size: 0.75rem;">Just now</small>';
+        } else {
+            row += '<span class="text-muted" style="font-size: 0.875rem;">Never</span>';
+        }
+        row += '</td>';
+
+        // Actions column
+        row += '<td style="padding: 8px 12px; vertical-align: middle;">';
+        row += '<div class="btn-group btn-group-sm">';
+        row += '<a href="/places/' + place.id + '" class="btn btn-info btn-sm"><i class="fas fa-eye"></i></a>';
+        row += '<a href="/places/' + place.id + '/edit" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></a>';
+        row += '<form method="POST" action="/places/' + place.id + '" class="d-inline">';
+        row += '<input type="hidden" name="_method" value="DELETE">';
+        row += '<input type="hidden" name="_token" value="' + $('meta[name="csrf-token"]').attr('content') + '">';
+        row += '<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Are you sure?\')"><i class="fas fa-trash"></i></button>';
+        row += '</form>';
+        row += '</div>';
+        row += '</td>';
+
+        row += '</tr>';
+        return row;
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 });
 </script>

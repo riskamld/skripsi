@@ -46,6 +46,16 @@ class ScrapeLogController extends Controller
             $query->orderBy($sortBy, $sortDir);
         }
 
+        // Handle AJAX requests for infinite scroll
+        if (request()->ajax()) {
+            $logs = $query->paginate(15); // Smaller chunks for infinite scroll
+            return response()->json([
+                'logs' => $logs->items(),
+                'has_more' => $logs->hasMorePages(),
+                'next_page' => $logs->hasMorePages() ? $logs->currentPage() + 1 : null
+            ]);
+        }
+
         $logs = $query->paginate(20)->onEachSide(2);
 
         // Get status counts for summary

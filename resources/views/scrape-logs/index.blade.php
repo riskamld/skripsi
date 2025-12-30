@@ -102,22 +102,150 @@
     </div>
     <!-- /.card-body -->
 
-    @if(isset($logs) && $logs->hasPages())
-    <div class="card-footer">
-        <div class="row">
-            <div class="col-sm-12 col-md-5">
-                <div class="dataTables_info" role="status" aria-live="polite">
-                    Showing {{ $logs->firstItem() }} to {{ $logs->lastItem() }} of {{ $logs->total() }} entries
-                </div>
-            </div>
-            <div class="col-sm-12 col-md-7">
-                <div class="dataTables_paginate paging_simple_numbers">
-                    {{ $logs->appends(request()->query())->links('vendor.pagination.bootstrap-4') }}
-                </div>
-            </div>
+    <!-- Infinite Scroll Loading Indicator -->
+    <div id="loading-indicator" class="text-center py-3" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Loading...</span>
         </div>
+        <small class="text-muted ml-2">Loading more logs...</small>
     </div>
-    @endif
+
+    <!-- End of Results Indicator -->
+    <div id="end-indicator" class="text-center py-3" style="display: none;">
+        <small class="text-muted">No more logs to load</small>
+    </div>
 </div>
 <!-- /.card -->
+
+<script>
+$(document).ready(function() {
+    // Infinite Scroll Variables
+    let currentPage = {{ $logs->currentPage() }};
+    let isLoading = false;
+    let hasMorePages = {{ $logs->hasMorePages() ? 'true' : 'false' }};
+
+    // Infinite Scroll Implementation
+    $(window).on('scroll', function() {
+        if (isLoading || !hasMorePages) return;
+
+        const scrollTop = $(window).scrollTop();
+        const windowHeight = $(window).height();
+        const documentHeight = $(document).height();
+
+        // Load more when user is 200px from bottom
+        if (scrollTop + windowHeight >= documentHeight - 200) {
+            loadMoreLogs();
+        }
+    });
+
+    function loadMoreLogs() {
+        if (isLoading || !hasMorePages) return;
+
+        isLoading = true;
+        currentPage++;
+
+        // Show loading indicator
+        $('#loading-indicator').show();
+
+        // Get current URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        urlParams.set('page', currentPage);
+
+        $.ajax({
+            url: '{{ route("scrape-logs.index") }}',
+            type: 'GET',
+            data: urlParams.toString(),
+            success: function(response) {
+                if (response.logs && response.logs.length > 0) {
+                    // Append new logs to table
+                    const tbody = $('tbody');
+                    response.logs.forEach(function(log) {
+                        const rowHtml = generateLogRow(log);
+                        tbody.append(rowHtml);
+                    });
+
+                    hasMorePages = response.has_more;
+                } else {
+                    hasMorePages = false;
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Infinite scroll error:', error);
+                hasMorePages = false;
+            },
+            complete: function() {
+                isLoading = false;
+                $('#loading-indicator').hide();
+
+                if (!hasMorePages) {
+                    $('#end-indicator').show();
+                }
+            }
+        });
+    }
+
+    function generateLogRow(log) {
+        // Generate HTML for a log row
+        let row = '<tr style="height: 35px;">';
+
+        // Place Name column
+        row += '<td style="padding: 8px 12px; vertical-align: middle;">';
+        row += '<div style="font-size: 0.875rem; font-weight: 600;">' + escapeHtml((log.place ? log.place.name : 'Unknown Place').substring(0, 18)) + ((log.place ? log.place.name : 'Unknown Place').length > 18 ? '...' : '') + '</div>';
+        row += '</td>';
+
+        // Status column
+        row += '<td style="padding: 8px 12px; vertical-align: middle;">';
+        let statusClass = 'secondary';
+        let statusIcon = 'clock';
+        let statusText = 'Pending';
+
+        if (log.status === 'success') {
+            statusClass = 'success';
+            statusIcon = 'check';
+            statusText = 'Success';
+        } else if (log.status === 'error') {
+            statusClass = 'danger';
+            statusIcon = 'times';
+            statusText = 'Error';
+        } else if (log.status === 'warning') {
+            statusClass = 'warning';
+            statusIcon = 'exclamation-triangle';
+            statusText = 'Warning';
+        }
+
+        row += '<span class="badge badge-' + statusClass + '" style="font-size: 0.75rem;">';
+        row += '<i class="fas fa-' + statusIcon + '"></i> ' + statusText;
+        row += '</span>';
+        row += '</td>';
+
+        // Message column
+        row += '<td style="padding: 8px 12px; vertical-align: middle;">';
+        row += '<span title="' + escapeHtml(log.message || '') + '" style="font-size: 0.875rem;">';
+        row += escapeHtml((log.message || 'No message').substring(0, 40)) + ((log.message || 'No message').length > 40 ? '...' : '');
+        row += '</span>';
+        row += '</td>';
+
+        // Created column
+        row += '<td style="padding: 8px 12px; vertical-align: middle;">';
+        row += '<span title="' + log.created_at + '" style="font-size: 0.875rem;">';
+        row += 'Just now'; // For simplicity, show "Just now" for new entries
+        row += '</span>';
+        row += '</td>';
+
+        // Actions column
+        row += '<td style="padding: 8px 12px; vertical-align: middle;">';
+        row += '<a href="/scrape-logs/' + log.id + '" class="btn btn-info btn-sm"><i class="fas fa-eye"></i></a>';
+        row += '</td>';
+
+        row += '</tr>';
+        return row;
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+});
+</script>
 @endsection
