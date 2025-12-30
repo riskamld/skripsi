@@ -264,8 +264,56 @@
 
 <!-- Pagination -->
 @if($places->hasPages())
-    <div class="d-flex justify-content-center mt-4">
-        {{ $places->appends(request()->query())->links() }}
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav aria-label="Places pagination">
+                <div class="d-flex justify-content-between align-items-center">
+                    <!-- Page Info -->
+                    <div class="text-muted small">
+                        Page {{ $places->currentPage() }} of {{ $places->lastPage() }}
+                        ({{ $places->total() }} total places)
+                    </div>
+
+                    <!-- Pagination Links -->
+                    <ul class="pagination pagination-lg mb-0">
+                        {{-- Previous Page Link --}}
+                        @if ($places->onFirstPage())
+                            <li class="page-item disabled">
+                                <span class="page-link">&laquo; Previous</span>
+                            </li>
+                        @else
+                            <li class="page-item">
+                                <a class="page-link" href="{{ $places->previousPageUrl() }}" rel="prev">&laquo; Previous</a>
+                            </li>
+                        @endif
+
+                        {{-- Pagination Elements --}}
+                        @foreach ($places->getUrlRange(1, $places->lastPage()) as $page => $url)
+                            @if ($page == $places->currentPage())
+                                <li class="page-item active">
+                                    <span class="page-link">{{ $page }}</span>
+                                </li>
+                            @else
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                                </li>
+                            @endif
+                        @endforeach
+
+                        {{-- Next Page Link --}}
+                        @if ($places->hasMorePages())
+                            <li class="page-item">
+                                <a class="page-link" href="{{ $places->nextPageUrl() }}" rel="next">Next &raquo;</a>
+                            </li>
+                        @else
+                            <li class="page-item disabled">
+                                <span class="page-link">Next &raquo;</span>
+                            </li>
+                        @endif
+                    </ul>
+                </div>
+            </nav>
+        </div>
     </div>
 @endif
 
