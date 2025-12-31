@@ -591,9 +591,10 @@ document.addEventListener('DOMContentLoaded', function() {
         div.style.padding = '8px';
         div.style.borderRadius = '5px';
         div.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
-        div.style.maxHeight = '400px';
+        div.style.height = '400px';
         div.style.maxWidth = '220px';
         div.style.overflowY = 'scroll';
+        div.style.overflowX = 'hidden';
         div.style.scrollbarWidth = 'thin';
         div.style.fontSize = '11px';
 
