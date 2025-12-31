@@ -987,6 +987,8 @@ document.addEventListener('DOMContentLoaded', function() {
         placesToUpdate.forEach(function(updateData) {
             var marker = markers[updateData.markerIndex];
             var place = updateData.place;
+            var oldPlace = places.find(function(p) { return p.id === place.id; });
+            var categoryChanged = oldPlace && oldPlace.category !== place.category;
 
             // Update position if changed
             if (marker.getLatLng().lat !== place.lat || marker.getLatLng().lng !== place.lng) {
@@ -1029,6 +1031,11 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
 
             marker.setPopupContent(popupContent);
+
+            // Update legend if category changed
+            if (categoryChanged) {
+                updateLegend();
+            }
         });
 
         // Add new markers with animation
