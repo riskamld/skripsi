@@ -63,4 +63,22 @@ class MapController extends Controller
             'has_changes' => count($updatedPlaces) > 0 || count($deletedPlaceIds) > 0
         ]);
     }
+
+    public function deleteCategory(Request $request)
+    {
+        $category = $request->get('category');
+
+        if (!$category) {
+            return response()->json(['error' => 'Category is required'], 400);
+        }
+
+        // Delete all places with this category
+        $deletedCount = Place::where('category', $category)->delete();
+
+        return response()->json([
+            'success' => true,
+            'deleted_count' => $deletedCount,
+            'message' => "Deleted {$deletedCount} places with category '{$category}'"
+        ]);
+    }
 }

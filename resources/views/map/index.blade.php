@@ -591,6 +591,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <input type="checkbox" id="${checkboxId}" checked style="margin-right: 6px; cursor: pointer;">
                     <div style="width: 10px; height: 10px; border-radius: 50%; background-color: ${categoryData.color}; margin-right: 6px; flex-shrink: 0; border: 1px solid #ddd;"></div>
                     <label for="${checkboxId}" style="font-size: 10px; line-height: 1.2; cursor: pointer; flex-grow: 1;">${categoryData.displayName} (${categoryData.count})</label>
+                    <button class="delete-category-btn" data-category="${key}" data-category-name="${categoryData.displayName}" data-count="${categoryData.count}" style="margin-left: 4px; background: #ef4444; color: white; border: none; border-radius: 3px; width: 16px; height: 16px; font-size: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;" title="Delete all ${categoryData.displayName} places">×</button>
                 </div>
             `;
         });
@@ -646,6 +647,52 @@ document.addEventListener('DOMContentLoaded', function() {
                         toggleCategory(categoryKey, checkbox.checked);
                     });
                 }
+            });
+
+            // Delete category buttons
+            var deleteButtons = div.querySelectorAll('.delete-category-btn');
+            deleteButtons.forEach(function(button) {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation(); // Prevent triggering category toggle
+
+                    var category = button.dataset.category;
+                    var categoryName = button.dataset.categoryName;
+                    var count = button.dataset.count;
+
+                    if (confirm(`Apakah Anda yakin ingin menghapus semua ${count} tempat dengan kategori "${categoryName}"?\n\nTindakan ini tidak dapat dibatalkan!`)) {
+                        // Disable button during deletion
+                        button.disabled = true;
+                        button.textContent = '...';
+
+                        // Call delete API
+                        fetch('/map/delete-category', {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            },
+                            body: JSON.stringify({ category: category })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert(`Berhasil menghapus ${data.deleted_count} tempat dengan kategori "${categoryName}"`);
+                                // Reload page to refresh data
+                                location.reload();
+                            } else {
+                                alert('Gagal menghapus kategori: ' + (data.error || 'Unknown error'));
+                                button.disabled = false;
+                                button.textContent = '×';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Delete error:', error);
+                            alert('Terjadi kesalahan saat menghapus kategori');
+                            button.disabled = false;
+                            button.textContent = '×';
+                        });
+                    }
+                });
             });
 
             // Initialize all categories as active
