@@ -569,7 +569,8 @@ document.addEventListener('DOMContentLoaded', function() {
         div.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
         div.style.maxHeight = '400px';
         div.style.maxWidth = '220px';
-        div.style.overflowY = 'auto';
+        div.style.overflowY = 'scroll';
+        div.style.scrollbarWidth = 'thin';
         div.style.fontSize = '11px';
 
         div.innerHTML = `
@@ -697,7 +698,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         button.textContent = '...';
 
                         // Call delete API
-                        fetch('/api/map/delete-category', {
+                        fetch(window.baseUrl + '/map/delete-category', {
                             method: 'DELETE',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -1117,10 +1118,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         var label = legendDiv.querySelector('label[for="' + checkboxId + '"]');
 
                         if (label) {
-                            // Extract category name from current label text
-                            var labelText = label.textContent;
-                            var namePart = labelText.replace(/\s*\([0-9]+\)$/, ''); // Remove (count) part
-                            label.textContent = namePart + ' (' + categoryData.count + ')';
+                            // Directly set the complete label text
+                            label.textContent = categoryData.displayName + ' (' + categoryData.count + ')';
 
                             // Update delete button count
                             var deleteBtn = legendDiv.querySelector('.delete-category-btn[data-category="' + key + '"]');
