@@ -698,7 +698,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         button.textContent = '...';
 
                         // Call delete API
-                        fetch(window.baseUrl + '/map/delete-category', {
+                        fetch(window.baseUrl + '/api/map/delete-category', {
                             method: 'DELETE',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -1287,7 +1287,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     button.disabled = true;
                     button.textContent = '...';
 
-                        fetch(window.baseUrl + '/map/delete-category', {
+                        fetch(window.baseUrl + '/api/map/delete-category', {
                             method: 'DELETE',
                             headers: {
                                 'Content-Type': 'application/json',
