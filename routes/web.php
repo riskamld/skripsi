@@ -13,8 +13,6 @@ use App\Http\Controllers\Web\MapController;
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 Route::get('/map', [MapController::class, 'index'])->name('map.index');
-Route::post('/map/check-updates', [MapController::class, 'checkUpdates'])->name('map.check-updates');
-Route::delete('/map/delete-category', [MapController::class, 'deleteCategory'])->name('map.delete-category');
 
 // Language switching removed - using Indonesian by default
 Route::get('/market-analysis', [MarketAnalysisController::class, 'index'])->name('market-analysis.index');

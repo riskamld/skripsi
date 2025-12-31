@@ -737,7 +737,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         button.textContent = '...';
 
                         // Call delete API
-                        fetch('/map/delete-category', {
+                        fetch('/api/map/delete-category', {
                             method: 'DELETE',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -911,7 +911,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         requestData.place_ids = Array.from(existingPlaceIds);
 
-        fetch('/map/check-updates', {
+        fetch('/api/map/check-updates', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
