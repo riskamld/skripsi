@@ -118,9 +118,12 @@ class MafazaScraper {
                     case 'dashboard':
                         this.openDashboard();
                         break;
-                    case 'clear':
-                        this.clearData();
-                        break;
+                case 'clear':
+                    this.clearData();
+                    break;
+                case 'delete-today':
+                    this.deleteScrapedToday();
+                    break;
                 case 'save':
                     this.saveSettings();
                     break;
@@ -480,6 +483,47 @@ class MafazaScraper {
         } catch (error) {
             console.error('Failed to debug image extraction:', error);
             this.showAlert('Failed to debug image extraction', 'error');
+        }
+    }
+
+    async deleteScrapedToday() {
+        if (!confirm('Are you sure you want to delete all places scraped today? This cannot be undone.')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`${this.settings.apiUrl}/places/delete-today`, {
+                method: 'DELETE',
+                headers: {
+                    'X-API-TOKEN': this.settings.apiToken,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                this.showAlert(`Deleted ${result.deleted_count} places scraped today!`, 'success');
+                this.updateStats();
+            } else {
+                const error = await response.json();
+                this.showAlert(`Failed to delete: ${error.error || 'Unknown error'}`, 'error');
+            }
+        } catch (error) {
+            console.error('Failed to delete scraped today:', error);
+            this.showAlert('Failed to delete scraped today', 'error');
+        }
+    }
+
+    // Update debug progress bar
+    updateDebugProgress(current, total) {
+        const progressElement = document.getElementById('debug-progress');
+        const progressFillElement = document.getElementById('debug-progress-fill');
+
+        if (progressElement && progressFillElement) {
+            progressElement.textContent = `${current}/${total}`;
+
+            const percentage = total > 0 ? (current / total) * 100 : 0;
+            progressFillElement.style.width = `${percentage}%`;
         }
     }
 

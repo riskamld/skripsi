@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use App\Models\Place;
 use App\Models\ScrapeLog;
 use App\Jobs\ScrapePlaceJob;
@@ -23,7 +24,7 @@ class PlaceController extends Controller
 
     public function store(Request $request)
     {
-        \Log::info('🌐 [API] PlaceController store called', [
+        Log::info('🌐 [API] PlaceController store called', [
             'request_data' => $request->all(),
             'headers' => [
                 'content_type' => $request->header('Content-Type'),
@@ -54,7 +55,7 @@ class PlaceController extends Controller
         ]);
 
         if ($validator->fails()) {
-            \Log::error('❌ [API] Validation failed', [
+            Log::error('❌ [API] Validation failed', [
                 'errors' => $validator->errors(),
                 'request_data' => $request->all()
             ]);
@@ -64,7 +65,7 @@ class PlaceController extends Controller
             ], 422);
         }
 
-        \Log::info('✅ [API] Validation passed, proceeding to save place', [
+        Log::info('✅ [API] Validation passed, proceeding to save place', [
             'place_id' => $request->place_id,
             'name' => $request->name
         ]);
@@ -76,7 +77,7 @@ class PlaceController extends Controller
                 $request->all()
             );
 
-            \Log::info('✅ [API] Place saved/updated', [
+            Log::info('✅ [API] Place saved/updated', [
                 'place_id' => $place->place_id,
                 'name' => $place->name,
                 'is_new' => $place->wasRecentlyCreated
@@ -90,7 +91,7 @@ class PlaceController extends Controller
                 'raw_payload' => json_encode($request->all()),
             ]);
 
-            \Log::info('✅ [API] ScrapeLog created', [
+            Log::info('✅ [API] ScrapeLog created', [
                 'scrape_log_id' => $scrapeLog->id,
                 'place_id' => $scrapeLog->place_id
             ]);
@@ -98,13 +99,13 @@ class PlaceController extends Controller
             // 4. Queue scraping
             ScrapePlaceJob::dispatch($place);
 
-            \Log::info('✅ [API] ScrapePlaceJob dispatched', [
+            Log::info('✅ [API] ScrapePlaceJob dispatched', [
                 'place_id' => $place->place_id,
                 'job_queued' => true
             ]);
 
             // 5. Return success response
-            \Log::info('✅ [API] Returning success response');
+            Log::info('✅ [API] Returning success response');
             return response()->json([
                 'status' => 'success',
                 'message' => 'Place saved successfully',
@@ -112,7 +113,7 @@ class PlaceController extends Controller
             ], 201);
 
         } catch (\Exception $e) {
-            \Log::error('❌ [API] Exception during place saving', [
+            Log::error('❌ [API] Exception during place saving', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'request_data' => $request->all()
@@ -121,6 +122,39 @@ class PlaceController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to save place: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function deleteScrapedToday(Request $request)
+    {
+        try {
+            // Get today's date in YYYY-MM-DD format
+            $today = now()->toDateString();
+
+            // Delete places created today
+            $deletedCount = Place::whereDate('created_at', $today)->delete();
+
+            Log::info('🗑️ [API] Deleted scraped today places', [
+                'deleted_count' => $deletedCount,
+                'date' => $today
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Places scraped today deleted successfully',
+                'deleted_count' => $deletedCount,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('❌ [API] Exception during delete scraped today', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to delete scraped today places: ' . $e->getMessage(),
             ], 500);
         }
     }

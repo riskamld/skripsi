@@ -10,6 +10,9 @@ Route::get('/places', [PlaceController::class, 'index'])
 Route::post('/places', [PlaceController::class, 'store'])
     ->middleware(\App\Http\Middleware\ApiTokenAuth::class);
 
+Route::delete('/places/delete-today', [PlaceController::class, 'deleteScrapedToday'])
+    ->middleware(\App\Http\Middleware\ApiTokenAuth::class);
+
 // Product Prices API (removed to avoid route name conflicts)
 // API functionality handled through web routes with authentication
 
