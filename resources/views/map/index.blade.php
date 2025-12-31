@@ -86,6 +86,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Places data from PHP
     var places = @json($places);
 
+    // Track markers and last update timestamp for real-time updates
+    var markers = [];
+    var existingPlaceIds = new Set();
+    var lastUpdateTimestamp = null;
+
 
 
     // Expanded color palette for unique categories
@@ -133,19 +138,68 @@ document.addEventListener('DOMContentLoaded', function() {
     var markers = [];
     var categoryGroups = {};
 
+    // Function to create marker for a place
+    function createMarkerForPlace(place) {
+        if (!place.lat || !place.lng) return null;
+
+        var color = getCategoryColor(place.category);
+
+        // Create custom marker icon (even smaller size)
+        var markerIcon = L.divIcon({
+            className: 'custom-marker',
+            html: `<div style="background-color: ${color}; width: 8px; height: 8px; border-radius: 50%; border: 1px solid white; box-shadow: 0 1px 2px rgba(0,0,0,0.2);"></div>`,
+            iconSize: [8, 8],
+            iconAnchor: [4, 4]
+        });
+
+        var marker = L.marker([place.lat, place.lng], {icon: markerIcon}).addTo(map);
+
+        // Create Google Maps URL
+        var googleMapsUrl = createGoogleMapsUrl(place);
+
+        // Create popup content
+        var popupContent = `
+            <div style="min-width: 250px; font-family: Arial, sans-serif;">
+                <h6 style="margin: 0 0 8px 0; font-weight: bold; color: #333;">${place.name}</h6>
+
+                ${place.category ? `<div style="margin-bottom: 6px;">
+                    <span style="background-color: ${color}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">
+                        ${place.category}
+                    </span>
+                </div>` : ''}
+
+                ${place.rating ? `<div style="margin-bottom: 4px;">
+                    <strong>Rating:</strong> ⭐ ${place.rating}
+                    ${place.review_count ? ` (${place.review_count} ulasan)` : ''}
+                </div>` : ''}
+
+                ${place.address ? `<div style="margin-bottom: 4px; font-size: 13px;">
+                    <strong>📍 Alamat:</strong><br>
+                    <span style="color: #666;">${place.address}</span>
+                </div>` : ''}
+
+                ${place.phone ? `<div style="margin-bottom: 8px; font-size: 13px;">
+                    <strong>📞 Telepon:</strong> ${place.phone}
+                </div>` : ''}
+
+                ${googleMapsUrl ? `<div style="margin-top: 8px;">
+                    <a href="${googleMapsUrl}" target="_blank" style="background-color: #4285f4; color: white; padding: 6px 12px; text-decoration: none; border-radius: 4px; font-size: 12px; display: inline-block;">
+                        🗺️ Lihat di Google Maps
+                    </a>
+                </div>` : ''}
+            </div>
+        `;
+
+        marker.bindPopup(popupContent);
+        marker.placeId = place.id; // Store place ID for tracking
+
+        return marker;
+    }
+
+    // Create initial markers
     places.forEach(function(place, index) {
         if (place.lat && place.lng) {
             var color = getCategoryColor(place.category);
-
-            // Create custom marker icon (even smaller size)
-            var markerIcon = L.divIcon({
-                className: 'custom-marker',
-                html: `<div style="background-color: ${color}; width: 8px; height: 8px; border-radius: 50%; border: 1px solid white; box-shadow: 0 1px 2px rgba(0,0,0,0.2);"></div>`,
-                iconSize: [8, 8],
-                iconAnchor: [4, 4]
-            });
-
-            var marker = L.marker([place.lat, place.lng], {icon: markerIcon}).addTo(map);
 
             // Track categories for legend
             if (place.category) {
@@ -154,44 +208,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
 
-            // Create Google Maps URL
-            var googleMapsUrl = createGoogleMapsUrl(place);
+            var marker = createMarkerForPlace(place);
+            if (marker) {
+                markers.push(marker);
+                existingPlaceIds.add(place.id);
+            }
 
-            // Create popup content
-            var popupContent = `
-                <div style="min-width: 250px; font-family: Arial, sans-serif;">
-                    <h6 style="margin: 0 0 8px 0; font-weight: bold; color: #333;">${place.name}</h6>
-
-                    ${place.category ? `<div style="margin-bottom: 6px;">
-                        <span style="background-color: ${color}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">
-                            ${place.category}
-                        </span>
-                    </div>` : ''}
-
-                    ${place.rating ? `<div style="margin-bottom: 4px;">
-                        <strong>Rating:</strong> ⭐ ${place.rating}
-                        ${place.review_count ? ` (${place.review_count} ulasan)` : ''}
-                    </div>` : ''}
-
-                    ${place.address ? `<div style="margin-bottom: 4px; font-size: 13px;">
-                        <strong>📍 Alamat:</strong><br>
-                        <span style="color: #666;">${place.address}</span>
-                    </div>` : ''}
-
-                    ${place.phone ? `<div style="margin-bottom: 8px; font-size: 13px;">
-                        <strong>📞 Telepon:</strong> ${place.phone}
-                    </div>` : ''}
-
-                    ${googleMapsUrl ? `<div style="margin-top: 8px;">
-                        <a href="${googleMapsUrl}" target="_blank" style="background-color: #4285f4; color: white; padding: 6px 12px; text-decoration: none; border-radius: 4px; font-size: 12px; display: inline-block;">
-                            🗺️ Lihat di Google Maps
-                        </a>
-                    </div>` : ''}
-                </div>
-            `;
-
-            marker.bindPopup(popupContent);
-            markers.push(marker);
+            // Set last update timestamp from initial data
+            if (!lastUpdateTimestamp || place.updated_at > lastUpdateTimestamp) {
+                lastUpdateTimestamp = place.updated_at;
+            }
         }
     });
 
@@ -307,7 +333,220 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 100);
 
+    // Real-time marker updates functionality
+    function checkForUpdates() {
+        // Prepare data to send
+        var requestData = {};
+        if (lastUpdateTimestamp) {
+            requestData.last_update = lastUpdateTimestamp;
+        }
+        requestData.place_ids = Array.from(existingPlaceIds);
+
+        fetch('/map/check-updates', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify(requestData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.has_changes) {
+                    updateMarkersFromDelta(data.updated_places, data.deleted_place_ids);
+                    lastUpdateTimestamp = data.last_update;
+                    console.log('Markers updated - Updated:', data.updated_places.length, 'Deleted:', data.deleted_place_ids.length);
+                }
+            })
+            .catch(error => {
+                console.error('Error checking for updates:', error);
+            });
+    }
+
+    function updateMarkersFromDelta(updatedPlaces, deletedPlaceIds) {
+        // Track what needs to be done
+        var markersToRemove = [];
+        var placesToAdd = [];
+        var placesToUpdate = [];
+
+        // Find markers that need to be removed based on deleted IDs
+        markers.forEach(function(marker, index) {
+            if (deletedPlaceIds.includes(marker.placeId)) {
+                markersToRemove.push(index);
+            }
+        });
+
+        // Process updated places
+        updatedPlaces.forEach(function(updatedPlace) {
+            if (updatedPlace.lat && updatedPlace.lng) {
+                var existingMarkerIndex = -1;
+
+                // Check if marker already exists
+                for (var i = 0; i < markers.length; i++) {
+                    if (markers[i].placeId === updatedPlace.id) {
+                        existingMarkerIndex = i;
+                        break;
+                    }
+                }
+
+                if (existingMarkerIndex >= 0) {
+                    // Marker exists, update it
+                    placesToUpdate.push({
+                        markerIndex: existingMarkerIndex,
+                        place: updatedPlace
+                    });
+                } else {
+                    // New marker to add
+                    placesToAdd.push(updatedPlace);
+                }
+
+                // Ensure place is in existing set
+                existingPlaceIds.add(updatedPlace.id);
+            }
+        });
+
+        // Remove markers that were deleted
+        markersToRemove.reverse().forEach(function(index) {
+            var markerToRemove = markers[index];
+            map.removeLayer(markerToRemove);
+            markers.splice(index, 1);
+        });
+
+        // Update existing markers
+        placesToUpdate.forEach(function(updateData) {
+            var marker = markers[updateData.markerIndex];
+            var place = updateData.place;
+
+            // Update position if changed
+            if (marker.getLatLng().lat !== place.lat || marker.getLatLng().lng !== place.lng) {
+                marker.setLatLng([place.lat, place.lng]);
+            }
+
+            // Update popup content
+            var color = getCategoryColor(place.category);
+            var googleMapsUrl = createGoogleMapsUrl(place);
+            var popupContent = `
+                <div style="min-width: 250px; font-family: Arial, sans-serif;">
+                    <h6 style="margin: 0 0 8px 0; font-weight: bold; color: #333;">${place.name}</h6>
+
+                    ${place.category ? `<div style="margin-bottom: 6px;">
+                        <span style="background-color: ${color}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">
+                            ${place.category}
+                        </span>
+                    </div>` : ''}
+
+                    ${place.rating ? `<div style="margin-bottom: 4px;">
+                        <strong>Rating:</strong> ⭐ ${place.rating}
+                        ${place.review_count ? ` (${place.review_count} ulasan)` : ''}
+                    </div>` : ''}
+
+                    ${place.address ? `<div style="margin-bottom: 4px; font-size: 13px;">
+                        <strong>📍 Alamat:</strong><br>
+                        <span style="color: #666;">${place.address}</span>
+                    </div>` : ''}
+
+                    ${place.phone ? `<div style="margin-bottom: 8px; font-size: 13px;">
+                        <strong>📞 Telepon:</strong> ${place.phone}
+                    </div>` : ''}
+
+                    ${googleMapsUrl ? `<div style="margin-top: 8px;">
+                        <a href="${googleMapsUrl}" target="_blank" style="background-color: #4285f4; color: white; padding: 6px 12px; text-decoration: none; border-radius: 4px; font-size: 12px; display: inline-block;">
+                            🗺️ Lihat di Google Maps
+                        </a>
+                    </div>` : ''}
+                </div>
+            `;
+
+            marker.setPopupContent(popupContent);
+        });
+
+        // Add new markers with animation
+        placesToAdd.forEach(function(newPlace) {
+            if (newPlace.lat && newPlace.lng) {
+                var color = getCategoryColor(newPlace.category);
+
+                // Track categories for legend
+                if (newPlace.category) {
+                    if (!categoryGroups[newPlace.category]) {
+                        categoryGroups[newPlace.category] = color;
+                        // Update legend if needed
+                        updateLegend();
+                    }
+                }
+
+                var newMarker = createMarkerForPlace(newPlace);
+                if (newMarker) {
+                    markers.push(newMarker);
+                    existingPlaceIds.add(newPlace.id);
+
+                    // Animate new marker appearance
+                    newMarker.setOpacity(0);
+                    setTimeout(function() {
+                        newMarker.setOpacity(1);
+                    }, 100);
+                }
+            }
+        });
+
+        // Update map bounds if markers changed
+        if (placesToAdd.length > 0 || markersToRemove.length > 0 || placesToUpdate.length > 0) {
+            if (markers.length > 0) {
+                var group = new L.featureGroup(markers);
+                map.fitBounds(group.getBounds().pad(0.1));
+            }
+        }
+
+        console.log('Markers updated - Added:', placesToAdd.length, 'Updated:', placesToUpdate.length, 'Removed:', markersToRemove.length);
+    }
+
+    function updateLegend() {
+        // Find existing legend control and update it
+        map.eachLayer(function(layer) {
+            if (layer instanceof L.Control && layer._container && layer._container.classList.contains('leaflet-control')) {
+                var legendDiv = layer._container.querySelector('.info.legend');
+                if (legendDiv) {
+                    legendDiv.innerHTML = '<div style="font-weight: bold; margin-bottom: 6px; font-size: 12px;">📊 Kategori</div>';
+
+                    // Sort categories and remove duplicates
+                    var uniqueCategories = {};
+                    Object.keys(categoryGroups).forEach(function(category) {
+                        uniqueCategories[category] = categoryGroups[category];
+                    });
+
+                    // Case-insensitive deduplication
+                    var caseInsensitiveMap = {};
+                    Object.keys(uniqueCategories).forEach(function(category) {
+                        var lowerKey = category.toLowerCase();
+                        if (!caseInsensitiveMap[lowerKey]) {
+                            caseInsensitiveMap[lowerKey] = {
+                                displayName: category,
+                                color: uniqueCategories[category]
+                            };
+                        }
+                    });
+
+                    // Sort by display name
+                    Object.keys(caseInsensitiveMap).sort(function(a, b) {
+                        return caseInsensitiveMap[a].displayName.localeCompare(caseInsensitiveMap[b].displayName);
+                    }).forEach(function(lowerKey) {
+                        var categoryData = caseInsensitiveMap[lowerKey];
+                        legendDiv.innerHTML += `
+                            <div style="margin-bottom: 3px; display: flex; align-items: center;">
+                                <div style="width: 10px; height: 10px; border-radius: 50%; background-color: ${categoryData.color}; margin-right: 6px; flex-shrink: 0; border: 1px solid #ddd;"></div>
+                                <span style="font-size: 10px; line-height: 1.2;">${categoryData.displayName}</span>
+                            </div>
+                        `;
+                    });
+                }
+            }
+        });
+    }
+
+    // Start polling for updates every 10 seconds
+    setInterval(checkForUpdates, 10000);
+
     console.log('Leaflet map initialized with', markers.length, 'markers and', Object.keys(categoryGroups).length, 'categories');
+    console.log('Real-time updates enabled - checking for changes every 10 seconds');
 });
 </script>
 @endpush
