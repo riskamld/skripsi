@@ -400,19 +400,22 @@ document.addEventListener('DOMContentLoaded', function() {
     // Places data from PHP
     var places = @json($places);
 
-    // Create marker cluster group for performance
+    // Detect mobile device for optimized clustering
+    var isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    // Create marker cluster group with mobile optimizations
     var markerClusterGroup = L.markerClusterGroup({
         chunkedLoading: true,
-        chunkSize: 50, // Smaller chunks for better responsiveness
+        chunkSize: isMobile ? 25 : 50, // Smaller chunks on mobile for better performance
         spiderfyOnMaxZoom: true,
         showCoverageOnHover: false,
         zoomToBoundsOnClick: true,
-        removeOutsideVisibleBounds: true, // Remove markers outside viewport for performance
-        animate: true,
-        animateAddingMarkers: true,
-        disableClusteringAtZoom: 12, // Stop clustering earlier at zoom level 12
-        maxClusterRadius: 50, // Smaller radius for more clusters (was 80)
-        spiderfyDistanceMultiplier: 2, // Distance between spiderfied markers
+        removeOutsideVisibleBounds: true, // Critical for mobile performance
+        animate: !isMobile, // Disable animations on mobile for better performance
+        animateAddingMarkers: !isMobile,
+        disableClusteringAtZoom: isMobile ? 14 : 12, // Start individual markers later on mobile
+        maxClusterRadius: isMobile ? 80 : 50, // Larger clusters on mobile (fewer, bigger groups)
+        spiderfyDistanceMultiplier: 2,
         iconCreateFunction: function(cluster) {
             var childCount = cluster.getChildCount();
             var c = ' marker-cluster-';
