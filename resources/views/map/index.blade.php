@@ -206,6 +206,78 @@
 .custom-marker-with-label {
     z-index: 1000;
 }
+
+/* Real-time notification styles */
+.realtime-notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.1);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 10000;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    max-width: 300px;
+    word-wrap: break-word;
+}
+
+.realtime-notification.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.realtime-notification.success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.realtime-notification.info {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+.realtime-notification.warning {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.realtime-notification.error {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.realtime-notification-icon {
+    display: inline-block;
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+.realtime-notification-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.realtime-notification-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
 </style>
 @endpush
 
@@ -985,6 +1057,20 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
+        // Show notification about the changes
+        var totalChanges = placesToAdd.length + placesToUpdate.length + markersToRemove.length;
+        if (totalChanges > 0) {
+            var messages = [];
+            if (placesToAdd.length > 0) messages.push(`${placesToAdd.length} ditambah`);
+            if (placesToUpdate.length > 0) messages.push(`${placesToUpdate.length} diupdate`);
+            if (markersToRemove.length > 0) messages.push(`${markersToRemove.length} dihapus`);
+
+            showNotification(`Data tempat: ${messages.join(', ')}`, 'info');
+        }
+
+        // Update legend after all marker changes
+        updateLegend();
+
         // Note: fitBounds removed from real-time updates to preserve user's zoom level
         // Map bounds are only adjusted on initial load
 
@@ -997,41 +1083,196 @@ document.addEventListener('DOMContentLoaded', function() {
             if (layer instanceof L.Control && layer._container && layer._container.classList.contains('leaflet-control')) {
                 var legendDiv = layer._container.querySelector('.info.legend');
                 if (legendDiv) {
-                    legendDiv.innerHTML = '<div style="font-weight: bold; margin-bottom: 6px; font-size: 12px;">📊 Kategori</div>';
+                    // Rebuild the entire legend from current markers data
+                    var currentCategories = {};
 
-                    // Sort categories and remove duplicates
-                    var uniqueCategories = {};
-                    Object.keys(categoryGroups).forEach(function(category) {
-                        uniqueCategories[category] = categoryGroups[category];
-                    });
-
-                    // Case-insensitive deduplication
-                    var caseInsensitiveMap = {};
-                    Object.keys(uniqueCategories).forEach(function(category) {
-                        var lowerKey = category.toLowerCase();
-                        if (!caseInsensitiveMap[lowerKey]) {
-                            caseInsensitiveMap[lowerKey] = {
-                                displayName: category,
-                                color: uniqueCategories[category]
-                            };
+                    // Count categories from current markers
+                    markers.forEach(function(marker) {
+                        var place = places.find(function(p) { return p.id == marker.placeId; });
+                        if (place && place.category && place.category.trim() !== '') {
+                            var key = place.category.toLowerCase().trim();
+                            if (!currentCategories[key]) {
+                                currentCategories[key] = {
+                                    displayName: place.category.trim(),
+                                    count: 0,
+                                    color: getCategoryColor(place.category)
+                                };
+                            }
+                            currentCategories[key].count++;
                         }
                     });
 
-                    // Sort by display name
-                    Object.keys(caseInsensitiveMap).sort(function(a, b) {
-                        return caseInsensitiveMap[a].displayName.localeCompare(caseInsensitiveMap[b].displayName);
-                    }).forEach(function(lowerKey) {
-                        var categoryData = caseInsensitiveMap[lowerKey];
-                        legendDiv.innerHTML += `
-                            <div style="margin-bottom: 3px; display: flex; align-items: center;">
+                    // Rebuild legend HTML
+                    var legendHtml = `
+                        <div style="font-weight: bold; margin-bottom: 8px; font-size: 12px; display: flex; justify-content: space-between; align-items: center;">
+                            <span>📊 Kategori</span>
+                            <div style="display: flex; gap: 4px;">
+                                <button id="select-all-btn" style="font-size: 9px; padding: 2px 6px; background: #10b981; color: white; border: none; border-radius: 3px; cursor: pointer;">All</button>
+                                <button id="clear-all-btn" style="font-size: 9px; padding: 2px 6px; background: #ef4444; color: white; border: none; border-radius: 3px; cursor: pointer;">None</button>
+                            </div>
+                        </div>
+                    `;
+
+                    // Sort categories and add to legend
+                    Object.keys(currentCategories).sort(function(a, b) {
+                        return currentCategories[a].displayName.localeCompare(currentCategories[b].displayName);
+                    }).forEach(function(key) {
+                        var categoryData = currentCategories[key];
+                        var checkboxId = 'category-' + key;
+
+                        legendHtml += `
+                            <div style="margin-bottom: 4px; display: flex; align-items: center; cursor: pointer;" class="category-item" data-category="${key}">
+                                <input type="checkbox" id="${checkboxId}" checked style="margin-right: 6px; cursor: pointer;">
                                 <div style="width: 10px; height: 10px; border-radius: 50%; background-color: ${categoryData.color}; margin-right: 6px; flex-shrink: 0; border: 1px solid #ddd;"></div>
-                                <span style="font-size: 10px; line-height: 1.2;">${categoryData.displayName}</span>
+                                <label for="${checkboxId}" style="font-size: 10px; line-height: 1.2; cursor: pointer; flex-grow: 1;">${categoryData.displayName} (${categoryData.count})</label>
+                                <button class="delete-category-btn" data-category="${key}" data-category-name="${categoryData.displayName}" data-count="${categoryData.count}" style="margin-left: 4px; background: #ef4444; color: white; border: none; border-radius: 3px; width: 16px; height: 16px; font-size: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;" title="Delete all ${categoryData.displayName} places">×</button>
                             </div>
                         `;
                     });
+
+                    legendDiv.innerHTML = legendHtml;
+
+                    // Re-attach event listeners
+                    setTimeout(function() {
+                        attachLegendEventListeners(legendDiv);
+                    }, 50);
                 }
             }
         });
+    }
+
+    // Function to attach event listeners to legend elements
+    function attachLegendEventListeners(legendDiv) {
+        // Select All button
+        var selectAllBtn = legendDiv.querySelector('#select-all-btn');
+        if (selectAllBtn) {
+            selectAllBtn.addEventListener('click', function() {
+                var checkboxes = legendDiv.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(function(checkbox) {
+                    checkbox.checked = true;
+                    var categoryKey = checkbox.id.replace('category-', '');
+                    activeCategories.add(categoryKey);
+                });
+                updateMarkerVisibility();
+            });
+        }
+
+        // Clear All button
+        var clearAllBtn = legendDiv.querySelector('#clear-all-btn');
+        if (clearAllBtn) {
+            clearAllBtn.addEventListener('click', function() {
+                var checkboxes = legendDiv.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(function(checkbox) {
+                    checkbox.checked = false;
+                    var categoryKey = checkbox.id.replace('category-', '');
+                    activeCategories.delete(categoryKey);
+                });
+                updateMarkerVisibility();
+            });
+        }
+
+        // Individual category checkboxes
+        var categoryItems = legendDiv.querySelectorAll('.category-item');
+        categoryItems.forEach(function(item) {
+            item.addEventListener('click', function(e) {
+                if (e.target.type !== 'checkbox') {
+                    var checkbox = item.querySelector('input[type="checkbox"]');
+                    if (checkbox) {
+                        checkbox.checked = !checkbox.checked;
+                        var categoryKey = item.dataset.category;
+                        toggleCategory(categoryKey, checkbox.checked);
+                    }
+                }
+            });
+
+            var checkbox = item.querySelector('input[type="checkbox"]');
+            if (checkbox) {
+                checkbox.addEventListener('change', function() {
+                    var categoryKey = item.dataset.category;
+                    toggleCategory(categoryKey, checkbox.checked);
+                });
+            }
+        });
+
+        // Delete category buttons
+        var deleteButtons = legendDiv.querySelectorAll('.delete-category-btn');
+        deleteButtons.forEach(function(button) {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+
+                var category = button.dataset.category;
+                var categoryName = button.dataset.categoryName;
+                var count = button.dataset.count;
+
+                if (confirm(`Apakah Anda yakin ingin menghapus semua ${count} tempat dengan kategori "${categoryName}"?\n\nTindakan ini tidak dapat dibatalkan!`)) {
+                    button.disabled = true;
+                    button.textContent = '...';
+
+                    fetch('/map/delete-category', {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({ category: category })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert(`Berhasil menghapus ${data.deleted_count} tempat dengan kategori "${categoryName}"`);
+                            location.reload();
+                        } else {
+                            alert('Gagal menghapus kategori: ' + (data.error || 'Unknown error'));
+                            button.disabled = false;
+                            button.textContent = '×';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Delete error:', error);
+                        alert('Terjadi kesalahan saat menghapus kategori');
+                        button.disabled = false;
+                        button.textContent = '×';
+                    });
+                }
+            });
+        });
+    }
+
+    // Function to show real-time notifications
+    function showNotification(message, type = 'success', duration = 4000) {
+        // Remove existing notifications
+        var existingNotifications = document.querySelectorAll('.realtime-notification');
+        existingNotifications.forEach(function(notification) {
+            notification.remove();
+        });
+
+        // Create new notification
+        var notification = document.createElement('div');
+        notification.className = 'realtime-notification ' + type;
+        notification.innerHTML = `
+            <div class="realtime-notification-icon">
+                ${type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️'}
+            </div>
+            <div>${message}</div>
+            <button class="realtime-notification-close" onclick="this.parentElement.remove()">×</button>
+        `;
+
+        document.body.appendChild(notification);
+
+        // Show notification with animation
+        setTimeout(function() {
+            notification.classList.add('show');
+        }, 10);
+
+        // Auto-hide notification
+        setTimeout(function() {
+            notification.classList.remove('show');
+            setTimeout(function() {
+                if (notification.parentElement) {
+                    notification.parentElement.removeChild(notification);
+                }
+            }, 300);
+        }, duration);
     }
 
     // Start polling for updates every 10 seconds
