@@ -409,7 +409,7 @@ document.addEventListener('DOMContentLoaded', function() {
         chunkSize: isMobile ? 25 : 50, // Smaller chunks on mobile for better performance
         spiderfyOnMaxZoom: true,
         showCoverageOnHover: false,
-        zoomToBoundsOnClick: true,
+        zoomToBoundsOnClick: false, // DISABLED: Prevent automatic zoom changes
         removeOutsideVisibleBounds: true, // Critical for mobile performance
         animate: !isMobile, // Disable animations on mobile for better performance
         animateAddingMarkers: !isMobile,
@@ -1206,6 +1206,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
             marker.setPopupContent(popupContent);
 
+            // Add 5-second blinking animation for updated marker
+            var updateBlinkCount = 0;
+            var updateBlinkInterval = setInterval(function() {
+                updateBlinkCount++;
+                if (updateBlinkCount <= 10) { // 5 blinks (on/off 5 times) = 5 seconds
+                    if (updateBlinkCount % 2 === 1) {
+                        marker.setOpacity(0.3); // Dim
+                    } else {
+                        marker.setOpacity(1); // Normal
+                    }
+                } else {
+                    // Stop blinking, keep marker visible
+                    marker.setOpacity(1);
+                    clearInterval(updateBlinkInterval);
+                }
+            }, 500); // 500ms per blink phase
+
             // Update legend if category changed
             if (categoryChanged) {
                 updateLegend();
@@ -1231,12 +1248,23 @@ document.addEventListener('DOMContentLoaded', function() {
                     markers.push(newMarker);
                     existingPlaceIds.add(newPlace.id);
 
-                    // Add to cluster group and animate appearance
+                    // Add to cluster group with 5-second blinking animation
                     markerClusterGroup.addLayer(newMarker);
-                    newMarker.setOpacity(0);
-                    setTimeout(function() {
-                        newMarker.setOpacity(1);
-                    }, 100);
+                    var blinkCount = 0;
+                    var blinkInterval = setInterval(function() {
+                        blinkCount++;
+                        if (blinkCount <= 10) { // 5 blinks (on/off 5 times) = 5 seconds
+                            if (blinkCount % 2 === 1) {
+                                newMarker.setOpacity(0.3); // Dim
+                            } else {
+                                newMarker.setOpacity(1); // Normal
+                            }
+                        } else {
+                            // Stop blinking, keep marker visible
+                            newMarker.setOpacity(1);
+                            clearInterval(blinkInterval);
+                        }
+                    }, 500); // 500ms per blink phase
                 }
             }
         });
