@@ -612,7 +612,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         legendToggleBtn.onAdd = function(map) {
             var div = L.DomUtil.create('div', 'legend-toggle-btn');
-            div.innerHTML = '<button id="legend-toggle" style="background: #4285f4; color: white; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 18px; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.3);">📊</button>';
+            div.innerHTML = '<button id="legend-toggle" style="background: #4285f4; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 14px; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.3);">📊</button>';
             div.style.position = 'absolute';
             div.style.bottom = '20px';
             div.style.right = '20px';
@@ -625,17 +625,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     toggleBtn.addEventListener('click', function() {
                         legendVisible = !legendVisible;
                         if (legendVisible) {
-                            // Show legend
-                            if (!map.hasLayer(legend)) {
-                                legend.addTo(map);
-                            }
+                            // Show legend - addTo is safe to call even if already added
+                            legend.addTo(map);
                             toggleBtn.innerHTML = '❌';
                             toggleBtn.title = 'Sembunyikan Legend';
                         } else {
-                            // Hide legend
-                            if (map.hasLayer(legend)) {
-                                map.removeLayer(legend);
-                            }
+                            // Hide legend - remove is safe to call even if not added
+                            map.removeControl(legend);
                             toggleBtn.innerHTML = '📊';
                             toggleBtn.title = 'Tampilkan Legend';
                         }
