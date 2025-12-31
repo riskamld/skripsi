@@ -475,6 +475,57 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Track active categories for filtering
+    var activeCategories = new Set();
+
+    // Function to toggle category visibility
+    function toggleCategory(categoryKey, show) {
+        console.log('Toggling category:', categoryKey, 'show:', show);
+        if (show) {
+            activeCategories.add(categoryKey);
+        } else {
+            activeCategories.delete(categoryKey);
+        }
+        console.log('Active categories:', Array.from(activeCategories));
+        updateMarkerVisibility();
+    }
+
+    // Function to update marker visibility based on active categories
+    function updateMarkerVisibility() {
+        console.log('Updating marker visibility, active categories:', Array.from(activeCategories));
+        var visibleCount = 0;
+        var hiddenCount = 0;
+
+        markers.forEach(function(marker) {
+            var place = places.find(function(p) { return p.id == marker.placeId; });
+            if (place) {
+                var categoryKey = (place.category && place.category.trim() !== '') ?
+                    place.category.toLowerCase().trim() : 'no_category';
+
+                var shouldShow = activeCategories.has(categoryKey);
+                console.log('Marker', marker.placeId, 'category:', categoryKey, 'should show:', shouldShow);
+
+                if (shouldShow) {
+                    // Show marker
+                    if (!map.hasLayer(marker)) {
+                        marker.addTo(map);
+                        visibleCount++;
+                        console.log('Added marker', marker.placeId);
+                    }
+                } else {
+                    // Hide marker
+                    if (map.hasLayer(marker)) {
+                        map.removeLayer(marker);
+                        hiddenCount++;
+                        console.log('Removed marker', marker.placeId);
+                    }
+                }
+            }
+        });
+
+        console.log('Visibility update complete - Visible:', visibleCount, 'Hidden:', hiddenCount);
+    }
+
     // Create legend control with better positioning
     var legend = L.control({position: 'topright'});
 
@@ -484,12 +535,20 @@ document.addEventListener('DOMContentLoaded', function() {
         div.style.padding = '8px';
         div.style.borderRadius = '5px';
         div.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
-        div.style.maxHeight = '300px';
-        div.style.maxWidth = '200px';
+        div.style.maxHeight = '400px';
+        div.style.maxWidth = '220px';
         div.style.overflowY = 'auto';
         div.style.fontSize = '11px';
 
-        div.innerHTML = '<div style="font-weight: bold; margin-bottom: 6px; font-size: 12px;">📊 Kategori</div>';
+        div.innerHTML = `
+            <div style="font-weight: bold; margin-bottom: 8px; font-size: 12px; display: flex; justify-content: space-between; align-items: center;">
+                <span>📊 Kategori</span>
+                <div style="display: flex; gap: 4px;">
+                    <button id="select-all-btn" style="font-size: 9px; padding: 2px 6px; background: #10b981; color: white; border: none; border-radius: 3px; cursor: pointer;">All</button>
+                    <button id="clear-all-btn" style="font-size: 9px; padding: 2px 6px; background: #ef4444; color: white; border: none; border-radius: 3px; cursor: pointer;">None</button>
+                </div>
+            </div>
+        `;
 
         // Count places per category (include ALL categories, even empty ones)
         var categoryCounts = {};
@@ -525,13 +584,75 @@ document.addEventListener('DOMContentLoaded', function() {
             return categoryCounts[a].displayName.localeCompare(categoryCounts[b].displayName);
         }).forEach(function(key) {
             var categoryData = categoryCounts[key];
+            var checkboxId = 'category-' + key;
+
             div.innerHTML += `
-                <div style="margin-bottom: 3px; display: flex; align-items: center;">
+                <div style="margin-bottom: 4px; display: flex; align-items: center; cursor: pointer;" class="category-item" data-category="${key}">
+                    <input type="checkbox" id="${checkboxId}" checked style="margin-right: 6px; cursor: pointer;">
                     <div style="width: 10px; height: 10px; border-radius: 50%; background-color: ${categoryData.color}; margin-right: 6px; flex-shrink: 0; border: 1px solid #ddd;"></div>
-                    <span style="font-size: 10px; line-height: 1.2;">${categoryData.displayName} (${categoryData.count})</span>
+                    <label for="${checkboxId}" style="font-size: 10px; line-height: 1.2; cursor: pointer; flex-grow: 1;">${categoryData.displayName} (${categoryData.count})</label>
                 </div>
             `;
         });
+
+        // Add event listeners after creating the div
+        setTimeout(function() {
+            // Select All button
+            var selectAllBtn = div.querySelector('#select-all-btn');
+            if (selectAllBtn) {
+                selectAllBtn.addEventListener('click', function() {
+                    var checkboxes = div.querySelectorAll('input[type="checkbox"]');
+                    checkboxes.forEach(function(checkbox) {
+                        checkbox.checked = true;
+                        var categoryKey = checkbox.id.replace('category-', '');
+                        activeCategories.add(categoryKey);
+                    });
+                    updateMarkerVisibility();
+                });
+            }
+
+            // Clear All button
+            var clearAllBtn = div.querySelector('#clear-all-btn');
+            if (clearAllBtn) {
+                clearAllBtn.addEventListener('click', function() {
+                    var checkboxes = div.querySelectorAll('input[type="checkbox"]');
+                    checkboxes.forEach(function(checkbox) {
+                        checkbox.checked = false;
+                        var categoryKey = checkbox.id.replace('category-', '');
+                        activeCategories.delete(categoryKey);
+                    });
+                    updateMarkerVisibility();
+                });
+            }
+
+            // Individual category checkboxes
+            var categoryItems = div.querySelectorAll('.category-item');
+            categoryItems.forEach(function(item) {
+                item.addEventListener('click', function(e) {
+                    if (e.target.type !== 'checkbox') {
+                        var checkbox = item.querySelector('input[type="checkbox"]');
+                        if (checkbox) {
+                            checkbox.checked = !checkbox.checked;
+                            var categoryKey = item.dataset.category;
+                            toggleCategory(categoryKey, checkbox.checked);
+                        }
+                    }
+                });
+
+                var checkbox = item.querySelector('input[type="checkbox"]');
+                if (checkbox) {
+                    checkbox.addEventListener('change', function() {
+                        var categoryKey = item.dataset.category;
+                        toggleCategory(categoryKey, checkbox.checked);
+                    });
+                }
+            });
+
+            // Initialize all categories as active
+            Object.keys(categoryCounts).forEach(function(key) {
+                activeCategories.add(key);
+            });
+        }, 100);
 
         return div;
     };
