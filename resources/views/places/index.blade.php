@@ -96,11 +96,14 @@
                             @endif
                         </div>
                         <div class="mt-3">
-                            <button type="button" class="btn btn-primary btn-sm" id="applyCategoryFilter">
-                                <i class="fas fa-check mr-1"></i>Terapkan Filter
+                            <button type="button" class="btn btn-success btn-sm" id="selectAllCategories">
+                                <i class="fas fa-check-circle mr-1"></i>Pilih Semua
                             </button>
                             <button type="button" class="btn btn-outline-secondary btn-sm" id="clearCategoryFilter">
                                 <i class="fas fa-times mr-1"></i>Hapus Semua
+                            </button>
+                            <button type="button" class="btn btn-primary btn-sm" id="applyCategoryFilter">
+                                <i class="fas fa-check mr-1"></i>Terapkan Filter
                             </button>
                             <button type="button" class="btn btn-link btn-sm float-right" id="closeCategoryFilter">
                                 Tutup
@@ -528,6 +531,12 @@ $(document).ready(function() {
 
         const filterUrl = '{{ route("places.index") }}' + (urlParams.toString() ? '?' + urlParams.toString() : '');
         window.location.href = filterUrl;
+    });
+
+    // Select all categories button
+    $('#selectAllCategories').on('click', function() {
+        $('.category-checkbox').prop('checked', true);
+        updateSelectedCategoriesCount();
     });
 
     // Clear category filter button
