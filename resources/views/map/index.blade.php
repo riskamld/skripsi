@@ -41,7 +41,170 @@
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
+/* Custom marker with label styling */
+.custom-marker-with-label {
+    pointer-events: none;
+}
 
+.marker-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.marker-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25), 0 1px 1px rgba(0,0,0,0.1);
+    flex-shrink: 0;
+    z-index: 2;
+    position: relative;
+}
+
+.marker-dot::after {
+    content: '';
+    position: absolute;
+    top: 0.5px;
+    left: 0.5px;
+    right: 0.5px;
+    bottom: 0.5px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.5) 0%, transparent 85%);
+}
+
+.marker-content {
+    background: linear-gradient(135deg,
+        rgba(255, 255, 255, 0.6) 0%,
+        rgba(255, 255, 255, 0.4) 50%,
+        rgba(255, 255, 255, 0.3) 100%);
+    backdrop-filter: blur(12px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 8px;
+    padding: 3px 8px;
+    margin-left: 4px;
+    box-shadow:
+        0 2px 16px rgba(0,0,0,0.08),
+        0 1px 4px rgba(0,0,0,0.06),
+        inset 0 1px 0 rgba(255,255,255,0.3);
+    white-space: nowrap;
+    max-width: 150px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.marker-content::before {
+    content: '';
+    position: absolute;
+    left: -4px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    border-right: 4px solid rgba(255, 255, 255, 0.6);
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
+}
+
+.marker-name {
+    font-weight: 500;
+    color: #2d3748;
+    font-size: 10px;
+    margin-bottom: 0px;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+}
+
+.marker-meta {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.marker-rating {
+    color: #ed8936;
+    font-size: 9px;
+    filter: drop-shadow(0 0.5px 1px rgba(0,0,0,0.03));
+}
+
+.marker-reviews {
+    color: #718096;
+    font-size: 8px;
+    font-weight: 400;
+    background: rgba(0, 0, 0, 0.02);
+    padding: 0px 2px;
+    border-radius: 3px;
+}
+
+.marker-review-wrapper {
+    margin-left: 2px;
+    position: relative;
+}
+
+.review-badge {
+    display: inline-block;
+    padding: 1px 4px;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 600;
+    text-align: center;
+    min-width: 16px;
+    line-height: 1;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+/* Make high-review badges more prominent */
+.review-badge[data-reviews="high"] {
+    font-size: 10px;
+    padding: 2px 6px;
+    min-width: 20px;
+    font-weight: 700;
+    animation: pulse 2s infinite;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4), 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.review-badge[data-reviews="medium"] {
+    font-size: 9px;
+    padding: 1px 5px;
+    box-shadow: 0 1px 4px rgba(245, 158, 11, 0.3), 0 1px 2px rgba(0,0,0,0.1);
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Hover effects */
+.marker-container:hover .marker-dot {
+    transform: scale(1.2);
+    transition: transform 0.2s ease;
+}
+
+.marker-container:hover .marker-label {
+    background: rgba(255, 255, 255, 0.98);
+    transform: translateY(-1px);
+    transition: all 0.2s ease;
+}
+
+/* Ensure markers don't interfere with map controls */
+.custom-marker-with-label {
+    z-index: 1000;
+}
 </style>
 @endpush
 
@@ -90,6 +253,8 @@ document.addEventListener('DOMContentLoaded', function() {
     var markers = [];
     var existingPlaceIds = new Set();
     var lastUpdateTimestamp = null;
+    var currentZoomLevel = map.getZoom();
+    var labelZoomThreshold = 13; // Show labels when zoom >= 13
 
 
 
@@ -144,12 +309,52 @@ document.addEventListener('DOMContentLoaded', function() {
 
         var color = getCategoryColor(place.category);
 
-        // Create custom marker icon (even smaller size)
+        // Create shortened place name (max 15 chars)
+        var shortName = place.name.length > 15 ? place.name.substring(0, 15) + '...' : place.name;
+
+        // Create review badge with color coding based on count
+        var reviewBadge = '';
+        var reviewCount = place.review_count || 0;
+        if (reviewCount > 0) {
+            var badgeColor = '#e2e8f0'; // default gray
+            var badgeTextColor = '#64748b';
+            var reviewLevel = 'low';
+
+            if (reviewCount >= 100) {
+                badgeColor = '#10b981'; // green for high reviews
+                badgeTextColor = '#ffffff';
+                reviewLevel = 'high';
+            } else if (reviewCount >= 50) {
+                badgeColor = '#f59e0b'; // amber for medium-high
+                badgeTextColor = '#ffffff';
+                reviewLevel = 'medium';
+            } else if (reviewCount >= 20) {
+                badgeColor = '#f97316'; // orange for medium
+                badgeTextColor = '#ffffff';
+                reviewLevel = 'medium';
+            } else if (reviewCount >= 10) {
+                badgeColor = '#eab308'; // yellow for low-medium
+                badgeTextColor = '#1f2937';
+                reviewLevel = 'low';
+            }
+
+            reviewBadge = `<span class="review-badge" data-reviews="${reviewLevel}" style="background-color: ${badgeColor}; color: ${badgeTextColor};">${reviewCount}</span>`;
+        }
+
+        // Create custom marker icon with name and review badge
         var markerIcon = L.divIcon({
-            className: 'custom-marker',
-            html: `<div style="background-color: ${color}; width: 8px; height: 8px; border-radius: 50%; border: 1px solid white; box-shadow: 0 1px 2px rgba(0,0,0,0.2);"></div>`,
-            iconSize: [8, 8],
-            iconAnchor: [4, 4]
+            className: 'custom-marker-with-label',
+            html: `
+                <div class="marker-container">
+                    <div class="marker-dot" style="background-color: ${color};"></div>
+                    <div class="marker-content">
+                        <div class="marker-name">${shortName}</div>
+                    </div>
+                    ${reviewBadge ? `<div class="marker-review-wrapper">${reviewBadge}</div>` : ''}
+                </div>
+            `,
+            iconSize: [280, 60], // Increased size for better layout
+            iconAnchor: [20, 20] // Anchor at marker dot position
         });
 
         var marker = L.marker([place.lat, place.lng], {icon: markerIcon}).addTo(map);
@@ -332,6 +537,50 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     }, 100);
+
+    // Handle zoom level changes to show/hide marker labels
+    map.on('zoomend', function() {
+        currentZoomLevel = map.getZoom();
+        toggleMarkerLabels(currentZoomLevel >= labelZoomThreshold);
+        console.log('Zoom level:', currentZoomLevel, 'Labels:', currentZoomLevel >= labelZoomThreshold ? 'shown' : 'hidden');
+    });
+
+    // Function to toggle marker labels visibility based on zoom level
+    function toggleMarkerLabels(showLabels) {
+        markers.forEach(function(marker) {
+            var markerIcon = marker.getIcon();
+            if (markerIcon && markerIcon.options && markerIcon.options.html) {
+                var html = markerIcon.options.html;
+                var newHtml;
+
+                if (showLabels) {
+                    // Show labels by ensuring marker-content is visible
+                    newHtml = html.replace(/marker-content.*display:\s*none/g, 'marker-content').replace(/marker-content/g, function(match) {
+                        if (match.indexOf('display: none') === -1) {
+                            return 'marker-content';
+                        }
+                        return 'marker-content';
+                    });
+                } else {
+                    // Hide labels by adding display: none to marker-content
+                    newHtml = html.replace(/(class="marker-content)/g, '$1" style="display: none');
+                }
+
+                if (newHtml !== html) {
+                    var newIcon = L.divIcon({
+                        className: 'custom-marker-with-label',
+                        html: newHtml,
+                        iconSize: markerIcon.options.iconSize,
+                        iconAnchor: markerIcon.options.iconAnchor
+                    });
+                    marker.setIcon(newIcon);
+                }
+            }
+        });
+    }
+
+    // Set initial label visibility based on current zoom
+    toggleMarkerLabels(currentZoomLevel >= labelZoomThreshold);
 
     // Real-time marker updates functionality
     function checkForUpdates() {
