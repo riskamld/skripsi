@@ -33,35 +33,15 @@
 <!-- Leaflet Fullscreen CSS -->
 <link rel="stylesheet" href="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css" />
 
+
+
 <style>
 #map {
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
-/* Fullscreen button styling - no icon inside */
-.leaflet-control-fullscreen a {
-    background-color: #fff !important;
-    color: #333 !important;
-    font-size: 16px !important;
-    line-height: 26px !important;
-    text-align: center !important;
-    width: 26px !important;
-    height: 26px !important;
-    border: 1px solid #ccc !important;
-}
 
-.leaflet-control-fullscreen a:before {
-    content: "";
-}
-
-.leaflet-control-fullscreen a:hover {
-    background-color: #f8f9fa !important;
-}
-
-.leaflet-fullscreen-on .leaflet-control-fullscreen a:before {
-    content: "";
-}
 </style>
 @endpush
 
@@ -74,13 +54,12 @@
 <!-- Leaflet Fullscreen JS -->
 <script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js"></script>
 
+
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize the map with zoom controls disabled by default
-    var map = L.map('map', {
-        zoomControl: false,  // Disable default zoom control
-        fullscreenControl: false  // Disable default fullscreen if any
-    }).setView([-8.1845, 113.6681], 10); // Center on Jember area
+    // Initialize the map
+    var map = L.map('map').setView([-8.1845, 113.6681], 10); // Center on Jember area
 
     // Add OpenStreetMap tiles
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -260,11 +239,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (Object.keys(categoryGroups).length > 0) {
         legend.addTo(map);
     }
-
-    // Add zoom control
-    L.control.zoom({
-        position: 'topleft'
-    }).addTo(map);
 
     // Add fullscreen control in topleft (next to zoom)
     var fullscreenControl = L.control.fullscreen({
