@@ -8,7 +8,7 @@
 <div class="row mb-4">
     <div class="col-12">
         <a href="{{ route('api-tokens.create') }}" class="btn btn-primary">
-            <i class="fas fa-plus"></i> {{ __('messages.create_new_token') }}
+            <i class="fas fa-plus"></i> 
         </a>
     </div>
 </div>
@@ -16,11 +16,11 @@
 <!-- API Tokens Table -->
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">{{ __('messages.all_api_tokens') }}</h3>
+        <h3 class="card-title"></h3>
 
         <div class="card-tools">
             <div class="input-group input-group-sm" style="width: 150px;">
-                <input type="text" name="table_search" class="form-control float-right" placeholder="{{ __('messages.search_tokens') }}">
+                <input type="text" name="table_search" class="form-control float-right" placeholder="">
 
                 <div class="input-group-append">
                     <button type="submit" class="btn btn-default">
@@ -35,11 +35,11 @@
         <table class="table table-hover text-nowrap table-sm">
             <thead>
                 <tr>
-                    <th style="width: 20%;">{{ __('messages.token_name') }}</th>
-                    <th style="width: 10%;">{{ __('messages.status') }}</th>
-                    <th style="width: 20%;">{{ __('messages.last_used') }}</th>
-                    <th style="width: 15%;">{{ __('messages.created') }}</th>
-                    <th style="width: 35%;">{{ __('messages.actions') }}</th>
+                    <th style="width: 20%;"></th>
+                    <th style="width: 10%;"></th>
+                    <th style="width: 20%;"></th>
+                    <th style="width: 15%;"></th>
+                    <th style="width: 35%;"></th>
                 </tr>
             </thead>
             <tbody>
@@ -66,7 +66,7 @@
                                 {{ $token->last_used_at->diffForHumans() }}
                             </span>
                         @else
-                            <span class="text-muted" style="font-size: 0.875rem;">{{ __('messages.never') }}</span>
+                            <span class="text-muted" style="font-size: 0.875rem;"></span>
                         @endif
                     </td>
                     <td style="padding: 8px 12px; vertical-align: middle;">
@@ -106,10 +106,10 @@
                     <td colspan="5" class="text-center py-4">
                         <div class="text-muted">
                             <i class="fas fa-key fa-2x mb-2"></i>
-                            <h5>{{ __('messages.no_api_tokens_found') }}</h5>
-                            <p style="font-size: 0.875rem;">{{ __('messages.create_first_token') }}</p>
+                            <h5></h5>
+                            <p style="font-size: 0.875rem;"></p>
                             <a href="{{ route('api-tokens.create') }}" class="btn btn-primary btn-sm">
-                                <i class="fas fa-plus"></i> {{ __('messages.create_token') }}
+                                <i class="fas fa-plus"></i> 
                             </a>
                         </div>
                     </td>
@@ -123,14 +123,14 @@
     <!-- Infinite Scroll Loading Indicator -->
     <div id="loading-indicator" class="text-center py-3" style="display: none;">
         <div class="spinner-border text-primary" role="status">
-            <span class="sr-only">{{ __('messages.loading') }}</span>
+            <span class="sr-only"></span>
         </div>
-        <small class="text-muted ml-2">{{ __('messages.loading_more_tokens') }}</small>
+        <small class="text-muted ml-2"></small>
     </div>
 
     <!-- End of Results Indicator -->
     <div id="end-indicator" class="text-center py-3" style="display: none;">
-        <small class="text-muted">{{ __('messages.no_more_tokens') }}</small>
+        <small class="text-muted"></small>
     </div>
 </div>
 <!-- /.card -->

@@ -45,7 +45,7 @@
                 <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
             </li>
             <li class="nav-item d-none d-sm-inline-block">
-                <a href="{{ route('dashboard') }}" class="nav-link">{{ __('messages.home') }}</a>
+                <a href="{{ route('dashboard') }}" class="nav-link">Beranda</a>
             </li>
         </ul>
 
@@ -58,10 +58,10 @@
                     <span class="badge badge-warning navbar-badge">0</span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                    <span class="dropdown-item dropdown-header">0 {{ __('messages.notifications') }}</span>
+                    <span class="dropdown-item dropdown-header">0 Notifikasi</span>
                     <div class="dropdown-divider"></div>
                     <a href="#" class="dropdown-item">
-                        <i class="fas fa-info-circle mr-2"></i> {{ __('messages.no_new_notifications') }}
+                        <i class="fas fa-info-circle mr-2"></i> Tidak ada notifikasi baru
                     </a>
                 </div>
             </li>
@@ -72,17 +72,17 @@
                     <i class="far fa-user"></i>
                 </a>
                 <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                    <span class="dropdown-item dropdown-header">{{ __('messages.admin_user') }}</span>
+                    <span class="dropdown-item dropdown-header">Pengguna Admin</span>
                     <div class="dropdown-divider"></div>
                     <a href="#" class="dropdown-item">
-                        <i class="fas fa-user mr-2"></i> {{ __('messages.profile') }}
+                        <i class="fas fa-user mr-2"></i> Profil
                     </a>
                     <a href="#" class="dropdown-item">
-                        <i class="fas fa-cog mr-2"></i> {{ __('messages.settings') }}
+                        <i class="fas fa-cog mr-2"></i> Pengaturan
                     </a>
                     <div class="dropdown-divider"></div>
                     <a href="#" class="dropdown-item">
-                        <i class="fas fa-sign-out-alt mr-2"></i> {{ __('messages.logout') }}
+                        <i class="fas fa-sign-out-alt mr-2"></i> Keluar
                     </a>
                 </div>
             </li>
@@ -106,7 +106,7 @@
                     </div>
                 </div>
                 <div class="info">
-                    <a href="#" class="d-block">{{ __('messages.admin_user') }}</a>
+                    <a href="#" class="d-block">Admin</a>
                 </div>
             </div>
 
@@ -117,7 +117,7 @@
                     <li class="nav-item">
                         <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-tachometer-alt"></i>
-                            <p>{{ __('messages.dashboard') }}</p>
+                            <p>Dasbor</p>
                         </a>
                     </li>
 
@@ -125,7 +125,7 @@
                     <li class="nav-item">
                         <a href="{{ route('places.index') }}" class="nav-link {{ request()->routeIs('places.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-map-marker-alt"></i>
-                            <p>{{ __('messages.places') }}</p>
+                            <p>Tempat</p>
                         </a>
                     </li>
 
@@ -133,7 +133,7 @@
                     <li class="nav-item">
                         <a href="{{ route('scrape-logs.index') }}" class="nav-link {{ request()->routeIs('scrape-logs.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-history"></i>
-                            <p>{{ __('messages.scrape_logs') }}</p>
+                            <p>Log Scraping</p>
                         </a>
                     </li>
 
@@ -141,7 +141,7 @@
                     <li class="nav-item">
                         <a href="{{ url('/product-prices') }}" class="nav-link {{ request()->routeIs('product-prices.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-coins"></i>
-                            <p>{{ __('messages.product_prices') }}</p>
+                            <p>Harga Produk</p>
                         </a>
                     </li>
 
@@ -150,7 +150,7 @@
                         <a href="#" class="nav-link {{ request()->routeIs('market-analysis.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-chart-line"></i>
                             <p>
-                                {{ __('messages.market_analysis') }}
+                                Analisis Pasar
                                 <i class="right fas fa-angle-left"></i>
                             </p>
                         </a>
@@ -158,31 +158,31 @@
                             <li class="nav-item">
                                 <a href="{{ route('market-analysis.index') }}" class="nav-link {{ request()->routeIs('market-analysis.index') ? 'active' : '' }}">
                                     <i class="far fa-circle nav-icon"></i>
-                                    <p>{{ __('messages.overview') }}</p>
+                                    <p>Ringkasan</p>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a href="{{ route('market-analysis.supply-demand') }}" class="nav-link {{ request()->routeIs('market-analysis.supply-demand') ? 'active' : '' }}">
                                     <i class="far fa-circle nav-icon"></i>
-                                    <p>{{ __('messages.supply_demand') }}</p>
+                                    <p>Penawaran & Permintaan</p>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a href="{{ route('market-analysis.category-insights') }}" class="nav-link {{ request()->routeIs('market-analysis.category-insights') ? 'active' : '' }}">
                                     <i class="far fa-circle nav-icon"></i>
-                                    <p>{{ __('messages.category_insights') }}</p>
+                                    <p>Wawasan Kategori</p>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a href="{{ route('market-analysis.geographic') }}" class="nav-link {{ request()->routeIs('market-analysis.geographic') ? 'active' : '' }}">
                                     <i class="far fa-circle nav-icon"></i>
-                                    <p>{{ __('messages.geographic_analysis') }}</p>
+                                    <p>Analisis Geografis</p>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a href="{{ route('market-analysis.price-predictions') }}" class="nav-link {{ request()->routeIs('market-analysis.price-predictions') ? 'active' : '' }}">
                                     <i class="far fa-circle nav-icon"></i>
-                                    <p>{{ __('messages.price_predictions') }}</p>
+                                    <p>Ramalan Harga</p>
                                 </a>
                             </li>
                         </ul>
@@ -192,39 +192,28 @@
                     <li class="nav-item">
                         <a href="{{ route('database.index') }}" class="nav-link {{ request()->routeIs('database.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-database"></i>
-                            <p>{{ __('messages.database_tools') }}</p>
+                            <p>Alat Database</p>
                         </a>
                     </li>
 
                     <!-- System Section -->
-                    <li class="nav-header">SYSTEM</li>
+                    <li class="nav-header">SISTEM</li>
 
                     <!-- Settings Menu -->
                     <li class="nav-item {{ request()->routeIs('settings.*') || request()->routeIs('api-tokens.*') ? 'menu-open' : '' }}">
                         <a href="#" class="nav-link {{ request()->routeIs('settings.*') || request()->routeIs('api-tokens.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-cog"></i>
                             <p>
-                                {{ __('messages.settings') }}
+                                Pengaturan
                                 <i class="right fas fa-angle-left"></i>
                             </p>
                         </a>
                         <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="#" class="nav-link" onclick="switchLanguage('id')">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>{{ __('messages.indonesian') }}</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#" class="nav-link" onclick="switchLanguage('en')">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>{{ __('messages.english') }}</p>
-                                </a>
-                            </li>
+
                             <li class="nav-item">
                                 <a href="{{ route('api-tokens.index') }}" class="nav-link {{ request()->routeIs('api-tokens.*') ? 'active' : '' }}">
                                     <i class="far fa-circle nav-icon"></i>
-                                    <p>{{ __('messages.api_tokens') }}</p>
+                                    <p>Token API</p>
                                 </a>
                             </li>
                         </ul>
@@ -233,7 +222,7 @@
                     <li class="nav-item">
                         <a href="#" class="nav-link">
                             <i class="nav-icon fas fa-question-circle"></i>
-                            <p>{{ __('messages.help') }}</p>
+                            <p>Bantuan</p>
                         </a>
                     </li>
                 </ul>
@@ -270,9 +259,9 @@
 
     <!-- Main Footer -->
     <footer class="main-footer">
-        <strong>{{ __('messages.copyright') }}</strong>
+        <strong>Hak Cipta © 2025 Mafaza Fortuna. Seluruh hak cipta.</strong>
         <div class="float-right d-none d-sm-inline-block">
-            <b>{{ __('messages.version') }}</b> 1.0.0
+            <b>Versi</b> 1.0.0
         </div>
     </footer>
 </div>
@@ -1686,41 +1675,7 @@ Respond naturally and helpfully with business insights:`;
         sendChatMessage();
     };
 
-    // Language switching function
-    window.switchLanguage = function(lang) {
-        // Store selected language in localStorage
-        localStorage.setItem('mafazaLanguage', lang);
 
-        // Use Laravel route helper for correct URL
-        const languageUrl = '{{ route("language.switch") }}';
-        console.log('Language URL:', languageUrl);
-        console.log('Switching to language:', lang);
-
-        // Send request to change language on server
-        fetch(languageUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({ language: lang })
-        })
-        .then(response => {
-            console.log('Language switch response:', response.status);
-            if (response.ok) {
-                // Reload page to apply new language
-                location.reload();
-            } else {
-                console.error('Failed to change language:', response.status);
-                response.text().then(text => console.error('Response text:', text));
-                alert('Gagal mengubah bahasa. Silakan coba lagi.');
-            }
-        })
-        .catch(error => {
-            console.error('Language change error:', error);
-            alert('Terjadi kesalahan saat mengubah bahasa.');
-        });
-    };
 });
 </script>
 </body>

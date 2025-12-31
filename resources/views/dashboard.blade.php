@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('page-title', __('messages.dashboard'))
+@section('page-title', 'Dasbor')
 @section('page-subtitle', 'Selamat datang di panel admin Mafaza Fortuna')
 
 @section('content')
@@ -11,7 +11,7 @@
             <span class="info-box-icon bg-info elevation-1"><i class="fas fa-map-marker-alt"></i></span>
 
             <div class="info-box-content">
-                <span class="info-box-text">{{ __('messages.total_places') }}</span>
+                <span class="info-box-text">Total Tempat</span>
                 <span class="info-box-number">
                     {{ $stats['total_places'] ?? 0 }}
                 </span>
@@ -26,7 +26,7 @@
             <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-history"></i></span>
 
             <div class="info-box-content">
-                <span class="info-box-text">{{ __('messages.scrape_logs_count') }}</span>
+                <span class="info-box-text">Log Scraping</span>
                 <span class="info-box-number">{{ $stats['total_scrape_logs'] ?? 0 }}</span>
             </div>
             <!-- /.info-box-content -->
@@ -43,7 +43,7 @@
             <span class="info-box-icon bg-success elevation-1"><i class="fas fa-star"></i></span>
 
             <div class="info-box-content">
-                <span class="info-box-text">{{ __('messages.avg_rating') }}</span>
+                <span class="info-box-text">Rating Rata-rata</span>
                 <span class="info-box-number">{{ number_format($stats['avg_rating'] ?? 0, 1) }}</span>
             </div>
             <!-- /.info-box-content -->
@@ -56,7 +56,7 @@
             <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-calendar-day"></i></span>
 
             <div class="info-box-content">
-                <span class="info-box-text">{{ __('messages.places_today') }}</span>
+                <span class="info-box-text">Rating Rata-rata</span>
                 <span class="info-box-number">{{ $stats['places_today'] ?? 0 }}</span>
             </div>
             <!-- /.info-box-content -->
@@ -74,7 +74,7 @@
             <div class="card-header">
                 <h3 class="card-title">
                     <i class="fas fa-chart-pie mr-2"></i>
-                    {{ __('messages.places_by_category') }}
+                    Kategori Teratas
                 </h3>
             </div>
             <div class="card-body">
@@ -87,7 +87,7 @@
             <div class="card-header">
                 <h3 class="card-title">
                     <i class="fas fa-chart-line mr-2"></i>
-                    {{ __('messages.weekly_activity') }}
+                    Aktivitas Mingguan
                 </h3>
             </div>
             <div class="card-body">
@@ -104,19 +104,19 @@
             <div class="card-header">
                 <h3 class="card-title">
                     <i class="fas fa-clock mr-2"></i>
-                    {{ __('messages.recent_activity') }}
+                    Aktivitas Terbaru
                 </h3>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-striped m-0">
                         <thead>
-                            <tr>
-                                <th>{{ __('messages.time') }}</th>
-                                <th>{{ __('messages.action') }}</th>
-                                <th>{{ __('messages.place') }}</th>
-                                <th>{{ __('messages.status') }}</th>
-                            </tr>
+                        <tr>
+                            <th>Waktu</th>
+                            <th>Aksi</th>
+                            <th>Tempat</th>
+                            <th>Status</th>
+                        </tr>
                         </thead>
                         <tbody>
                             @foreach($stats['recent_logs'] ?? [] as $log)
@@ -149,7 +149,7 @@
         <!-- TABLE: LATEST ORDERS -->
         <div class="card">
             <div class="card-header border-transparent">
-                <h3 class="card-title">{{ __('messages.quick_actions') }}</h3>
+                <h3 class="card-title">Fitur Utama</h3>
 
                 <div class="card-tools">
                     <button type="button" class="btn btn-tool" data-card-widget="collapse">
@@ -166,31 +166,31 @@
                     <table class="table m-0">
                         <thead>
                         <tr>
-                            <th>{{ __('messages.action') }}</th>
-                            <th>{{ __('messages.description') }}</th>
-                            <th>{{ __('messages.status') }}</th>
+                            <th>Fitur</th>
+                            <th>Deskripsi</th>
+                            <th>Status</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr>
-                            <td><a href="{{ route('places.index') }}">{{ __('messages.manage_places') }}</a></td>
-                            <td>{{ __('messages.manage_places_desc') }}</td>
-                            <td><span class="badge badge-success">{{ __('messages.active') }}</span></td>
+                            <td><a href="{{ route('places.index') }}">Tempat</a></td>
+                            <td>Kelola database tempat</td>
+                            <td><span class="badge badge-success">Aktif</span></td>
                         </tr>
                         <tr>
-                            <td><a href="{{ route('api-tokens.index') }}">{{ __('messages.api_tokens') }}</a></td>
-                            <td>{{ __('messages.api_tokens_desc') }}</td>
-                            <td><span class="badge badge-success">{{ __('messages.active') }}</span></td>
+                            <td><a href="{{ route('api-tokens.index') }}">Token API</a></td>
+                            <td>Kelola akses API</td>
+                            <td><span class="badge badge-success">Aktif</span></td>
                         </tr>
                         <tr>
-                            <td><a href="{{ route('scrape-logs.index') }}">{{ __('messages.scrape_logs') }}</a></td>
-                            <td>{{ __('messages.scrape_logs_desc') }}</td>
-                            <td><span class="badge badge-success">{{ __('messages.active') }}</span></td>
+                            <td><a href="{{ route('scrape-logs.index') }}">Log Scraping</a></td>
+                            <td>Pantau aktivitas scraping</td>
+                            <td><span class="badge badge-success">Aktif</span></td>
                         </tr>
                         <tr>
-                            <td><a href="/extension-chrome-mafaza.zip" download>{{ __('messages.download_chrome_extension') }}</a></td>
-                            <td>{{ __('messages.download_chrome_extension_desc') }}</td>
-                            <td><span class="badge badge-success">{{ __('messages.available') }}</span></td>
+                            <td><a href="/extension-chrome-mafaza.zip" download>Ekstensi Chrome</a></td>
+                            <td>Download ekstensi scraper</td>
+                            <td><span class="badge badge-success">Tersedia</span></td>
                         </tr>
                         </tbody>
                     </table>

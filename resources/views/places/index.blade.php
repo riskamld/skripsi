@@ -1,32 +1,113 @@
 @extends('layouts.app')
 
-@section('page-title', __('messages.places_title'))
-@section('page-subtitle', __('messages.places_subtitle'))
+@section('page-title', 'Tempat')
+@section('page-subtitle', 'Kelola database tempat Anda')
+
+@section('styles')
+<style>
+/* Category filter styling */
+#categoryFilter {
+    border-radius: 0.375rem;
+    border: 1px solid #ced4da;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+#categoryFilter:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Table row hover effects */
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .table-responsive {
+        font-size: 0.75rem;
+    }
+
+    .btn-group-sm .btn {
+        padding: 0.25rem 0.4rem;
+        font-size: 0.75rem;
+    }
+}
+</style>
+@endsection
 
 @section('content')
 <!-- Action buttons -->
 <div class="row mb-4">
-    <div class="col-12">
+    <div class="col-md-6">
         <a href="{{ route('places.create') }}" class="btn btn-primary">
-            <i class="fas fa-plus"></i> {{ __('messages.add_new_place') }}
+            <i class="fas fa-plus"></i> Tambah Tempat Baru
         </a>
         <form method="POST" action="{{ route('places.clear-all') }}" class="d-inline" style="margin-left: 10px;">
             @csrf
-            <button type="submit" class="btn btn-danger" onclick="return confirm('{{ __('messages.confirm_clear_all') }}')">
-                <i class="fas fa-trash"></i> {{ __('messages.clear_all_places') }}
+            <button type="submit" class="btn btn-danger">
+                <i class="fas fa-trash"></i> Hapus Semua Tempat
             </button>
         </form>
+    </div>
+    <div class="col-md-6 text-right">
+        <!-- Bulk delete dihapus -->
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="row mb-3">
+    <div class="col-md-4">
+        <div class="form-group mb-0">
+            <label for="categoryFilter" class="sr-only">Filter Kategori</label>
+            <div class="input-group input-group-sm">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-filter"></i></span>
+                </div>
+                <select class="form-control form-control-sm" id="categoryFilter" name="category">
+                    <option value="">Semua Kategori</option>
+                    @foreach($categories ?? [] as $categoryData)
+                        <option value="{{ $categoryData['name'] }}" {{ request('category') === $categoryData['name'] ? 'selected' : '' }}>
+                            {{ $categoryData['name'] }} ({{ $categoryData['count'] }})
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8 d-flex align-items-end justify-content-end">
+        @if(request('category') || request('search'))
+            <div class="text-muted small">
+                @if(request('category'))
+                    <span class="badge badge-primary mr-2">
+                        <i class="fas fa-tag"></i> {{ request('category') }}
+                        @if(isset($categories[request('category')]))
+                            ({{ $categories[request('category')]['count'] }})
+                        @endif
+                    </span>
+                @endif
+                @if(request('search'))
+                    <span class="badge badge-info">
+                        <i class="fas fa-search"></i> "{{ request('search') }}"
+                    </span>
+                @endif
+                <a href="{{ route('places.index') }}" class="btn btn-outline-secondary btn-sm ml-2">
+                    <i class="fas fa-times"></i> Hapus Filter
+                </a>
+            </div>
+        @endif
     </div>
 </div>
 
 <!-- Places table -->
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">{{ __('messages.all_places') }}</h3>
+        <h3 class="card-title">Semua Tempat</h3>
 
         <div class="card-tools">
             <div class="input-group input-group-sm" style="width: 250px;">
-                <input type="text" id="searchInput" class="form-control" placeholder="{{ __('messages.search_places') }}" value="{{ request('search') }}">
+                <input type="text" id="searchInput" class="form-control" placeholder="Cari tempat (min 4 karakter)" value="{{ request('search') }}">
                 <div class="input-group-append">
                     <button type="button" id="clearSearch" class="btn btn-outline-secondary" style="display: none;">
                         <i class="fas fa-times"></i>
@@ -40,13 +121,13 @@
         <table class="table table-hover text-nowrap table-sm">
             <thead>
                 <tr>
-                    <th style="width: 35%;">{{ __('messages.name') }}</th>
-                    <th style="width: 12%;">{{ __('messages.address') }}</th>
-                    <th style="width: 8%;">{{ __('messages.phone') }}</th>
-                    <th style="width: 8%;">{{ __('messages.website') }}</th>
+                    <th style="width: 35%;">Nama</th>
+                    <th style="width: 12%;">Alamat</th>
+                    <th style="width: 8%;">Telepon</th>
+                    <th style="width: 8%;">Website</th>
                     <th style="width: 6%;">
                         <a href="{{ route('places.index', array_merge(request()->query(), ['sort' => 'rating', 'direction' => (request('sort') === 'rating' && request('direction') === 'desc') ? 'asc' : 'desc'])) }}" class="text-decoration-none">
-                            {{ __('messages.rating') }}
+                            Rating
                             @if(request('sort') === 'rating')
                                 <i class="fas fa-sort-{{ request('direction') === 'desc' ? 'down' : 'up' }}"></i>
                             @else
@@ -56,7 +137,7 @@
                     </th>
                     <th style="width: 10%;">
                         <a href="{{ route('places.index', array_merge(request()->query(), ['sort' => 'review_count', 'direction' => (request('sort') === 'review_count' && request('direction') === 'desc') ? 'asc' : 'desc'])) }}" class="text-decoration-none">
-                            {{ __('messages.reviews') }}
+                            Ulasan
                             @if(request('sort') === 'review_count')
                                 <i class="fas fa-sort-{{ request('direction') === 'desc' ? 'down' : 'up' }}"></i>
                             @else
@@ -66,7 +147,7 @@
                     </th>
                     <th style="width: 10%;">
                         <a href="{{ route('places.index', array_merge(request()->query(), ['sort' => 'last_scraped_at', 'direction' => (request('sort') === 'last_scraped_at' && request('direction') === 'desc') ? 'asc' : 'desc'])) }}" class="text-decoration-none">
-                            {{ __('messages.scraped') }}
+                            Di-scrap
                             @if(request('sort') === 'last_scraped_at')
                                 <i class="fas fa-sort-{{ request('direction') === 'desc' ? 'down' : 'up' }}"></i>
                             @else
@@ -74,12 +155,12 @@
                             @endif
                         </a>
                     </th>
-                    <th style="width: 15%;">{{ __('messages.actions') }}</th>
+                    <th style="width: 15%;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($places ?? [] as $place)
-                <tr style="height: 45px;">
+                <tr style="height: 45px;" data-place-id="{{ $place->id }}">
                     <td style="padding: 8px 12px; vertical-align: middle;">
                         <div style="font-size: 0.875rem; font-weight: 600;">{{ Str::limit($place->name, 30) }}</div>
                         <small class="text-info" style="font-size: 0.75rem;">{{ $place->category ? Str::limit($place->category, 25) : '-' }}</small>
@@ -133,7 +214,7 @@
                                 {{ $place->last_scraped_at->diffForHumans() }}
                             </small>
                         @else
-                            <span class="text-muted" style="font-size: 0.875rem;">{{ __('messages.never') }}</span>
+                            <span class="text-muted" style="font-size: 0.875rem;"></span>
                         @endif
                     </td>
                     <td style="padding: 8px 12px; vertical-align: middle;">
@@ -147,7 +228,7 @@
                             <form method="POST" action="{{ route('places.destroy', $place) }}" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('{{ __('messages.confirm_delete') }}')">
+                                <button type="submit" class="btn btn-danger btn-sm">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>
@@ -159,10 +240,10 @@
                     <td colspan="8" class="text-center py-4">
                         <div class="text-muted">
                             <i class="fas fa-map-marker-alt fa-2x mb-2"></i>
-                            <h5>{{ __('messages.no_places_found') }}</h5>
-                            <p style="font-size: 0.875rem;">{{ __('messages.get_started_places') }}</p>
+                            <h5>Tidak ada tempat ditemukan</h5>
+                            <p style="font-size: 0.875rem;">Belum ada data tempat yang sesuai dengan filter Anda.</p>
                             <a href="{{ route('places.create') }}" class="btn btn-primary btn-sm">
-                                <i class="fas fa-plus"></i> {{ __('messages.add_place') }}
+                                <i class="fas fa-plus"></i> Tambah Tempat Baru
                             </a>
                         </div>
                     </td>
@@ -176,14 +257,14 @@
     <!-- Infinite Scroll Loading Indicator -->
     <div id="loading-indicator" class="text-center py-3" style="display: none;">
         <div class="spinner-border text-primary" role="status">
-            <span class="sr-only">{{ __('messages.loading') }}</span>
+            <span class="sr-only"></span>
         </div>
-        <small class="text-muted ml-2">{{ __('messages.loading_more_places') }}</small>
+        <small class="text-muted ml-2"></small>
     </div>
 
     <!-- End of Results Indicator -->
     <div id="end-indicator" class="text-center py-3" style="display: none;">
-        <small class="text-muted">{{ __('messages.no_more_places') }}</small>
+        <small class="text-muted"></small>
     </div>
 </div>
 <!-- /.card -->
@@ -253,10 +334,10 @@ $(document).ready(function() {
         window.location.href = newUrl;
     }
 
-    // Infinite Scroll Variables
-    let currentPage = {{ $places->currentPage() }};
+    // Infinite Scroll Variables - only when paginated
+    let currentPage = {{ method_exists($places, 'currentPage') ? $places->currentPage() : 1 }};
     let isLoading = false;
-    let hasMorePages = {{ $places->hasMorePages() ? 'true' : 'false' }};
+    let hasMorePages = {{ method_exists($places, 'hasMorePages') ? ($places->hasMorePages() ? 'true' : 'false') : 'false' }};
 
     // Infinite Scroll Implementation
     $(window).on('scroll', function() {
@@ -318,97 +399,31 @@ $(document).ready(function() {
         });
     }
 
-    function generatePlaceRow(place) {
-        // Generate HTML for a place row (similar to Blade template)
-        let row = '<tr style="height: 45px;">';
-
-        // Name column
-        row += '<td style="padding: 8px 12px; vertical-align: middle;">';
-        row += '<div style="font-size: 0.875rem; font-weight: 600;">' + escapeHtml(place.name.substring(0, 30)) + (place.name.length > 30 ? '...' : '') + '</div>';
-        row += '<small class="text-info" style="font-size: 0.75rem;">' + (place.category ? escapeHtml(place.category.substring(0, 25)) + (place.category.length > 25 ? '...' : '') : '-') + '</small>';
-        row += '</td>';
-
-        // Address column
-        row += '<td style="padding: 8px 12px; vertical-align: middle;">';
-        row += '<div style="font-size: 0.875rem;">' + (place.address ? escapeHtml(place.address.substring(0, 25)) + (place.address.length > 25 ? '...' : '') : 'N/A') + '</div>';
-        row += '</td>';
-
-        // Phone column
-        row += '<td style="padding: 8px 12px; vertical-align: middle;">';
-        if (place.phone) {
-            row += '<a href="https://wa.me/' + place.phone.replace(/\D/g, '') + '" target="_blank" class="btn btn-sm btn-success" title="Chat via WhatsApp">';
-            row += '<i class="fab fa-whatsapp"></i> ' + escapeHtml(place.phone.substring(0, 12)) + (place.phone.length > 12 ? '...' : '');
-            row += '</a>';
-        } else {
-            row += '<span style="font-size: 0.875rem;">N/A</span>';
-        }
-        row += '</td>';
-
-        // Website column
-        row += '<td style="padding: 8px 12px; vertical-align: middle;">';
-        if (place.website) {
-            row += '<a href="' + escapeHtml(place.website) + '" target="_blank" class="btn btn-sm btn-outline-primary">';
-            row += '<i class="fas fa-external-link-alt"></i>';
-            row += '</a>';
-        } else {
-            row += '<span style="font-size: 0.875rem;">N/A</span>';
-        }
-        row += '</td>';
-
-        // Rating column
-        row += '<td style="padding: 8px 12px; vertical-align: middle;">';
-        if (place.rating) {
-            row += '<span class="badge badge-warning" style="font-size: 0.75rem;">';
-            row += '<i class="fas fa-star"></i> ' + place.rating;
-            row += '</span>';
-        } else {
-            row += '<span class="badge badge-secondary" style="font-size: 0.75rem;">-</span>';
-        }
-        row += '</td>';
-
-        // Reviews column
-        row += '<td style="padding: 8px 12px; vertical-align: middle;">';
-        if (place.review_count) {
-            row += '<span class="badge badge-info" style="font-size: 0.75rem;">';
-            row += '<i class="fas fa-comments"></i> ' + place.review_count.toLocaleString();
-            row += '</span>';
-        } else {
-            row += '<span class="badge badge-secondary" style="font-size: 0.75rem;">-</span>';
-        }
-        row += '</td>';
-
-        // Scraped column
-        row += '<td style="padding: 8px 12px; vertical-align: middle;">';
-        if (place.last_scraped_at) {
-            row += '<div style="font-size: 0.875rem; font-weight: 600;">' + new Date(place.last_scraped_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + '</div>';
-            row += '<small class="text-muted" style="font-size: 0.75rem;">Just now</small>';
-        } else {
-            row += '<span class="text-muted" style="font-size: 0.875rem;">Never</span>';
-        }
-        row += '</td>';
-
-        // Actions column
-        row += '<td style="padding: 8px 12px; vertical-align: middle;">';
-        row += '<div class="btn-group btn-group-sm">';
-        row += '<a href="/places/' + place.id + '" class="btn btn-info btn-sm"><i class="fas fa-eye"></i></a>';
-        row += '<a href="/places/' + place.id + '/edit" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></a>';
-        row += '<form method="POST" action="/places/' + place.id + '" class="d-inline">';
-        row += '<input type="hidden" name="_method" value="DELETE">';
-        row += '<input type="hidden" name="_token" value="' + $('meta[name="csrf-token"]').attr('content') + '">';
-        row += '<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Are you sure?\')"><i class="fas fa-trash"></i></button>';
-        row += '</form>';
-        row += '</div>';
-        row += '</td>';
-
-        row += '</tr>';
-        return row;
-    }
+    // Infinite scroll functions removed - no longer needed with filter changes
 
     function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
+
+    // Category filter functionality
+    $('#categoryFilter').on('change', function() {
+        const category = $(this).val();
+        const urlParams = new URLSearchParams(window.location.search);
+
+        if (category) {
+            urlParams.set('category', category);
+        } else {
+            urlParams.delete('category');
+        }
+
+        // Remove pagination for fresh filter
+        urlParams.delete('page');
+
+        const filterUrl = '{{ route("places.index") }}' + (urlParams.toString() ? '?' + urlParams.toString() : '');
+        window.location.href = filterUrl;
+    });
 });
 </script>
 @endsection

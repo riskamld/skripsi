@@ -9,12 +9,10 @@ use App\Http\Controllers\Web\MarketAnalysisController;
 use App\Http\Controllers\Web\ProductPriceController;
 use App\Http\Controllers\Web\DatabaseController;
 use App\Http\Controllers\Web\AiChatController;
-use App\Http\Controllers\Web\LanguageController;
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-// Language switching route (placed early to avoid conflicts)
-Route::post('/language', [LanguageController::class, 'switchLanguage'])->name('language.switch');
+// Language switching removed - using Indonesian by default
 Route::get('/market-analysis', [MarketAnalysisController::class, 'index'])->name('market-analysis.index');
 Route::get('/market-analysis/supply-demand', [MarketAnalysisController::class, 'supplyDemand'])->name('market-analysis.supply-demand');
 Route::get('/market-analysis/category-insights', [MarketAnalysisController::class, 'categoryInsights'])->name('market-analysis.category-insights');

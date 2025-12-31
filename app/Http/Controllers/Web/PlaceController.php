@@ -70,8 +70,8 @@ class PlaceController extends Controller
             }
         }
 
-        // Handle AJAX requests for infinite scroll
-        if (request()->ajax()) {
+        // Handle AJAX requests for infinite scroll (only when no filters applied)
+        if (request()->ajax() && !request()->filled('category') && !request()->filled('search')) {
             $places = $query->paginate(20); // Smaller chunks for infinite scroll
             return response()->json([
                 'places' => $places->items(),
@@ -80,13 +80,23 @@ class PlaceController extends Controller
             ]);
         }
 
-        $places = $query->paginate(50)->onEachSide(2);
+        // When category filter is applied, show all results without pagination
+        if (request()->filled('category') || request()->filled('search')) {
+            $places = $query->get(); // Get all results when filtered
+        } else {
+            $places = $query->paginate(50)->onEachSide(2); // Normal pagination when no filter
+        }
 
-        // Get unique categories for filter dropdown
+        // Get unique categories for filter dropdown with counts
         $categories = Place::whereNotNull('category')
-            ->distinct()
-            ->pluck('category')
-            ->sort();
+            ->select('category')
+            ->selectRaw('COUNT(*) as count')
+            ->groupBy('category')
+            ->orderBy('category')
+            ->get()
+            ->mapWithKeys(function ($item) {
+                return [$item->category => ['name' => $item->category, 'count' => $item->count]];
+            });
 
         return view('places.index', compact('places', 'categories'));
     }
@@ -161,4 +171,6 @@ class PlaceController extends Controller
         return redirect()->route('places.index')
             ->with('success', 'All places cleared successfully');
     }
+
+
 }
