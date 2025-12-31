@@ -16,11 +16,17 @@ class PlaceController extends Controller
         // Search functionality
         if ($request->filled('search')) {
             $search = $request->search;
+            Log::info('Search query', ['search' => $search]);
+
             $query->where(function($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                   ->orWhere('category', 'like', "%{$search}%")
                   ->orWhere('address', 'like', "%{$search}%");
             });
+
+            // Debug: Log the count of results
+            $countBeforePaginate = $query->count();
+            Log::info('Search results count', ['count' => $countBeforePaginate, 'search' => $search]);
         }
 
         // Filter by category

@@ -26,7 +26,7 @@
 
         <div class="card-tools">
             <div class="input-group input-group-sm" style="width: 250px;">
-                <input type="text" id="searchInput" class="form-control" placeholder="{{ __('messages.search_places') }}">
+                <input type="text" id="searchInput" class="form-control" placeholder="{{ __('messages.search_places') }}" value="{{ request('search') }}">
                 <div class="input-group-append">
                     <button type="button" id="clearSearch" class="btn btn-outline-secondary" style="display: none;">
                         <i class="fas fa-times"></i>
@@ -194,7 +194,10 @@ $(document).ready(function() {
     const searchInput = $('#searchInput');
     const clearSearchBtn = $('#clearSearch');
 
-    // Real-time search with 4+ characters
+    // Initialize clear button visibility on page load
+    clearSearchBtn.toggle(searchInput.val().length > 0);
+
+    // Real-time search with 2+ characters (reduced from 4 for better UX)
     searchInput.on('input', function() {
         const query = $(this).val().trim();
 
@@ -204,7 +207,7 @@ $(document).ready(function() {
         // Clear previous timeout
         clearTimeout(searchTimeout);
 
-        if (query.length >= 4) {
+        if (query.length >= 2) {
             // Debounce search - wait 300ms after user stops typing
             searchTimeout = setTimeout(function() {
                 performSearch(query);
@@ -223,49 +226,18 @@ $(document).ready(function() {
     });
 
     function performSearch(query) {
-        // Show loading indicator
-        searchInput.prop('disabled', true);
-        searchInput.css('opacity', '0.6');
-
-        // Get current URL parameters
+        // Simple redirect approach - more reliable than AJAX
         const urlParams = new URLSearchParams(window.location.search);
 
         // Update search parameter
         urlParams.set('search', query);
 
-        // Remove pagination and sorting params for fresh search
+        // Remove pagination for fresh search
         urlParams.delete('page');
 
-        // Make AJAX request
-        $.ajax({
-            url: '{{ route("places.index") }}',
-            type: 'GET',
-            data: urlParams.toString(),
-            success: function(response) {
-                // Update the table content
-                const parser = new DOMParser();
-                const newDoc = parser.parseFromString(response, 'text/html');
-                const newTable = newDoc.querySelector('.table-responsive');
-                const newPagination = newDoc.querySelector('.card-footer');
-
-                $('.table-responsive').replaceWith(newTable);
-                $('.card-footer').replaceWith(newPagination || '');
-
-                // Update URL without page reload
-                const newUrl = '{{ route("places.index") }}' + '?' + urlParams.toString();
-                window.history.pushState({}, '', newUrl);
-            },
-            error: function(xhr, status, error) {
-                console.error('Search error:', error);
-                // Show error message
-                toastr.error('Search failed. Please try again.');
-            },
-            complete: function() {
-                // Re-enable input
-                searchInput.prop('disabled', false);
-                searchInput.css('opacity', '1');
-            }
-        });
+        // Redirect to the search URL
+        const searchUrl = '{{ route("places.index") }}' + '?' + urlParams.toString();
+        window.location.href = searchUrl;
     }
 
     function clearSearch() {
