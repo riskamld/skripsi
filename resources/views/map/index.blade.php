@@ -597,8 +597,57 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Visibility update complete - Visible:', visibleCount, 'Hidden:', hiddenCount);
     }
 
-    // Create legend control with better positioning
-    var legend = L.control({position: 'topright'});
+    // Create legend control with responsive positioning
+    var legend = L.control({
+        position: window.innerWidth <= 768 ? 'topleft' : 'topright'
+    });
+
+    // Legend toggle button for mobile
+    var legendToggleBtn = null;
+    var legendVisible = window.innerWidth > 768; // Show by default on desktop, hide on mobile
+
+    // Create legend toggle button for mobile
+    if (window.innerWidth <= 768) {
+        legendToggleBtn = L.control({position: 'bottomright'});
+
+        legendToggleBtn.onAdd = function(map) {
+            var div = L.DomUtil.create('div', 'legend-toggle-btn');
+            div.innerHTML = '<button id="legend-toggle" style="background: #4285f4; color: white; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 18px; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.3);">📊</button>';
+            div.style.position = 'absolute';
+            div.style.bottom = '20px';
+            div.style.right = '20px';
+            div.style.zIndex = '1000';
+
+            // Add click handler
+            setTimeout(function() {
+                var toggleBtn = div.querySelector('#legend-toggle');
+                if (toggleBtn) {
+                    toggleBtn.addEventListener('click', function() {
+                        legendVisible = !legendVisible;
+                        if (legendVisible) {
+                            // Show legend
+                            if (!map.hasLayer(legend)) {
+                                legend.addTo(map);
+                            }
+                            toggleBtn.innerHTML = '❌';
+                            toggleBtn.title = 'Sembunyikan Legend';
+                        } else {
+                            // Hide legend
+                            if (map.hasLayer(legend)) {
+                                map.removeLayer(legend);
+                            }
+                            toggleBtn.innerHTML = '📊';
+                            toggleBtn.title = 'Tampilkan Legend';
+                        }
+                    });
+                }
+            }, 100);
+
+            return div;
+        };
+
+        legendToggleBtn.addTo(map);
+    }
 
     legend.onAdd = function (map) {
         var div = L.DomUtil.create('div', 'info legend');
