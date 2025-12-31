@@ -9,8 +9,10 @@ use App\Http\Controllers\Web\MarketAnalysisController;
 use App\Http\Controllers\Web\ProductPriceController;
 use App\Http\Controllers\Web\DatabaseController;
 use App\Http\Controllers\Web\AiChatController;
+use App\Http\Controllers\Web\MapController;
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+Route::get('/map', [MapController::class, 'index'])->name('map.index');
 
 // Language switching removed - using Indonesian by default
 Route::get('/market-analysis', [MarketAnalysisController::class, 'index'])->name('market-analysis.index');

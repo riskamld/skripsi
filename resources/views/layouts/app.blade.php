@@ -19,6 +19,9 @@
     <!-- Custom CSS -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+    <!-- Additional Styles -->
+    @stack('styles')
+
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
@@ -33,6 +36,9 @@
 
     <!-- Toastr for notifications -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <!-- Additional Scripts -->
+    @stack('scripts')
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
@@ -46,6 +52,9 @@
             </li>
             <li class="nav-item d-none d-sm-inline-block">
                 <a href="{{ route('dashboard') }}" class="nav-link">Beranda</a>
+            </li>
+            <li class="nav-item d-none d-sm-inline-block">
+                <a href="{{ route('map.index') }}" class="nav-link">Peta</a>
             </li>
         </ul>
 
@@ -126,6 +135,14 @@
                         <a href="{{ route('places.index') }}" class="nav-link {{ request()->routeIs('places.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-map-marker-alt"></i>
                             <p>Tempat</p>
+                        </a>
+                    </li>
+
+                    <!-- Map -->
+                    <li class="nav-item">
+                        <a href="{{ route('map.index') }}" class="nav-link {{ request()->routeIs('map.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-map"></i>
+                            <p>Peta</p>
                         </a>
                     </li>
 
