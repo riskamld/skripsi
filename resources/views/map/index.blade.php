@@ -33,6 +33,10 @@
 <!-- Leaflet Fullscreen CSS -->
 <link rel="stylesheet" href="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css" />
 
+<!-- Leaflet Marker Cluster CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+
 
 
 <style>
@@ -329,6 +333,9 @@
 <!-- Leaflet Fullscreen JS -->
 <script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js"></script>
 
+<!-- Leaflet Marker Cluster JS -->
+<script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+
 
 
 <script>
@@ -360,6 +367,37 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Places data from PHP
     var places = @json($places);
+
+    // Create marker cluster group for performance
+    var markerClusterGroup = L.markerClusterGroup({
+        chunkedLoading: true,
+        chunkSize: 100, // Process markers in chunks for better performance
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: false,
+        zoomToBoundsOnClick: true,
+        removeOutsideVisibleBounds: true, // Remove markers outside viewport for performance
+        animate: true,
+        animateAddingMarkers: true,
+        disableClusteringAtZoom: 16, // Stop clustering at zoom level 16
+        maxClusterRadius: 80, // Maximum radius of a cluster in pixels
+        spiderfyDistanceMultiplier: 2, // Distance between spiderfied markers
+        iconCreateFunction: function(cluster) {
+            var childCount = cluster.getChildCount();
+            var c = ' marker-cluster-';
+            if (childCount < 10) {
+                c += 'small';
+            } else if (childCount < 100) {
+                c += 'medium';
+            } else {
+                c += 'large';
+            }
+            return new L.DivIcon({
+                html: '<div><span>' + childCount + '</span></div>',
+                className: 'marker-cluster' + c,
+                iconSize: new L.Point(40, 40)
+            });
+        }
+    });
 
     // Track markers and last update timestamp for real-time updates
     var markers = [];
@@ -513,7 +551,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return marker;
     }
 
-    // Create initial markers
+    // Create initial markers and add to cluster group
     places.forEach(function(place, index) {
         if (place.lat && place.lng) {
             var color = getCategoryColor(place.category);
@@ -528,6 +566,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var marker = createMarkerForPlace(place);
             if (marker) {
                 markers.push(marker);
+                markerClusterGroup.addLayer(marker); // Add to cluster group instead of map
                 existingPlaceIds.add(place.id);
             }
 
@@ -537,6 +576,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+    // Add cluster group to map
+    map.addLayer(markerClusterGroup);
 
     // Fit map to show all markers
     if (markers.length > 0) {
@@ -577,18 +619,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('Marker', marker.placeId, 'category:', categoryKey, 'should show:', shouldShow);
 
                 if (shouldShow) {
-                    // Show marker
-                    if (!map.hasLayer(marker)) {
-                        marker.addTo(map);
+                    // Show marker - add to cluster group
+                    if (!markerClusterGroup.hasLayer(marker)) {
+                        markerClusterGroup.addLayer(marker);
                         visibleCount++;
-                        console.log('Added marker', marker.placeId);
+                        console.log('Added marker to cluster', marker.placeId);
                     }
                 } else {
-                    // Hide marker
-                    if (map.hasLayer(marker)) {
-                        map.removeLayer(marker);
+                    // Hide marker - remove from cluster group
+                    if (markerClusterGroup.hasLayer(marker)) {
+                        markerClusterGroup.removeLayer(marker);
                         hiddenCount++;
-                        console.log('Removed marker', marker.placeId);
+                        console.log('Removed marker from cluster', marker.placeId);
                     }
                 }
             }
@@ -1062,8 +1104,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         markerToRemove.setOpacity(1); // Normal
                     }
                 } else {
-                    // Final removal
-                    map.removeLayer(markerToRemove);
+                    // Final removal from cluster group
+                    markerClusterGroup.removeLayer(markerToRemove);
                     markers.splice(index, 1);
 
                     // Remove from places array
@@ -1154,7 +1196,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     markers.push(newMarker);
                     existingPlaceIds.add(newPlace.id);
 
-                    // Animate new marker appearance
+                    // Add to cluster group and animate appearance
+                    markerClusterGroup.addLayer(newMarker);
                     newMarker.setOpacity(0);
                     setTimeout(function() {
                         newMarker.setOpacity(1);
