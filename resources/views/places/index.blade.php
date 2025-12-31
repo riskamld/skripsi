@@ -62,14 +62,14 @@
         <div class="card">
             <div class="card-header p-2">
                 <h5 class="card-title mb-0">
-                    <button class="btn btn-link p-0 text-dark" type="button" data-toggle="collapse" data-target="#categoryFilterCollapse" aria-expanded="false">
+                    <button class="btn btn-link p-0 text-dark" type="button" id="toggleCategoryFilter">
                         <i class="fas fa-filter mr-2"></i>Filter Kategori
                         <span id="selectedCategoriesCount" class="badge badge-primary ml-2" style="display: none;">0</span>
                         <i class="fas fa-chevron-down ml-1" id="filterIcon"></i>
                     </button>
                 </h5>
             </div>
-            <div class="collapse" id="categoryFilterCollapse">
+            <div class="category-filter-body" id="categoryFilterBody" style="display: none;">
                 <div class="card-body p-3">
                     <form id="categoryFilterForm">
                         <div class="row">
@@ -102,7 +102,7 @@
                             <button type="button" class="btn btn-outline-secondary btn-sm" id="clearCategoryFilter">
                                 <i class="fas fa-times mr-1"></i>Hapus Semua
                             </button>
-                            <button type="button" class="btn btn-link btn-sm float-right" data-toggle="collapse" data-target="#categoryFilterCollapse">
+                            <button type="button" class="btn btn-link btn-sm float-right" id="closeCategoryFilter">
                                 Tutup
                             </button>
                         </div>
@@ -536,12 +536,29 @@ $(document).ready(function() {
         updateSelectedCategoriesCount();
     });
 
-    // Handle collapse events to update icon
-    $('#categoryFilterCollapse').on('show.bs.collapse', function() {
-        $('#filterIcon').removeClass('fa-chevron-down').addClass('fa-chevron-up');
+    // Custom toggle for category filter (replaces Bootstrap collapse)
+    let filterPanelVisible = false;
+
+    $('#toggleCategoryFilter').on('click', function(e) {
+        e.preventDefault();
+        filterPanelVisible = !filterPanelVisible;
+
+        const filterBody = $('#categoryFilterBody');
+        const filterIcon = $('#filterIcon');
+
+        if (filterPanelVisible) {
+            filterBody.show();
+            filterIcon.removeClass('fa-chevron-down').addClass('fa-chevron-up');
+        } else {
+            filterBody.hide();
+            filterIcon.removeClass('fa-chevron-up').addClass('fa-chevron-down');
+        }
     });
 
-    $('#categoryFilterCollapse').on('hide.bs.collapse', function() {
+    // Close button handler
+    $('#closeCategoryFilter').on('click', function() {
+        filterPanelVisible = false;
+        $('#categoryFilterBody').hide();
         $('#filterIcon').removeClass('fa-chevron-up').addClass('fa-chevron-down');
     });
 
