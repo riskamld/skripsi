@@ -341,7 +341,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize the map with GPS location detection
-    function initializeMap(lat = -8.1845, lng = 113.6681, zoom = 15) {
+    function initializeMap(lat = -8.1845, lng = 113.6681, zoom = 8) {
         var map = L.map('map').setView([lat, lng], zoom);
 
         // Try to get user's location for better centering
