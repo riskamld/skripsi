@@ -340,8 +340,40 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize the map
-    var map = L.map('map').setView([-8.1845, 113.6681], 10); // Center on Jember area
+    // Initialize the map with GPS location detection
+    function initializeMap(lat = -8.1845, lng = 113.6681, zoom = 15) {
+        var map = L.map('map').setView([lat, lng], zoom);
+
+        // Try to get user's location for better centering
+        if (navigator.geolocation && window.innerWidth > 768) { // Only on desktop for privacy
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    var userLat = position.coords.latitude;
+                    var userLng = position.coords.longitude;
+
+                    // Check if user is in reasonable distance from Jember (Indonesia)
+                    var jemberLat = -8.1845;
+                    var jemberLng = 113.6681;
+                    var distance = Math.sqrt(Math.pow(userLat - jemberLat, 2) + Math.pow(userLng - jemberLng, 2));
+
+                    // If user is within ~500km of Jember, center on their location
+                    if (distance < 5) { // Rough distance check in degrees
+                        map.setView([userLat, userLng], 15);
+                        console.log('Map centered on user location');
+                    }
+                },
+                function(error) {
+                    console.log('Geolocation not available, using default location');
+                },
+                { timeout: 5000, enableHighAccuracy: false }
+            );
+        }
+
+        return map;
+    }
+
+    // Initialize map
+    var map = initializeMap();
 
     // Add OpenStreetMap tiles (Streets)
     var streets = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
