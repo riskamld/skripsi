@@ -371,15 +371,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Create marker cluster group for performance
     var markerClusterGroup = L.markerClusterGroup({
         chunkedLoading: true,
-        chunkSize: 100, // Process markers in chunks for better performance
+        chunkSize: 50, // Smaller chunks for better responsiveness
         spiderfyOnMaxZoom: true,
         showCoverageOnHover: false,
         zoomToBoundsOnClick: true,
         removeOutsideVisibleBounds: true, // Remove markers outside viewport for performance
         animate: true,
         animateAddingMarkers: true,
-        disableClusteringAtZoom: 16, // Stop clustering at zoom level 16
-        maxClusterRadius: 80, // Maximum radius of a cluster in pixels
+        disableClusteringAtZoom: 12, // Stop clustering earlier at zoom level 12
+        maxClusterRadius: 50, // Smaller radius for more clusters (was 80)
         spiderfyDistanceMultiplier: 2, // Distance between spiderfied markers
         iconCreateFunction: function(cluster) {
             var childCount = cluster.getChildCount();
