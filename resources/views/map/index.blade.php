@@ -114,7 +114,7 @@
 .marker-name {
     font-weight: 500;
     color: #2d3748;
-    font-size: 10px;
+    font-size: 8px;
     margin-bottom: 0px;
     letter-spacing: -0.01em;
     line-height: 1.1;
@@ -254,7 +254,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var existingPlaceIds = new Set();
     var lastUpdateTimestamp = null;
     var currentZoomLevel = map.getZoom();
-    var labelZoomThreshold = 14; // Show labels when zoom >= 14
+    var labelZoomThreshold = 16; // Show labels when zoom >= 16
 
 
 
