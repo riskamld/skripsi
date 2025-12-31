@@ -254,7 +254,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var existingPlaceIds = new Set();
     var lastUpdateTimestamp = null;
     var currentZoomLevel = map.getZoom();
-    var labelZoomThreshold = 13; // Show labels when zoom >= 13
+    var labelZoomThreshold = 14; // Show labels when zoom >= 14
 
 
 
@@ -511,6 +511,32 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+    // Add zoom display control
+    var zoomDisplay = L.control({position: 'topleft'});
+
+    zoomDisplay.onAdd = function(map) {
+        var div = L.DomUtil.create('div', 'zoom-display');
+        div.innerHTML = '<div class="zoom-level">Zoom: ' + map.getZoom() + '</div>';
+        div.style.backgroundColor = 'white';
+        div.style.padding = '3px 8px';
+        div.style.borderRadius = '4px';
+        div.style.boxShadow = '0 1px 3px rgba(0,0,0,0.2)';
+        div.style.fontSize = '11px';
+        div.style.fontWeight = '500';
+        div.style.color = '#333';
+        div.style.border = '1px solid #ccc';
+        div.style.marginTop = '10px';
+
+        // Update zoom level when map zooms
+        map.on('zoomend', function() {
+            div.innerHTML = '<div class="zoom-level">Zoom: ' + map.getZoom() + '</div>';
+        });
+
+        return div;
+    };
+
+    zoomDisplay.addTo(map);
 
     // Add fullscreen control in topleft (next to zoom)
     var fullscreenControl = L.control.fullscreen({
