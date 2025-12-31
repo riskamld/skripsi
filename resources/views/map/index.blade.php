@@ -505,47 +505,7 @@ document.addEventListener('DOMContentLoaded', function() {
         map.fitBounds(group.getBounds().pad(0.1));
     }
 
-    // Function to update legend with place counts
-    function updateLegend() {
-        // Find existing legend control and update it
-        map.eachLayer(function(layer) {
-            if (layer instanceof L.Control && layer._container && layer._container.classList.contains('leaflet-control')) {
-                var legendDiv = layer._container.querySelector('.info.legend');
-                if (legendDiv) {
-                    legendDiv.innerHTML = '<div style="font-weight: bold; margin-bottom: 6px; font-size: 12px;">📊 Kategori</div>';
 
-                    // Count places per category
-                    var categoryCounts = {};
-                    places.forEach(function(place) {
-                        if (place.category) {
-                            var key = place.category.toLowerCase();
-                            if (!categoryCounts[key]) {
-                                categoryCounts[key] = {
-                                    displayName: place.category,
-                                    count: 0,
-                                    color: getCategoryColor(place.category)
-                                };
-                            }
-                            categoryCounts[key].count++;
-                        }
-                    });
-
-                    // Sort by category name
-                    Object.keys(categoryCounts).sort(function(a, b) {
-                        return categoryCounts[a].displayName.localeCompare(categoryCounts[b].displayName);
-                    }).forEach(function(key) {
-                        var categoryData = categoryCounts[key];
-                        legendDiv.innerHTML += `
-                            <div style="margin-bottom: 3px; display: flex; align-items: center;">
-                                <div style="width: 10px; height: 10px; border-radius: 50%; background-color: ${categoryData.color}; margin-right: 6px; flex-shrink: 0; border: 1px solid #ddd;"></div>
-                                <span style="font-size: 10px; line-height: 1.2;">${categoryData.displayName} (${categoryData.count})</span>
-                            </div>
-                        `;
-                    });
-                }
-            }
-        });
-    }
 
     // Track active categories for filtering
     var activeCategories = new Set();
@@ -1120,12 +1080,83 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateLegend() {
-        // Find existing legend control and update it
+        // Find existing legend control and update only the counts, not the entire HTML
         map.eachLayer(function(layer) {
             if (layer instanceof L.Control && layer._container && layer._container.classList.contains('leaflet-control')) {
                 var legendDiv = layer._container.querySelector('.info.legend');
                 if (legendDiv) {
-                    // Rebuild the entire legend from current markers data
+                    // Count categories from current markers
+                    var currentCategories = {};
+
+                    markers.forEach(function(marker) {
+                        var place = places.find(function(p) { return p.id == marker.placeId; });
+                        if (place && place.category && place.category.trim() !== '') {
+                            var key = place.category.toLowerCase().trim();
+                            if (!currentCategories[key]) {
+                                currentCategories[key] = {
+                                    displayName: place.category.trim(),
+                                    count: 0,
+                                    color: getCategoryColor(place.category)
+                                };
+                            }
+                            currentCategories[key].count++;
+                        }
+                    });
+
+                    // Update only the count labels in existing legend items
+                    Object.keys(currentCategories).forEach(function(key) {
+                        var categoryData = currentCategories[key];
+                        var checkboxId = 'category-' + key;
+                        var label = legendDiv.querySelector('label[for="' + checkboxId + '"]');
+
+                        if (label) {
+                            // Extract category name from current label text
+                            var labelText = label.textContent;
+                            var namePart = labelText.replace(/\s*\([0-9]+\)$/, ''); // Remove (count) part
+                            label.textContent = namePart + ' (' + categoryData.count + ')';
+
+                            // Update delete button count
+                            var deleteBtn = legendDiv.querySelector('.delete-category-btn[data-category="' + key + '"]');
+                            if (deleteBtn) {
+                                deleteBtn.setAttribute('data-count', categoryData.count);
+                                deleteBtn.title = 'Delete all ' + categoryData.displayName + ' places';
+                            }
+                        }
+                    });
+
+                    // Remove legend items for categories that no longer exist
+                    var existingItems = legendDiv.querySelectorAll('.category-item');
+                    existingItems.forEach(function(item) {
+                        var categoryKey = item.dataset.category;
+                        if (!currentCategories[categoryKey]) {
+                            item.remove();
+                        }
+                    });
+
+                    // Add new categories that weren't in the legend before
+                    var needsFullRebuild = false;
+                    Object.keys(currentCategories).forEach(function(key) {
+                        var checkboxId = 'category-' + key;
+                        if (!legendDiv.querySelector('#' + checkboxId)) {
+                            needsFullRebuild = true;
+                        }
+                    });
+
+                    // If we need to add new categories, do a full rebuild
+                    if (needsFullRebuild) {
+                        rebuildLegend();
+                    }
+                }
+            }
+        });
+    }
+
+    function rebuildLegend() {
+        // Full rebuild only when necessary (adding new categories)
+        map.eachLayer(function(layer) {
+            if (layer instanceof L.Control && layer._container && layer._container.classList.contains('leaflet-control')) {
+                var legendDiv = layer._container.querySelector('.info.legend');
+                if (legendDiv) {
                     var currentCategories = {};
 
                     // Count categories from current markers
@@ -1144,7 +1175,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     });
 
-                    // Rebuild legend HTML
+                    // Rebuild legend HTML only when necessary
                     var legendHtml = `
                         <div style="font-weight: bold; margin-bottom: 8px; font-size: 12px; display: flex; justify-content: space-between; align-items: center;">
                             <span>📊 Kategori</span>
