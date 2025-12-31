@@ -911,7 +911,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         requestData.place_ids = Array.from(existingPlaceIds);
 
-        fetch('/api/map/check-updates', {
+        fetch(window.baseUrl + '/api/map/check-updates', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1208,14 +1208,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     button.disabled = true;
                     button.textContent = '...';
 
-                    fetch('/map/delete-category', {
-                        method: 'DELETE',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: JSON.stringify({ category: category })
-                    })
+                        fetch(window.baseUrl + '/map/delete-category', {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            },
+                            body: JSON.stringify({ category: category })
+                        })
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
