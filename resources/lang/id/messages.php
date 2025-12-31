@@ -162,6 +162,49 @@ return [
     'token_regenerated_successfully' => 'Token berhasil diperbarui',
     'token_deleted_successfully' => 'Token berhasil dihapus',
 
+    // Places additional
+    'rating' => 'Rating',
+    'reviews' => 'Ulasan',
+    'scraped' => 'Di-scrap',
+    'actions' => 'Aksi',
+    'confirm_delete' => 'Apakah Anda yakin ingin menghapus item ini?',
+    'no_places_found' => 'Tidak ada tempat ditemukan',
+    'get_started_places' => 'Mulai dengan menambahkan tempat pertama Anda',
+    'add_place' => 'Tambah Tempat',
+    'place' => 'Tempat',
+
+    // Dashboard additional
+    'scrape_logs_desc' => 'Lihat log aktivitas scraping',
+
+    // API Tokens additional
+    'confirm_regenerate' => 'Ini akan membatalkan token saat ini. Lanjutkan?',
+    'confirm_delete_token' => 'Apakah Anda yakin ingin menghapus token ini?',
+    'no_api_tokens_found' => 'Tidak ada token API ditemukan',
+    'create_first_token' => 'Buat token API pertama Anda untuk mengakses sistem secara terprogram.',
+    'loading_more_tokens' => 'Memuat lebih banyak token...',
+    'no_more_tokens' => 'Tidak ada lagi token untuk dimuat',
+
+    // Scrape Logs
+    'scrape_logs_title' => 'Log Scraping',
+    'scrape_logs_subtitle' => 'Pantau aktivitas scraping Anda',
+    'all_scrape_logs' => 'Semua Log Scraping',
+    'job_id' => 'ID Job',
+    'started_at' => 'Dimulai Pada',
+    'completed_at' => 'Selesai Pada',
+    'duration' => 'Durasi',
+    'no_scrape_logs_found' => 'Tidak ada log scraping ditemukan',
+    'run_scraper' => 'Jalankan Scraper',
+    'scraping_in_progress' => 'Scraping sedang berlangsung',
+    'view_details' => 'Lihat Detail',
+
+    // Layout/Navigation
+    'notifications' => 'Notifikasi',
+    'no_new_notifications' => 'Tidak ada notifikasi baru',
+    'admin_user' => 'Pengguna Admin',
+    'profile' => 'Profil',
+    'logout' => 'Keluar',
+    'home' => 'Beranda',
+
     // Footer
     'copyright' => 'Hak Cipta © 2025 Mafaza Fortuna. Seluruh hak cipta.',
     'version' => 'Versi',

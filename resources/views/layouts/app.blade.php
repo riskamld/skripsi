@@ -1,4 +1,4 @@
-ya i<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
@@ -58,10 +58,10 @@ ya i<!DOCTYPE html>
                     <span class="badge badge-warning navbar-badge">0</span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                    <span class="dropdown-item dropdown-header">0 Notifications</span>
+                    <span class="dropdown-item dropdown-header">0 {{ __('messages.notifications') }}</span>
                     <div class="dropdown-divider"></div>
                     <a href="#" class="dropdown-item">
-                        <i class="fas fa-info-circle mr-2"></i> No new notifications
+                        <i class="fas fa-info-circle mr-2"></i> {{ __('messages.no_new_notifications') }}
                     </a>
                 </div>
             </li>
@@ -72,17 +72,17 @@ ya i<!DOCTYPE html>
                     <i class="far fa-user"></i>
                 </a>
                 <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                    <span class="dropdown-item dropdown-header">Admin User</span>
+                    <span class="dropdown-item dropdown-header">{{ __('messages.admin_user') }}</span>
                     <div class="dropdown-divider"></div>
                     <a href="#" class="dropdown-item">
-                        <i class="fas fa-user mr-2"></i> Profile
+                        <i class="fas fa-user mr-2"></i> {{ __('messages.profile') }}
                     </a>
                     <a href="#" class="dropdown-item">
-                        <i class="fas fa-cog mr-2"></i> Settings
+                        <i class="fas fa-cog mr-2"></i> {{ __('messages.settings') }}
                     </a>
                     <div class="dropdown-divider"></div>
                     <a href="#" class="dropdown-item">
-                        <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                        <i class="fas fa-sign-out-alt mr-2"></i> {{ __('messages.logout') }}
                     </a>
                 </div>
             </li>
@@ -106,7 +106,7 @@ ya i<!DOCTYPE html>
                     </div>
                 </div>
                 <div class="info">
-                    <a href="#" class="d-block">Admin User</a>
+                    <a href="#" class="d-block">{{ __('messages.admin_user') }}</a>
                 </div>
             </div>
 
@@ -204,7 +204,7 @@ ya i<!DOCTYPE html>
                         <a href="#" class="nav-link {{ request()->routeIs('settings.*') || request()->routeIs('api-tokens.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-cog"></i>
                             <p>
-                                Settings
+                                {{ __('messages.settings') }}
                                 <i class="right fas fa-angle-left"></i>
                             </p>
                         </a>
@@ -224,7 +224,7 @@ ya i<!DOCTYPE html>
                             <li class="nav-item">
                                 <a href="{{ route('api-tokens.index') }}" class="nav-link {{ request()->routeIs('api-tokens.*') ? 'active' : '' }}">
                                     <i class="far fa-circle nav-icon"></i>
-                                    <p>API Tokens</p>
+                                    <p>{{ __('messages.api_tokens') }}</p>
                                 </a>
                             </li>
                         </ul>
@@ -233,7 +233,7 @@ ya i<!DOCTYPE html>
                     <li class="nav-item">
                         <a href="#" class="nav-link">
                             <i class="nav-icon fas fa-question-circle"></i>
-                            <p>Help</p>
+                            <p>{{ __('messages.help') }}</p>
                         </a>
                     </li>
                 </ul>
@@ -1691,27 +1691,10 @@ Respond naturally and helpfully with business insights:`;
         // Store selected language in localStorage
         localStorage.setItem('mafazaLanguage', lang);
 
-        // Get the correct base URL for Laravel application
-        // Check if we're in a subdirectory (like /mafaza_fortuna/public)
-        const pathSegments = window.location.pathname.split('/').filter(segment => segment);
-        let basePath = '/';
-
-        // If we have more than one segment and it looks like a Laravel app structure
-        if (pathSegments.length >= 2 && pathSegments.includes('public')) {
-            // We're in /something/public structure
-            const publicIndex = pathSegments.indexOf('public');
-            if (publicIndex > 0) {
-                basePath = '/' + pathSegments.slice(0, publicIndex + 1).join('/') + '/';
-            }
-        } else if (pathSegments.length >= 1 && pathSegments[0] !== 'language') {
-            // We're in a subdirectory like /mafaza_fortuna
-            basePath = '/' + pathSegments[0] + '/';
-        }
-
-        const languageUrl = window.location.origin + basePath + 'language';
-        console.log('Language URL:', languageUrl); // Debug log
-        console.log('Current path:', window.location.pathname); // Debug log
-        console.log('Base path detected:', basePath); // Debug log
+        // Use Laravel route helper for correct URL
+        const languageUrl = '{{ route("language.switch") }}';
+        console.log('Language URL:', languageUrl);
+        console.log('Switching to language:', lang);
 
         // Send request to change language on server
         fetch(languageUrl, {
@@ -1723,12 +1706,13 @@ Respond naturally and helpfully with business insights:`;
             body: JSON.stringify({ language: lang })
         })
         .then(response => {
-            console.log('Language switch response:', response.status); // Debug log
+            console.log('Language switch response:', response.status);
             if (response.ok) {
                 // Reload page to apply new language
                 location.reload();
             } else {
                 console.error('Failed to change language:', response.status);
+                response.text().then(text => console.error('Response text:', text));
                 alert('Gagal mengubah bahasa. Silakan coba lagi.');
             }
         })
