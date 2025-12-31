@@ -14,6 +14,12 @@ use App\Http\Controllers\Web\MapController;
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 Route::get('/map', [MapController::class, 'index'])->name('map.index');
 
+// API Routes for Map (moved from api.php as workaround)
+Route::prefix('api/map')->group(function () {
+    Route::post('/check-updates', [MapController::class, 'checkUpdates']);
+    Route::delete('/delete-category', [MapController::class, 'deleteCategory']);
+});
+
 // Language switching removed - using Indonesian by default
 Route::get('/market-analysis', [MarketAnalysisController::class, 'index'])->name('market-analysis.index');
 Route::get('/market-analysis/supply-demand', [MarketAnalysisController::class, 'supplyDemand'])->name('market-analysis.supply-demand');

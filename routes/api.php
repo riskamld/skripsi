@@ -19,8 +19,4 @@ Route::prefix('ai-chat')->group(function () {
     Route::post('/query', [App\Http\Controllers\Web\AiChatController::class, 'processQuery']);
 });
 
-// Map API Routes (for real-time updates, no CSRF needed)
-Route::prefix('map')->group(function () {
-    Route::post('/check-updates', [App\Http\Controllers\Web\MapController::class, 'checkUpdates']);
-    Route::delete('/delete-category', [App\Http\Controllers\Web\MapController::class, 'deleteCategory']);
-});
+// Map API Routes moved to routes/web.php as workaround for VPS deployment
