@@ -488,13 +488,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Update map bounds if markers changed
-        if (placesToAdd.length > 0 || markersToRemove.length > 0 || placesToUpdate.length > 0) {
-            if (markers.length > 0) {
-                var group = new L.featureGroup(markers);
-                map.fitBounds(group.getBounds().pad(0.1));
-            }
-        }
+        // Note: fitBounds removed from real-time updates to preserve user's zoom level
+        // Map bounds are only adjusted on initial load
 
         console.log('Markers updated - Added:', placesToAdd.length, 'Updated:', placesToUpdate.length, 'Removed:', markersToRemove.length);
     }
