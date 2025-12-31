@@ -61,11 +61,27 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize the map
     var map = L.map('map').setView([-8.1845, 113.6681], 10); // Center on Jember area
 
-    // Add OpenStreetMap tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
+    // Add OpenStreetMap tiles (Streets)
+    var streets = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: 'Mafaza Fortuna',
         maxZoom: 19,
-    }).addTo(map);
+    });
+
+    // Add Satellite tiles with street labels (Esri World Imagery + Labels)
+    var satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Mafaza Fortuna',
+        maxZoom: 18,
+    });
+
+    // Add labels overlay
+    var satelliteLabels = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}', {
+        attribution: '',
+        maxZoom: 18,
+        opacity: 0.9
+    });
+
+    // Set default layer (streets)
+    streets.addTo(map);
 
     // Places data from PHP
     var places = @json($places);
@@ -239,6 +255,31 @@ document.addEventListener('DOMContentLoaded', function() {
     if (Object.keys(categoryGroups).length > 0) {
         legend.addTo(map);
     }
+
+    // Add layers control for Streets/Satellite switching
+    var baseMaps = {
+        "Streets": streets,
+        "Satellite": satellite
+    };
+
+    var layersControl = L.control.layers(baseMaps, {}, {
+        position: 'topright'
+    }).addTo(map);
+
+    // Handle layer switching to show/hide satellite labels
+    map.on('baselayerchange', function(e) {
+        if (e.name === 'Satellite') {
+            // Add satellite labels when switching to satellite
+            if (!map.hasLayer(satelliteLabels)) {
+                satelliteLabels.addTo(map);
+            }
+        } else {
+            // Remove satellite labels when switching away from satellite
+            if (map.hasLayer(satelliteLabels)) {
+                map.removeLayer(satelliteLabels);
+            }
+        }
+    });
 
     // Add fullscreen control in topleft (next to zoom)
     var fullscreenControl = L.control.fullscreen({
