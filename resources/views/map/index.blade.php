@@ -413,8 +413,8 @@ document.addEventListener('DOMContentLoaded', function() {
         removeOutsideVisibleBounds: true, // Critical for mobile performance
         animate: !isMobile, // Disable animations on mobile for better performance
         animateAddingMarkers: !isMobile,
-        disableClusteringAtZoom: isMobile ? 14 : 12, // Start individual markers later on mobile
-        maxClusterRadius: isMobile ? 80 : 50, // Larger clusters on mobile (fewer, bigger groups)
+        disableClusteringAtZoom: isMobile ? 15 : 12, // Individual markers appear at zoom 15 on mobile (matching start zoom)
+        maxClusterRadius: isMobile ? 60 : 50, // Moderate cluster size on mobile
         spiderfyDistanceMultiplier: 2,
         iconCreateFunction: function(cluster) {
             var childCount = cluster.getChildCount();
@@ -542,7 +542,7 @@ document.addEventListener('DOMContentLoaded', function() {
             iconAnchor: [20, 20] // Anchor at marker dot position
         });
 
-        var marker = L.marker([place.lat, place.lng], {icon: markerIcon}).addTo(map);
+        var marker = L.marker([place.lat, place.lng], {icon: markerIcon});
 
         // Create Google Maps URL
         var googleMapsUrl = createGoogleMapsUrl(place);
