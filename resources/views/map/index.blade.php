@@ -55,11 +55,11 @@
 }
 
 .marker-dot {
-    width: 8px;
-    height: 8px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.25), 0 1px 1px rgba(0,0,0,0.1);
+    border: 2px solid rgba(255, 255, 255, 1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,0,0,0.2);
     flex-shrink: 0;
     z-index: 2;
     position: relative;
@@ -68,12 +68,12 @@
 .marker-dot::after {
     content: '';
     position: absolute;
-    top: 0.5px;
-    left: 0.5px;
-    right: 0.5px;
-    bottom: 0.5px;
+    top: 1px;
+    left: 1px;
+    right: 1px;
+    bottom: 1px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(255,255,255,0.5) 0%, transparent 85%);
+    background: radial-gradient(circle, rgba(255,255,255,0.7) 0%, transparent 70%);
 }
 
 .marker-content {
@@ -112,12 +112,13 @@
 }
 
 .marker-name {
-    font-weight: 500;
-    color: #2d3748;
-    font-size: 8px;
+    font-weight: 700;
+    color: #1a202c;
+    font-size: 9px;
     margin-bottom: 0px;
     letter-spacing: -0.01em;
     line-height: 1.1;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.8), 0 0 1px rgba(0,0,0,0.3);
 }
 
 .marker-meta {
