@@ -949,11 +949,20 @@ document.addEventListener('DOMContentLoaded', function() {
         updatedPlaces.forEach(function(updatedPlace) {
             if (updatedPlace.lat && updatedPlace.lng) {
                 var existingMarkerIndex = -1;
+                var existingPlaceIndex = -1;
 
                 // Check if marker already exists
                 for (var i = 0; i < markers.length; i++) {
                     if (markers[i].placeId === updatedPlace.id) {
                         existingMarkerIndex = i;
+                        break;
+                    }
+                }
+
+                // Check if place exists in places array
+                for (var i = 0; i < places.length; i++) {
+                    if (places[i].id === updatedPlace.id) {
+                        existingPlaceIndex = i;
                         break;
                     }
                 }
@@ -964,9 +973,15 @@ document.addEventListener('DOMContentLoaded', function() {
                         markerIndex: existingMarkerIndex,
                         place: updatedPlace
                     });
+                    // Update place in places array
+                    if (existingPlaceIndex >= 0) {
+                        places[existingPlaceIndex] = updatedPlace;
+                    }
                 } else {
                     // New marker to add
                     placesToAdd.push(updatedPlace);
+                    // Add to places array
+                    places.push(updatedPlace);
                 }
 
                 // Ensure place is in existing set
@@ -974,11 +989,38 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Remove markers that were deleted
+        // Remove markers that were deleted with blinking animation
         markersToRemove.reverse().forEach(function(index) {
             var markerToRemove = markers[index];
-            map.removeLayer(markerToRemove);
-            markers.splice(index, 1);
+            var placeId = markerToRemove.placeId;
+
+            // Add blinking animation before removal
+            var blinkCount = 0;
+            var blinkInterval = setInterval(function() {
+                blinkCount++;
+                if (blinkCount <= 6) { // 3 blinks (on/off 3 times)
+                    if (blinkCount % 2 === 1) {
+                        markerToRemove.setOpacity(0.3); // Dim
+                    } else {
+                        markerToRemove.setOpacity(1); // Normal
+                    }
+                } else {
+                    // Final removal
+                    map.removeLayer(markerToRemove);
+                    markers.splice(index, 1);
+
+                    // Remove from places array
+                    var placeIndex = places.findIndex(function(p) { return p.id === placeId; });
+                    if (placeIndex >= 0) {
+                        places.splice(placeIndex, 1);
+                    }
+
+                    // Remove from existing place IDs
+                    existingPlaceIds.delete(placeId);
+
+                    clearInterval(blinkInterval);
+                }
+            }, 500); // 500ms per blink phase
         });
 
         // Update existing markers
