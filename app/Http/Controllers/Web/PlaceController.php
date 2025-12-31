@@ -29,8 +29,12 @@ class PlaceController extends Controller
             Log::info('Search results count', ['count' => $countBeforePaginate, 'search' => $search]);
         }
 
-        // Filter by category
-        if ($request->filled('category')) {
+        // Filter by categories (multiple selection support)
+        if ($request->filled('categories')) {
+            $categories = is_array($request->categories) ? $request->categories : [$request->categories];
+            $query->whereIn('category', $categories);
+        } elseif ($request->filled('category')) {
+            // Backward compatibility with single category
             $query->where('category', $request->category);
         }
 
@@ -80,8 +84,8 @@ class PlaceController extends Controller
             ]);
         }
 
-        // When category filter is applied, show all results without pagination
-        if (request()->filled('category') || request()->filled('search')) {
+        // When category filter is applied (single or multiple), show all results without pagination
+        if (request()->filled('categories') || request()->filled('category') || request()->filled('search')) {
             $places = $query->get(); // Get all results when filtered
         } else {
             $places = $query->paginate(50)->onEachSide(2); // Normal pagination when no filter

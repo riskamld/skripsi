@@ -58,42 +58,85 @@
 
 <!-- Filters -->
 <div class="row mb-3">
-    <div class="col-md-4">
-        <div class="form-group mb-0">
-            <label for="categoryFilter" class="sr-only">Filter Kategori</label>
-            <div class="input-group input-group-sm">
-                <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fas fa-filter"></i></span>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header p-2">
+                <h5 class="card-title mb-0">
+                    <button class="btn btn-link p-0 text-dark" type="button" data-toggle="collapse" data-target="#categoryFilterCollapse" aria-expanded="false">
+                        <i class="fas fa-filter mr-2"></i>Filter Kategori
+                        <span id="selectedCategoriesCount" class="badge badge-primary ml-2" style="display: none;">0</span>
+                        <i class="fas fa-chevron-down ml-1" id="filterIcon"></i>
+                    </button>
+                </h5>
+            </div>
+            <div class="collapse" id="categoryFilterCollapse">
+                <div class="card-body p-3">
+                    <form id="categoryFilterForm">
+                        <div class="row">
+                            @if($categories ?? collect()->isNotEmpty())
+                                @foreach($categories as $categoryData)
+                                <div class="col-md-6 col-sm-12 mb-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input category-checkbox"
+                                               type="checkbox"
+                                               id="category_{{ str_replace(' ', '_', $categoryData['name']) }}"
+                                               name="categories[]"
+                                               value="{{ $categoryData['name'] }}"
+                                               {{ in_array($categoryData['name'], request('categories', [])) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="category_{{ str_replace(' ', '_', $categoryData['name']) }}">
+                                            {{ $categoryData['name'] }} <span class="badge badge-light">{{ $categoryData['count'] }}</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                @endforeach
+                            @else
+                                <div class="col-12">
+                                    <p class="text-muted mb-0">Belum ada kategori tersedia</p>
+                                </div>
+                            @endif
+                        </div>
+                        <div class="mt-3">
+                            <button type="button" class="btn btn-primary btn-sm" id="applyCategoryFilter">
+                                <i class="fas fa-check mr-1"></i>Terapkan Filter
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" id="clearCategoryFilter">
+                                <i class="fas fa-times mr-1"></i>Hapus Semua
+                            </button>
+                            <button type="button" class="btn btn-link btn-sm float-right" data-toggle="collapse" data-target="#categoryFilterCollapse">
+                                Tutup
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                <select class="form-control form-control-sm" id="categoryFilter" name="category">
-                    <option value="">Semua Kategori</option>
-                    @foreach($categories ?? [] as $categoryData)
-                        <option value="{{ $categoryData['name'] }}" {{ request('category') === $categoryData['name'] ? 'selected' : '' }}>
-                            {{ $categoryData['name'] }} ({{ $categoryData['count'] }})
-                        </option>
-                    @endforeach
-                </select>
             </div>
         </div>
     </div>
-    <div class="col-md-8 d-flex align-items-end justify-content-end">
-        @if(request('category') || request('search'))
+    <div class="col-md-6 d-flex align-items-start justify-content-end">
+        @if(request('categories') || request('search'))
             <div class="text-muted small">
-                @if(request('category'))
-                    <span class="badge badge-primary mr-2">
-                        <i class="fas fa-tag"></i> {{ request('category') }}
-                        @if(isset($categories[request('category')]))
-                            ({{ $categories[request('category')]['count'] }})
-                        @endif
-                    </span>
+                @if(request('categories'))
+                    @php
+                        $selectedCategories = is_array(request('categories')) ? request('categories') : [request('categories')];
+                    @endphp
+                    <div class="mb-2">
+                        <strong>Kategori Terpilih:</strong>
+                        @foreach($selectedCategories as $selectedCategory)
+                            <span class="badge badge-primary mr-1 mb-1">
+                                <i class="fas fa-tag"></i> {{ $selectedCategory }}
+                                @if(isset($categories[$selectedCategory]))
+                                    ({{ $categories[$selectedCategory]['count'] }})
+                                @endif
+                            </span>
+                        @endforeach
+                    </div>
                 @endif
                 @if(request('search'))
-                    <span class="badge badge-info">
+                    <span class="badge badge-info mr-2">
                         <i class="fas fa-search"></i> "{{ request('search') }}"
                     </span>
                 @endif
-                <a href="{{ route('places.index') }}" class="btn btn-outline-secondary btn-sm ml-2">
-                    <i class="fas fa-times"></i> Hapus Filter
+                <a href="{{ route('places.index') }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-times"></i> Hapus Semua Filter
                 </a>
             </div>
         @endif
@@ -432,15 +475,52 @@ $(document).ready(function() {
         return div.innerHTML;
     }
 
-    // Category filter functionality
-    $('#categoryFilter').on('change', function() {
-        const category = $(this).val();
+    // Multi-select Category Filter Functionality
+    function updateSelectedCategoriesCount() {
+        const checkedBoxes = $('.category-checkbox:checked');
+        const count = checkedBoxes.length;
+        const countBadge = $('#selectedCategoriesCount');
+
+        if (count > 0) {
+            countBadge.text(count).show();
+        } else {
+            countBadge.hide();
+        }
+
+        // Update filter icon
+        const filterIcon = $('#filterIcon');
+        if (count > 0) {
+            filterIcon.removeClass('fa-chevron-down').addClass('fa-chevron-up');
+        } else {
+            filterIcon.removeClass('fa-chevron-up').addClass('fa-chevron-down');
+        }
+    }
+
+    // Initialize category filter on page load
+    updateSelectedCategoriesCount();
+
+    // Handle category checkbox changes
+    $('.category-checkbox').on('change', function() {
+        updateSelectedCategoriesCount();
+    });
+
+    // Apply category filter button
+    $('#applyCategoryFilter').on('click', function() {
+        const selectedCategories = $('.category-checkbox:checked').map(function() {
+            return $(this).val();
+        }).get();
+
         const urlParams = new URLSearchParams(window.location.search);
 
-        if (category) {
-            urlParams.set('category', category);
-        } else {
-            urlParams.delete('category');
+        // Remove old category parameter
+        urlParams.delete('category');
+        urlParams.delete('categories');
+
+        // Add selected categories
+        if (selectedCategories.length > 0) {
+            selectedCategories.forEach(function(category) {
+                urlParams.append('categories[]', category);
+            });
         }
 
         // Remove pagination for fresh filter
@@ -448,6 +528,21 @@ $(document).ready(function() {
 
         const filterUrl = '{{ route("places.index") }}' + (urlParams.toString() ? '?' + urlParams.toString() : '');
         window.location.href = filterUrl;
+    });
+
+    // Clear category filter button
+    $('#clearCategoryFilter').on('click', function() {
+        $('.category-checkbox').prop('checked', false);
+        updateSelectedCategoriesCount();
+    });
+
+    // Handle collapse events to update icon
+    $('#categoryFilterCollapse').on('show.bs.collapse', function() {
+        $('#filterIcon').removeClass('fa-chevron-down').addClass('fa-chevron-up');
+    });
+
+    $('#categoryFilterCollapse').on('hide.bs.collapse', function() {
+        $('#filterIcon').removeClass('fa-chevron-up').addClass('fa-chevron-down');
     });
 
     // Bulk Selection Functionality
