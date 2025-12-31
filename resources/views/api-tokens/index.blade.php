@@ -1,14 +1,14 @@
 @extends('layouts.app')
 
-@section('page-title', 'API Tokens')
-@section('page-subtitle', 'Manage your API access tokens')
+@section('page-title', __('messages.api_tokens_title'))
+@section('page-subtitle', __('messages.api_tokens_subtitle'))
 
 @section('content')
 <!-- Action buttons -->
 <div class="row mb-4">
     <div class="col-12">
         <a href="{{ route('api-tokens.create') }}" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Create New Token
+            <i class="fas fa-plus"></i> {{ __('messages.create_new_token') }}
         </a>
     </div>
 </div>
@@ -16,11 +16,11 @@
 <!-- API Tokens Table -->
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">All API Tokens</h3>
+        <h3 class="card-title">{{ __('messages.all_api_tokens') }}</h3>
 
         <div class="card-tools">
             <div class="input-group input-group-sm" style="width: 150px;">
-                <input type="text" name="table_search" class="form-control float-right" placeholder="Search tokens">
+                <input type="text" name="table_search" class="form-control float-right" placeholder="{{ __('messages.search_tokens') }}">
 
                 <div class="input-group-append">
                     <button type="submit" class="btn btn-default">
@@ -35,11 +35,11 @@
         <table class="table table-hover text-nowrap table-sm">
             <thead>
                 <tr>
-                    <th style="width: 20%;">Token Name</th>
-                    <th style="width: 10%;">Status</th>
-                    <th style="width: 20%;">Last Used</th>
-                    <th style="width: 15%;">Created</th>
-                    <th style="width: 35%;">Actions</th>
+                    <th style="width: 20%;">{{ __('messages.token_name') }}</th>
+                    <th style="width: 10%;">{{ __('messages.status') }}</th>
+                    <th style="width: 20%;">{{ __('messages.last_used') }}</th>
+                    <th style="width: 15%;">{{ __('messages.created') }}</th>
+                    <th style="width: 35%;">{{ __('messages.actions') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -66,7 +66,7 @@
                                 {{ $token->last_used_at->diffForHumans() }}
                             </span>
                         @else
-                            <span class="text-muted" style="font-size: 0.875rem;">Never</span>
+                            <span class="text-muted" style="font-size: 0.875rem;">{{ __('messages.never') }}</span>
                         @endif
                     </td>
                     <td style="padding: 8px 12px; vertical-align: middle;">
@@ -87,14 +87,14 @@
                             </form>
                             <form method="POST" action="{{ route('api-tokens.regenerate', $token) }}" class="d-inline">
                                 @csrf
-                                <button type="submit" class="btn btn-secondary btn-sm" onclick="return confirm('This will invalidate the current token. Continue?')">
+                                <button type="submit" class="btn btn-secondary btn-sm" onclick="return confirm('{{ addslashes(__('messages.confirm_regenerate')) }}')">
                                     <i class="fas fa-sync-alt"></i>
                                 </button>
                             </form>
                             <form method="POST" action="{{ route('api-tokens.destroy', $token) }}" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this token?')">
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('{{ addslashes(__('messages.confirm_delete_token')) }}')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>
@@ -106,10 +106,10 @@
                     <td colspan="5" class="text-center py-4">
                         <div class="text-muted">
                             <i class="fas fa-key fa-2x mb-2"></i>
-                            <h5>No API tokens found</h5>
-                            <p style="font-size: 0.875rem;">Create your first API token to access the system programmatically.</p>
+                            <h5>{{ __('messages.no_api_tokens_found') }}</h5>
+                            <p style="font-size: 0.875rem;">{{ __('messages.create_first_token') }}</p>
                             <a href="{{ route('api-tokens.create') }}" class="btn btn-primary btn-sm">
-                                <i class="fas fa-plus"></i> Create Token
+                                <i class="fas fa-plus"></i> {{ __('messages.create_token') }}
                             </a>
                         </div>
                     </td>
@@ -123,14 +123,14 @@
     <!-- Infinite Scroll Loading Indicator -->
     <div id="loading-indicator" class="text-center py-3" style="display: none;">
         <div class="spinner-border text-primary" role="status">
-            <span class="sr-only">Loading...</span>
+            <span class="sr-only">{{ __('messages.loading') }}</span>
         </div>
-        <small class="text-muted ml-2">Loading more tokens...</small>
+        <small class="text-muted ml-2">{{ __('messages.loading_more_tokens') }}</small>
     </div>
 
     <!-- End of Results Indicator -->
     <div id="end-indicator" class="text-center py-3" style="display: none;">
-        <small class="text-muted">No more tokens to load</small>
+        <small class="text-muted">{{ __('messages.no_more_tokens') }}</small>
     </div>
 </div>
 <!-- /.card -->

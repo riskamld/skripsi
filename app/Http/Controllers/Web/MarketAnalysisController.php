@@ -329,10 +329,28 @@ class MarketAnalysisController extends Controller
             $sumXX += $times[$i] * $times[$i];
         }
 
-        $slope = ($n * $sumXY - $sumX * $sumY) / ($n * $sumXX - $sumX * $sumX);
+        // Prevent division by zero
+        $denominator = $n * $sumXX - $sumX * $sumX;
+        if ($denominator == 0) {
+            // No variation in time (all timestamps same) or perfect correlation
+            // Check if prices are changing over time
+            $priceVariance = max($prices) - min($prices);
+            if ($priceVariance == 0) {
+                return 0; // No price change, flat trend
+            } else {
+                // Prices vary but timestamps don't - use simple average change
+                $avgPrice = $sumY / $n;
+                $dailyChangePercent = ($priceVariance / $avgPrice) * 0.01; // Very small change
+                return $dailyChangePercent;
+            }
+        }
+
+        $slope = ($n * $sumXY - $sumX * $sumY) / $denominator;
 
         // Normalize slope to percentage change per day
         $avgPrice = $sumY / $n;
+        if ($avgPrice == 0) return 0; // Prevent division by zero
+
         $dailyChangePercent = ($slope / $avgPrice) * 86400; // 86400 seconds per day
 
         return $dailyChangePercent;

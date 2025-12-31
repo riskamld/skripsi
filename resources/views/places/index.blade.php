@@ -1,19 +1,19 @@
 @extends('layouts.app')
 
-@section('page-title', 'Places')
-@section('page-subtitle', 'Manage your places database')
+@section('page-title', __('messages.places_title'))
+@section('page-subtitle', __('messages.places_subtitle'))
 
 @section('content')
 <!-- Action buttons -->
 <div class="row mb-4">
     <div class="col-12">
         <a href="{{ route('places.create') }}" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Add New Place
+            <i class="fas fa-plus"></i> {{ __('messages.add_new_place') }}
         </a>
         <form method="POST" action="{{ route('places.clear-all') }}" class="d-inline" style="margin-left: 10px;">
             @csrf
-            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to clear all places?')">
-                <i class="fas fa-trash"></i> Clear All Places
+            <button type="submit" class="btn btn-danger" onclick="return confirm('{{ __('messages.confirm_clear_all') }}')">
+                <i class="fas fa-trash"></i> {{ __('messages.clear_all_places') }}
             </button>
         </form>
     </div>
@@ -22,11 +22,11 @@
 <!-- Places table -->
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">All Places</h3>
+        <h3 class="card-title">{{ __('messages.all_places') }}</h3>
 
         <div class="card-tools">
             <div class="input-group input-group-sm" style="width: 250px;">
-                <input type="text" id="searchInput" class="form-control" placeholder="Search places (min 4 chars)">
+                <input type="text" id="searchInput" class="form-control" placeholder="{{ __('messages.search_places') }}">
                 <div class="input-group-append">
                     <button type="button" id="clearSearch" class="btn btn-outline-secondary" style="display: none;">
                         <i class="fas fa-times"></i>
@@ -40,13 +40,13 @@
         <table class="table table-hover text-nowrap table-sm">
             <thead>
                 <tr>
-                    <th style="width: 35%;">Name</th>
-                    <th style="width: 12%;">Address</th>
-                    <th style="width: 8%;">Phone</th>
-                    <th style="width: 8%;">Website</th>
+                    <th style="width: 35%;">{{ __('messages.name') }}</th>
+                    <th style="width: 12%;">{{ __('messages.address') }}</th>
+                    <th style="width: 8%;">{{ __('messages.phone') }}</th>
+                    <th style="width: 8%;">{{ __('messages.website') }}</th>
                     <th style="width: 6%;">
                         <a href="{{ route('places.index', array_merge(request()->query(), ['sort' => 'rating', 'direction' => (request('sort') === 'rating' && request('direction') === 'desc') ? 'asc' : 'desc'])) }}" class="text-decoration-none">
-                            Rating
+                            {{ __('messages.rating') }}
                             @if(request('sort') === 'rating')
                                 <i class="fas fa-sort-{{ request('direction') === 'desc' ? 'down' : 'up' }}"></i>
                             @else
@@ -56,7 +56,7 @@
                     </th>
                     <th style="width: 10%;">
                         <a href="{{ route('places.index', array_merge(request()->query(), ['sort' => 'review_count', 'direction' => (request('sort') === 'review_count' && request('direction') === 'desc') ? 'asc' : 'desc'])) }}" class="text-decoration-none">
-                            Reviews
+                            {{ __('messages.reviews') }}
                             @if(request('sort') === 'review_count')
                                 <i class="fas fa-sort-{{ request('direction') === 'desc' ? 'down' : 'up' }}"></i>
                             @else
@@ -66,7 +66,7 @@
                     </th>
                     <th style="width: 10%;">
                         <a href="{{ route('places.index', array_merge(request()->query(), ['sort' => 'last_scraped_at', 'direction' => (request('sort') === 'last_scraped_at' && request('direction') === 'desc') ? 'asc' : 'desc'])) }}" class="text-decoration-none">
-                            Scraped
+                            {{ __('messages.scraped') }}
                             @if(request('sort') === 'last_scraped_at')
                                 <i class="fas fa-sort-{{ request('direction') === 'desc' ? 'down' : 'up' }}"></i>
                             @else
@@ -74,7 +74,7 @@
                             @endif
                         </a>
                     </th>
-                    <th style="width: 15%;">Actions</th>
+                    <th style="width: 15%;">{{ __('messages.actions') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -133,7 +133,7 @@
                                 {{ $place->last_scraped_at->diffForHumans() }}
                             </small>
                         @else
-                            <span class="text-muted" style="font-size: 0.875rem;">Never</span>
+                            <span class="text-muted" style="font-size: 0.875rem;">{{ __('messages.never') }}</span>
                         @endif
                     </td>
                     <td style="padding: 8px 12px; vertical-align: middle;">
@@ -147,7 +147,7 @@
                             <form method="POST" action="{{ route('places.destroy', $place) }}" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('{{ __('messages.confirm_delete') }}')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>
@@ -159,10 +159,10 @@
                     <td colspan="8" class="text-center py-4">
                         <div class="text-muted">
                             <i class="fas fa-map-marker-alt fa-2x mb-2"></i>
-                            <h5>No places found</h5>
-                            <p style="font-size: 0.875rem;">Get started by adding your first place to the database.</p>
+                            <h5>{{ __('messages.no_places_found') }}</h5>
+                            <p style="font-size: 0.875rem;">{{ __('messages.get_started_places') }}</p>
                             <a href="{{ route('places.create') }}" class="btn btn-primary btn-sm">
-                                <i class="fas fa-plus"></i> Add Place
+                                <i class="fas fa-plus"></i> {{ __('messages.add_place') }}
                             </a>
                         </div>
                     </td>
@@ -176,14 +176,14 @@
     <!-- Infinite Scroll Loading Indicator -->
     <div id="loading-indicator" class="text-center py-3" style="display: none;">
         <div class="spinner-border text-primary" role="status">
-            <span class="sr-only">Loading...</span>
+            <span class="sr-only">{{ __('messages.loading') }}</span>
         </div>
-        <small class="text-muted ml-2">Loading more places...</small>
+        <small class="text-muted ml-2">{{ __('messages.loading_more_places') }}</small>
     </div>
 
     <!-- End of Results Indicator -->
     <div id="end-indicator" class="text-center py-3" style="display: none;">
-        <small class="text-muted">No more places to load</small>
+        <small class="text-muted">{{ __('messages.no_more_places') }}</small>
     </div>
 </div>
 <!-- /.card -->
