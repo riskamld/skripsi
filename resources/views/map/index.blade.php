@@ -279,28 +279,43 @@
     color: white;
 }
 
-/* Legend scrollbar styles */
+/* Legend scrollbar styles - Always visible and thicker for touchpads */
 .info.legend::-webkit-scrollbar {
-    width: 8px;
+    width: 12px;  /* Made thicker for touchpad visibility */
+    -webkit-appearance: none;
 }
 
 .info.legend::-webkit-scrollbar-track {
     background: #f1f1f1;
-    border-radius: 4px;
+    border-radius: 6px;
+    border: 2px solid #e0e0e0;
 }
 
 .info.legend::-webkit-scrollbar-thumb {
     background: #888;
-    border-radius: 4px;
+    border-radius: 6px;
+    border: 2px solid #e0e0e0;
+    min-height: 40px; /* Minimum height for touchpad interaction */
 }
 
 .info.legend::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
 
+.info.legend::-webkit-scrollbar-thumb:active {
+    background: #333;
+}
+
+/* Firefox scrollbar styling */
 .info.legend {
-    scrollbar-width: thin;
+    scrollbar-width: auto;  /* Changed from thin to auto for visibility */
     scrollbar-color: #888 #f1f1f1;
+}
+
+/* Force scrollbar visibility on all platforms */
+.info.legend {
+    overflow-y: scroll !important;
+    overflow-x: hidden !important;
 }
 </style>
 @endpush
@@ -656,6 +671,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Add event listeners after creating the div
         setTimeout(function() {
+            // Prevent scroll events from bubbling to map
+            div.addEventListener('wheel', function(e) {
+                e.stopPropagation();
+            });
+            div.addEventListener('touchstart', function(e) {
+                e.stopPropagation();
+            });
+            div.addEventListener('touchmove', function(e) {
+                e.stopPropagation();
+            });
+
             // Select All button
             var selectAllBtn = div.querySelector('#select-all-btn');
             if (selectAllBtn) {
