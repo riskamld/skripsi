@@ -433,6 +433,48 @@ document.addEventListener('DOMContentLoaded', function() {
         map.fitBounds(group.getBounds().pad(0.1));
     }
 
+    // Function to update legend with place counts
+    function updateLegend() {
+        // Find existing legend control and update it
+        map.eachLayer(function(layer) {
+            if (layer instanceof L.Control && layer._container && layer._container.classList.contains('leaflet-control')) {
+                var legendDiv = layer._container.querySelector('.info.legend');
+                if (legendDiv) {
+                    legendDiv.innerHTML = '<div style="font-weight: bold; margin-bottom: 6px; font-size: 12px;">📊 Kategori</div>';
+
+                    // Count places per category
+                    var categoryCounts = {};
+                    places.forEach(function(place) {
+                        if (place.category) {
+                            var key = place.category.toLowerCase();
+                            if (!categoryCounts[key]) {
+                                categoryCounts[key] = {
+                                    displayName: place.category,
+                                    count: 0,
+                                    color: getCategoryColor(place.category)
+                                };
+                            }
+                            categoryCounts[key].count++;
+                        }
+                    });
+
+                    // Sort by category name
+                    Object.keys(categoryCounts).sort(function(a, b) {
+                        return categoryCounts[a].displayName.localeCompare(categoryCounts[b].displayName);
+                    }).forEach(function(key) {
+                        var categoryData = categoryCounts[key];
+                        legendDiv.innerHTML += `
+                            <div style="margin-bottom: 3px; display: flex; align-items: center;">
+                                <div style="width: 10px; height: 10px; border-radius: 50%; background-color: ${categoryData.color}; margin-right: 6px; flex-shrink: 0; border: 1px solid #ddd;"></div>
+                                <span style="font-size: 10px; line-height: 1.2;">${categoryData.displayName} (${categoryData.count})</span>
+                            </div>
+                        `;
+                    });
+                }
+            }
+        });
+    }
+
     // Create legend control with better positioning
     var legend = L.control({position: 'topright'});
 
@@ -449,33 +491,44 @@ document.addEventListener('DOMContentLoaded', function() {
 
         div.innerHTML = '<div style="font-weight: bold; margin-bottom: 6px; font-size: 12px;">📊 Kategori</div>';
 
-        // Sort categories and remove duplicates (should already be unique, but ensure it)
-        var uniqueCategories = {};
-        Object.keys(categoryGroups).forEach(function(category) {
-            uniqueCategories[category] = categoryGroups[category];
-        });
+        // Count places per category (include ALL categories, even empty ones)
+        var categoryCounts = {};
+        var placesWithoutCategory = 0;
 
-        // Case-insensitive deduplication - group categories that are the same ignoring case
-        var caseInsensitiveMap = {};
-        Object.keys(uniqueCategories).forEach(function(category) {
-            var lowerKey = category.toLowerCase();
-            if (!caseInsensitiveMap[lowerKey]) {
-                caseInsensitiveMap[lowerKey] = {
-                    displayName: category, // Keep the first occurrence as display name
-                    color: uniqueCategories[category]
-                };
+        places.forEach(function(place) {
+            if (place.category && place.category.trim() !== '') {
+                var key = place.category.toLowerCase().trim();
+                if (!categoryCounts[key]) {
+                    categoryCounts[key] = {
+                        displayName: place.category.trim(),
+                        count: 0,
+                        color: getCategoryColor(place.category)
+                    };
+                }
+                categoryCounts[key].count++;
+            } else {
+                placesWithoutCategory++;
             }
         });
 
-        // Sort by display name
-        Object.keys(caseInsensitiveMap).sort(function(a, b) {
-            return caseInsensitiveMap[a].displayName.localeCompare(caseInsensitiveMap[b].displayName);
-        }).forEach(function(lowerKey) {
-            var categoryData = caseInsensitiveMap[lowerKey];
+        // Add category for places without category if any
+        if (placesWithoutCategory > 0) {
+            categoryCounts['no_category'] = {
+                displayName: 'Tanpa Kategori',
+                count: placesWithoutCategory,
+                color: '#6c757d'
+            };
+        }
+
+        // Sort by category name
+        Object.keys(categoryCounts).sort(function(a, b) {
+            return categoryCounts[a].displayName.localeCompare(categoryCounts[b].displayName);
+        }).forEach(function(key) {
+            var categoryData = categoryCounts[key];
             div.innerHTML += `
                 <div style="margin-bottom: 3px; display: flex; align-items: center;">
                     <div style="width: 10px; height: 10px; border-radius: 50%; background-color: ${categoryData.color}; margin-right: 6px; flex-shrink: 0; border: 1px solid #ddd;"></div>
-                    <span style="font-size: 10px; line-height: 1.2;">${categoryData.displayName}</span>
+                    <span style="font-size: 10px; line-height: 1.2;">${categoryData.displayName} (${categoryData.count})</span>
                 </div>
             `;
         });
