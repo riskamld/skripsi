@@ -92,7 +92,7 @@
                             <label class="form-check-label" for="selectAll">Select All</label>
                         </div>
 
-                        <button type="submit" class="btn btn-outline-danger btn-sm" id="bulkDeleteBtn" disabled>
+                        <button type="submit" class="btn btn-outline-danger btn-sm" id="bulkDeleteBtn" disabled onclick="return confirm('Apakah Anda yakin ingin menghapus harga produk yang dipilih?')">
                             <i class="fas fa-trash mr-1"></i>
                             Delete Selected (0)
                         </button>
@@ -247,7 +247,7 @@
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                 <form method="POST" action="{{ route('product-prices.clear-all') }}" style="display: inline;">
                     @csrf
-                    <button type="submit" class="btn btn-danger">
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus semua harga produk? Tindakan ini tidak dapat dibatalkan dan akan mempengaruhi prediksi AI.')">
                         <i class="fas fa-trash-alt mr-2"></i>
                         Yes, Clear All
                     </button>

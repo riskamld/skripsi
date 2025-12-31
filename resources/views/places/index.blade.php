@@ -46,7 +46,7 @@
         </a>
         <form method="POST" action="{{ route('places.clear-all') }}" class="d-inline" style="margin-left: 10px;">
             @csrf
-            <button type="submit" class="btn btn-danger">
+            <button type="submit" class="btn btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus semua tempat? Tindakan ini tidak dapat dibatalkan.')">
                 <i class="fas fa-trash"></i> Hapus Semua Tempat
             </button>
         </form>
@@ -117,11 +117,33 @@
         </div>
     </div>
     <!-- /.card-header -->
+
+    <!-- Bulk Actions -->
+    <div class="card-header border-0">
+        <form id="bulkActionForm" method="POST" action="{{ route('places.bulk-delete') }}">
+            @csrf
+            <div class="form-inline">
+                <div class="form-check mr-3">
+                    <input type="checkbox" class="form-check-input" id="selectAll">
+                    <label class="form-check-label" for="selectAll">Pilih Semua</label>
+                </div>
+
+                <button type="submit" class="btn btn-outline-danger btn-sm" id="bulkDeleteBtn" disabled onclick="return confirm('Apakah Anda yakin ingin menghapus tempat yang dipilih?')">
+                    <i class="fas fa-trash mr-1"></i>
+                    Hapus Terpilih (0)
+                </button>
+            </div>
+        </form>
+    </div>
+
     <div class="card-body table-responsive p-0">
         <table class="table table-hover text-nowrap table-sm">
             <thead>
                 <tr>
-                    <th style="width: 35%;">Nama</th>
+                    <th width="40">
+                        <input type="checkbox" id="selectAllTop">
+                    </th>
+                    <th style="width: 32%;">Nama</th>
                     <th style="width: 12%;">Alamat</th>
                     <th style="width: 8%;">Telepon</th>
                     <th style="width: 8%;">Website</th>
@@ -160,7 +182,10 @@
             </thead>
             <tbody>
                 @forelse($places ?? [] as $place)
-                <tr style="height: 45px;" data-place-id="{{ $place->id }}">
+                <tr data-place-id="{{ $place->id }}">
+                    <td>
+                        <input type="checkbox" class="row-checkbox" name="ids[]" value="{{ $place->id }}" form="bulkActionForm">
+                    </td>
                     <td style="padding: 8px 12px; vertical-align: middle;">
                         <div style="font-size: 0.875rem; font-weight: 600;">{{ Str::limit($place->name, 30) }}</div>
                         <small class="text-info" style="font-size: 0.75rem;">{{ $place->category ? Str::limit($place->category, 25) : '-' }}</small>
@@ -228,7 +253,7 @@
                             <form method="POST" action="{{ route('places.destroy', $place) }}" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm">
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus tempat ini?')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>
@@ -237,7 +262,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="8" class="text-center py-4">
+                    <td colspan="9" class="text-center py-4">
                         <div class="text-muted">
                             <i class="fas fa-map-marker-alt fa-2x mb-2"></i>
                             <h5>Tidak ada tempat ditemukan</h5>
@@ -424,6 +449,54 @@ $(document).ready(function() {
         const filterUrl = '{{ route("places.index") }}' + (urlParams.toString() ? '?' + urlParams.toString() : '');
         window.location.href = filterUrl;
     });
+
+    // Bulk Selection Functionality
+    const selectAllCheckbox = $('#selectAll');
+    const selectAllTopCheckbox = $('#selectAllTop');
+    const rowCheckboxes = $('.row-checkbox');
+    const bulkDeleteBtn = $('#bulkDeleteBtn');
+
+    // Update bulk delete button state
+    function updateBulkDeleteButton() {
+        const checkedBoxes = rowCheckboxes.filter(':checked');
+        const count = checkedBoxes.length;
+
+        bulkDeleteBtn.prop('disabled', count === 0);
+        bulkDeleteBtn.html('<i class="fas fa-trash mr-1"></i> Hapus Terpilih (' + count + ')');
+    }
+
+    // Select all functionality
+    selectAllCheckbox.on('change', function() {
+        const isChecked = $(this).is(':checked');
+        rowCheckboxes.prop('checked', isChecked);
+        selectAllTopCheckbox.prop('checked', isChecked);
+        updateBulkDeleteButton();
+    });
+
+    // Select all top functionality (for consistency)
+    selectAllTopCheckbox.on('change', function() {
+        const isChecked = $(this).is(':checked');
+        selectAllCheckbox.prop('checked', isChecked);
+        rowCheckboxes.prop('checked', isChecked);
+        updateBulkDeleteButton();
+    });
+
+    // Individual checkbox functionality
+    $(document).on('change', '.row-checkbox', function() {
+        const totalCheckboxes = rowCheckboxes.length;
+        const checkedCheckboxes = rowCheckboxes.filter(':checked').length;
+
+        // Update select all checkboxes state
+        selectAllCheckbox.prop('indeterminate', checkedCheckboxes > 0 && checkedCheckboxes < totalCheckboxes);
+        selectAllTopCheckbox.prop('indeterminate', checkedCheckboxes > 0 && checkedCheckboxes < totalCheckboxes);
+        selectAllCheckbox.prop('checked', checkedCheckboxes === totalCheckboxes);
+        selectAllTopCheckbox.prop('checked', checkedCheckboxes === totalCheckboxes);
+
+        updateBulkDeleteButton();
+    });
+
+    // Initialize bulk delete button state on page load
+    updateBulkDeleteButton();
 });
 </script>
 @endsection

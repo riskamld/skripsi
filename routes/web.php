@@ -22,6 +22,7 @@ Route::get('/market-analysis/price-predictions', [MarketAnalysisController::clas
 // Places CRUD routes
 Route::resource('places', PlaceController::class);
 Route::post('/places/clear-all', [PlaceController::class, 'clearAll'])->name('places.clear-all');
+Route::post('/places/bulk-delete', [PlaceController::class, 'bulkDelete'])->name('places.bulk-delete');
 
 // Scrape Logs routes
 Route::post('/scrape-logs/clear-all', [ScrapeLogController::class, 'clearAll'])->name('scrape-logs.clear-all');

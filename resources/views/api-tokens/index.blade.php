@@ -81,20 +81,20 @@
                             </a>
                             <form method="POST" action="{{ route('api-tokens.toggle-status', $token) }}" class="d-inline">
                                 @csrf
-                                <button type="submit" class="btn {{ $token->is_active ? 'btn-warning' : 'btn-success' }} btn-sm">
+                                <button type="submit" class="btn {{ $token->is_active ? 'btn-warning' : 'btn-success' }} btn-sm" onclick="return confirm('Apakah Anda yakin ingin {{ $token->is_active ? 'menonaktifkan' : 'mengaktifkan' }} token API ini?')">
                                     <i class="fas fa-{{ $token->is_active ? 'pause' : 'play' }}"></i>
                                 </button>
                             </form>
                             <form method="POST" action="{{ route('api-tokens.regenerate', $token) }}" class="d-inline">
                                 @csrf
-                                <button type="submit" class="btn btn-secondary btn-sm" onclick="return confirm('{{ addslashes(__('messages.confirm_regenerate')) }}')">
+                                <button type="submit" class="btn btn-secondary btn-sm" onclick="return confirm('Apakah Anda yakin ingin membuat ulang token API ini? Token lama akan tidak valid.')">
                                     <i class="fas fa-sync-alt"></i>
                                 </button>
                             </form>
                             <form method="POST" action="{{ route('api-tokens.destroy', $token) }}" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('{{ addslashes(__('messages.confirm_delete_token')) }}')">
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus token API ini?')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>

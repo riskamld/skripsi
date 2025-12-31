@@ -172,5 +172,16 @@ class PlaceController extends Controller
             ->with('success', 'All places cleared successfully');
     }
 
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:places,id',
+        ]);
 
+        $count = Place::whereIn('id', $request->ids)->delete();
+
+        return redirect()->route('places.index')
+            ->with('success', "{$count} tempat berhasil dihapus!");
+    }
 }
