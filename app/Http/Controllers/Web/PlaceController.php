@@ -91,12 +91,12 @@ class PlaceController extends Controller
             $places = $query->paginate(50)->onEachSide(2); // Normal pagination when no filter
         }
 
-        // Get unique categories for filter dropdown with counts
+        // Get unique categories for filter dropdown with counts (sorted by count descending)
         $categories = Place::whereNotNull('category')
             ->select('category')
             ->selectRaw('COUNT(*) as count')
             ->groupBy('category')
-            ->orderBy('category')
+            ->orderBy('count', 'desc') // Sort by count descending (most places first)
             ->get()
             ->mapWithKeys(function ($item) {
                 return [$item->category => ['name' => $item->category, 'count' => $item->count]];

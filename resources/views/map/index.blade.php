@@ -1394,9 +1394,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     `;
 
-                    // Sort categories and add to legend
+                    // Sort categories by count descending (most places first) and add to legend
                     Object.keys(currentCategories).sort(function(a, b) {
-                        return currentCategories[a].displayName.localeCompare(currentCategories[b].displayName);
+                        return currentCategories[b].count - currentCategories[a].count; // Sort by count descending
                     }).forEach(function(key) {
                         var categoryData = currentCategories[key];
                         var checkboxId = 'category-' + key;
