@@ -413,7 +413,7 @@ document.addEventListener('DOMContentLoaded', function() {
         removeOutsideVisibleBounds: true, // Critical for mobile performance
         animate: !isMobile, // Disable animations on mobile for better performance
         animateAddingMarkers: !isMobile,
-        disableClusteringAtZoom: isMobile ? 15 : 12, // Individual markers appear at zoom 15 on mobile (matching start zoom)
+        disableClusteringAtZoom: isMobile ? 15 : 13, // Individual markers appear at zoom 15 on mobile, zoom 13 on desktop
         maxClusterRadius: isMobile ? 60 : 50, // Moderate cluster size on mobile
         spiderfyDistanceMultiplier: 2,
         iconCreateFunction: function(cluster) {
