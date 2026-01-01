@@ -752,9 +752,11 @@ document.addEventListener('DOMContentLoaded', function() {
         places.forEach(function(place) {
             if (place.category && place.category.trim() !== '') {
                 var key = place.category.toLowerCase().trim();
+                var originalCategory = place.category.trim();
                 if (!categoryCounts[key]) {
                     categoryCounts[key] = {
-                        displayName: place.category.trim(),
+                        displayName: originalCategory,
+                        originalCategory: originalCategory,
                         count: 0,
                         color: getCategoryColor(place.category)
                     };
@@ -769,6 +771,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (placesWithoutCategory > 0) {
             categoryCounts['no_category'] = {
                 displayName: 'Tanpa Kategori',
+                originalCategory: null,
                 count: placesWithoutCategory,
                 color: '#6c757d'
             };
@@ -786,7 +789,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <input type="checkbox" id="${checkboxId}" checked style="margin-right: 6px; cursor: pointer;">
                     <div style="width: 10px; height: 10px; border-radius: 50%; background-color: ${categoryData.color}; margin-right: 6px; flex-shrink: 0; border: 1px solid #ddd;"></div>
                     <label for="${checkboxId}" style="font-size: 10px; line-height: 1.2; cursor: pointer; flex-grow: 1;">${categoryData.displayName} (${categoryData.count})</label>
-                    <button class="delete-category-btn" data-category="${key}" data-category-name="${categoryData.displayName}" data-count="${categoryData.count}" style="margin-left: 4px; background: #ef4444; color: white; border: none; border-radius: 3px; width: 16px; height: 16px; font-size: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;" title="Delete all ${categoryData.displayName} places">×</button>
+                    <button class="delete-category-btn" data-category="${key}" data-original-category="${categoryData.originalCategory || ''}" data-category-name="${categoryData.displayName}" data-count="${categoryData.count}" style="margin-left: 4px; background: #ef4444; color: white; border: none; border-radius: 3px; width: 16px; height: 16px; font-size: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;" title="Delete all ${categoryData.displayName} places">×</button>
                 </div>
             `;
         });
@@ -861,9 +864,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 button.addEventListener('click', function(e) {
                     e.stopPropagation(); // Prevent triggering category toggle
 
-                    var category = button.dataset.category;
+                    var categoryKey = button.dataset.category;
+                    var originalCategory = button.dataset.originalCategory;
                     var categoryName = button.dataset.categoryName;
                     var count = button.dataset.count;
+
+                    // Use original category for deletion, or null for no category
+                    var categoryToDelete = originalCategory || null;
 
                     if (confirm(`Apakah Anda yakin ingin menghapus semua ${count} tempat dengan kategori "${categoryName}"?\n\nTindakan ini tidak dapat dibatalkan!`)) {
                         // Disable button during deletion
@@ -877,7 +884,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 'Content-Type': 'application/json',
                                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                             },
-                            body: JSON.stringify({ category: category })
+                            body: JSON.stringify({ category: categoryToDelete })
                         })
                         .then(response => response.json())
                         .then(data => {
@@ -1372,9 +1379,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         var place = places.find(function(p) { return p.id == marker.placeId; });
                         if (place && place.category && place.category.trim() !== '') {
                             var key = place.category.toLowerCase().trim();
+                            var originalCategory = place.category.trim();
                             if (!currentCategories[key]) {
                                 currentCategories[key] = {
-                                    displayName: place.category.trim(),
+                                    displayName: originalCategory,
+                                    originalCategory: originalCategory,
                                     count: 0,
                                     color: getCategoryColor(place.category)
                                 };
@@ -1406,7 +1415,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <input type="checkbox" id="${checkboxId}" checked style="margin-right: 6px; cursor: pointer;">
                                 <div style="width: 10px; height: 10px; border-radius: 50%; background-color: ${categoryData.color}; margin-right: 6px; flex-shrink: 0; border: 1px solid #ddd;"></div>
                                 <label for="${checkboxId}" style="font-size: 10px; line-height: 1.2; cursor: pointer; flex-grow: 1;">${categoryData.displayName} (${categoryData.count})</label>
-                                <button class="delete-category-btn" data-category="${key}" data-category-name="${categoryData.displayName}" data-count="${categoryData.count}" style="margin-left: 4px; background: #ef4444; color: white; border: none; border-radius: 3px; width: 16px; height: 16px; font-size: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;" title="Delete all ${categoryData.displayName} places">×</button>
+                                <button class="delete-category-btn" data-category="${key}" data-original-category="${categoryData.originalCategory || ''}" data-category-name="${categoryData.displayName}" data-count="${categoryData.count}" style="margin-left: 4px; background: #ef4444; color: white; border: none; border-radius: 3px; width: 16px; height: 16px; font-size: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;" title="Delete all ${categoryData.displayName} places">×</button>
                             </div>
                         `;
                     });
@@ -1481,9 +1490,13 @@ document.addEventListener('DOMContentLoaded', function() {
             button.addEventListener('click', function(e) {
                 e.stopPropagation();
 
-                var category = button.dataset.category;
+                var categoryKey = button.dataset.category;
+                var originalCategory = button.dataset.originalCategory;
                 var categoryName = button.dataset.categoryName;
                 var count = button.dataset.count;
+
+                // Use original category for deletion, or null for no category
+                var categoryToDelete = originalCategory || null;
 
                 if (confirm(`Apakah Anda yakin ingin menghapus semua ${count} tempat dengan kategori "${categoryName}"?\n\nTindakan ini tidak dapat dibatalkan!`)) {
                     button.disabled = true;
@@ -1495,7 +1508,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 'Content-Type': 'application/json',
                                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                             },
-                            body: JSON.stringify({ category: category })
+                            body: JSON.stringify({ category: categoryToDelete })
                         })
                     .then(response => response.json())
                     .then(data => {
