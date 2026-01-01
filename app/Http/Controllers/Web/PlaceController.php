@@ -98,8 +98,8 @@ class PlaceController extends Controller
             ->groupBy('category')
             ->orderBy('count', 'desc') // Sort by count descending (most places first)
             ->get()
-            ->mapWithKeys(function ($item) {
-                return [$item->category => ['name' => $item->category, 'count' => $item->count]];
+            ->map(function ($item) {
+                return ['name' => $item->category, 'count' => $item->count];
             });
 
         return view('places.index', compact('places', 'categories'));
