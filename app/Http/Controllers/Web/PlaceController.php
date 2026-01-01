@@ -92,7 +92,10 @@ class PlaceController extends Controller
         }
 
         // Get unique categories for filter dropdown with counts (sorted by count descending)
+        // Include all categories that are not null and not empty/whitespace
         $categories = Place::whereNotNull('category')
+            ->where('category', '!=', '')
+            ->where('category', 'not regexp', '^[[:space:]]*$') // Exclude whitespace-only categories
             ->select('category')
             ->selectRaw('COUNT(*) as count')
             ->groupBy('category')

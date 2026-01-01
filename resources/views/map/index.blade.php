@@ -774,9 +774,9 @@ document.addEventListener('DOMContentLoaded', function() {
             };
         }
 
-        // Sort by category name
+        // Sort by count descending (most places first)
         Object.keys(categoryCounts).sort(function(a, b) {
-            return categoryCounts[a].displayName.localeCompare(categoryCounts[b].displayName);
+            return categoryCounts[b].count - categoryCounts[a].count; // Sort by count descending
         }).forEach(function(key) {
             var categoryData = categoryCounts[key];
             var checkboxId = 'category-' + key;
