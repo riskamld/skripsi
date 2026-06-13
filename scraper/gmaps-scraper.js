@@ -44,6 +44,23 @@ if (!query) {
 const searchQuery = area ? `${query} ${area}` : query;
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
+
+// Haversine distance dalam km
+function haversineKm(lat1, lng1, lat2, lng2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat/2)**2 +
+            Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+// Radius maksimum (km) berdasarkan zoom
+function maxRadiusKm(zoom) {
+  const map = { 17:2, 16:3, 15:5, 14:15, 13:40, 12:60, 11:80, 10:150 };
+  return map[zoom] ?? 50;
+}
+
 function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
@@ -422,9 +439,23 @@ async function scrape() {
           detail.lng = finalCoords.lng;
         }
 
-        console.log(
-          `  ✓ ${detail.name || "(tanpa nama)"} | ${detail.phone || "no phone"} | rating: ${detail.rating || "-"} | reviews: ${detail.review_count || "-"}`
-        );
+        // Filter jarak — buang hasil yang terlalu jauh dari target
+        if (useCoords && detail.lat && detail.lng) {
+          const distKm = haversineKm(targetLat, targetLng, detail.lat, detail.lng);
+          const maxKm  = maxRadiusKm(targetZoom);
+          if (distKm > maxKm) {
+            console.log(`  ⏭ Dilewati (${distKm.toFixed(0)}km dari target, maks ${maxKm}km): ${detail.name}`);
+            failed.push({ url, error: `out-of-area (${distKm.toFixed(0)}km)` });
+            continue;
+          }
+          console.log(
+            `  ✓ ${detail.name || "(tanpa nama)"} | ${detail.phone || "no phone"} | rating: ${detail.rating || "-"} | reviews: ${detail.review_count || "-"} | ${distKm.toFixed(1)}km`
+          );
+        } else {
+          console.log(
+            `  ✓ ${detail.name || "(tanpa nama)"} | ${detail.phone || "no phone"} | rating: ${detail.rating || "-"} | reviews: ${detail.review_count || "-"}`
+          );
+        }
 
         results.push(detail);
 
