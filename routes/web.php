@@ -74,3 +74,6 @@ Route::post('/database/import/sql', [DatabaseController::class, 'importSql'])->n
 Route::post('/database/import/csv', [DatabaseController::class, 'importCsv'])->name('database.import.csv');
 Route::get('/database/download/{filename}', [DatabaseController::class, 'download'])->name('database.download');
 Route::delete('/database/files/{filename}', [DatabaseController::class, 'deleteFile'])->name('database.delete-file');
+
+// Panduan
+Route::view('/panduan', 'panduan.index')->name('panduan.index');

@@ -236,6 +236,9 @@ code{font-size:11.5px;background:var(--bg);padding:1px 5px;border-radius:3px;bor
         <i class="fas fa-map nav-icon"></i> Peta
       </a>
       <hr class="divider nav-sep">
+      <a href="{{ route('panduan.index') }}" class="nav-link {{ request()->routeIs('panduan.*') ? 'active' : '' }}">
+        <i class="fas fa-book-open nav-icon"></i> Panduan
+      </a>
       <a href="{{ route('api-tokens.index') }}" class="nav-link {{ request()->routeIs('api-tokens.*') ? 'active' : '' }}">
         <i class="fas fa-key nav-icon"></i> Token API
       </a>
