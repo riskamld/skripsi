@@ -62,6 +62,10 @@ class ScraperController extends Controller
             'limit' => 'required|integer|min:1|max:100',
         ]);
 
+        if ($this->scraperIsRunning()) {
+            return response()->json(['error' => 'Scraper sedang berjalan (manual atau terjadwal). Tunggu hingga selesai sebelum memulai yang baru.'], 422);
+        }
+
         $token = ApiToken::where('is_active', true)->value('token');
         if (!$token) {
             return response()->json(['error' => 'Tidak ada API token aktif. Buat token terlebih dahulu.'], 422);
@@ -368,6 +372,11 @@ class ScraperController extends Controller
         app(TelegramService::class)->notifyScraperError($meta['query'] ?? 'Scraping', 'Scraper berakhir dengan error.');
 
         return response()->json(['ok' => true]);
+    }
+
+    private function scraperIsRunning(): bool
+    {
+        return !empty(trim(shell_exec('pgrep -f "gmaps-scraper\.js" 2>/dev/null') ?? ''));
     }
 
     private function dbStats(): array
