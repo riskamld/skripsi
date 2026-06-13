@@ -231,6 +231,105 @@ $today = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'][date('N') - 
 </div>
 @endif
 
+{{-- Popular Times --}}
+@if($place->popular_times)
+@php
+    $ptDays = ['sun'=>'Minggu','mon'=>'Senin','tue'=>'Selasa','wed'=>'Rabu','thu'=>'Kamis','fri'=>'Jumat','sat'=>'Sabtu'];
+    $busy   = $place->busiestSlot();
+    $ptData = $place->popular_times;
+    // Hari ini (default aktif)
+    $todayKey = ['sun','mon','tue','wed','thu','fri','sat'][now()->dayOfWeek];
+    $defaultDay = isset($ptData[$todayKey]) ? $todayKey : array_key_first($ptData);
+@endphp
+<div class="card mb-16">
+    <div class="card-header" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <span><i class="fas fa-chart-bar" style="color:var(--ac);margin-right:6px"></i>Jam Ramai</span>
+        @if($busy)
+        <span class="text-xs text-muted">
+            Paling ramai: <strong>{{ $ptDays[$busy['day']] }}</strong>
+            pukul <strong>{{ str_pad($busy['hour'],2,'0',STR_PAD_LEFT) }}:00</strong>
+        </span>
+        @endif
+    </div>
+    <div class="card-body" style="padding:16px">
+        {{-- Tab hari --}}
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:16px" id="pt-tabs">
+            @foreach($ptDays as $key => $label)
+            @if(isset($ptData[$key]))
+            @php $peak = max($ptData[$key]); @endphp
+            <button onclick="showPtDay('{{ $key }}')" id="pt-tab-{{ $key }}"
+                class="btn btn-sm {{ $key === $defaultDay ? 'btn-primary' : 'btn-secondary' }}"
+                style="position:relative">
+                {{ substr($label,0,3) }}
+                @if($peak >= 70)
+                <span style="position:absolute;top:-4px;right:-4px;width:7px;height:7px;border-radius:50%;background:var(--rd)"></span>
+                @elseif($peak >= 40)
+                <span style="position:absolute;top:-4px;right:-4px;width:7px;height:7px;border-radius:50%;background:var(--or)"></span>
+                @endif
+            </button>
+            @endif
+            @endforeach
+        </div>
+
+        {{-- Grafik per hari --}}
+        @foreach($ptDays as $key => $label)
+        @if(isset($ptData[$key]))
+        <div id="pt-day-{{ $key }}" style="display:{{ $key === $defaultDay ? 'block' : 'none' }}">
+            @php
+                $hours = $ptData[$key];
+                $peakVal = max($hours);
+                $peakHr  = array_search($peakVal, $hours);
+            @endphp
+            <div style="display:flex;align-items:flex-end;gap:3px;height:64px;padding-bottom:0">
+                @foreach($hours as $hr => $val)
+                @if($hr >= 6 && $hr <= 22)
+                @php
+                    $h    = $val > 0 ? max(3, round($val * 64 / 100)) : 0;
+                    $col  = $val >= 70 ? '#ef4444' : ($val >= 40 ? '#f97316' : '#3b82f6');
+                    $isPeak = ($hr == $peakHr && $val > 0);
+                @endphp
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">
+                    <div style="width:100%;height:{{ $h }}px;background:{{ $col }};border-radius:2px 2px 0 0;
+                                opacity:{{ $isPeak ? 1 : 0.65 }};transition:.15s;
+                                {{ $isPeak ? 'outline:2px solid '.$col.';outline-offset:1px' : '' }}"
+                         title="{{ $label }} {{ str_pad($hr,2,'0',STR_PAD_LEFT) }}:00 — {{ $val }}%"></div>
+                </div>
+                @endif
+                @endforeach
+            </div>
+            {{-- Label jam --}}
+            <div style="display:flex;gap:3px;margin-top:4px">
+                @foreach($hours as $hr => $val)
+                @if($hr >= 6 && $hr <= 22)
+                <div style="flex:1;text-align:center;font-size:9px;color:var(--tx3)">
+                    {{ in_array($hr,[6,9,12,15,18,21]) ? $hr : '' }}
+                </div>
+                @endif
+                @endforeach
+            </div>
+
+            {{-- Keterangan --}}
+            <div style="display:flex;gap:12px;margin-top:10px;flex-wrap:wrap">
+                <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--tx3)">
+                    <span style="width:10px;height:10px;background:#3b82f6;border-radius:2px;display:inline-block"></span> Sepi
+                </div>
+                <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--tx3)">
+                    <span style="width:10px;height:10px;background:#f97316;border-radius:2px;display:inline-block"></span> Cukup ramai
+                </div>
+                <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--tx3)">
+                    <span style="width:10px;height:10px;background:#ef4444;border-radius:2px;display:inline-block"></span> Sangat ramai
+                </div>
+                <div style="margin-left:auto;font-size:11px;color:var(--tx2)">
+                    Puncak: <strong>{{ str_pad($peakHr,2,'0',STR_PAD_LEFT) }}:00</strong> ({{ $peakVal }}%)
+                </div>
+            </div>
+        </div>
+        @endif
+        @endforeach
+    </div>
+</div>
+@endif
+
 {{-- Outreach --}}
 <div class="card mb-16">
     <div class="card-header" style="justify-content:space-between">
@@ -326,6 +425,22 @@ foreach(['image_1','image_2','image_3','image_4'] as $f) {
     .grid[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}
 }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+function showPtDay(key) {
+    document.querySelectorAll('[id^="pt-day-"]').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('[id^="pt-tab-"]').forEach(el => {
+        el.classList.remove('btn-primary');
+        el.classList.add('btn-secondary');
+    });
+    const day = document.getElementById('pt-day-' + key);
+    const tab = document.getElementById('pt-tab-' + key);
+    if (day) day.style.display = 'block';
+    if (tab) { tab.classList.remove('btn-secondary'); tab.classList.add('btn-primary'); }
+}
+</script>
 @endpush
 
 @endsection

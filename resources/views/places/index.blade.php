@@ -137,6 +137,7 @@
                     <th class="hide-mobile">Rating</th>
                     <th class="hide-mobile">Ulasan</th>
                     <th class="hide-mobile">Score</th>
+                    <th class="hide-mobile">Jam Ramai</th>
                     <th class="hide-mobile">WA</th>
                     <th style="text-align:right">Aksi</th>
                 </tr>
@@ -179,6 +180,37 @@
                     <td class="hide-mobile">
                         @if($place->busyness_score)
                         <span class="fw-600 text-sm">{{ number_format($place->busyness_score, 0) }}</span>
+                        @else
+                        <span class="text-muted text-xs">—</span>
+                        @endif
+                    </td>
+                    <td class="hide-mobile">
+                        @php
+                            $pt    = $place->popular_times;
+                            $days  = ['sun','mon','tue','wed','thu','fri','sat'];
+                            $busy  = $place->busiestSlot();
+                            $dayLbl= ['sun'=>'Min','mon'=>'Sen','tue'=>'Sel','wed'=>'Rab','thu'=>'Kam','fri'=>'Jum','sat'=>'Sab'];
+                        @endphp
+                        @if($pt)
+                        <div style="display:flex;flex-direction:column;gap:3px">
+                            {{-- 7 mini bar Sen-Min --}}
+                            <div style="display:flex;gap:2px;align-items:flex-end;height:20px">
+                                @foreach($days as $d)
+                                @php $peak = $pt[$d] ? max($pt[$d]) : 0; @endphp
+                                <div title="{{ $dayLbl[$d] }}: {{ $peak }}%"
+                                     style="width:6px;border-radius:2px 2px 0 0;
+                                            height:{{ max(2, round($peak * 20 / 100)) }}px;
+                                            background:{{ $peak >= 70 ? 'var(--rd)' : ($peak >= 40 ? 'var(--or)' : 'var(--ac)') }};
+                                            opacity:{{ $peak > 0 ? 1 : 0.2 }}"></div>
+                                @endforeach
+                            </div>
+                            {{-- Label puncak --}}
+                            @if($busy)
+                            <div style="font-size:10px;color:var(--tx3);white-space:nowrap">
+                                {{ $dayLbl[$busy['day']] }} {{ str_pad($busy['hour'],2,'0',STR_PAD_LEFT) }}:00
+                            </div>
+                            @endif
+                        </div>
                         @else
                         <span class="text-muted text-xs">—</span>
                         @endif

@@ -73,4 +73,30 @@ class Place extends Model
     {
         return $this->hasMany(ScrapeLog::class, 'place_id', 'place_id');
     }
+
+    // Nilai puncak per hari dari popular_times → [day => maxValue]
+    public function popularTimePeaks(): array
+    {
+        if (!$this->popular_times) return [];
+        $peaks = [];
+        foreach ($this->popular_times as $day => $hours) {
+            $peaks[$day] = max($hours);
+        }
+        return $peaks;
+    }
+
+    // Hari & jam paling ramai: ['day'=>'sat','hour'=>14,'value'=>90]
+    public function busiestSlot(): ?array
+    {
+        if (!$this->popular_times) return null;
+        $best = null;
+        foreach ($this->popular_times as $day => $hours) {
+            $max = max($hours);
+            $hr  = array_search($max, $hours);
+            if (!$best || $max > $best['value']) {
+                $best = ['day' => $day, 'hour' => $hr, 'value' => $max];
+            }
+        }
+        return $best;
+    }
 }

@@ -132,19 +132,81 @@ async function postToApi(place) {
 // ── Popular Times Parser ──────────────────────────────────────────────────────
 async function extractPopularTimes(page) {
   try {
-    // Popular times bars have aria-label like "8 AM: Usually not too busy."
-    const bars = await page.$$('[class*="g2BVhd"] [aria-label]');
-    if (bars.length === 0) return null;
-
-    const times = {};
-    for (const bar of bars) {
-      const label = await bar.getAttribute("aria-label");
-      if (label && label.includes(":")) {
-        const [time, ...rest] = label.split(":");
-        times[time.trim()] = rest.join(":").trim();
+    // Method 1: ambil dari data JS yang di-embed Google Maps di page source
+    const fromJs = await page.evaluate(() => {
+      for (const script of document.querySelectorAll('script:not([src])')) {
+        const t = script.textContent;
+        // Pola: 7 array masing-masing 24 angka (jam 0-23, nilai 0-100)
+        const m = t.match(/\[(?:\[\d+(?:,\d+){23}\](?:,(?=\[))?){7}\]/);
+        if (m) { try { return JSON.parse(m[0]); } catch {} }
       }
+      return null;
+    });
+
+    if (fromJs && fromJs.length === 7 && fromJs.every(d => Array.isArray(d) && d.length === 24)) {
+      const keys = ['sun','mon','tue','wed','thu','fri','sat'];
+      const result = {};
+      fromJs.forEach((d, i) => { result[keys[i]] = d; });
+      return result;
     }
-    return Object.keys(times).length > 0 ? times : null;
+
+    // Method 2: parse dari tinggi bar elemen DOM (height px → 0-100%)
+    const fromDom = await page.evaluate(() => {
+      // Cari container popular times (berbagai selector Google Maps)
+      const selectors = [
+        '[jslog*="popular_times"]',
+        '[aria-label*="Popular times"]',
+        '[aria-label*="Jam ramai"]',
+        '[aria-label*="Jam populer"]',
+      ];
+      let container = null;
+      for (const s of selectors) {
+        container = document.querySelector(s);
+        if (container) break;
+      }
+      if (!container) return null;
+
+      // Cari tab hari dan bar-bar jam
+      const dayMap  = { 'minggu':0,'senin':1,'selasa':2,'rabu':3,'kamis':4,'jumat':5,'sabtu':6,
+                        'sunday':0,'monday':1,'tuesday':2,'wednesday':3,'thursday':4,'friday':5,'saturday':6 };
+      const days    = [{},{},{},{},{},{},{}];
+      const maxH    = 64; // pixel max bar Google Maps
+
+      // Coba baca dari aria-label bar: "Biasanya sibuk pukul 14.00, 80%"
+      const bars = container.querySelectorAll('[aria-label]');
+      let currentDay = -1;
+      for (const bar of bars) {
+        const lbl = (bar.getAttribute('aria-label') || '').toLowerCase();
+        for (const [name, idx] of Object.entries(dayMap)) {
+          if (lbl === name) { currentDay = idx; break; }
+        }
+        const pctMatch = lbl.match(/(\d{1,3})%/);
+        const hrMatch  = lbl.match(/pukul (\d{1,2})\.(\d{2})|(\d{1,2})\s?(am|pm)/i);
+        if (pctMatch && hrMatch && currentDay >= 0) {
+          let hr = hrMatch[3] ? parseInt(hrMatch[3]) : parseInt(hrMatch[1]);
+          const pm = hrMatch[4] && hrMatch[4].toLowerCase() === 'pm';
+          if (pm && hr !== 12) hr += 12;
+          if (!pm && hr === 12) hr = 0;
+          days[currentDay][hr] = parseInt(pctMatch[1]);
+        }
+      }
+
+      // Konversi ke array 24 jam
+      const result = {};
+      const keys   = ['sun','mon','tue','wed','thu','fri','sat'];
+      let hasData  = false;
+      days.forEach((d, i) => {
+        if (Object.keys(d).length > 0) {
+          hasData = true;
+          const arr = Array(24).fill(0);
+          for (const [h, v] of Object.entries(d)) arr[parseInt(h)] = v;
+          result[keys[i]] = arr;
+        }
+      });
+      return hasData ? result : null;
+    });
+
+    return fromDom;
   } catch {
     return null;
   }
