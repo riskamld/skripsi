@@ -224,8 +224,72 @@ async function extractFromPage(page) {
     ['image_1','image_2','image_3','image_4'].forEach((f, i) => { if (imgs[i]) result[f] = imgs[i]; });
   } catch {}
 
+  // Popular times
+  result.popular_times = await extractPopularTimes(page);
+
   result.source = 'playwright-rescrape';
   return result;
+}
+
+async function extractPopularTimes(page) {
+  try {
+    const fromJs = await page.evaluate(() => {
+      for (const script of document.querySelectorAll('script:not([src])')) {
+        const t = script.textContent;
+        const m = t.match(/\[(?:\[\d+(?:,\d+){23}\](?:,(?=\[))?){7}\]/);
+        if (m) { try { return JSON.parse(m[0]); } catch {} }
+      }
+      return null;
+    });
+    if (fromJs && fromJs.length === 7 && fromJs.every(d => Array.isArray(d) && d.length === 24)) {
+      const keys = ['sun','mon','tue','wed','thu','fri','sat'];
+      const result = {};
+      fromJs.forEach((d, i) => { result[keys[i]] = d; });
+      return result;
+    }
+
+    const fromDom = await page.evaluate(() => {
+      const selectors = ['[jslog*="popular_times"]','[aria-label*="Popular times"]',
+                         '[aria-label*="Jam ramai"]','[aria-label*="Jam populer"]'];
+      let container = null;
+      for (const s of selectors) { container = document.querySelector(s); if (container) break; }
+      if (!container) return null;
+
+      const dayMap = { 'minggu':0,'senin':1,'selasa':2,'rabu':3,'kamis':4,'jumat':5,'sabtu':6,
+                       'sunday':0,'monday':1,'tuesday':2,'wednesday':3,'thursday':4,'friday':5,'saturday':6 };
+      const days = [{},{},{},{},{},,{}];
+      let currentDay = -1;
+      for (const bar of container.querySelectorAll('[aria-label]')) {
+        const lbl = (bar.getAttribute('aria-label') || '').toLowerCase();
+        for (const [name, idx] of Object.entries(dayMap)) {
+          if (lbl === name) { currentDay = idx; break; }
+        }
+        const pctMatch = lbl.match(/(\d{1,3})%/);
+        const hrMatch  = lbl.match(/pukul (\d{1,2})\.(\d{2})|(\d{1,2})\s?(am|pm)/i);
+        if (pctMatch && hrMatch && currentDay >= 0) {
+          let hr = hrMatch[3] ? parseInt(hrMatch[3]) : parseInt(hrMatch[1]);
+          const pm = hrMatch[4] && hrMatch[4].toLowerCase() === 'pm';
+          if (pm && hr !== 12) hr += 12;
+          if (!pm && hr === 12) hr = 0;
+          if (!days[currentDay]) days[currentDay] = {};
+          days[currentDay][hr] = parseInt(pctMatch[1]);
+        }
+      }
+      const result = {};
+      const keys = ['sun','mon','tue','wed','thu','fri','sat'];
+      let hasData = false;
+      days.forEach((d, i) => {
+        if (d && Object.keys(d).length > 0) {
+          hasData = true;
+          const arr = Array(24).fill(0);
+          for (const [h, v] of Object.entries(d)) arr[parseInt(h)] = v;
+          result[keys[i]] = arr;
+        }
+      });
+      return hasData ? result : null;
+    });
+    return fromDom;
+  } catch { return null; }
 }
 
 // ── main ─────────────────────────────────────────────────────────────────────
@@ -301,9 +365,14 @@ async function extractFromPage(page) {
           const update = {};
           const FIELDS = ['name','category','rating','review_count','address','phone','website',
                           'opening_hours','lat','lng','place_id','image_1','image_2','image_3','image_4',
-                          'description','permanently_closed','source'];
+                          'description','permanently_closed','popular_times','source'];
           for (const f of FIELDS) {
-            if (data[f] !== undefined && data[f] !== null && data[f] !== '') update[f] = data[f];
+            // popular_times boleh null (tetap skip), object/array dikirim apa adanya
+            if (f === 'popular_times') {
+              if (data[f] !== null && data[f] !== undefined) update[f] = data[f];
+            } else if (data[f] !== undefined && data[f] !== null && data[f] !== '') {
+              update[f] = data[f];
+            }
           }
 
           if (Object.keys(update).length <= 1) {
