@@ -52,3 +52,8 @@ yarn-error.log*
 
 # Composer
 composer.phar
+
+# Scraper
+scraper/node_modules/
+scraper/package-lock.json
+storage/scraper-logs/
