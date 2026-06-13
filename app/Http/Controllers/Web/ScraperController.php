@@ -61,9 +61,9 @@ class ScraperController extends Controller
         $jobId   = uniqid('scrape_', true);
         $logFile = $this->logDir . "/{$jobId}.log";
 
-        $query   = escapeshellarg($request->query);
-        $area    = escapeshellarg($request->area ?? '');
-        $limit   = (int) $request->limit;
+        $query   = escapeshellarg($request->input('query'));
+        $area    = escapeshellarg($request->input('area', ''));
+        $limit   = (int) $request->input('limit', 20);
         $node    = trim(shell_exec('which node') ?: '/usr/bin/node');
         $scraper = escapeshellarg($this->scraperPath);
 
@@ -83,11 +83,11 @@ class ScraperController extends Controller
         exec("nohup bash -c " . escapeshellarg($cmd) . " &");
 
         file_put_contents($this->logDir . "/{$jobId}.meta", json_encode([
-            'query'      => $request->query,
-            'area'       => $request->area,
-            'lat'        => $request->lat,
-            'lng'        => $request->lng,
-            'zoom'       => $request->zoom,
+            'query'      => $request->input('query'),
+            'area'       => $request->input('area'),
+            'lat'        => $request->input('lat'),
+            'lng'        => $request->input('lng'),
+            'zoom'       => $request->input('zoom'),
             'limit'      => $limit,
             'started_at' => now()->toISOString(),
         ]));
