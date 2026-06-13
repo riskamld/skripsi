@@ -4,6 +4,8 @@
 
 @push('styles')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
 <style>
 .stats-bar{display:flex;gap:1px;background:#dee2e6;border-radius:8px;overflow:hidden;margin-bottom:20px}
 .stat-item{flex:1;background:#fff;padding:14px 18px}
@@ -18,8 +20,13 @@
 .chip.active{background:var(--ac);border-color:var(--ac);color:#fff}
 
 /* Map area picker */
-#area-map{height:280px;border-radius:8px;border:2px solid var(--bdr);cursor:crosshair;z-index:1}
+#area-map{height:320px;border-radius:8px;border:2px solid var(--bdr);cursor:crosshair;z-index:1}
 #area-map.has-pin{border-color:var(--ac)}
+.map-legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;font-size:11px;color:var(--tx2)}
+.map-legend span{display:flex;align-items:center;gap:4px}
+.map-legend i{width:10px;height:10px;border-radius:50%;display:inline-block;flex-shrink:0}
+.leaflet-locate-btn{background:#fff;border:2px solid rgba(0,0,0,.2);border-radius:4px;padding:4px 6px;cursor:pointer;font-size:14px;line-height:1;box-shadow:0 1px 5px rgba(0,0,0,.2)}
+.leaflet-locate-btn:hover{background:#f4f4f4}
 .area-size-btns{display:flex;gap:6px;margin-top:8px}
 .size-btn{flex:1;padding:6px 4px;border:1px solid var(--bdr);border-radius:6px;background:var(--bg);
           font-size:12px;font-weight:500;cursor:pointer;text-align:center;transition:.15s;color:var(--tx2)}
@@ -139,6 +146,12 @@
             Area Scraping — klik peta untuk pilih lokasi
         </label>
         <div id="area-map"></div>
+        <div class="map-legend">
+            <span><i style="background:#22c55e"></i> Punya WA</span>
+            <span><i style="background:#ef4444"></i> Tidak Ada WA</span>
+            <span><i style="background:#9ca3af"></i> Belum Dicek</span>
+            <span style="margin-left:auto;color:var(--tx3)">{{ $existingPlaces->count() }} tempat ditampilkan</span>
+        </div>
 
         {{-- Area size selector --}}
         <div class="area-size-btns">
@@ -290,13 +303,14 @@
 
 @push('scripts')
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 
 // ── Map setup ─────────────────────────────────────────────────────────────────
 const existingPlaces = @json($existingPlaces);
 
-// Default center: tengah data existing atau Jawa Timur
+// Default center
 let defaultLat = -7.5, defaultLng = 112.5, defaultZoom = 10;
 if (existingPlaces.length > 0) {
     const lats = existingPlaces.map(p => p[0]);
@@ -308,15 +322,82 @@ if (existingPlaces.length > 0) {
 
 const map = L.map('area-map', { zoomControl: true }).setView([defaultLat, defaultLng], defaultZoom);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap',
-    maxZoom: 18
+    attribution: '© OpenStreetMap', maxZoom: 18
 }).addTo(map);
 
-// Existing places dots
-if (existingPlaces.length > 0) {
-    const dotStyle = { radius: 3, color: 'var(--ac)', fillColor: 'var(--ac)', fillOpacity: 0.4, weight: 0 };
-    existingPlaces.forEach(p => L.circleMarker([p[0], p[1]], dotStyle).addTo(map));
+// ── Place dots with cluster, color by WA status, popup ───────────────────────
+function waColor(wa) {
+    if (wa === true)  return '#22c55e';  // punya WA
+    if (wa === false) return '#ef4444';  // tidak ada WA
+    return '#9ca3af';                    // belum dicek
 }
+
+if (existingPlaces.length > 0) {
+    const cluster = L.markerClusterGroup({
+        maxClusterRadius: 40,
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: false,
+        iconCreateFunction: count => L.divIcon({
+            html: `<div style="background:var(--ac);color:#fff;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.3)">${count.getChildCount()}</div>`,
+            className: '', iconSize: [32, 32],
+        }),
+    });
+
+    existingPlaces.forEach(p => {
+        const [lat, lng, name, cat, rating, reviews, wa] = p;
+        const color = waColor(wa);
+        const marker = L.circleMarker([lat, lng], {
+            radius: 5, color: '#fff', weight: 1,
+            fillColor: color, fillOpacity: 0.85,
+        });
+
+        const waLabel = wa === true ? '<span style="color:#22c55e">✓ Punya WA</span>'
+                      : wa === false ? '<span style="color:#ef4444">✗ Tidak Ada WA</span>'
+                      : '<span style="color:#9ca3af">? Belum Dicek</span>';
+        const stars = rating ? `⭐ ${rating}${reviews ? ` <span style="color:#9ca3af">(${reviews})</span>` : ''}` : '';
+
+        marker.bindPopup(`
+            <div style="min-width:160px;font-size:12px;line-height:1.6">
+                <strong style="font-size:13px">${name || '—'}</strong><br>
+                ${cat ? `<span style="color:#6b7280">${cat}</span><br>` : ''}
+                ${stars ? `${stars}<br>` : ''}
+                ${waLabel}
+            </div>
+        `, { maxWidth: 220 });
+
+        cluster.addLayer(marker);
+    });
+
+    map.addLayer(cluster);
+}
+
+// ── Tombol Lokasi Saya ────────────────────────────────────────────────────────
+const LocateControl = L.Control.extend({
+    options: { position: 'topright' },
+    onAdd() {
+        const btn = L.DomUtil.create('button', 'leaflet-locate-btn');
+        btn.title = 'Lokasi Saya';
+        btn.innerHTML = '📍';
+        L.DomEvent.on(btn, 'click', L.DomEvent.stopPropagation);
+        L.DomEvent.on(btn, 'click', () => {
+            btn.innerHTML = '⏳';
+            navigator.geolocation.getCurrentPosition(
+                pos => {
+                    const { latitude: lat, longitude: lng } = pos.coords;
+                    map.setView([lat, lng], 14);
+                    L.circleMarker([lat, lng], {
+                        radius: 8, color: '#3b82f6', weight: 3,
+                        fillColor: '#93c5fd', fillOpacity: 0.9,
+                    }).addTo(map).bindPopup('📍 Lokasi Anda').openPopup();
+                    btn.innerHTML = '📍';
+                },
+                () => { alert('Izin lokasi ditolak.'); btn.innerHTML = '📍'; }
+            );
+        });
+        return btn;
+    }
+});
+new LocateControl().addTo(map);
 
 // State
 let pinMarker = null;

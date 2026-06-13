@@ -29,10 +29,18 @@ class ScraperController extends Controller
         // Compact lat/lng for map dots (max 600)
         $existingPlaces = Place::whereNotNull('lat')->whereNotNull('lng')
             ->where('lat', '!=', 0)->where('lng', '!=', 0)
-            ->select(['lat', 'lng'])
-            ->limit(600)
+            ->select(['lat', 'lng', 'name', 'category', 'rating', 'review_count', 'has_whatsapp'])
+            ->limit(1000)
             ->get()
-            ->map(fn($p) => [(float)$p->lat, (float)$p->lng]);
+            ->map(fn($p) => [
+                (float)$p->lat,
+                (float)$p->lng,
+                $p->name,
+                $p->category,
+                $p->rating,
+                $p->review_count,
+                $p->has_whatsapp,  // true/false/null
+            ]);
 
         return view('scraper.index', compact('stats', 'existingPlaces'));
     }
