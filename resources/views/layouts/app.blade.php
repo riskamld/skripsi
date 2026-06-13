@@ -215,8 +215,14 @@ code{font-size:11.5px;background:var(--bg);padding:1px 5px;border-radius:3px;bor
       <a href="{{ route('scraper.index') }}" class="nav-link {{ request()->routeIs('scraper.*') ? 'active' : '' }}">
         <i class="fas fa-robot nav-icon"></i> Scraping
       </a>
-      <a href="{{ route('whatsapp.index') }}" class="nav-link {{ request()->routeIs('whatsapp.*') ? 'active' : '' }}">
-        <i class="fab fa-whatsapp nav-icon"></i> WhatsApp
+      <a href="{{ route('whatsapp.index') }}" class="nav-link {{ request()->routeIs('whatsapp.*') ? 'active' : '' }}" style="display:flex;align-items:center;justify-content:space-between">
+        <span><i class="fab fa-whatsapp nav-icon"></i> WhatsApp</span>
+        @php $respondedCount = \App\Models\Place::where('outreach_status','responded')->count(); @endphp
+        @if($respondedCount > 0)
+        <span id="wa-badge" style="background:var(--gn);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;line-height:1.6">{{ $respondedCount }}</span>
+        @else
+        <span id="wa-badge" style="display:none"></span>
+        @endif
       </a>
       <a href="{{ route('places.index') }}" class="nav-link {{ request()->routeIs('places.*') ? 'active' : '' }}">
         <i class="fas fa-store nav-icon"></i> Data Tempat

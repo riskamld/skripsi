@@ -17,7 +17,8 @@ class MapController extends Controller
             ->where('lat', '!=', 0)
             ->where('lng', '!=', 0)
             ->orderBy('created_at', 'desc')
-            ->get(); // Show all places with coordinates
+            ->get(['id', 'place_id', 'name', 'lat', 'lng', 'category', 'rating', 'review_count',
+                   'phone', 'address', 'maps_url', 'has_whatsapp', 'outreach_status', 'busyness_score']);
 
         return view('map.index', compact('places'));
     }

@@ -7,6 +7,15 @@ use App\Models\Place;
 
 class DashboardController extends Controller
 {
+    // Kategori relevan untuk bisnis buah
+    private const RELEVANT = [
+        'Toko Buah dan Sayur', 'Grosir Buah dan Sayur', 'Toko Buah Kering',
+        'Restoran', 'Warung Makan', 'Restoran Ayam', 'Restoran Cepat Saji',
+        'Toko Bahan Makanan', 'Minimarket', 'Kedai Jus', 'Toko Es Krim',
+        'Restoran Bakso', 'Restoran Mie', 'Restoran Nasi Goreng',
+        'Restoran Sate', 'Restoran Seafood', 'Kedai Hidangan Penutup', 'Pasar',
+    ];
+
     public function index()
     {
         $stats = [
@@ -17,16 +26,19 @@ class DashboardController extends Controller
             'is_target'      => Place::where('is_target', true)->count(),
             'today'          => Place::whereDate('created_at', today())->count(),
             'high_score'     => Place::where('busyness_score', '>', 50)->count(),
+            'outreach_sent'  => Place::where('outreach_status', 'sent')->count(),
+            'responded'      => Place::where('outreach_status', 'responded')->count(),
+            'relevant'       => Place::whereIn('category', self::RELEVANT)->count(),
             'top_categories' => Place::selectRaw('category, COUNT(*) as count')
                 ->whereNotNull('category')
                 ->groupBy('category')
                 ->orderByDesc('count')
-                ->limit(8)
+                ->limit(10)
                 ->get(),
             'recent_places'  => Place::whereNotNull('phone')
                 ->orderByDesc('busyness_score')
                 ->limit(8)
-                ->get(['name', 'phone', 'category', 'rating', 'review_count', 'busyness_score', 'has_whatsapp', 'is_target', 'address']),
+                ->get(['id', 'name', 'phone', 'category', 'rating', 'review_count', 'busyness_score', 'has_whatsapp', 'is_target', 'outreach_status']),
         ];
 
         return view('dashboard', compact('stats'));

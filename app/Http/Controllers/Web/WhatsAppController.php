@@ -166,6 +166,30 @@ class WhatsAppController extends Controller
         return response()->json($this->getStats());
     }
 
+    public function targetList(Request $request)
+    {
+        $filter = $request->get('filter', 'pending');
+
+        $q = Place::where('has_whatsapp', true)->whereNotNull('phone');
+
+        match ($filter) {
+            'sent'      => $q->where('outreach_status', 'sent'),
+            'responded' => $q->where('outreach_status', 'responded'),
+            'pending'   => $q->whereNull('outreach_status'),
+            default     => null,
+        };
+
+        $places = $q->orderByDesc('outreach_sent_at')
+            ->limit(100)
+            ->get(['id', 'name', 'phone', 'category', 'address', 'rating', 'outreach_status', 'outreach_sent_at']);
+
+        return response()->json([
+            'status' => 'ok',
+            'count'  => $places->count(),
+            'data'   => $places,
+        ]);
+    }
+
     // ── private ───────────────────────────────────────────────────────────────
 
     private function getDevices(): array

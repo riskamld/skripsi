@@ -572,6 +572,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     <strong>📞 Telepon:</strong> ${place.phone}
                 </div>` : ''}
 
+                ${place.has_whatsapp === true || place.has_whatsapp == 1 ? `<div style="margin-bottom:4px;font-size:12px;color:#16a34a;font-weight:600;">✓ WhatsApp aktif${place.outreach_status === 'responded' ? ' · <span style="color:#10b981">Sudah respon</span>' : place.outreach_status === 'sent' ? ' · Terkirim' : ''}</div>` : (place.has_whatsapp === false || place.has_whatsapp == 0 ? '<div style="margin-bottom:4px;font-size:12px;color:#9ca3af;">✗ Tidak ada WA</div>' : '')}
+
                 ${googleMapsUrl ? `<div style="margin-top: 8px;">
                     <a href="${googleMapsUrl}" target="_blank" style="background-color: #4285f4; color: white; padding: 6px 12px; text-decoration: none; border-radius: 4px; font-size: 12px; display: inline-block;">
                         🗺️ Lihat di Google Maps
@@ -625,6 +627,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Track active categories for filtering
     var activeCategories = new Set();
+    var outreachFilter = 'all'; // all | has_wa | sent | responded
+
+    function setOutreachFilter(f) {
+        outreachFilter = f;
+        document.querySelectorAll('.ofbtn').forEach(function(b) {
+            b.style.background = b.dataset.f === f ? '#16a34a' : '#fff';
+            b.style.color      = b.dataset.f === f ? '#fff'    : '#374151';
+        });
+        updateMarkerVisibility();
+    }
 
     // Function to toggle category visibility
     function toggleCategory(categoryKey, show) {
@@ -638,9 +650,8 @@ document.addEventListener('DOMContentLoaded', function() {
         updateMarkerVisibility();
     }
 
-    // Function to update marker visibility based on active categories
+    // Function to update marker visibility based on active categories + outreach filter
     function updateMarkerVisibility() {
-        console.log('Updating marker visibility, active categories:', Array.from(activeCategories));
         var visibleCount = 0;
         var hiddenCount = 0;
 
@@ -650,7 +661,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 var categoryKey = (place.category && place.category.trim() !== '') ?
                     place.category.toLowerCase().trim() : 'no_category';
 
-                var shouldShow = activeCategories.has(categoryKey);
+                var catOk = activeCategories.has(categoryKey);
+                var outreachOk = true;
+                if (outreachFilter === 'has_wa')    outreachOk = place.has_whatsapp === true || place.has_whatsapp == 1;
+                else if (outreachFilter === 'sent') outreachOk = place.outreach_status === 'sent';
+                else if (outreachFilter === 'responded') outreachOk = place.outreach_status === 'responded';
+
+                var shouldShow = catOk && outreachOk;
                 console.log('Marker', marker.placeId, 'category:', categoryKey, 'should show:', shouldShow);
 
                 if (shouldShow) {
@@ -673,6 +690,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
         console.log('Visibility update complete - Visible:', visibleCount, 'Hidden:', hiddenCount);
     }
+
+    // Outreach filter control (bottomleft)
+    var outreachCtrl = L.control({ position: 'bottomleft' });
+    outreachCtrl.onAdd = function() {
+        var d = L.DomUtil.create('div');
+        d.style.cssText = 'background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.2);padding:6px 8px;display:flex;gap:4px;align-items:center;font-family:sans-serif';
+        d.innerHTML = `
+            <span style="font-size:10px;font-weight:600;color:#6b7280;margin-right:2px">WA:</span>
+            <button class="ofbtn" data-f="all"       style="font-size:10px;padding:3px 8px;border:1px solid #d1d5db;border-radius:4px;cursor:pointer;background:#16a34a;color:#fff" onclick="setOutreachFilter('all')">Semua</button>
+            <button class="ofbtn" data-f="has_wa"    style="font-size:10px;padding:3px 8px;border:1px solid #d1d5db;border-radius:4px;cursor:pointer;background:#fff;color:#374151" onclick="setOutreachFilter('has_wa')">Punya WA</button>
+            <button class="ofbtn" data-f="sent"      style="font-size:10px;padding:3px 8px;border:1px solid #d1d5db;border-radius:4px;cursor:pointer;background:#fff;color:#374151" onclick="setOutreachFilter('sent')">Terkirim</button>
+            <button class="ofbtn" data-f="responded" style="font-size:10px;padding:3px 8px;border:1px solid #d1d5db;border-radius:4px;cursor:pointer;background:#fff;color:#374151" onclick="setOutreachFilter('responded')">Respon</button>
+        `;
+        L.DomEvent.disableClickPropagation(d);
+        return d;
+    };
+    outreachCtrl.addTo(map);
 
     // Create legend control with responsive positioning
     var legend = L.control({

@@ -411,15 +411,68 @@ async function runSendOutreach() {
 function loadTargetList() {
     const filter = document.getElementById('list-filter').value;
     const wrap = document.getElementById('target-list-wrap');
-    wrap.innerHTML = '<p class="text-sm text-muted" style="padding:16px">Memuat...</p>';
+    wrap.innerHTML = '<p class="text-sm text-muted" style="padding:16px"><i class="fas fa-spinner fa-spin"></i> Memuat...</p>';
 
-    fetch(`{{ url('/places') }}?has_wa=1&outreach_filter=${filter}&per_page=50&sort=outreach_sent_at&direction=desc`)
-        .then(r => r.text())
-        .then(() => {
-            // Redirect ke places dengan filter
-            window.open(`{{ url('/places') }}?has_wa=1`, '_blank');
-            wrap.innerHTML = '<p class="text-sm text-muted" style="padding:16px">Membuka di tab baru...</p>';
+    fetch(`{{ route('whatsapp.target-list') }}?filter=${filter}`)
+        .then(r => r.json())
+        .then(d => {
+            if (!d.data || d.data.length === 0) {
+                wrap.innerHTML = '<p class="text-sm text-muted" style="padding:16px">Tidak ada data untuk filter ini.</p>';
+                return;
+            }
+            const statusLabel = { sent: '<span style="color:var(--ac);font-weight:600">Terkirim</span>',
+                                  responded: '<span style="color:var(--gn);font-weight:600">Respon</span>',
+                                  null: '—' };
+            const rows = d.data.map(p => `
+                <tr>
+                    <td style="padding:8px 12px;font-weight:500">${escHtml(p.name)}</td>
+                    <td style="padding:8px 12px;color:var(--tx2);font-size:12px">${escHtml(p.category || '—')}</td>
+                    <td style="padding:8px 12px;font-size:12px"><a href="tel:${escHtml(p.phone)}">${escHtml(p.phone)}</a></td>
+                    <td style="padding:8px 12px;font-size:12px">${statusLabel[p.outreach_status] || '—'}</td>
+                    <td style="padding:8px 12px;font-size:11px;color:var(--tx2)">${p.outreach_sent_at ? p.outreach_sent_at.replace('T',' ').slice(0,16) : '—'}</td>
+                    <td style="padding:8px 12px">
+                        ${p.outreach_status === 'sent' ? `<button class="btn btn-xs" style="background:var(--gn);color:#fff;border-color:var(--gn)" onclick="markStatus(${p.id},'responded',this)">✓ Respon</button>` : ''}
+                    </td>
+                </tr>
+            `).join('');
+            wrap.innerHTML = `
+                <div style="font-size:12px;color:var(--tx2);padding:8px 12px;border-bottom:1px solid var(--bdr)">${d.count} data</div>
+                <div style="overflow-x:auto">
+                <table style="width:100%;border-collapse:collapse;font-size:13px">
+                    <thead>
+                        <tr style="border-bottom:1px solid var(--bdr);background:var(--bg)">
+                            <th style="padding:8px 12px;text-align:left;font-weight:600;font-size:12px">Nama</th>
+                            <th style="padding:8px 12px;text-align:left;font-weight:600;font-size:12px">Kategori</th>
+                            <th style="padding:8px 12px;text-align:left;font-weight:600;font-size:12px">Telepon</th>
+                            <th style="padding:8px 12px;text-align:left;font-weight:600;font-size:12px">Status</th>
+                            <th style="padding:8px 12px;text-align:left;font-weight:600;font-size:12px">Dikirim</th>
+                            <th style="padding:8px 12px"></th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+                </div>
+            `;
+        })
+        .catch(() => {
+            wrap.innerHTML = '<p class="text-sm text-muted" style="padding:16px;color:var(--rd)">Gagal memuat data.</p>';
         });
+}
+
+function escHtml(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function markStatus(id, status, btn) {
+    btn.disabled = true;
+    fetch(`{{ url('/whatsapp/mark-status') }}/${id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+        body: JSON.stringify({ status })
+    }).then(r => r.json()).then(d => {
+        if (d.status === 'ok') loadTargetList();
+    });
 }
 
 // ── stats refresh ─────────────────────────────────────────────────────────────

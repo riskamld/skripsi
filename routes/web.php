@@ -63,6 +63,7 @@ Route::get('/whatsapp/stats', [WhatsAppController::class, 'stats'])->name('whats
 Route::post('/whatsapp/check-wa', [WhatsAppController::class, 'checkWA'])->name('whatsapp.check-wa');
 Route::post('/whatsapp/send-outreach', [WhatsAppController::class, 'sendOutreach'])->name('whatsapp.send-outreach');
 Route::post('/whatsapp/mark-status/{id}', [WhatsAppController::class, 'markStatus'])->name('whatsapp.mark-status');
+Route::get('/whatsapp/target-list', [WhatsAppController::class, 'targetList'])->name('whatsapp.target-list');
 
 // Database Tools routes
 Route::get('/database', [DatabaseController::class, 'index'])->name('database.index');

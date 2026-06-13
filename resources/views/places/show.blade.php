@@ -231,6 +231,55 @@ $today = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'][date('N') - 
 </div>
 @endif
 
+{{-- Outreach --}}
+<div class="card mb-16">
+    <div class="card-header" style="justify-content:space-between">
+        <span><i class="fab fa-whatsapp" style="color:var(--gn);margin-right:6px"></i>Outreach WhatsApp</span>
+        @if($place->outreach_status === 'responded')
+            <span class="badge badge-green"><i class="fas fa-check"></i> Sudah Respon</span>
+        @elseif($place->outreach_status === 'sent')
+            <span class="badge badge-blue">Terkirim {{ $place->outreach_sent_at ? $place->outreach_sent_at->diffForHumans() : '' }}</span>
+        @endif
+    </div>
+    <div class="card-body" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+        @if($place->has_whatsapp === true)
+            @if(!$place->outreach_status)
+            <a href="{{ route('whatsapp.index') }}"
+               class="btn btn-sm" style="background:var(--gn);color:#fff;border-color:var(--gn)">
+                <i class="fab fa-whatsapp"></i> Kirim Outreach
+            </a>
+            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $place->phone) }}" target="_blank"
+               class="btn btn-sm btn-secondary">
+                <i class="fas fa-external-link-alt"></i> Chat Manual
+            </a>
+            @elseif($place->outreach_status === 'sent')
+            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $place->phone) }}" target="_blank"
+               class="btn btn-sm" style="background:var(--gn);color:#fff;border-color:var(--gn)">
+                <i class="fab fa-whatsapp"></i> Buka Chat
+            </a>
+            <form method="POST" action="{{ route('whatsapp.mark-status', $place->id) }}" style="display:inline">
+                @csrf
+                <input type="hidden" name="status" value="responded">
+                <button type="submit" class="btn btn-sm btn-secondary">✓ Tandai Respon</button>
+            </form>
+            @elseif($place->outreach_status === 'responded')
+            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $place->phone) }}" target="_blank"
+               class="btn btn-sm btn-secondary">
+                <i class="fab fa-whatsapp"></i> Buka Chat
+            </a>
+            @endif
+        @elseif($place->has_whatsapp === false)
+            <span class="text-sm text-muted"><i class="fas fa-times-circle" style="color:var(--rd)"></i> Nomor ini tidak terdaftar di WhatsApp</span>
+        @else
+            <span class="text-sm text-muted"><i class="fas fa-question-circle"></i> Belum dicek —</span>
+            <a href="{{ route('whatsapp.index') }}" class="btn btn-sm btn-secondary">Cek WA sekarang</a>
+        @endif
+        @if($place->phone)
+        <span class="text-xs text-muted" style="margin-left:auto">{{ $place->phone }}</span>
+        @endif
+    </div>
+</div>
+
 {{-- Description --}}
 @if($place->description)
 <div class="card mb-16">
