@@ -98,6 +98,19 @@ class TelegramService
         $this->send("🔍 <b>Duplikat Terdeteksi</b>\nDitemukan <b>{$count}</b> nomor telepon duplikat di database.");
     }
 
+    public function notifyIncomingMessage(string $name, string $phone, string $snippet, ?string $status): void
+    {
+        if (!$this->isEnabled('notif_interested')) return; // gunakan toggle notif_interested sebagai proxy
+        $statusLabel = match ($status) {
+            'sent'     => '📤 Sudah Kirim',
+            'replied'  => '💬 Sudah Respon',
+            'interested' => '🎯 Berminat',
+            'ordered'  => '🛒 Order',
+            default    => '—',
+        };
+        $this->send("💬 <b>Pesan WA Masuk dari Prospek!</b>\n🏪 {$name}\n📞 {$phone}\n💬 \"{$snippet}\"\n📊 Status: {$statusLabel} → <b>Respon</b>");
+    }
+
     public function notifyScheduledStart(string $name, string $query): void
     {
         if (!$this->isEnabled('notif_scrape_done')) return;

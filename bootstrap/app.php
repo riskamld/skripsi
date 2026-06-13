@@ -16,6 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'api.token' => ApiTokenAuth::class,
         ]);
+        $middleware->validateCsrfTokens(except: [
+            'whatsapp/webhook',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

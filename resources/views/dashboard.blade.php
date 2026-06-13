@@ -3,6 +3,11 @@
 @section('page-title', 'Dasbor')
 
 @push('topbar-actions')
+@if($incomingToday > 0)
+<span style="background:var(--rd);color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px">
+    <i class="fas fa-envelope"></i> {{ $incomingToday }} pesan masuk
+</span>
+@endif
 <a href="{{ route('scraper.index') }}" class="btn btn-primary btn-sm">
     <i class="fas fa-robot"></i> Scraping
 </a>
@@ -98,6 +103,83 @@
             <span class="text-xs text-muted">Belum dicek WA: <strong style="color:var(--or)">{{ number_format($stats['wa_unchecked']) }}</strong></span>
             @if(isset($stats['total_order_value']) && $stats['total_order_value'] > 0)
             <span class="text-xs text-muted">Total nilai order: <strong style="color:var(--gn)">Rp {{ number_format($stats['total_order_value'], 0, ',', '.') }}</strong></span>
+            @endif
+        </div>
+    </div>
+</div>
+
+{{-- Status Sistem + Tren --}}
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+
+    {{-- Grafik Tren Outreach --}}
+    <div class="card">
+        <div class="card-header"><i class="fas fa-chart-line" style="color:var(--ac)"></i> Tren Outreach 14 Hari</div>
+        <div class="card-body" style="padding:12px 16px">
+            <canvas id="trendChart" height="80"></canvas>
+        </div>
+    </div>
+
+    {{-- Status Sistem + Pesan Masuk --}}
+    <div style="display:flex;flex-direction:column;gap:12px">
+        {{-- Status sistem --}}
+        <div class="card">
+            <div class="card-header"><i class="fas fa-heartbeat" style="color:var(--gn)"></i> Status Sistem</div>
+            <div class="card-body" style="padding:10px 14px;display:flex;flex-direction:column;gap:8px">
+                <div style="display:flex;align-items:center;justify-content:space-between">
+                    <span style="font-size:12.5px"><i class="fab fa-telegram" style="color:#229ED9"></i> Notifikasi Telegram</span>
+                    @if($telegramEnabled)
+                        <span style="background:#dcfce7;color:#16a34a;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px">Aktif</span>
+                    @else
+                        <a href="{{ route('telegram.index') }}" style="background:#fee2e2;color:#dc2626;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;text-decoration:none">Setup →</a>
+                    @endif
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between">
+                    <span style="font-size:12.5px"><i class="fab fa-whatsapp" style="color:#16a34a"></i> Webhook Pesan Masuk</span>
+                    @if($webhookRegistered)
+                        <span style="background:#dcfce7;color:#16a34a;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px">Terdaftar</span>
+                    @else
+                        <a href="{{ route('whatsapp.index') }}" style="background:#fef3c7;color:#92400e;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;text-decoration:none">Daftarkan →</a>
+                    @endif
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between">
+                    <span style="font-size:12.5px"><i class="fas fa-calendar-alt" style="color:var(--ac)"></i> Jadwal Scraping</span>
+                    @if($nextSchedule)
+                        <span style="font-size:11px;color:var(--tx2)">{{ $nextSchedule['name'] }} — {{ \Carbon\Carbon::parse($nextSchedule['next'])->diffForHumans() }}</span>
+                    @else
+                        <a href="{{ route('scraper-schedule.index') }}" style="font-size:11px;color:var(--ac);text-decoration:none">Buat jadwal →</a>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        {{-- Pesan masuk terbaru --}}
+        <div class="card" style="flex:1">
+            <div class="card-header">
+                <span><i class="fas fa-envelope-open" style="color:var(--or)"></i> Pesan WA Masuk Terbaru</span>
+                @if($incomingToday > 0)
+                <span style="background:var(--rd);color:#fff;font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px">{{ $incomingToday }} hari ini</span>
+                @endif
+            </div>
+            @if($recentIncoming->isEmpty())
+            <div style="padding:18px;text-align:center;color:var(--tx3);font-size:12.5px">
+                Belum ada pesan masuk dari prospek.<br>
+                <span style="font-size:11px">Pastikan webhook sudah terdaftar.</span>
+            </div>
+            @else
+            <div style="display:flex;flex-direction:column">
+                @foreach($recentIncoming as $msg)
+                <div style="padding:9px 14px;border-bottom:1px solid var(--bdr);display:flex;gap:10px;align-items:flex-start">
+                    <div style="width:32px;height:32px;border-radius:50%;background:var(--acl);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;color:var(--ac)">
+                        {{ mb_strtoupper(mb_substr($msg->place?->name ?? '?', 0, 1)) }}
+                    </div>
+                    <div style="flex:1;min-width:0">
+                        <div style="font-size:12.5px;font-weight:600">{{ Str::limit($msg->place?->name ?? $msg->from_number, 25) }}</div>
+                        <div style="font-size:11.5px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ Str::limit($msg->message, 40) }}</div>
+                    </div>
+                    <div style="font-size:10.5px;color:var(--tx3);white-space:nowrap;flex-shrink:0">{{ $msg->received_at->diffForHumans(null, true) }} lalu</div>
+                </div>
+                @endforeach
+            </div>
             @endif
         </div>
     </div>
@@ -205,8 +287,55 @@
 @media(max-width:768px){
     .grid[style*="1fr 260px"]{grid-template-columns:1fr!important}
     [style*="width:190px"]{width:110px!important}
+    [style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}
 }
 </style>
+@endpush
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+    const labels = @json($trendDates->values());
+    const data   = @json($trendData->values());
+
+    const shortLabels = labels.map(d => {
+        const parts = d.split('-');
+        return parts[2] + '/' + parts[1];
+    });
+
+    const ctx = document.getElementById('trendChart');
+    if (!ctx) return;
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: shortLabels,
+            datasets: [{
+                label: 'Pesan Terkirim',
+                data: data,
+                backgroundColor: 'rgba(37,99,235,.65)',
+                borderColor: 'rgba(37,99,235,1)',
+                borderWidth: 1,
+                borderRadius: 3,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1, font: { size: 11 } },
+                    grid: { color: 'rgba(0,0,0,.05)' }
+                },
+                x: { ticks: { font: { size: 10 } }, grid: { display: false } }
+            }
+        }
+    });
+})();
+</script>
 @endpush
 
 @endsection

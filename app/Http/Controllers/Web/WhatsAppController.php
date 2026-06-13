@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\OutreachLog;
 use App\Models\Place;
 use App\Models\PlaceOrder;
+use App\Models\WaIncomingMessage;
 use App\Models\WaTemplate;
 use App\Services\TelegramService;
 use Illuminate\Http\Request;
@@ -710,6 +711,120 @@ class WhatsAppController extends Controller
     {
         $template->update(['is_active' => !$template->is_active]);
         return response()->json(['status' => 'ok', 'is_active' => $template->is_active]);
+    }
+
+    // ── WEBHOOK: Pesan WA Masuk ───────────────────────────────────────────────
+
+    public function handleWebhook(Request $request)
+    {
+        $event    = $request->input('event');
+        $from     = preg_replace('/[^0-9]/', '', $request->input('from', ''));
+        $message  = $request->input('message', '');
+        $deviceId = $request->input('device_id', '');
+        $ts       = $request->input('timestamp');
+
+        if ($event !== 'message.received' || !$from) {
+            return response()->json(['ok' => true]);
+        }
+
+        $receivedAt = $ts ? \Carbon\Carbon::createFromTimestamp($ts) : now();
+
+        // Cari prospek berdasarkan nomor telepon
+        $place = Place::whereNotNull('phone')
+            ->where('phone', '!=', '')
+            ->get(['id', 'name', 'phone', 'outreach_status'])
+            ->first(function ($p) use ($from) {
+                return preg_replace('/[^0-9]/', '', $p->phone) === $from;
+            });
+
+        $isProspect  = (bool) $place;
+        $actionTaken = 'none';
+
+        if ($place) {
+            // Auto-update ke replied jika status masih sent
+            if ($place->outreach_status === 'sent') {
+                $place->update(['outreach_status' => 'replied']);
+                OutreachLog::create([
+                    'place_id' => $place->id,
+                    'action'   => 'status_changed',
+                    'status'   => 'replied',
+                    'note'     => 'Auto-update dari pesan WA masuk: ' . mb_substr($message, 0, 100),
+                ]);
+                $actionTaken = 'status_updated';
+            }
+
+            // Kirim notif Telegram
+            $snippet = mb_strlen($message) > 60 ? mb_substr($message, 0, 60) . '…' : $message;
+            app(TelegramService::class)->notifyIncomingMessage($place->name, $place->phone, $snippet, $place->outreach_status);
+        }
+
+        WaIncomingMessage::create([
+            'device_id'    => $deviceId,
+            'from_number'  => $from,
+            'message'      => mb_substr($message, 0, 1000),
+            'place_id'     => $place?->id,
+            'is_prospect'  => $isProspect,
+            'action_taken' => $actionTaken,
+            'received_at'  => $receivedAt,
+        ]);
+
+        return response()->json(['ok' => true]);
+    }
+
+    public function webhookStatus()
+    {
+        $waApiUrl = rtrim(env('WA_API_URL', 'http://localhost:8000'), '/');
+        $myUrl    = url('/whatsapp/webhook');
+
+        try {
+            $resp = Http::timeout(5)->get("{$waApiUrl}/api/config/webhooks");
+            $urls = $resp->json('data') ?? [];
+        } catch (\Exception) {
+            $urls = [];
+        }
+
+        return response()->json([
+            'registered' => in_array($myUrl, $urls),
+            'webhook_url' => $myUrl,
+            'all_urls'   => $urls,
+        ]);
+    }
+
+    public function registerWebhook()
+    {
+        $waApiUrl = rtrim(env('WA_API_URL', 'http://localhost:8000'), '/');
+        $myUrl    = url('/whatsapp/webhook');
+
+        try {
+            $resp = Http::timeout(5)->post("{$waApiUrl}/api/config/webhooks", ['url' => $myUrl]);
+            return response()->json(['status' => $resp->json('status') ? 'ok' : 'error']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function unregisterWebhook()
+    {
+        $waApiUrl = rtrim(env('WA_API_URL', 'http://localhost:8000'), '/');
+        $myUrl    = url('/whatsapp/webhook');
+
+        try {
+            $resp = Http::timeout(5)->post("{$waApiUrl}/api/config/webhooks", ['url' => $myUrl, 'action' => 'delete']);
+            return response()->json(['status' => $resp->json('status') ? 'ok' : 'error']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function incomingMessages()
+    {
+        $messages = WaIncomingMessage::with('place:id,name,outreach_status')
+            ->where('is_prospect', true)
+            ->orderByDesc('received_at')
+            ->limit(50)
+            ->get();
+
+        return response()->json(['status' => 'ok', 'data' => $messages]);
     }
 
     private function renderTemplate(string $body, Place $place): string

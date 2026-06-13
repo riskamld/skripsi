@@ -3,7 +3,11 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\OutreachLog;
 use App\Models\Place;
+use App\Models\ScrapeSchedule;
+use App\Models\TelegramSetting;
+use App\Models\WaIncomingMessage;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -49,6 +53,65 @@ class DashboardController extends Controller
                 ->get(['id', 'name', 'phone', 'category', 'rating', 'review_count', 'busyness_score', 'has_whatsapp', 'is_target', 'outreach_status']),
         ];
 
-        return view('dashboard', compact('stats'));
+        // Tren outreach 14 hari terakhir
+        $trendDays  = 14;
+        $trendDates = collect(range($trendDays - 1, 0))->map(fn($i) => today()->subDays($i)->toDateString());
+        $trendRaw   = OutreachLog::where('action', 'sent')
+            ->where('created_at', '>=', today()->subDays($trendDays - 1))
+            ->selectRaw('DATE(created_at) as d, COUNT(*) as c')
+            ->groupBy('d')->pluck('c', 'd');
+        $trendData = $trendDates->map(fn($d) => $trendRaw->get($d, 0));
+
+        // Pesan masuk terbaru dari prospek (5 terakhir)
+        $recentIncoming = WaIncomingMessage::with('place:id,name,outreach_status')
+            ->where('is_prospect', true)
+            ->orderByDesc('received_at')
+            ->limit(5)
+            ->get();
+
+        // Jadwal scraping berikutnya
+        $nextSchedule = ScrapeSchedule::where('enabled', true)->get()
+            ->map(function ($s) {
+                $now = now();
+                $next = match ($s->frequency) {
+                    'every_n_hours' => $s->last_run_at
+                        ? $s->last_run_at->addHours($s->interval_hours ?: 6)
+                        : $now,
+                    'daily' => (function () use ($s, $now) {
+                        $slot = $now->copy()->setHour($s->run_hour)->setMinute(0)->setSecond(0);
+                        return $now->lt($slot) ? $slot : $slot->addDay();
+                    })(),
+                    'weekly' => (function () use ($s, $now) {
+                        $days = ['', 'Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+                        $target = $now->copy()->next($days[$s->day_of_week] ?? 'Mon')->setHour($s->run_hour)->setMinute(0)->setSecond(0);
+                        return $target;
+                    })(),
+                    default => null,
+                };
+                return $next ? ['name' => $s->name, 'next' => $next, 'query' => $s->query] : null;
+            })
+            ->filter()
+            ->sortBy('next')
+            ->first();
+
+        // Status sistem
+        $telegramEnabled = TelegramSetting::first()?->enabled ?? false;
+        $webhookUrl      = url('/whatsapp/webhook');
+        $waApiUrl        = rtrim(env('WA_API_URL', 'http://localhost:8000'), '/');
+        try {
+            $wbResp = \Illuminate\Support\Facades\Http::timeout(3)->get("{$waApiUrl}/api/config/webhooks");
+            $webhookRegistered = in_array($webhookUrl, $wbResp->json('data') ?? []);
+        } catch (\Exception) {
+            $webhookRegistered = false;
+        }
+
+        // Pesan WA masuk hari ini
+        $incomingToday = WaIncomingMessage::whereDate('received_at', today())->count();
+
+        return view('dashboard', compact(
+            'stats', 'trendDates', 'trendData',
+            'recentIncoming', 'nextSchedule',
+            'telegramEnabled', 'webhookRegistered', 'incomingToday'
+        ));
     }
 }

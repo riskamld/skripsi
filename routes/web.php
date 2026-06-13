@@ -99,6 +99,12 @@ Route::post('/whatsapp/bulk-status', [WhatsAppController::class, 'bulkStatus'])-
 Route::get('/whatsapp/recheck-count', [WhatsAppController::class, 'reCheckCount'])->name('whatsapp.recheck-count');
 Route::post('/whatsapp/recheck-wa', [WhatsAppController::class, 'reCheckWA'])->name('whatsapp.recheck-wa');
 Route::get('/whatsapp/duplicates', [WhatsAppController::class, 'duplicates'])->name('whatsapp.duplicates');
+// Webhook pesan masuk (CSRF dikecualikan di bootstrap/app.php)
+Route::post('/whatsapp/webhook', [WhatsAppController::class, 'handleWebhook'])->name('whatsapp.webhook');
+Route::get('/whatsapp/webhook-status', [WhatsAppController::class, 'webhookStatus'])->name('whatsapp.webhook-status');
+Route::post('/whatsapp/register-webhook', [WhatsAppController::class, 'registerWebhook'])->name('whatsapp.register-webhook');
+Route::post('/whatsapp/unregister-webhook', [WhatsAppController::class, 'unregisterWebhook'])->name('whatsapp.unregister-webhook');
+Route::get('/whatsapp/incoming-messages', [WhatsAppController::class, 'incomingMessages'])->name('whatsapp.incoming-messages');
 // Order tracking
 Route::post('/places/{id}/orders', [WhatsAppController::class, 'storeOrder'])->name('places.orders.store');
 Route::get('/places/{id}/orders', [WhatsAppController::class, 'getOrders'])->name('places.orders.index');

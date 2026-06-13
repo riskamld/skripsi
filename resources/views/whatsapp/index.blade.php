@@ -171,6 +171,34 @@
                     </button>
                     <div class="log-box" id="recheck-log" style="display:none;margin-top:8px"></div>
                 </div>
+
+                <div style="border-top:1px solid var(--bdr);margin-top:16px;padding-top:16px">
+                    <div class="text-sm fw-600 mb-6"><i class="fas fa-plug" style="color:var(--ac)"></i> Webhook Pesan Masuk</div>
+                    <p class="text-xs text-muted mb-10">
+                        Saat aktif, setiap pesan WA yang masuk dari prospek akan otomatis mengupdate status dan mengirim notifikasi Telegram.
+                    </p>
+                    <div id="webhook-status-wrap" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                        <span id="webhook-badge" style="font-size:12px;padding:3px 10px;border-radius:10px;font-weight:600">Mengecek...</span>
+                        <button id="btn-webhook-reg" onclick="registerWebhook()" class="btn btn-sm" style="background:var(--gn);color:#fff;border-color:var(--gn);display:none">
+                            <i class="fas fa-link"></i> Daftarkan Webhook
+                        </button>
+                        <button id="btn-webhook-unreg" onclick="unregisterWebhook()" class="btn btn-sm btn-danger" style="display:none">
+                            <i class="fas fa-unlink"></i> Cabut
+                        </button>
+                        <code id="webhook-url" style="font-size:10.5px;color:var(--tx3);background:var(--bg);padding:2px 6px;border-radius:4px"></code>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Pesan Masuk dari Prospek --}}
+        <div class="card" style="margin-top:14px">
+            <div class="card-header">
+                <span><i class="fas fa-envelope-open" style="color:var(--or)"></i> Pesan Masuk dari Prospek</span>
+                <button class="btn btn-sm btn-secondary" onclick="loadIncoming()"><i class="fas fa-sync"></i> Refresh</button>
+            </div>
+            <div id="incoming-list">
+                <div style="padding:28px;text-align:center;color:var(--tx3);font-size:13px">Klik Refresh untuk memuat pesan masuk.</div>
             </div>
         </div>
     </div>
@@ -1255,5 +1283,81 @@ async function deletePlace(id, btn) {
 // Load recheck count on page load
 loadRecheckCount();
 // Load template stats on page load when outreach tab
+
+// ── Webhook ──────────────────────────────────────────────────────────────────
+async function checkWebhookStatus() {
+    try {
+        const d = await fetch('{{ route("whatsapp.webhook-status") }}').then(r => r.json());
+        const badge  = document.getElementById('webhook-badge');
+        const btnReg = document.getElementById('btn-webhook-reg');
+        const btnUnreg = document.getElementById('btn-webhook-unreg');
+        const urlEl  = document.getElementById('webhook-url');
+        if (urlEl) urlEl.textContent = d.webhook_url;
+        if (d.registered) {
+            badge.textContent = '✅ Webhook Terdaftar';
+            badge.style.background = '#dcfce7';
+            badge.style.color = '#16a34a';
+            if (btnReg) btnReg.style.display = 'none';
+            if (btnUnreg) btnUnreg.style.display = 'inline-flex';
+        } else {
+            badge.textContent = '⚠️ Belum Terdaftar';
+            badge.style.background = '#fef3c7';
+            badge.style.color = '#92400e';
+            if (btnReg) btnReg.style.display = 'inline-flex';
+            if (btnUnreg) btnUnreg.style.display = 'none';
+        }
+    } catch(e) {
+        const badge = document.getElementById('webhook-badge');
+        if (badge) { badge.textContent = 'WA API tidak terhubung'; badge.style.background='#fee2e2'; badge.style.color='#dc2626'; }
+    }
+}
+
+async function registerWebhook() {
+    const r = await fetch('{{ route("whatsapp.register-webhook") }}', {
+        method: 'POST', headers: {'X-CSRF-TOKEN': CSRF_TOKEN}
+    }).then(r => r.json());
+    if (r.status === 'ok') { showToast('Webhook berhasil didaftarkan!', 'success'); checkWebhookStatus(); }
+    else showToast('Gagal mendaftarkan webhook.', 'error');
+}
+
+async function unregisterWebhook() {
+    if (!confirm('Cabut webhook? Pesan masuk tidak akan diproses otomatis.')) return;
+    const r = await fetch('{{ route("whatsapp.unregister-webhook") }}', {
+        method: 'POST', headers: {'X-CSRF-TOKEN': CSRF_TOKEN}
+    }).then(r => r.json());
+    if (r.status === 'ok') { showToast('Webhook dicabut.', 'success'); checkWebhookStatus(); }
+    else showToast('Gagal.', 'error');
+}
+
+async function loadIncoming() {
+    const el = document.getElementById('incoming-list');
+    if (!el) return;
+    el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--tx3)">Memuat...</div>';
+    const d = await fetch('{{ route("whatsapp.incoming-messages") }}').then(r => r.json()).catch(() => ({data:[]}));
+    if (!d.data.length) {
+        el.innerHTML = '<div style="padding:28px;text-align:center;color:var(--tx3);font-size:13px">Belum ada pesan masuk dari prospek.</div>';
+        return;
+    }
+    const statusLabel = {sent:'Terkirim',replied:'Respon',interested:'Berminat',ordered:'Order',not_interested:'Tdk Minat'};
+    const statusColor = {sent:'var(--or)',replied:'#06b6d4',interested:'#16a34a',ordered:'#7c3aed',not_interested:'var(--rd)'};
+    el.innerHTML = d.data.map(m => `
+        <div style="padding:10px 14px;border-bottom:1px solid var(--bdr);display:flex;gap:10px;align-items:flex-start">
+            <div style="width:34px;height:34px;border-radius:50%;background:var(--acl);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:700;color:var(--ac)">
+                ${(m.place?.name || m.from_number).charAt(0).toUpperCase()}
+            </div>
+            <div style="flex:1;min-width:0">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
+                    <span style="font-size:13px;font-weight:600">${m.place?.name || m.from_number}</span>
+                    ${m.place?.outreach_status ? `<span style="font-size:10px;font-weight:600;color:${statusColor[m.place.outreach_status]||'var(--tx3)'};">${statusLabel[m.place.outreach_status]||m.place.outreach_status}</span>` : ''}
+                    ${m.action_taken==='status_updated'?'<span style="font-size:10px;background:#dcfce7;color:#16a34a;padding:1px 5px;border-radius:4px">auto-updated</span>':''}
+                </div>
+                <div style="font-size:12px;color:var(--tx2)">${m.message||'(pesan media)'}</div>
+            </div>
+            <div style="font-size:11px;color:var(--tx3);white-space:nowrap;flex-shrink:0">${new Date(m.received_at).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
+        </div>
+    `).join('');
+}
+
+checkWebhookStatus();
 </script>
 @endpush
