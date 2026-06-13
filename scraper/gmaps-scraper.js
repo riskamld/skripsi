@@ -440,9 +440,15 @@ async function scrape() {
         }
 
         // Filter jarak — buang hasil yang terlalu jauh dari target
-        if (useCoords && detail.lat && detail.lng) {
+        if (useCoords) {
+          const maxKm = maxRadiusKm(targetZoom);
+          if (!detail.lat || !detail.lng) {
+            // Koordinat tidak dapat diekstrak — tolak agar tidak masuk data jauh
+            console.log(`  ⏭ Dilewati (koordinat tidak ditemukan): ${detail.name}`);
+            failed.push({ url, error: 'no-coords' });
+            continue;
+          }
           const distKm = haversineKm(targetLat, targetLng, detail.lat, detail.lng);
-          const maxKm  = maxRadiusKm(targetZoom);
           if (distKm > maxKm) {
             console.log(`  ⏭ Dilewati (${distKm.toFixed(0)}km dari target, maks ${maxKm}km): ${detail.name}`);
             failed.push({ url, error: `out-of-area (${distKm.toFixed(0)}km)` });
