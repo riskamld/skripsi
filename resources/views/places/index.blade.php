@@ -66,6 +66,7 @@
         ['unchecked',  '<i class="fas fa-question-circle"></i> Belum Cek WA','btn-secondary'],
         ['wa',         '<i class="fab fa-whatsapp"></i> Punya WA',           'btn-success'],
         ['no_wa',      '<i class="fas fa-times-circle"></i> Tidak Ada WA',   'btn-danger'],
+        ['has_pt',     '<i class="fas fa-chart-bar"></i> Ada Jam Ramai',      'btn-primary'],
         ['target',     '<i class="fas fa-bullseye"></i> Target',             'btn-primary'],
         ['unsent',     '<i class="fas fa-paper-plane"></i> Belum Kirim',     'btn-info'],
         ['sent',       '<i class="fas fa-check"></i> Sudah Kirim',           'btn-warning'],

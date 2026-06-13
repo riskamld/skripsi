@@ -37,6 +37,7 @@ class PlaceController extends Controller
             'wa'        => $query->where('has_whatsapp', true),
             'no_wa'     => $query->where('has_whatsapp', false),
             'unchecked' => $query->whereNull('has_whatsapp'),
+            'has_pt'    => $query->whereNotNull('popular_times')->where('popular_times', '!=', '{}')->where('popular_times', '!=', '[]'),
             'target'    => $query->where('is_target', true),
             'prospect'  => $query->where('has_whatsapp', true)->where('is_target', true)
                                  ->whereIn('outreach_status', ['none', null, ''])->whereNull('outreach_status'),
