@@ -272,7 +272,7 @@
 <div class="card" style="margin-top:16px" id="pt-progress-card">
     <div class="card-header d-flex align-center justify-between">
         <span style="font-weight:600;font-size:13px">
-            <i class="fas fa-chart-bar" style="color:var(--ac);margin-right:6px"></i>Progress Scrape Jam Ramai
+            <i class="fas fa-chart-bar" style="color:var(--ac);margin-right:6px"></i>Statistik Data Jam Ramai
             <span id="pt-running-dot" style="display:none;margin-left:6px;width:8px;height:8px;border-radius:50%;background:#d29922;display:none;animation:pulse 1s infinite;vertical-align:middle"></span>
         </span>
         <span id="pt-status-badge" class="text-xs text-muted"></span>

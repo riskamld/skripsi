@@ -204,7 +204,7 @@ class ScraperController extends Controller
 
     public function activeJob()
     {
-        $running = !empty(trim(shell_exec('pgrep -f gmaps-scraper.js 2>/dev/null') ?? ''));
+        $running = !empty(trim(shell_exec('pgrep -f "[g]maps-scraper.js" 2>/dev/null') ?? ''));
 
         if (!$running) {
             return response()->json(['running' => false, 'job_id' => null]);
@@ -258,7 +258,7 @@ class ScraperController extends Controller
         $scraped  = Place::whereNotNull('popular_times')->count();
         $hasPt    = \DB::selectOne('SELECT COUNT(*) as c FROM places WHERE popular_times IS NOT NULL AND popular_times != JSON_ARRAY()')->c;
         $noPt     = $scraped - $hasPt;
-        $running  = (bool) shell_exec('pgrep -f gmaps-rescraper 2>/dev/null');
+        $running  = !empty(trim(shell_exec('pgrep -f "[g]maps-rescraper" 2>/dev/null') ?? ''));
         return response()->json([
             'total'   => $total,
             'scraped' => $scraped,
@@ -337,7 +337,7 @@ class ScraperController extends Controller
         $killed = 0;
 
         // Cari PID semua proses gmaps-scraper.js
-        $pids = array_filter(array_map('trim', explode("\n", shell_exec('pgrep -f "gmaps-scraper\.js" 2>/dev/null') ?? '')));
+        $pids = array_filter(array_map('trim', explode("\n", shell_exec('pgrep -f "[g]maps-scraper.js" 2>/dev/null') ?? '')));
 
         foreach ($pids as $pid) {
             if (is_numeric($pid)) {
@@ -350,7 +350,7 @@ class ScraperController extends Controller
         // Beri waktu 2 detik lalu paksa kill jika masih ada
         if ($killed > 0) {
             sleep(2);
-            $remaining = array_filter(array_map('trim', explode("\n", shell_exec('pgrep -f "gmaps-scraper\.js" 2>/dev/null') ?? '')));
+            $remaining = array_filter(array_map('trim', explode("\n", shell_exec('pgrep -f "[g]maps-scraper.js" 2>/dev/null') ?? '')));
             foreach ($remaining as $pid) {
                 if (is_numeric($pid)) shell_exec("kill -KILL {$pid} 2>/dev/null");
             }
@@ -407,7 +407,7 @@ class ScraperController extends Controller
 
     private function scraperIsRunning(): bool
     {
-        return !empty(trim(shell_exec('pgrep -f "gmaps-scraper\.js" 2>/dev/null') ?? ''));
+        return !empty(trim(shell_exec('pgrep -f "[g]maps-scraper.js" 2>/dev/null') ?? ''));
     }
 
     private function dbStats(): array

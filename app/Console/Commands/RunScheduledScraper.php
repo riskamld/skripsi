@@ -16,7 +16,7 @@ class RunScheduledScraper extends Command
     public function handle(TelegramService $telegram): void
     {
         // Cegah tabrakan dengan scraping manual dari FE atau rescraper
-        if (!empty(trim(shell_exec('pgrep -f "gmaps-scraper\.js\|gmaps-rescraper\.js" 2>/dev/null') ?? ''))) {
+        if (!empty(trim(shell_exec('pgrep -f "[g]maps-scraper.js" 2>/dev/null') ?? '')) || !empty(trim(shell_exec('pgrep -f "[g]maps-rescraper.js" 2>/dev/null') ?? ''))) {
             $this->warn('Scraper sedang berjalan, jadwal dilewati.');
             return;
         }
@@ -27,7 +27,7 @@ class RunScheduledScraper extends Command
             if (!$schedule->shouldRunNow()) continue;
 
             // Cek ulang sebelum tiap jadwal (mungkin ada jadwal sebelumnya yang baru selesai)
-            if (!empty(trim(shell_exec('pgrep -f "gmaps-scraper\.js" 2>/dev/null') ?? ''))) {
+            if (!empty(trim(shell_exec('pgrep -f "[g]maps-scraper.js" 2>/dev/null') ?? ''))) {
                 $this->warn("Scraper baru selesai, skip jadwal: {$schedule->name}");
                 continue;
             }
