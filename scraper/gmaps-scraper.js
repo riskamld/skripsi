@@ -88,6 +88,16 @@ function cleanPhone(phone) {
   return phone.replace(/[\s\-()]/g, "").replace(/^0/, "62");
 }
 
+// Hapus karakter Private Use Area (icon Google Maps) dan karakter kontrol tak terlihat
+function cleanText(str) {
+  if (!str) return str;
+  return str
+    .replace(/[-]/g, "")   // Private Use Area (Google Maps icons)
+    .replace(/[​-‍﻿]/g, "") // Zero-width chars
+    .replace(/\s{2,}/g, " ")            // Spasi ganda jadi satu
+    .trim();
+}
+
 async function postToApi(place) {
   return new Promise((resolve, reject) => {
     const data = JSON.stringify(place);
@@ -179,7 +189,7 @@ async function extractPlaceDetail(page, url) {
   // Nama tempat
   try {
     const nameEl = await page.$('h1');
-    if (nameEl) detail.name = (await nameEl.innerText()).trim();
+    if (nameEl) detail.name = cleanText(await nameEl.innerText());
   } catch {}
 
   // Rating
@@ -218,12 +228,12 @@ async function extractPlaceDetail(page, url) {
   // Kategori
   try {
     const catEl = await page.$('button[jsaction*="category"]');
-    if (catEl) detail.category = (await catEl.innerText()).trim();
+    if (catEl) detail.category = cleanText(await catEl.innerText());
     else {
       // Fallback: ambil dari teks kecil di bawah nama
       const spans = await page.$$('span[jsan]');
       for (const s of spans) {
-        const txt = (await s.innerText()).trim();
+        const txt = cleanText(await s.innerText());
         if (txt && txt.length < 50 && !txt.includes("·")) {
           detail.category = txt;
           break;
@@ -236,10 +246,10 @@ async function extractPlaceDetail(page, url) {
   try {
     const addressBtn = await page.$('[data-item-id="address"]');
     if (addressBtn) {
-      detail.address = (await addressBtn.innerText()).trim();
+      detail.address = cleanText(await addressBtn.innerText());
     } else {
       const addressEl = await page.$('[aria-label*="Address"]');
-      if (addressEl) detail.address = (await addressEl.innerText()).replace(/^Address:\s*/i, "").trim();
+      if (addressEl) detail.address = cleanText((await addressEl.innerText()).replace(/^Address:\s*/i, ""));
     }
   } catch {}
 
@@ -273,11 +283,11 @@ async function extractPlaceDetail(page, url) {
     }
     const hoursTable = await page.$('[aria-label*="hour" i] table, table[aria-label*="hour" i]');
     if (hoursTable) {
-      detail.opening_hours = (await hoursTable.innerText()).trim();
+      detail.opening_hours = cleanText(await hoursTable.innerText());
     } else {
       // Fallback: ambil teks dari area jam
       const hoursEl = await page.$('[class*="t39EBf"]');
-      if (hoursEl) detail.opening_hours = (await hoursEl.innerText()).trim();
+      if (hoursEl) detail.opening_hours = cleanText(await hoursEl.innerText());
     }
   } catch {}
 

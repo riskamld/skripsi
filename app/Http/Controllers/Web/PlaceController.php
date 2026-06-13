@@ -13,97 +13,62 @@ class PlaceController extends Controller
     {
         $query = Place::query();
 
-        // Search functionality
+        // Search
         if ($request->filled('search')) {
             $search = $request->search;
-            Log::info('Search query', ['search' => $search]);
-
             $query->where(function($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                   ->orWhere('category', 'like', "%{$search}%")
                   ->orWhere('address', 'like', "%{$search}%");
             });
-
-            // Debug: Log the count of results
-            $countBeforePaginate = $query->count();
-            Log::info('Search results count', ['count' => $countBeforePaginate, 'search' => $search]);
         }
 
-        // Filter by categories (multiple selection support)
+        // Category filter
         if ($request->filled('categories')) {
-            $categories = is_array($request->categories) ? $request->categories : [$request->categories];
-            $query->whereIn('category', $categories);
+            $cats = is_array($request->categories) ? $request->categories : [$request->categories];
+            $query->whereIn('category', $cats);
         } elseif ($request->filled('category')) {
-            // Backward compatibility with single category
             $query->where('category', $request->category);
         }
 
-        // Filter by rating range
-        if ($request->filled('rating_min')) {
-            $query->where('rating', '>=', $request->rating_min);
-        }
-        if ($request->filled('rating_max')) {
-            $query->where('rating', '<=', $request->rating_max);
-        }
+        // Quick filters (tab-style)
+        $quickFilter = $request->get('qf', '');
+        match($quickFilter) {
+            'wa'        => $query->where('has_whatsapp', true),
+            'target'    => $query->where('is_target', true),
+            'prospect'  => $query->where('has_whatsapp', true)->where('is_target', true)
+                                 ->whereIn('outreach_status', ['none', null, ''])->whereNull('outreach_status'),
+            'sent'      => $query->where('outreach_status', 'sent'),
+            'replied'   => $query->where('outreach_status', 'replied'),
+            'unsent'    => $query->where('has_whatsapp', true)
+                                 ->where(fn($q) => $q->whereNull('outreach_status')->orWhere('outreach_status', 'none')),
+            default     => null,
+        };
 
-        // Sort options with MySQL-compatible NULL handling
-        $sortBy = $request->get('sort', 'created_at');
+        // Sort
+        $sortBy  = $request->get('sort', 'created_at');
         $sortDir = $request->get('direction', 'desc');
-
-        // Debug logging
-        Log::info('Sort parameters', ['sort' => $sortBy, 'direction' => $sortDir, 'all_params' => $request->all()]);
-
-        $allowedSorts = ['name', 'rating', 'review_count', 'created_at', 'updated_at', 'last_scraped_at'];
+        $allowedSorts = ['name', 'rating', 'review_count', 'busyness_score', 'created_at', 'updated_at', 'last_scraped_at'];
         if (in_array($sortBy, $allowedSorts)) {
-            if ($sortBy === 'review_count') {
-                // MySQL compatible: NULL values go to bottom for review_count
-                if ($sortDir === 'desc') {
-                    $query->orderByRaw('review_count IS NULL ASC, review_count DESC');
-                } else {
-                    $query->orderByRaw('review_count IS NULL ASC, review_count ASC');
-                }
-            } elseif ($sortBy === 'rating') {
-                // MySQL compatible: NULL values go to bottom for rating
-                if ($sortDir === 'desc') {
-                    $query->orderByRaw('rating IS NULL ASC, rating DESC');
-                } else {
-                    $query->orderByRaw('rating IS NULL ASC, rating ASC');
-                }
+            if (in_array($sortBy, ['review_count', 'rating', 'busyness_score'])) {
+                $dir = $sortDir === 'asc' ? 'ASC' : 'DESC';
+                $query->orderByRaw("{$sortBy} IS NULL ASC, {$sortBy} {$dir}");
             } else {
                 $query->orderBy($sortBy, $sortDir);
             }
         }
 
-        // Handle AJAX requests for infinite scroll (only when no filters applied)
-        if (request()->ajax() && !request()->filled('category') && !request()->filled('search')) {
-            $places = $query->paginate(20); // Smaller chunks for infinite scroll
-            return response()->json([
-                'places' => $places->items(),
-                'has_more' => $places->hasMorePages(),
-                'next_page' => $places->hasMorePages() ? $places->currentPage() + 1 : null
-            ]);
-        }
+        $places = $query->paginate(50)->onEachSide(2);
 
-        // When category filter is applied (single or multiple), show all results without pagination
-        if (request()->filled('categories') || request()->filled('category') || request()->filled('search')) {
-            $places = $query->get(); // Get all results when filtered
-        } else {
-            $places = $query->paginate(50)->onEachSide(2); // Normal pagination when no filter
-        }
-
-        // Get unique categories for filter dropdown with counts (sorted by count descending)
-        // Include all categories that are not null and not empty/whitespace
         $categories = Place::whereNotNull('category')
             ->where('category', '!=', '')
-            ->where('category', 'not regexp', '^[[:space:]]*$') // Exclude whitespace-only categories
+            ->where('category', 'not regexp', '^[[:space:]]*$')
             ->select('category')
             ->selectRaw('COUNT(*) as count')
             ->groupBy('category')
-            ->orderBy('count', 'desc') // Sort by count descending (most places first)
+            ->orderBy('count', 'desc')
             ->get()
-            ->map(function ($item) {
-                return ['name' => $item->category, 'count' => $item->count];
-            });
+            ->map(fn($item) => ['name' => $item->category, 'count' => $item->count]);
 
         return view('places.index', compact('places', 'categories'));
     }

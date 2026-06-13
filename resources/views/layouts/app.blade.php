@@ -105,6 +105,11 @@ html,body{height:100%;font-family:'Inter',sans-serif;font-size:14px;color:var(--
 .btn-sm{padding:3px 9px;font-size:11.5px;border-radius:5px}
 .btn-xs{padding:2px 6px;font-size:11px;border-radius:4px}
 .btn:disabled,.btn[disabled]{opacity:.45;cursor:not-allowed;pointer-events:none}
+.btn-warning{background:#d97706;color:#fff;border-color:#d97706}.btn-warning:hover{background:#b45309;color:#fff}
+.btn-info{background:#0891b2;color:#fff;border-color:#0891b2}.btn-info:hover{background:#0e7490;color:#fff}
+.btn-orange{background:#ea580c;color:#fff;border-color:#ea580c}.btn-orange:hover{background:#c2410c;color:#fff}
+.btn-outline{background:transparent!important;color:var(--tx2)!important;border-color:var(--bdr)!important}
+.btn-outline:hover{background:var(--bg)!important;color:var(--tx)!important}
 .btn-group{display:inline-flex}
 .btn-group .btn{border-radius:0}
 .btn-group .btn:first-child{border-radius:5px 0 0 5px}

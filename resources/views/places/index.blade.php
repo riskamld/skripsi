@@ -44,7 +44,7 @@
     </select>
 
     <div class="ml-auto d-flex align-center gap-8">
-        @if(request('categories') || request('search'))
+        @if(request('categories') || request('search') || request('qf'))
         <a href="{{ route('places.index') }}" class="btn btn-ghost btn-sm">
             <i class="fas fa-times"></i> Reset
         </a>
@@ -55,6 +55,24 @@
             <i class="fas fa-trash"></i> Hapus Semua
         </button>
     </div>
+</div>
+
+{{-- Quick filter chips --}}
+@php $qf = request('qf',''); @endphp
+<div class="d-flex align-center gap-6 mb-12 flex-wrap" style="font-size:12.5px;">
+    <span class="text-muted" style="font-size:11px;font-weight:600;letter-spacing:.4px;white-space:nowrap;">FILTER CEPAT</span>
+    @foreach([
+        ['' ,        'Semua',                                           'btn-secondary'],
+        ['wa',       '<i class="fab fa-whatsapp"></i> Punya WA',        'btn-success'],
+        ['target',   '<i class="fas fa-bullseye"></i> Target',          'btn-primary'],
+        ['unsent',   '<i class="fas fa-paper-plane"></i> Belum Kirim',  'btn-info'],
+        ['sent',     '<i class="fas fa-check"></i> Sudah Kirim',        'btn-warning'],
+        ['replied',  '<i class="fas fa-reply"></i> Ada Respon',         'btn-orange'],
+    ] as [$val, $label, $cls])
+    @php $active = ($qf === $val); @endphp
+    <a href="{{ route('places.index', array_merge(request()->except(['qf','page']), $val ? ['qf'=>$val] : [])) }}"
+       class="btn btn-sm {{ $active ? $cls : 'btn-outline' }}">{!! $label !!}</a>
+    @endforeach
 </div>
 
 {{-- Category filter panel --}}
