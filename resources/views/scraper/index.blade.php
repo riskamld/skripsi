@@ -109,6 +109,9 @@
             <span class="status-dot" id="status-dot"></span>
             <span style="font-size:14px;font-weight:600" id="status-label">Siap</span>
         </div>
+        <button id="btn-stop" class="btn btn-sm" style="display:none;font-size:12px;background:var(--rd);color:#fff;border-color:var(--rd)" onclick="stopScraper()">
+            <i class="fas fa-stop"></i> Stop
+        </button>
         <button id="btn-reset" class="btn btn-sm btn-secondary" style="display:none;font-size:12px">
             <i class="fas fa-redo"></i> Scraping Baru
         </button>
@@ -561,14 +564,44 @@ function showRunning(query, loc) {
     $('progress-wrap').style.display = 'block';
     $('result-strip').style.display  = 'none';
     $('btn-reset').style.display     = 'none';
+    $('btn-stop').style.display      = 'inline-block';
     $('terminal-title').textContent  = `"${query}"${loc ? ' — ' + loc : ''}`;
     $('log-output').innerHTML        = '';
     logLines = [];
 }
 
+async function stopScraper() {
+    if (!confirm('Hentikan proses scraping yang sedang berjalan?')) return;
+    $('btn-stop').disabled = true;
+    $('btn-stop').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menghentikan…';
+    try {
+        const r = await fetch('{{ route("scraper.stop") }}', {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+        }).then(r => r.json());
+        if (r.status === 'ok') {
+            clearInterval(pollInterval);
+            setStatus('error', 'Dihentikan manual');
+            appendLine('[STOP] Proses dihentikan oleh pengguna.');
+            $('btn-stop').style.display = 'none';
+            $('btn-reset').style.display = 'inline-block';
+            $('progress-wrap').style.display = 'none';
+        } else {
+            alert('Gagal menghentikan: ' + (r.message || 'Unknown error'));
+            $('btn-stop').disabled = false;
+            $('btn-stop').innerHTML = '<i class="fas fa-stop"></i> Stop';
+        }
+    } catch(e) {
+        alert('Error: ' + e.message);
+        $('btn-stop').disabled = false;
+        $('btn-stop').innerHTML = '<i class="fas fa-stop"></i> Stop';
+    }
+}
+
 function showDone(status, lines) {
     clearInterval(pollInterval);
     $('progress-wrap').style.display = 'none';
+    $('btn-stop').style.display      = 'none';
     $('btn-reset').style.display     = 'inline-block';
     if (status === 'success') {
         setStatus('success', 'Selesai');

@@ -97,13 +97,17 @@
                         <li>Pilih ukuran area: Kelurahan / Kecamatan / Kota / Kabupaten</li>
                         <li>Ketik kata kunci pencarian, contoh: <em>"toko buah"</em>, <em>"pasar buah"</em></li>
                         <li>Klik <strong>Mulai Scraping</strong> dan tunggu selesai</li>
+                        <li>Jika perlu dihentikan: klik tombol <strong style="color:var(--rd)">■ Stop</strong> yang muncul saat proses berjalan</li>
                     </ul>
                     <span class="guide-tag tag-go"><i class="fas fa-check"></i> Hasil langsung masuk ke Data Tempat</span>
                     <span class="guide-tag tag-warn"><i class="fas fa-clock"></i> Proses 20–50 tempat butuh ±5 menit</span>
+                    <span class="guide-tag" style="background:#fee2e2;color:#991b1b"><i class="fas fa-shield-alt"></i> Sistem otomatis cegah dua scraping berjalan bersamaan</span>
                 </div>
                 <div class="tip-box">
                     <strong>Tips:</strong> Lakukan scraping per kecamatan agar hasilnya spesifik. Gunakan kata kunci berbeda
                     ("toko buah", "buah segar", "pasar") untuk hasil yang lebih banyak.
+                    Jika ada jadwal otomatis aktif dan scraping manual dimulai, sistem akan menolak
+                    salah satu agar tidak terjadi konflik.
                 </div>
             </div>
         </div>
@@ -442,9 +446,35 @@
                         <li>Hasil terakhir (berapa tempat diproses, sukses/gagal) tampil di tabel</li>
                     </ul>
                     <strong>Syarat wajib:</strong> Tambahkan satu baris ke crontab server. Instruksinya tersedia di bagian bawah halaman Jadwal Scraping — cukup salin dan jalankan sekali.
+                    <ul>
+                        <li>Jika scraping manual sedang berjalan saat jadwal tiba → jadwal otomatis dilewati, tidak ada konflik</li>
+                        <li>Jika jadwal sedang berjalan dan user mencoba scraping manual dari FE → sistem menolak dengan pesan peringatan</li>
+                        <li>Tombol <strong style="color:var(--rd)">■ Stop</strong> tersedia di FE untuk menghentikan proses kapan saja</li>
+                    </ul>
                 </div>
                 <div class="tip-box">
                     <strong>Contoh penggunaan:</strong> Buat jadwal "Toko Buah Surabaya" dengan query <em>toko buah</em>, area <em>Surabaya</em>, limit 30, frekuensi setiap hari jam 06:00 — data baru masuk setiap pagi sebelum Anda mulai kerja.
+                </div>
+            </div>
+        </div>
+
+        {{-- Webhook Pesan Masuk --}}
+        <div class="guide-step">
+            <div class="guide-num"><i class="fas fa-plug" style="font-size:13px;color:var(--ac)"></i></div>
+            <div class="guide-body">
+                <div class="guide-title">Webhook — Deteksi Pesan WA Masuk Otomatis</div>
+                <div class="guide-desc">
+                    Saat webhook aktif, setiap pesan WA yang masuk dari prospek diproses secara otomatis tanpa perlu refresh halaman.
+                    <ul>
+                        <li>Buka <strong>WhatsApp</strong> → tab <strong>Cek WA</strong> → scroll ke bawah → klik <strong>Daftarkan Webhook</strong></li>
+                        <li>Status berubah menjadi ✅ Terdaftar</li>
+                        <li>Mulai sekarang, jika prospek membalas WA → status otomatis berubah <em>Terkirim → Respon</em></li>
+                        <li>Notifikasi Telegram langsung dikirim dengan isi cuplikan pesan</li>
+                        <li>Riwayat semua pesan masuk bisa dilihat di bagian <em>Pesan Masuk dari Prospek</em> di tab yang sama</li>
+                    </ul>
+                </div>
+                <div class="tip-box">
+                    <strong>Catatan:</strong> Webhook hanya mendeteksi pesan dari nomor yang sudah ada di database. Pesan dari nomor tidak dikenal tetap masuk ke WA tapi tidak diproses sistem.
                 </div>
             </div>
         </div>

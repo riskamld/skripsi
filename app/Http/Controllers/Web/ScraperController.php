@@ -332,6 +332,37 @@ class ScraperController extends Controller
         return response()->json($result);
     }
 
+    public function stop()
+    {
+        $killed = 0;
+
+        // Cari PID semua proses gmaps-scraper.js
+        $pids = array_filter(array_map('trim', explode("\n", shell_exec('pgrep -f "gmaps-scraper\.js" 2>/dev/null') ?? '')));
+
+        foreach ($pids as $pid) {
+            if (is_numeric($pid)) {
+                // Kirim SIGTERM dulu (graceful), lalu SIGKILL jika masih hidup
+                shell_exec("kill -TERM {$pid} 2>/dev/null");
+                $killed++;
+            }
+        }
+
+        // Beri waktu 2 detik lalu paksa kill jika masih ada
+        if ($killed > 0) {
+            sleep(2);
+            $remaining = array_filter(array_map('trim', explode("\n", shell_exec('pgrep -f "gmaps-scraper\.js" 2>/dev/null') ?? '')));
+            foreach ($remaining as $pid) {
+                if (is_numeric($pid)) shell_exec("kill -KILL {$pid} 2>/dev/null");
+            }
+        }
+
+        return response()->json([
+            'status'  => 'ok',
+            'killed'  => $killed,
+            'message' => $killed > 0 ? "Menghentikan {$killed} proses scraper." : 'Tidak ada proses yang berjalan.',
+        ]);
+    }
+
     public function notifyDone(string $jobId)
     {
         if (!preg_match('/^s(?:crape|ched)_[a-f0-9._]+$/', $jobId)) {

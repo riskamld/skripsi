@@ -29,6 +29,7 @@ Route::get('/scraper/active-job', [ScraperController::class, 'activeJob'])->name
 Route::post('/scraper/save-cookies', [ScraperController::class, 'saveCookies'])->name('scraper.save-cookies');
 Route::get('/scraper/cookie-status', [ScraperController::class, 'cookieStatus'])->name('scraper.cookie-status');
 Route::post('/scraper/check-cookies', [ScraperController::class, 'checkCookies'])->name('scraper.check-cookies');
+Route::post('/scraper/stop', [ScraperController::class, 'stop'])->name('scraper.stop');
 Route::get('/scraper/notify-done/{jobId}', [ScraperController::class, 'notifyDone'])->name('scraper.notify-done');
 Route::get('/scraper/notify-error/{jobId}', [ScraperController::class, 'notifyError'])->name('scraper.notify-error');
 
