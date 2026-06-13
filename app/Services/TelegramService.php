@@ -17,7 +17,7 @@ class TelegramService
         $this->cfg = TelegramSetting::first();
     }
 
-    public function isEnabled(string $notifKey = null): bool
+    public function isEnabled(?string $notifKey = null): bool
     {
         if (!$this->cfg || !$this->cfg->enabled || !$this->cfg->bot_token || !$this->cfg->chat_id) {
             return false;
