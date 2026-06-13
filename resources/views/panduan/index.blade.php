@@ -296,10 +296,11 @@
         <div class="card-body" style="padding:16px">
             <div style="display:flex;flex-direction:column;gap:10px">
                 @foreach([
-                    ['Pagi','08:00 – 09:00','Cek respon dari kemarin (filter Ada Respon)','#fef3c7','#92400e','fa-sun'],
-                    ['Pagi','09:00 – 10:30','Kirim 10–20 pesan baru (filter Belum Kirim, sort Score ↓)','#eff6ff','#1d4ed8','fa-paper-plane'],
+                    ['Pagi','07:00','Ringkasan harian Telegram otomatis masuk — cek statistik kemarin','#e0f2fe','#0369a1','fa-bell'],
+                    ['Pagi','08:00 – 09:00','Cek respon dari kemarin (tab Follow Up / filter Ada Respon)','#fef3c7','#92400e','fa-sun'],
+                    ['Pagi','09:00 – 10:30','Kirim 10–20 pesan baru via tab Kirim Pesan (Preview & Kirim)','#eff6ff','#1d4ed8','fa-paper-plane'],
                     ['Siang','12:00 – 13:00','Follow up yang belum balas lebih dari 3 hari','#f3e8ff','#7e22ce','fa-redo'],
-                    ['Sore','16:00 – 17:00','Scraping area baru jika perlu tambah data','#dcfce7','#15803d','fa-robot'],
+                    ['Sore','Otomatis','Scraping berjalan sesuai jadwal — tidak perlu manual lagi','#dcfce7','#15803d','fa-robot'],
                 ] as [$label, $time, $task, $bg, $col, $icon])
                 <div style="background:{{ $bg }};border-radius:6px;padding:9px 11px">
                     <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
@@ -329,6 +330,12 @@
             </a>
             <a href="{{ route('map.index') }}" class="btn btn-secondary btn-sm" style="justify-content:flex-start">
                 <i class="fas fa-map-marked-alt"></i> Lihat Peta
+            </a>
+            <a href="{{ route('scraper-schedule.index') }}" class="btn btn-secondary btn-sm" style="justify-content:flex-start">
+                <i class="fas fa-calendar-alt"></i> Jadwal Scraping
+            </a>
+            <a href="{{ route('telegram.index') }}" class="btn btn-secondary btn-sm" style="justify-content:flex-start">
+                <i class="fab fa-telegram" style="color:#229ED9"></i> Notifikasi Telegram
             </a>
             <a href="{{ route('dashboard') }}" class="btn btn-secondary btn-sm" style="justify-content:flex-start">
                 <i class="fas fa-chart-bar"></i> Dasbor
@@ -417,6 +424,53 @@
                         <li>Bulk Delete: centang beberapa baris di Daftar Target → dropdown status → Terapkan untuk update status massal.</li>
                     </ul>
                     <strong>Coverage Heatmap:</strong> Di halaman Scraping, klik <em>Tampilkan Heatmap</em> untuk melihat visualisasi kepadatan data yang sudah di-scrape. Area merah/kuning = sudah padat, area kosong = peluang scraping baru.
+                </div>
+            </div>
+        </div>
+
+        {{-- Jadwal Scraping --}}
+        <div class="guide-step">
+            <div class="guide-num"><i class="fas fa-calendar-alt" style="font-size:13px"></i></div>
+            <div class="guide-body">
+                <div class="guide-title">Jadwal Scraping Otomatis</div>
+                <div class="guide-desc">
+                    Buka menu <strong>Jadwal Scraping</strong> di sidebar untuk mengatur scraping berjalan sendiri tanpa perlu buka aplikasi.
+                    <ul>
+                        <li><strong>Tambah Jadwal</strong> — isi nama, kata kunci, area, limit, dan frekuensi</li>
+                        <li><strong>Frekuensi tersedia:</strong> Setiap hari (jam tertentu) / Setiap N jam / Setiap minggu</li>
+                        <li>Toggle aktif/nonaktif per jadwal tanpa perlu hapus</li>
+                        <li>Hasil terakhir (berapa tempat diproses, sukses/gagal) tampil di tabel</li>
+                    </ul>
+                    <strong>Syarat wajib:</strong> Tambahkan satu baris ke crontab server. Instruksinya tersedia di bagian bawah halaman Jadwal Scraping — cukup salin dan jalankan sekali.
+                </div>
+                <div class="tip-box">
+                    <strong>Contoh penggunaan:</strong> Buat jadwal "Toko Buah Surabaya" dengan query <em>toko buah</em>, area <em>Surabaya</em>, limit 30, frekuensi setiap hari jam 06:00 — data baru masuk setiap pagi sebelum Anda mulai kerja.
+                </div>
+            </div>
+        </div>
+
+        {{-- Notifikasi Telegram --}}
+        <div class="guide-step">
+            <div class="guide-num"><i class="fab fa-telegram" style="font-size:13px;color:#229ED9"></i></div>
+            <div class="guide-body">
+                <div class="guide-title">Notifikasi Telegram</div>
+                <div class="guide-desc">
+                    Buka menu <strong>Telegram</strong> di sidebar. Setelah setup bot, aplikasi mengirim notifikasi otomatis ke HP Anda untuk 9 jenis kejadian:
+                    <ul>
+                        <li>✅ Scraping selesai — berapa tempat ditemukan</li>
+                        <li>❌ Scraper error — peringatan jika proses gagal</li>
+                        <li>📱 Cek WA selesai — hasil batch pengecekan</li>
+                        <li>📤 Pesan WA terkirim — konfirmasi outreach + sisa limit hari ini</li>
+                        <li>⚠️ Limit harian tercapai — 50 pesan/hari sudah habis</li>
+                        <li>🎯 Ada yang tertarik — notif instan saat prospek berminat</li>
+                        <li>🛒 Order baru masuk — saat order dicatat di detail tempat</li>
+                        <li>🔍 Duplikat terdeteksi — saat cek duplikat menemukan nomor ganda</li>
+                        <li>📊 Ringkasan harian — laporan statistik otomatis tiap pagi</li>
+                    </ul>
+                    Setiap notif bisa diaktifkan/nonaktifkan secara terpisah. Tombol <strong>Uji Kirim</strong> tersedia untuk test koneksi sebelum digunakan.
+                </div>
+                <div class="tip-box">
+                    <strong>Cara setup cepat:</strong> (1) Buka Telegram → cari <b>@BotFather</b> → kirim <code>/newbot</code> → salin token. (2) Cari <b>@userinfobot</b> → kirim sembarang pesan → salin ID Anda. (3) Paste keduanya di halaman Telegram → Simpan → Uji Kirim.
                 </div>
             </div>
         </div>
