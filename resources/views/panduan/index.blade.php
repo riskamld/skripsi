@@ -337,6 +337,93 @@
     </div>
 
 </div>
+
+<hr class="section-divider">
+
+{{-- Fitur Baru --}}
+<div class="card mb-20">
+    <div class="card-header">
+        <span><i class="fas fa-star" style="color:var(--ac);margin-right:6px"></i>Fitur Lanjutan</span>
+    </div>
+    <div class="card-body" style="padding:20px 24px;display:flex;flex-direction:column;gap:20px">
+
+        {{-- Follow Up --}}
+        <div class="guide-step">
+            <div class="guide-num"><i class="fas fa-bell" style="font-size:13px"></i></div>
+            <div class="guide-body">
+                <div class="guide-title">Follow Up Efektif</div>
+                <div class="guide-desc">
+                    Tab <strong>Follow Up</strong> di halaman WhatsApp menampilkan tiga seksi:
+                    <ul>
+                        <li><strong>Perlu Di-Follow Up</strong> — dikirim lebih dari 3 hari lalu, belum ada respon. Badge <span style="background:var(--rd);color:#fff;padding:1px 5px;border-radius:4px;font-size:11px">merah</span> = &gt;7 hari, <span style="background:#f97316;color:#fff;padding:1px 5px;border-radius:4px;font-size:11px">oranye</span> = 3–7 hari.</li>
+                        <li><strong>Berminat – Belum Order</strong> — sudah bilang tertarik, dorong untuk order.</li>
+                        <li><strong>Sudah Respon – Belum Berminat</strong> — sudah membalas WA, tapi belum berminat. Coba pendekatan berbeda.</li>
+                    </ul>
+                    Gunakan tombol aksi di tiap baris untuk langsung update status tanpa meninggalkan halaman.
+                </div>
+                <div class="tip-box">
+                    <strong>Tips:</strong> Follow up terbaik dilakukan 3–5 hari setelah pesan pertama, saat toko sedang tidak terlalu sibuk (pagi 08:00–10:00 atau sore 14:00–16:00).
+                </div>
+            </div>
+        </div>
+
+        {{-- Template Stats --}}
+        <div class="guide-step">
+            <div class="guide-num"><i class="fas fa-chart-bar" style="font-size:13px"></i></div>
+            <div class="guide-body">
+                <div class="guide-title">Statistik Template Pesan</div>
+                <div class="guide-desc">
+                    Di bagian bawah daftar template (tab <strong>Kirim Pesan</strong>), tabel statistik menampilkan performa tiap template:
+                    <ul>
+                        <li><strong>Terkirim</strong> — berapa kali template digunakan.</li>
+                        <li><strong>Respon / Berminat / Order</strong> — konversi dari prospek yang menerima template ini.</li>
+                        <li><strong>Konversi%</strong> — persentase yang akhirnya order. Pilih template dengan konversi tertinggi.</li>
+                    </ul>
+                    Statistik hanya tersedia untuk pesan yang dikirim setelah fitur ini diaktifkan.
+                </div>
+            </div>
+        </div>
+
+        {{-- Order Tracking --}}
+        <div class="guide-step">
+            <div class="guide-num"><i class="fas fa-shopping-cart" style="font-size:13px"></i></div>
+            <div class="guide-body">
+                <div class="guide-title">Catat Order Pelanggan</div>
+                <div class="guide-desc">
+                    Saat status tempat diubah ke <strong>Sudah Order</strong>, kartu <em>Detail Order</em> akan muncul di halaman detail tempat. Anda bisa mencatat:
+                    <ul>
+                        <li>Item yang dipesan (misal: Apel Fuji, Jeruk Mandarin)</li>
+                        <li>Jumlah dan satuan (kg / pcs / dus / box)</li>
+                        <li>Total harga dalam Rupiah</li>
+                        <li>Tanggal order dan catatan tambahan</li>
+                    </ul>
+                    Total nilai order terakumulasi ditampilkan di dashboard sebagai <strong>Total Nilai Order</strong>.
+                </div>
+                <div class="tip-box">
+                    <strong>Cara pakai:</strong> Buka halaman detail tempat → Outreach → ubah status ke "Sudah Order" → kartu order akan muncul di bawah.
+                </div>
+            </div>
+        </div>
+
+        {{-- Duplikat & Coverage --}}
+        <div class="guide-step">
+            <div class="guide-num"><i class="fas fa-copy" style="font-size:13px"></i></div>
+            <div class="guide-body">
+                <div class="guide-title">Tips Duplikat & Coverage</div>
+                <div class="guide-desc">
+                    <strong>Deteksi Duplikat:</strong> Di tab Daftar Target, klik tombol <em>Cek Duplikat</em> untuk menemukan nomor telepon yang sama pada beberapa entri berbeda. Hapus entri duplikat (pertahankan yang pertama/tertua) agar tidak kirim pesan ke nomor yang sama dua kali.
+                    <ul>
+                        <li>Duplikat bisa terjadi saat scraping area yang tumpang tindih.</li>
+                        <li>Bulk Delete: centang beberapa baris di Daftar Target → dropdown status → Terapkan untuk update status massal.</li>
+                    </ul>
+                    <strong>Coverage Heatmap:</strong> Di halaman Scraping, klik <em>Tampilkan Heatmap</em> untuk melihat visualisasi kepadatan data yang sudah di-scrape. Area merah/kuning = sudah padat, area kosong = peluang scraping baru.
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
 </div>
 
 @endsection

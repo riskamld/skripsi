@@ -150,10 +150,15 @@
         </div>
 
         {{-- Map area picker --}}
-        <label style="font-size:12px;font-weight:600;color:var(--tx2);display:block;margin-bottom:6px">
-            <i class="fas fa-map-marker-alt" style="color:var(--ac)"></i>
-            Area Scraping — klik peta untuk pilih lokasi
-        </label>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <label style="font-size:12px;font-weight:600;color:var(--tx2);margin:0">
+                <i class="fas fa-map-marker-alt" style="color:var(--ac)"></i>
+                Area Scraping — klik peta untuk pilih lokasi
+            </label>
+            <button id="btn-heatmap" class="btn btn-sm btn-secondary" onclick="toggleHeatmap()" style="font-size:11px">
+                <i class="fas fa-fire"></i> Tampilkan Heatmap
+            </button>
+        </div>
         <div id="area-map"></div>
         <div class="map-legend">
             <span><i style="background:#22c55e"></i> Punya WA</span>
@@ -340,6 +345,7 @@
 @push('scripts')
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 
@@ -829,6 +835,34 @@ function loadCookieStatus() {
 }
 loadCookieStatus();
 
+// ── Auto-resume active scraping job ───────────────────────────────────────────
+async function checkActiveJob() {
+    try {
+        const d = await fetch('{{ route("scraper.active-job") }}').then(r => r.json());
+        if (!d.running || !d.job_id) return;
+
+        jobId    = d.job_id;
+        jobLimit = d.meta?.limit || 20;
+
+        const query = d.meta?.query || 'Scraping';
+        const area  = d.meta?.area  || '';
+        showRunning(query, area);
+        setStatus('running', 'Berjalan…');
+
+        d.lines.forEach(l => { logLines.push(l); appendLine(l); });
+        if (d.processed) updateProgress(d.processed);
+
+        const info = document.createElement('div');
+        info.className = 't-info';
+        info.textContent = `⟳ Auto-resume: melanjutkan scraping yang sedang berjalan (${d.lines.length} baris log dimuat)`;
+        $('log-output').prepend(info);
+        $('log-output').scrollTop = $('log-output').scrollHeight;
+
+        pollInterval = setInterval(poll, 2000);
+    } catch(e) {}
+}
+checkActiveJob();
+
 // ── Progress Jam Ramai ────────────────────────────────────────────────────────
 let ptPollTimer = null;
 let ptPrevScraped = null;
@@ -875,5 +909,27 @@ async function loadPtProgress() {
 }
 loadPtProgress();
 ptPollTimer = setInterval(loadPtProgress, 30000);
+
+// ── Heatmap (Fitur 7) ────────────────────────────────────────────────────────
+let heatLayer = null, heatActive = false;
+function toggleHeatmap() {
+    if (!heatActive) {
+        const pts = @json($existingPlaces).map(p => [p[0], p[1], 0.5]);
+        if (pts.length === 0) { alert('Tidak ada data tempat untuk heatmap.'); return; }
+        heatLayer = L.heatLayer(pts, {radius:25,blur:20,maxZoom:14}).addTo(map);
+        heatActive = true;
+        document.getElementById('btn-heatmap').classList.add('active');
+        document.getElementById('btn-heatmap').style.background = 'var(--ac)';
+        document.getElementById('btn-heatmap').style.color = '#fff';
+        document.getElementById('btn-heatmap').style.borderColor = 'var(--ac)';
+    } else {
+        if (heatLayer) { map.removeLayer(heatLayer); heatLayer = null; }
+        heatActive = false;
+        document.getElementById('btn-heatmap').classList.remove('active');
+        document.getElementById('btn-heatmap').style.background = '';
+        document.getElementById('btn-heatmap').style.color = '';
+        document.getElementById('btn-heatmap').style.borderColor = '';
+    }
+}
 </script>
 @endpush

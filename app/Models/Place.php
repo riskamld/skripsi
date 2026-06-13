@@ -77,6 +77,11 @@ class Place extends Model
         return $this->hasMany(ScrapeLog::class, 'place_id', 'place_id');
     }
 
+    public function orders()
+    {
+        return $this->hasMany(PlaceOrder::class);
+    }
+
     // Nilai puncak per hari dari popular_times → [day => maxValue]
     public function popularTimePeaks(): array
     {

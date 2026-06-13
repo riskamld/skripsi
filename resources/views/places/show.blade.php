@@ -408,6 +408,75 @@ $sl = $statusLabels[$currentStatus] ?? null;
     </div>
 </div>
 
+{{-- Order Detail (hanya tampil kalau status ordered) --}}
+@if($place->outreach_status === 'ordered')
+<div class="card mb-16" id="order-card">
+    <div class="card-header" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <span><i class="fas fa-shopping-cart" style="color:var(--gn);margin-right:6px"></i>Detail Order</span>
+        <span class="text-xs text-muted">Total: <strong id="order-total-display">Rp {{ number_format($place->orders->sum('total_rp'), 0, ',', '.') }}</strong></span>
+    </div>
+    <div class="card-body">
+        {{-- Form tambah order --}}
+        <div style="background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:14px;margin-bottom:14px">
+            <div class="text-xs fw-600 mb-8" style="color:var(--tx2)"><i class="fas fa-plus"></i> Tambah Order Baru</div>
+            <div style="display:grid;grid-template-columns:1fr 80px 90px;gap:8px;margin-bottom:8px">
+                <input type="text" id="order-item" class="form-control" placeholder="Item (misal: Apel Fuji)" style="font-size:12px">
+                <input type="number" id="order-qty" class="form-control" placeholder="Qty" min="0.01" step="0.01" style="font-size:12px">
+                <select id="order-unit" class="form-control" style="font-size:12px">
+                    <option value="kg">kg</option>
+                    <option value="pcs">pcs</option>
+                    <option value="dus">dus</option>
+                    <option value="box">box</option>
+                </select>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 130px;gap:8px;margin-bottom:8px">
+                <input type="number" id="order-total-rp" class="form-control" placeholder="Harga Total (Rp)" min="0" style="font-size:12px">
+                <input type="date" id="order-date" class="form-control" value="{{ date('Y-m-d') }}" style="font-size:12px">
+            </div>
+            <input type="text" id="order-notes" class="form-control" placeholder="Catatan (opsional)" style="font-size:12px;margin-bottom:8px">
+            <button class="btn btn-sm btn-primary" onclick="submitOrder()">
+                <i class="fas fa-save"></i> Simpan Order
+            </button>
+            <span id="order-save-msg" style="font-size:12px;color:var(--gn);display:none;margin-left:8px"><i class="fas fa-check"></i> Tersimpan</span>
+        </div>
+        {{-- List orders --}}
+        <div id="order-list">
+            @if($place->orders->count() > 0)
+            <table style="width:100%;border-collapse:collapse;font-size:12px">
+                <thead><tr style="background:var(--bg2);border-bottom:1px solid var(--bdr)">
+                    <th style="padding:6px 10px;text-align:left;font-weight:600;color:var(--tx2)">Item</th>
+                    <th style="padding:6px 10px;text-align:center;font-weight:600;color:var(--tx2)">Qty</th>
+                    <th style="padding:6px 10px;text-align:right;font-weight:600;color:var(--tx2)">Total (Rp)</th>
+                    <th style="padding:6px 10px;text-align:center;font-weight:600;color:var(--tx2)">Tanggal</th>
+                    <th style="padding:6px 10px"></th>
+                </tr></thead>
+                <tbody>
+                @foreach($place->orders as $ord)
+                <tr style="border-bottom:1px solid var(--bdr)" id="order-row-{{ $ord->id }}">
+                    <td style="padding:6px 10px">{{ $ord->item }}
+                        @if($ord->notes)<div style="font-size:10px;color:var(--tx3)">{{ $ord->notes }}</div>@endif
+                    </td>
+                    <td style="padding:6px 10px;text-align:center">{{ $ord->qty }} {{ $ord->unit }}</td>
+                    <td style="padding:6px 10px;text-align:right;font-weight:600">{{ number_format($ord->total_rp, 0, ',', '.') }}</td>
+                    <td style="padding:6px 10px;text-align:center;color:var(--tx2)">{{ $ord->order_date->format('d/m/Y') }}</td>
+                    <td style="padding:6px 10px">
+                        <button class="btn btn-xs" style="color:var(--rd);border-color:var(--rd)"
+                                onclick="deleteOrder({{ $ord->id }}, this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                @endforeach
+                </tbody>
+            </table>
+            @else
+            <p id="order-empty-msg" class="text-sm text-muted">Belum ada order dicatat.</p>
+            @endif
+        </div>
+    </div>
+</div>
+@endif
+
 {{-- Catatan --}}
 <div class="card mb-16">
     <div class="card-header" style="justify-content:space-between">
@@ -571,6 +640,97 @@ async function saveNotes() {
     msg.style.display = 'inline';
     setTimeout(() => { msg.style.display = 'none'; }, 2500);
 }
+
+// ── Order management ──────────────────────────────────────────────────────────
+@if($place->outreach_status === 'ordered')
+async function submitOrder() {
+    const item     = document.getElementById('order-item')?.value?.trim();
+    const qty      = parseFloat(document.getElementById('order-qty')?.value);
+    const unit     = document.getElementById('order-unit')?.value;
+    const totalRp  = parseFloat(document.getElementById('order-total-rp')?.value);
+    const orderDate= document.getElementById('order-date')?.value;
+    const notes    = document.getElementById('order-notes')?.value?.trim();
+
+    if (!item || !qty || !totalRp || !orderDate) { alert('Lengkapi item, qty, harga, dan tanggal.'); return; }
+
+    const resp = await fetch('{{ route("places.orders.store", $place->id) }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+        body: JSON.stringify({ item, qty, unit, total_rp: totalRp, order_date: orderDate, notes })
+    });
+    const d = await resp.json();
+    if (d.status === 'ok') {
+        document.getElementById('order-save-msg').style.display = 'inline';
+        setTimeout(() => document.getElementById('order-save-msg').style.display = 'none', 2500);
+        // reset form
+        ['order-item','order-qty','order-total-rp','order-notes'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+        reloadOrders();
+    } else {
+        alert('Gagal menyimpan order.');
+    }
+}
+
+async function deleteOrder(orderId, btn) {
+    if (!confirm('Hapus order ini?')) return;
+    btn.disabled = true;
+    const resp = await fetch(`{{ url('/places/' . $place->id . '/orders') }}/${orderId}`, {
+        method: 'DELETE',
+        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+    });
+    const d = await resp.json();
+    if (d.status === 'ok') {
+        document.getElementById('order-row-' + orderId)?.remove();
+        reloadOrders();
+    } else {
+        btn.disabled = false;
+        alert('Gagal menghapus.');
+    }
+}
+
+async function reloadOrders() {
+    const resp = await fetch('{{ route("places.orders.index", $place->id) }}');
+    const d = await resp.json();
+    if (d.status !== 'ok') return;
+
+    const totalEl = document.getElementById('order-total-display');
+    if (totalEl) totalEl.textContent = 'Rp ' + d.total_rp.toLocaleString('id-ID');
+
+    const listEl = document.getElementById('order-list');
+    if (!listEl) return;
+    if (!d.data || d.data.length === 0) {
+        listEl.innerHTML = '<p class="text-sm text-muted">Belum ada order dicatat.</p>';
+        return;
+    }
+    const rows = d.data.map(ord => {
+        const date = ord.order_date ? ord.order_date.slice(0,10).split('-').reverse().join('/') : '—';
+        const notesHtml = ord.notes ? `<div style="font-size:10px;color:var(--tx3)">${ord.notes}</div>` : '';
+        return `<tr style="border-bottom:1px solid var(--bdr)" id="order-row-${ord.id}">
+            <td style="padding:6px 10px">${ord.item}${notesHtml}</td>
+            <td style="padding:6px 10px;text-align:center">${ord.qty} ${ord.unit}</td>
+            <td style="padding:6px 10px;text-align:right;font-weight:600">${Math.round(ord.total_rp).toLocaleString('id-ID')}</td>
+            <td style="padding:6px 10px;text-align:center;color:var(--tx2)">${date}</td>
+            <td style="padding:6px 10px">
+                <button class="btn btn-xs" style="color:var(--rd);border-color:var(--rd)" onclick="deleteOrder(${ord.id}, this)">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        </tr>`;
+    }).join('');
+    listEl.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead><tr style="background:var(--bg2);border-bottom:1px solid var(--bdr)">
+            <th style="padding:6px 10px;text-align:left;font-weight:600;color:var(--tx2)">Item</th>
+            <th style="padding:6px 10px;text-align:center;font-weight:600;color:var(--tx2)">Qty</th>
+            <th style="padding:6px 10px;text-align:right;font-weight:600;color:var(--tx2)">Total (Rp)</th>
+            <th style="padding:6px 10px;text-align:center;font-weight:600;color:var(--tx2)">Tanggal</th>
+            <th style="padding:6px 10px"></th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+    </table>`;
+}
+@endif
 </script>
 @endpush
 

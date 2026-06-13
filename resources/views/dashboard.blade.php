@@ -96,6 +96,9 @@
             <span class="text-xs text-muted">Respon→order: <strong>{{ $pctOrder > 0 ? $pctOrder.'%' : '—' }}</strong></span>
             <span class="text-xs text-muted">Tidak berminat: <strong style="color:var(--rd)">{{ number_format($stats['not_interested']) }}</strong></span>
             <span class="text-xs text-muted">Belum dicek WA: <strong style="color:var(--or)">{{ number_format($stats['wa_unchecked']) }}</strong></span>
+            @if(isset($stats['total_order_value']) && $stats['total_order_value'] > 0)
+            <span class="text-xs text-muted">Total nilai order: <strong style="color:var(--gn)">Rp {{ number_format($stats['total_order_value'], 0, ',', '.') }}</strong></span>
+            @endif
         </div>
     </div>
 </div>

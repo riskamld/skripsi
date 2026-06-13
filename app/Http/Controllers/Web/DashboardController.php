@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\Place;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -34,6 +35,7 @@ class DashboardController extends Controller
             'followup_due'   => Place::where('outreach_status', 'sent')
                                     ->where('outreach_sent_at', '<', now()->subDays(3))
                                     ->count(),
+            'total_order_value' => DB::table('place_orders')->sum('total_rp'),
             'relevant'       => Place::whereIn('category', self::RELEVANT)->count(),
             'top_categories' => Place::selectRaw('category, COUNT(*) as count')
                 ->whereNotNull('category')

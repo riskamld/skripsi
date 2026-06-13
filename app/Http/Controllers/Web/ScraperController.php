@@ -197,6 +197,56 @@ class ScraperController extends Controller
         return response()->json(['job_id' => $jobId, 'limit' => $limit]);
     }
 
+    public function activeJob()
+    {
+        $running = !empty(trim(shell_exec('pgrep -f gmaps-scraper.js 2>/dev/null') ?? ''));
+
+        if (!$running) {
+            return response()->json(['running' => false, 'job_id' => null]);
+        }
+
+        $metaFiles = glob($this->logDir . '/*.meta') ?: [];
+        if (!$metaFiles) {
+            return response()->json(['running' => true, 'job_id' => null]);
+        }
+
+        usort($metaFiles, fn($a, $b) => filemtime($b) - filemtime($a));
+        $latestMeta = $metaFiles[0];
+        $jobId = basename($latestMeta, '.meta');
+
+        // Skip rescraper jobs
+        $meta = json_decode(file_get_contents($latestMeta), true) ?? [];
+        if (($meta['mode'] ?? '') === 'rescrape') {
+            return response()->json(['running' => false, 'job_id' => null]);
+        }
+
+        $logFile   = $this->logDir . "/{$jobId}.log";
+        $lines     = [];
+        $processed = 0;
+
+        if (file_exists($logFile)) {
+            $content = file_get_contents($logFile);
+            $all     = array_values(array_filter(explode("\n", $content)));
+            $lines   = array_values(array_filter($all, fn($l) => !str_contains($l, '__DONE_')));
+            if (count($lines) > 100) {
+                $lines = array_slice($lines, -100);
+            }
+            foreach ($lines as $line) {
+                if (preg_match('/^\[(\d+)\/\d+\]/', $line)) {
+                    $processed = (int) explode('/', trim(explode('[', $line)[1]))[0];
+                }
+            }
+        }
+
+        return response()->json([
+            'running'   => true,
+            'job_id'    => $jobId,
+            'lines'     => $lines,
+            'processed' => $processed,
+            'meta'      => $meta,
+        ]);
+    }
+
     public function rescrapeProgress()
     {
         $total    = Place::count();

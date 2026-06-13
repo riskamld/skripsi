@@ -23,6 +23,7 @@ Route::get('/scraper/log/{jobId}', [ScraperController::class, 'log'])->name('scr
 Route::post('/scraper/rescrape', [ScraperController::class, 'rescrape'])->name('scraper.rescrape');
 Route::get('/scraper/rescrape-count', [ScraperController::class, 'rescrapeCount'])->name('scraper.rescrape-count');
 Route::get('/scraper/rescrape-progress', [ScraperController::class, 'rescrapeProgress'])->name('scraper.rescrape-progress');
+Route::get('/scraper/active-job', [ScraperController::class, 'activeJob'])->name('scraper.active-job');
 Route::post('/scraper/save-cookies', [ScraperController::class, 'saveCookies'])->name('scraper.save-cookies');
 Route::get('/scraper/cookie-status', [ScraperController::class, 'cookieStatus'])->name('scraper.cookie-status');
 Route::post('/scraper/check-cookies', [ScraperController::class, 'checkCookies'])->name('scraper.check-cookies');
@@ -66,6 +67,7 @@ Route::get('/whatsapp/devices', [WhatsAppController::class, 'devices'])->name('w
 Route::get('/whatsapp/stats', [WhatsAppController::class, 'stats'])->name('whatsapp.stats');
 Route::post('/whatsapp/check-wa', [WhatsAppController::class, 'checkWA'])->name('whatsapp.check-wa');
 Route::post('/whatsapp/send-outreach', [WhatsAppController::class, 'sendOutreach'])->name('whatsapp.send-outreach');
+Route::post('/whatsapp/preview-targets', [WhatsAppController::class, 'previewTargets'])->name('whatsapp.preview-targets');
 Route::post('/whatsapp/mark-status/{id}', [WhatsAppController::class, 'markStatus'])->name('whatsapp.mark-status');
 Route::post('/whatsapp/save-notes/{id}', [WhatsAppController::class, 'saveNotes'])->name('whatsapp.save-notes');
 Route::get('/whatsapp/target-list', [WhatsAppController::class, 'targetList'])->name('whatsapp.target-list');
@@ -73,6 +75,17 @@ Route::post('/whatsapp/templates', [WhatsAppController::class, 'storeTemplate'])
 Route::put('/whatsapp/templates/{template}', [WhatsAppController::class, 'updateTemplate'])->name('whatsapp.templates.update');
 Route::delete('/whatsapp/templates/{template}', [WhatsAppController::class, 'destroyTemplate'])->name('whatsapp.templates.destroy');
 Route::post('/whatsapp/templates/{template}/toggle', [WhatsAppController::class, 'toggleTemplate'])->name('whatsapp.templates.toggle');
+// Fitur baru
+Route::get('/whatsapp/followup-list', [WhatsAppController::class, 'followupList'])->name('whatsapp.followup-list');
+Route::get('/whatsapp/template-stats', [WhatsAppController::class, 'templateStats'])->name('whatsapp.template-stats');
+Route::post('/whatsapp/bulk-status', [WhatsAppController::class, 'bulkStatus'])->name('whatsapp.bulk-status');
+Route::get('/whatsapp/recheck-count', [WhatsAppController::class, 'reCheckCount'])->name('whatsapp.recheck-count');
+Route::post('/whatsapp/recheck-wa', [WhatsAppController::class, 'reCheckWA'])->name('whatsapp.recheck-wa');
+Route::get('/whatsapp/duplicates', [WhatsAppController::class, 'duplicates'])->name('whatsapp.duplicates');
+// Order tracking
+Route::post('/places/{id}/orders', [WhatsAppController::class, 'storeOrder'])->name('places.orders.store');
+Route::get('/places/{id}/orders', [WhatsAppController::class, 'getOrders'])->name('places.orders.index');
+Route::delete('/places/{id}/orders/{orderId}', [WhatsAppController::class, 'deleteOrder'])->name('places.orders.destroy');
 
 // Database Tools routes
 Route::get('/database', [DatabaseController::class, 'index'])->name('database.index');

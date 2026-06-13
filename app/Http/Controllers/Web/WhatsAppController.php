@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\OutreachLog;
 use App\Models\Place;
+use App\Models\PlaceOrder;
 use App\Models\WaTemplate;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -97,13 +99,16 @@ class WhatsAppController extends Controller
             'device_id'       => 'required|string',
             'template_id'     => 'required',
             'limit'           => 'integer|min:1|max:50',
-            'category_filter' => 'nullable|string', // 'relevant' | specific category | '' = semua
+            'category_filter' => 'nullable|string',
+            'place_ids'       => 'nullable|array',
+            'place_ids.*'     => 'integer',
         ]);
 
         $deviceId      = $request->device_id;
         $templateId    = $request->template_id;
         $limit         = (int) $request->get('limit', 5);
         $categoryFilter= $request->get('category_filter', 'relevant');
+        $placeIds      = $request->input('place_ids', []);
         $isRandom      = ($templateId == 0);
 
         // Cek limit harian
@@ -113,7 +118,7 @@ class WhatsAppController extends Controller
         if ($sentToday >= $dailyLimit) {
             return response()->json(['error' => "Limit harian {$dailyLimit} pesan sudah tercapai ({$sentToday} terkirim hari ini)."], 422);
         }
-        $canSend = min($limit, $dailyLimit - $sentToday);
+        $canSend = min(!empty($placeIds) ? count($placeIds) : $limit, $dailyLimit - $sentToday);
 
         $activeTemplates = WaTemplate::active()->get();
         if ($activeTemplates->isEmpty()) {
@@ -124,26 +129,36 @@ class WhatsAppController extends Controller
             if (!$single) return response()->json(['error' => 'Template tidak valid'], 422);
         }
 
-        // Ambil phone yang sudah pernah dikirim untuk dedup
-        $sentPhones = Place::where('outreach_status', 'sent')
-            ->whereNotNull('phone')->pluck('phone')->flip()->all();
+        if (!empty($placeIds)) {
+            // Kirim ke target spesifik dari preview modal
+            $places = Place::whereIn('id', array_slice($placeIds, 0, $canSend))
+                ->where('has_whatsapp', true)
+                ->whereNotNull('phone')
+                ->where('phone', '!=', '')
+                ->get(['id', 'name', 'phone', 'category', 'address']);
+        } else {
+            // Ambil phone yang sudah pernah dikirim untuk dedup
+            $sentPhones = Place::where('outreach_status', 'sent')
+                ->whereNotNull('phone')->pluck('phone')->flip()->all();
 
-        $q = Place::where('has_whatsapp', true)
-            ->whereNull('outreach_status')
-            ->whereNotNull('phone')
-            ->where('phone', '!=', '');
+            $q = Place::where('has_whatsapp', true)
+                ->whereNull('outreach_status')
+                ->whereNotNull('phone')
+                ->where('phone', '!=', '');
 
-        if ($categoryFilter === 'relevant') {
-            $q->whereIn('category', self::RELEVANT_CATEGORIES);
-        } elseif ($categoryFilter) {
-            $q->where('category', $categoryFilter);
+            if ($categoryFilter === 'relevant') {
+                $q->whereIn('category', self::RELEVANT_CATEGORIES);
+            } elseif ($categoryFilter) {
+                $q->where('category', $categoryFilter);
+            }
+            $this->applyChainExclusion($q);
+
+            $places = $q->orderByRaw($this->priorityScoreExpr() . ' DESC')
+                ->limit($canSend * 3)
+                ->get(['id', 'name', 'phone', 'category', 'address'])
+                ->filter(fn($p) => !isset($sentPhones[$p->phone]))
+                ->take($canSend);
         }
-
-        $places = $q->orderByRaw($this->priorityScoreExpr() . ' DESC')
-            ->limit($canSend * 3) // ambil lebih, filter dupes di PHP
-            ->get(['id', 'name', 'phone', 'category', 'address'])
-            ->filter(fn($p) => !isset($sentPhones[$p->phone]))
-            ->take($canSend);
 
         $results = ['sent' => 0, 'failed' => 0];
 
@@ -163,7 +178,13 @@ class WhatsAppController extends Controller
                         'outreach_sent_at'   => now(),
                         'outreach_device_id' => $deviceId,
                     ]);
-                    OutreachLog::create(['place_id' => $place->id, 'action' => 'sent', 'status' => 'sent']);
+                    OutreachLog::create([
+                        'place_id'      => $place->id,
+                        'action'        => 'sent',
+                        'status'        => 'sent',
+                        'template_id'   => $template->id,
+                        'template_name' => $template->name,
+                    ]);
                     $results['sent']++;
                 } else {
                     $results['failed']++;
@@ -261,7 +282,299 @@ class WhatsAppController extends Controller
         ]);
     }
 
+    public function previewTargets(Request $request)
+    {
+        $request->validate([
+            'limit'           => 'integer|min:1|max:50',
+            'category_filter' => 'nullable|string',
+            'template_id'     => 'nullable|integer',
+        ]);
+
+        $limit          = (int) $request->get('limit', 5);
+        $categoryFilter = $request->get('category_filter', 'relevant');
+        $templateId     = (int) $request->get('template_id', 0);
+
+        $activeTemplates = WaTemplate::active()->get();
+        $sampleTemplate  = ($templateId && $templateId !== 0)
+            ? $activeTemplates->firstWhere('id', $templateId)
+            : $activeTemplates->first();
+
+        $sentPhones = Place::where('outreach_status', 'sent')
+            ->whereNotNull('phone')->pluck('phone')->flip()->all();
+
+        $q = Place::where('has_whatsapp', true)
+            ->whereNull('outreach_status')
+            ->whereNotNull('phone')
+            ->where('phone', '!=', '');
+
+        if ($categoryFilter === 'relevant') {
+            $q->whereIn('category', self::RELEVANT_CATEGORIES);
+        } elseif ($categoryFilter) {
+            $q->where('category', $categoryFilter);
+        }
+        $this->applyChainExclusion($q);
+
+        $places = $q->orderByRaw('(' . $this->priorityScoreExpr() . ') DESC')
+            ->limit($limit * 3)
+            ->get(['id', 'name', 'phone', 'category', 'address', 'rating', 'review_count'])
+            ->filter(fn($p) => !isset($sentPhones[$p->phone]))
+            ->take($limit)
+            ->values();
+
+        $data = $places->map(fn($p) => [
+            'id'           => $p->id,
+            'name'         => $p->name,
+            'phone'        => $p->phone,
+            'category'     => $p->category,
+            'address'      => $p->address,
+            'rating'       => $p->rating,
+            'review_count' => $p->review_count,
+        ]);
+
+        $sampleMessage = '';
+        if ($sampleTemplate && $places->isNotEmpty()) {
+            $sampleMessage = $this->renderTemplate($sampleTemplate->body, $places->first());
+        }
+
+        return response()->json([
+            'status'         => 'ok',
+            'count'          => $data->count(),
+            'data'           => $data,
+            'sample_message' => $sampleMessage,
+        ]);
+    }
+
+    // ── FITUR 1: Follow-up ────────────────────────────────────────────────────
+
+    public function followupList()
+    {
+        $followup = Place::where('outreach_status', 'sent')
+            ->where('outreach_sent_at', '<', now()->subDays(3))
+            ->orderBy('outreach_sent_at', 'asc')
+            ->get(['id', 'name', 'phone', 'category', 'outreach_sent_at'])
+            ->map(fn($p) => [
+                'id'               => $p->id,
+                'name'             => $p->name,
+                'phone'            => $p->phone,
+                'category'         => $p->category,
+                'outreach_sent_at' => $p->outreach_sent_at?->toDateTimeString(),
+                'days_since'       => $p->outreach_sent_at ? (int) $p->outreach_sent_at->diffInDays(now()) : null,
+            ]);
+
+        $interested = Place::where('outreach_status', 'interested')
+            ->orderBy('outreach_sent_at', 'asc')
+            ->get(['id', 'name', 'phone', 'category', 'outreach_sent_at'])
+            ->map(fn($p) => [
+                'id'               => $p->id,
+                'name'             => $p->name,
+                'phone'            => $p->phone,
+                'category'         => $p->category,
+                'outreach_sent_at' => $p->outreach_sent_at?->toDateTimeString(),
+                'days_since'       => $p->outreach_sent_at ? (int) $p->outreach_sent_at->diffInDays(now()) : null,
+            ]);
+
+        $replied = Place::where('outreach_status', 'replied')
+            ->orderBy('outreach_sent_at', 'asc')
+            ->get(['id', 'name', 'phone', 'category', 'outreach_sent_at'])
+            ->map(fn($p) => [
+                'id'               => $p->id,
+                'name'             => $p->name,
+                'phone'            => $p->phone,
+                'category'         => $p->category,
+                'outreach_sent_at' => $p->outreach_sent_at?->toDateTimeString(),
+                'days_since'       => $p->outreach_sent_at ? (int) $p->outreach_sent_at->diffInDays(now()) : null,
+            ]);
+
+        return response()->json([
+            'status'     => 'ok',
+            'followup'   => $followup,
+            'interested' => $interested,
+            'replied'    => $replied,
+        ]);
+    }
+
+    // ── FITUR 2: Template stats ───────────────────────────────────────────────
+
+    public function templateStats()
+    {
+        $stats = OutreachLog::where('action', 'sent')
+            ->whereNotNull('template_name')
+            ->selectRaw('template_id, template_name, COUNT(*) as sent_count')
+            ->groupBy('template_id', 'template_name')
+            ->get()
+            ->map(function ($row) {
+                $placeIds = OutreachLog::where('action', 'sent')->where('template_id', $row->template_id)->pluck('place_id');
+                return [
+                    'template_id'   => $row->template_id,
+                    'template_name' => $row->template_name,
+                    'sent'          => $row->sent_count,
+                    'replied'       => Place::whereIn('id', $placeIds)->whereIn('outreach_status', ['replied', 'responded'])->count(),
+                    'interested'    => Place::whereIn('id', $placeIds)->where('outreach_status', 'interested')->count(),
+                    'ordered'       => Place::whereIn('id', $placeIds)->where('outreach_status', 'ordered')->count(),
+                ];
+            });
+
+        return response()->json(['status' => 'ok', 'data' => $stats]);
+    }
+
+    // ── FITUR 3: Order tracking ───────────────────────────────────────────────
+
+    public function storeOrder(Request $request, $id)
+    {
+        $place = Place::findOrFail($id);
+        $request->validate([
+            'item'       => 'required|string|max:100',
+            'qty'        => 'required|numeric|min:0.01',
+            'unit'       => 'required|in:kg,pcs,dus,box',
+            'total_rp'   => 'required|numeric|min:0',
+            'order_date' => 'required|date',
+            'notes'      => 'nullable|string|max:500',
+        ]);
+
+        $order = PlaceOrder::create([
+            'place_id'   => $place->id,
+            'item'       => $request->item,
+            'qty'        => $request->qty,
+            'unit'       => $request->unit,
+            'total_rp'   => $request->total_rp,
+            'order_date' => $request->order_date,
+            'notes'      => $request->notes,
+        ]);
+
+        return response()->json(['status' => 'ok', 'order' => $order]);
+    }
+
+    public function getOrders($id)
+    {
+        $place  = Place::findOrFail($id);
+        $orders = PlaceOrder::where('place_id', $place->id)->orderByDesc('order_date')->get();
+        $total  = $orders->sum('total_rp');
+        return response()->json(['status' => 'ok', 'data' => $orders, 'total_rp' => $total]);
+    }
+
+    public function deleteOrder($id, $orderId)
+    {
+        $order = PlaceOrder::where('place_id', $id)->findOrFail($orderId);
+        $order->delete();
+        return response()->json(['status' => 'ok']);
+    }
+
+    // ── FITUR 4: Bulk status ──────────────────────────────────────────────────
+
+    public function bulkStatus(Request $request)
+    {
+        $request->validate([
+            'ids'    => 'required|array',
+            'ids.*'  => 'integer',
+            'status' => 'required|in:none,sent,replied,interested,not_interested,ordered',
+        ]);
+
+        $count = Place::whereIn('id', $request->ids)->update(['outreach_status' => $request->status]);
+        foreach ($request->ids as $id) {
+            OutreachLog::create(['place_id' => $id, 'action' => 'status_changed', 'status' => $request->status]);
+        }
+
+        return response()->json(['status' => 'ok', 'updated' => $count]);
+    }
+
+    // ── FITUR 5: Re-check WA ─────────────────────────────────────────────────
+
+    public function reCheckCount()
+    {
+        $count = Place::whereNotNull('phone')->where('phone', '!=', '')->where('has_whatsapp', false)->count();
+        return response()->json(['status' => 'ok', 'count' => $count]);
+    }
+
+    public function reCheckWA(Request $request)
+    {
+        $request->validate([
+            'device_id' => 'required|string',
+            'limit'     => 'integer|min:1|max:100',
+        ]);
+
+        $deviceId = $request->device_id;
+        $limit    = (int) $request->get('limit', 30);
+
+        $places = Place::whereNotNull('phone')
+            ->where('phone', '!=', '')
+            ->where('has_whatsapp', false)
+            ->limit($limit)
+            ->get(['id', 'name', 'phone']);
+
+        $results = ['checked' => 0, 'has_wa' => 0, 'no_wa' => 0, 'error' => 0];
+
+        if ($places->isEmpty()) {
+            return response()->json(['status' => 'ok', 'results' => $results, 'remaining' => 0]);
+        }
+
+        try {
+            $numbers = $places->pluck('phone')->toArray();
+            $resp = Http::timeout(60)
+                ->withHeaders(['X-API-Key' => env('WA_API_KEY', '')])
+                ->post("{$this->waApiUrl}/check-wa-batch?deviceId={$deviceId}", [
+                    'numbers' => $numbers,
+                ]);
+
+            if ($resp->successful() && $resp->json('status')) {
+                $waResults = collect($resp->json('results'))->keyBy('number');
+                foreach ($places as $place) {
+                    $waResult = $waResults->get($place->phone);
+                    $hasWa    = $waResult ? (bool) $waResult['exists'] : false;
+                    $place->update(['has_whatsapp' => $hasWa, 'wa_checked_at' => now()]);
+                    $hasWa ? $results['has_wa']++ : $results['no_wa']++;
+                    $results['checked']++;
+                }
+            } else {
+                $results['error'] = $places->count();
+            }
+        } catch (\Exception $e) {
+            Log::warning("reCheckWA batch error: " . $e->getMessage());
+            $results['error'] = $places->count();
+        }
+
+        $remaining = Place::whereNotNull('phone')->where('phone', '!=', '')->where('has_whatsapp', false)->count();
+
+        return response()->json([
+            'status'    => 'ok',
+            'results'   => $results,
+            'remaining' => $remaining,
+        ]);
+    }
+
+    // ── FITUR 6: Duplikat detection ───────────────────────────────────────────
+
+    public function duplicates()
+    {
+        $dupePhones = DB::select("
+            SELECT phone, COUNT(*) as cnt, GROUP_CONCAT(id ORDER BY id SEPARATOR ',') as ids,
+                   GROUP_CONCAT(name ORDER BY id SEPARATOR '||') as names
+            FROM places WHERE phone IS NOT NULL AND phone != ''
+            GROUP BY phone HAVING COUNT(*) > 1
+            ORDER BY cnt DESC LIMIT 100
+        ");
+
+        $dupes = array_map(function ($row) {
+            $ids   = explode(',', $row->ids);
+            $names = explode('||', $row->names);
+            $entries = [];
+            foreach ($ids as $i => $id) {
+                $entries[] = ['id' => (int) $id, 'name' => $names[$i] ?? ''];
+            }
+            return ['phone' => $row->phone, 'count' => $row->cnt, 'entries' => $entries];
+        }, $dupePhones);
+
+        return response()->json(['status' => 'ok', 'count' => count($dupes), 'data' => $dupes]);
+    }
+
     // ── constants ─────────────────────────────────────────────────────────────
+
+    const EXCLUDED_CHAINS = [
+        'indomaret', 'alfamart', 'alfamidi', 'circle k', 'lawson', 'family mart',
+        'mcdonald', 'kfc', 'burger king', 'pizza hut', 'wendy',
+        'starbucks', 'jco', 'chatime', 'gong cha', 'fore coffee',
+        'hypermart', 'carrefour', 'superindo', 'lotte mart', 'transmart',
+        'hokben', 'hoka hoka', 'solaria', 'yoshinoya', 'popeyes', 'texas chicken',
+    ];
 
     const RELEVANT_CATEGORIES = [
         'Restoran', 'Warung Makan', 'Restoran Ayam', 'Restoran Bakso',
@@ -276,6 +589,13 @@ class WhatsAppController extends Controller
     ];
 
     // ── private ───────────────────────────────────────────────────────────────
+
+    private function applyChainExclusion($query): void
+    {
+        if (!self::EXCLUDED_CHAINS) return;
+        $pattern = implode('|', self::EXCLUDED_CHAINS);
+        $query->whereRaw('LOWER(name) NOT REGEXP ?', [$pattern]);
+    }
 
     private function priorityScoreExpr(): string
     {

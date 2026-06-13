@@ -121,7 +121,7 @@ class PlaceController extends Controller
 
     public function show(Place $place)
     {
-        $place->load('scrapeLogs');
+        $place->load(['scrapeLogs', 'orders']);
         $outreachLogs = \App\Models\OutreachLog::where('place_id', $place->id)
             ->orderByDesc('created_at')->limit(20)->get();
         return view('places.show', compact('place', 'outreachLogs'));
