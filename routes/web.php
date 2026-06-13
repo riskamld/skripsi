@@ -24,6 +24,7 @@ Route::post('/scraper/rescrape', [ScraperController::class, 'rescrape'])->name('
 Route::get('/scraper/rescrape-count', [ScraperController::class, 'rescrapeCount'])->name('scraper.rescrape-count');
 Route::post('/scraper/save-cookies', [ScraperController::class, 'saveCookies'])->name('scraper.save-cookies');
 Route::get('/scraper/cookie-status', [ScraperController::class, 'cookieStatus'])->name('scraper.cookie-status');
+Route::post('/scraper/check-cookies', [ScraperController::class, 'checkCookies'])->name('scraper.check-cookies');
 Route::get('/map', [MapController::class, 'index'])->name('map.index');
 
 // API Routes for Map (moved from api.php as workaround)

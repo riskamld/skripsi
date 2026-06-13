@@ -231,6 +231,26 @@ class ScraperController extends Controller
         ]);
     }
 
+    public function checkCookies()
+    {
+        $cookieFile = base_path('scraper/google-cookies.json');
+        if (!file_exists($cookieFile)) {
+            return response()->json(['valid' => false, 'message' => 'File cookies tidak ditemukan.']);
+        }
+
+        $node    = trim(shell_exec('which node') ?: '/usr/bin/node');
+        $script  = base_path('scraper/check-cookies.js');
+
+        $output = shell_exec("{$node} {$script} 2>&1");
+        $result = json_decode(trim($output ?? ''), true);
+
+        if (!$result) {
+            return response()->json(['valid' => false, 'message' => 'Gagal menjalankan pengecekan: ' . substr($output ?? '', 0, 200)]);
+        }
+
+        return response()->json($result);
+    }
+
     private function dbStats(): array
     {
         return [

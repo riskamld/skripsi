@@ -212,6 +212,10 @@
             <button class="btn btn-sm btn-warning" onclick="toggleCookieForm()">
                 <i class="fas fa-upload"></i> Paste Cookies
             </button>
+            <button class="btn btn-sm btn-secondary" id="btn-check-cookies" onclick="checkCookies()">
+                <i class="fas fa-plug"></i> Cek Valid
+            </button>
+            <span id="check-cookie-msg" style="font-size:12px"></span>
         </div>
     </div>
     <div id="cookie-form-wrap" style="display:none;padding:0 16px 16px">
@@ -660,6 +664,38 @@ function saveCookies() {
         }
     })
     .catch(e => { $('cookie-msg').textContent = 'Error: ' + e.message; });
+}
+
+function checkCookies() {
+    const btn = $('btn-check-cookies');
+    const msg = $('check-cookie-msg');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengecek...';
+    msg.style.color = '#6b7280';
+    msg.textContent = 'Membuka Google Maps, tunggu ~15 detik...';
+    fetch('{{ route("scraper.check-cookies") }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+        body: JSON.stringify({}),
+    })
+    .then(r => r.json())
+    .then(d => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-plug"></i> Cek Valid';
+        if (d.valid) {
+            msg.style.color = '#22c55e';
+            msg.textContent = d.message;
+        } else {
+            msg.style.color = '#ef4444';
+            msg.textContent = d.message;
+        }
+    })
+    .catch(e => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-plug"></i> Cek Valid';
+        msg.style.color = '#ef4444';
+        msg.textContent = 'Error: ' + e.message;
+    });
 }
 
 function loadCookieStatus() {
