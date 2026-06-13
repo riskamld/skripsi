@@ -184,7 +184,11 @@
                         <span class="text-muted text-xs">—</span>
                         @endif
                     </td>
-                    <td class="hide-mobile">
+                    <td class="hide-mobile pt-cell"
+                        @if($place->popular_times)
+                        data-pt="{{ json_encode($place->popular_times) }}"
+                        data-name="{{ addslashes($place->name) }}"
+                        @endif>
                         @php
                             $pt    = $place->popular_times;
                             $days  = ['sun','mon','tue','wed','thu','fri','sat'];
@@ -192,22 +196,20 @@
                             $dayLbl= ['sun'=>'Min','mon'=>'Sen','tue'=>'Sel','wed'=>'Rab','thu'=>'Kam','fri'=>'Jum','sat'=>'Sab'];
                         @endphp
                         @if($pt)
-                        <div style="display:flex;flex-direction:column;gap:3px">
-                            {{-- 7 mini bar Sen-Min --}}
+                        <div style="display:flex;flex-direction:column;gap:3px;cursor:default">
                             <div style="display:flex;gap:2px;align-items:flex-end;height:20px">
                                 @foreach($days as $d)
-                                @php $peak = $pt[$d] ? max($pt[$d]) : 0; @endphp
-                                <div title="{{ $dayLbl[$d] }}: {{ $peak }}%"
-                                     style="width:6px;border-radius:2px 2px 0 0;
+                                @php $peak = isset($pt[$d]) ? max($pt[$d]) : 0; @endphp
+                                <div style="width:6px;border-radius:2px 2px 0 0;
                                             height:{{ max(2, round($peak * 20 / 100)) }}px;
-                                            background:{{ $peak >= 70 ? 'var(--rd)' : ($peak >= 40 ? 'var(--or)' : 'var(--ac)') }};
-                                            opacity:{{ $peak > 0 ? 1 : 0.2 }}"></div>
+                                            background:{{ $peak >= 70 ? '#ef4444' : ($peak >= 40 ? '#f97316' : '#3b82f6') }};
+                                            opacity:{{ $peak > 0 ? 1 : 0.15 }}"></div>
                                 @endforeach
                             </div>
-                            {{-- Label puncak --}}
                             @if($busy)
                             <div style="font-size:10px;color:var(--tx3);white-space:nowrap">
-                                {{ $dayLbl[$busy['day']] }} {{ str_pad($busy['hour'],2,'0',STR_PAD_LEFT) }}:00
+                                {{ $dayLbl[$busy['day']] }}
+                                {{ str_pad($busy['hour'],2,'0',STR_PAD_LEFT) }}:00
                             </div>
                             @endif
                         </div>
@@ -372,6 +374,124 @@ document.getElementById('placesBody').addEventListener('change', function(e){
 document.getElementById('deselAll').addEventListener('click', function(){
     document.querySelectorAll('.row-cb').forEach(function(cb){ cb.checked=false; });
     updateBulk();
+});
+})();
+
+// ── Popular Times hover heatmap ───────────────────────────────────────────────
+(function(){
+const DAY_KEYS  = ['mon','tue','wed','thu','fri','sat','sun'];
+const DAY_NAMES = ['Sen','Sel','Rab','Kam','Jum','Sab','Min'];
+const HOURS     = [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22];
+
+function ptColor(v) {
+    if (!v || v <= 0)  return '#f1f5f9';
+    if (v < 25)  return '#dbeafe';
+    if (v < 45)  return '#bfdbfe';
+    if (v < 60)  return '#fed7aa';
+    if (v < 75)  return '#fb923c';
+    if (v < 88)  return '#ef4444';
+    return '#b91c1c';
+}
+
+function buildHeatmap(pt, name) {
+    // Cari slot paling ramai
+    let peakDay = '', peakHr = 0, peakVal = 0;
+    DAY_KEYS.forEach((dk, di) => {
+        if (!pt[dk]) return;
+        HOURS.forEach(h => {
+            if (pt[dk][h] > peakVal) {
+                peakVal = pt[dk][h]; peakHr = h; peakDay = DAY_NAMES[di];
+            }
+        });
+    });
+
+    // Header jam
+    let html = `<div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:10px;padding-right:4px">
+        ${name}</div>`;
+    html += `<div style="display:grid;grid-template-columns:28px repeat(${HOURS.length},1fr);gap:2px;align-items:center">`;
+
+    // Baris header jam
+    html += `<div></div>`;
+    HOURS.forEach(h => {
+        html += `<div style="text-align:center;font-size:9px;color:var(--tx3);font-weight:500">
+            ${h % 3 === 0 ? h : ''}</div>`;
+    });
+
+    // Baris per hari
+    DAY_KEYS.forEach((dk, di) => {
+        const row = pt[dk] || [];
+        html += `<div style="font-size:10px;font-weight:600;color:var(--tx2);text-align:right;padding-right:5px">${DAY_NAMES[di]}</div>`;
+        HOURS.forEach(h => {
+            const v = row[h] || 0;
+            const isPeak = (v === peakVal && peakVal > 0);
+            html += `<div title="${DAY_NAMES[di]} ${String(h).padStart(2,'0')}:00 — ${v}%"
+                style="height:14px;border-radius:2px;background:${ptColor(v)};
+                       ${isPeak ? 'outline:2px solid #1d4ed8;outline-offset:1px;' : ''}
+                       cursor:default"></div>`;
+        });
+    });
+    html += `</div>`;
+
+    // Legenda + puncak
+    html += `<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;flex-wrap:wrap;gap:6px">`;
+    html += `<div style="display:flex;align-items:center;gap:6px">`;
+    [['#dbeafe','Sepi'],['#fb923c','Cukup'],['#b91c1c','Sangat ramai']].forEach(([c,l]) => {
+        html += `<span style="display:flex;align-items:center;gap:3px;font-size:10px;color:var(--tx3)">
+            <span style="width:10px;height:10px;border-radius:2px;background:${c};display:inline-block"></span>${l}</span>`;
+    });
+    html += `</div>`;
+    if (peakVal > 0) {
+        html += `<span style="font-size:10px;color:var(--tx2)">
+            Puncak: <strong>${peakDay} ${String(peakHr).padStart(2,'0')}:00</strong> (${peakVal}%)</span>`;
+    }
+    html += `</div>`;
+    return html;
+}
+
+// Buat popup elemen
+const popup = document.createElement('div');
+popup.id = 'pt-popup';
+popup.style.cssText = `
+    position:fixed;z-index:999;background:var(--sur);border:1px solid var(--bdr);
+    border-radius:10px;padding:14px 16px;box-shadow:0 8px 32px rgba(0,0,0,.18);
+    pointer-events:none;display:none;min-width:320px;max-width:420px;
+    transition:opacity .12s;
+`;
+document.body.appendChild(popup);
+
+let hideTimer;
+
+document.querySelectorAll('.pt-cell[data-pt]').forEach(cell => {
+    cell.addEventListener('mouseenter', function(e) {
+        clearTimeout(hideTimer);
+        const pt   = JSON.parse(this.dataset.pt || 'null');
+        const name = this.dataset.name || '';
+        if (!pt) return;
+
+        popup.innerHTML = buildHeatmap(pt, name);
+
+        // Posisi: preferred di atas kursor, cek batas layar
+        popup.style.display = 'block';
+        popup.style.opacity = '0';
+        const rect = this.getBoundingClientRect();
+        const pw   = popup.offsetWidth;
+        const ph   = popup.offsetHeight;
+
+        let left = rect.left + (rect.width / 2) - (pw / 2);
+        let top  = rect.top - ph - 10;
+
+        if (left < 8) left = 8;
+        if (left + pw > window.innerWidth - 8) left = window.innerWidth - pw - 8;
+        if (top < 8) top = rect.bottom + 10;
+
+        popup.style.left = left + 'px';
+        popup.style.top  = top  + 'px';
+        popup.style.opacity = '1';
+    });
+
+    cell.addEventListener('mouseleave', function() {
+        hideTimer = setTimeout(() => { popup.style.display = 'none'; }, 80);
+    });
 });
 })();
 </script>
