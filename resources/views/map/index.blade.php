@@ -637,6 +637,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         updateMarkerVisibility();
     }
+    window.setOutreachFilter = setOutreachFilter;
 
     // Function to toggle category visibility
     function toggleCategory(categoryKey, show) {
