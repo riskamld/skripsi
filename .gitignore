@@ -56,4 +56,5 @@ composer.phar
 # Scraper
 scraper/node_modules/
 scraper/package-lock.json
+scraper/google-cookies.json
 storage/scraper-logs/

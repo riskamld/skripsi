@@ -8,14 +8,17 @@
 const { chromium } = require('playwright');
 const https = require('https');
 const http  = require('http');
+const fs    = require('fs');
+const path  = require('path');
 
-const API_BASE  = 'https://fezora.net/mafaza/public/api';
-const API_TOKEN = process.env.MAFAZA_API_TOKEN || '';
-const HEADLESS  = process.env.HEADLESS !== 'false';
-const TOTAL     = parseInt(process.env.LIMIT || '20');
-const BATCH     = 50;      // fetch N at a time from API
-const DELAY_MIN = 1200;
-const DELAY_MAX = 2800;
+const API_BASE    = 'https://fezora.net/mafaza/public/api';
+const API_TOKEN   = process.env.MAFAZA_API_TOKEN || '';
+const HEADLESS    = process.env.HEADLESS !== 'false';
+const TOTAL       = parseInt(process.env.LIMIT || '20');
+const BATCH       = 50;
+const DELAY_MIN   = 1200;
+const DELAY_MAX   = 2800;
+const COOKIE_FILE = path.join(__dirname, 'google-cookies.json');
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 function rand(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
@@ -297,6 +300,30 @@ async function extractPopularTimes(page) {
 (async () => {
   if (!API_TOKEN) { console.error('❌ MAFAZA_API_TOKEN tidak diset'); process.exit(1); }
 
+  // Load Google cookies if available
+  let googleCookies = [];
+  if (fs.existsSync(COOKIE_FILE)) {
+    try {
+      const raw = JSON.parse(fs.readFileSync(COOKIE_FILE, 'utf8'));
+      // Support both EditThisCookie and Cookie-Editor formats
+      googleCookies = raw.map(c => ({
+        name:     c.name,
+        value:    c.value,
+        domain:   c.domain || '.google.com',
+        path:     c.path || '/',
+        expires:  c.expirationDate || c.expires || -1,
+        httpOnly: c.httpOnly || false,
+        secure:   c.secure || false,
+        sameSite: c.sameSite === 'no_restriction' ? 'None' : (c.sameSite === 'lax' ? 'Lax' : (c.sameSite === 'strict' ? 'Strict' : 'None')),
+      })).filter(c => c.name && c.value);
+      console.log(`🍪 Loaded ${googleCookies.length} cookies dari ${COOKIE_FILE}`);
+    } catch (e) {
+      console.warn('⚠ Gagal load cookies:', e.message);
+    }
+  } else {
+    console.warn('⚠ File google-cookies.json tidak ditemukan — popular_times mungkin tidak tersedia');
+  }
+
   console.log(`🔄 Mulai rescraping hingga ${TOTAL} tempat dengan data tidak lengkap...`);
 
   const browser = await chromium.launch({
@@ -309,6 +336,7 @@ async function extractPopularTimes(page) {
     permissions: ['geolocation'],
     userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
   });
+  if (googleCookies.length) await context.addCookies(googleCookies);
   const page = await context.newPage();
   await page.setExtraHTTPHeaders({ 'Accept-Language': 'id-ID,id;q=0.9' });
 
