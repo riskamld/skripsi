@@ -30,10 +30,14 @@
 @section('content')
 
 {{-- Stats --}}
-<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px">
+<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px">
     <div class="wa-stat">
         <div class="lbl">Ada WA</div>
         <div class="val" style="color:var(--gn)" id="stat-has-wa">{{ $stats['has_wa'] }}</div>
+    </div>
+    <div class="wa-stat">
+        <div class="lbl">Tidak Ada WA</div>
+        <div class="val" style="color:var(--rd)" id="stat-no-wa">{{ $stats['no_wa'] }}</div>
     </div>
     <div class="wa-stat">
         <div class="lbl">Belum Dicek</div>
@@ -481,6 +485,7 @@ function refreshStats() {
         .then(r => r.json())
         .then(d => {
             document.getElementById('stat-has-wa').textContent    = d.has_wa;
+            document.getElementById('stat-no-wa').textContent     = d.no_wa;
             document.getElementById('stat-unchecked').textContent = d.unchecked;
             document.getElementById('stat-sent').textContent      = d.outreach_sent;
             document.getElementById('stat-responded').textContent = d.responded;
