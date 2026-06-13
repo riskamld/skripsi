@@ -25,7 +25,16 @@ class ScraperController extends Controller
     public function index()
     {
         $stats = $this->dbStats();
-        return view('scraper.index', compact('stats'));
+
+        // Compact lat/lng for map dots (max 600)
+        $existingPlaces = Place::whereNotNull('lat')->whereNotNull('lng')
+            ->where('lat', '!=', 0)->where('lng', '!=', 0)
+            ->select(['lat', 'lng'])
+            ->limit(600)
+            ->get()
+            ->map(fn($p) => [(float)$p->lat, (float)$p->lng]);
+
+        return view('scraper.index', compact('stats', 'existingPlaces'));
     }
 
     public function stats()
@@ -38,6 +47,9 @@ class ScraperController extends Controller
         $request->validate([
             'query' => 'required|string|max:100',
             'area'  => 'nullable|string|max:100',
+            'lat'   => 'nullable|numeric|between:-90,90',
+            'lng'   => 'nullable|numeric|between:-180,180',
+            'zoom'  => 'nullable|integer|between:10,17',
             'limit' => 'required|integer|min:1|max:100',
         ]);
 
@@ -55,7 +67,15 @@ class ScraperController extends Controller
         $node    = trim(shell_exec('which node') ?: '/usr/bin/node');
         $scraper = escapeshellarg($this->scraperPath);
 
-        $cmd = "MAFAZA_API_TOKEN={$token} HEADLESS=true {$node} {$scraper} {$query} {$area} {$limit}"
+        $lat  = $request->lat  ? number_format((float)$request->lat,  7, '.', '') : '';
+        $lng  = $request->lng  ? number_format((float)$request->lng,  7, '.', '') : '';
+        $zoom = $request->zoom ? (int)$request->zoom : '';
+
+        $cmd = "MAFAZA_API_TOKEN={$token} HEADLESS=true"
+             . ($lat  ? " LAT={$lat}"   : '')
+             . ($lng  ? " LNG={$lng}"   : '')
+             . ($zoom ? " ZOOM={$zoom}" : '')
+             . " {$node} {$scraper} {$query} {$area} {$limit}"
              . " >> " . escapeshellarg($logFile) . " 2>&1"
              . " && echo '__DONE_OK__' >> " . escapeshellarg($logFile)
              . " || echo '__DONE_ERROR__' >> " . escapeshellarg($logFile);
@@ -65,6 +85,9 @@ class ScraperController extends Controller
         file_put_contents($this->logDir . "/{$jobId}.meta", json_encode([
             'query'      => $request->query,
             'area'       => $request->area,
+            'lat'        => $request->lat,
+            'lng'        => $request->lng,
+            'zoom'       => $request->zoom,
             'limit'      => $limit,
             'started_at' => now()->toISOString(),
         ]));

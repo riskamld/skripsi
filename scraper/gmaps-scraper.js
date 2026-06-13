@@ -1,0 +1,467 @@
+#!/usr/bin/env node
+/**
+ * Google Maps Playwright Scraper untuk Mafaza Fortuna
+ * Usage: node gmaps-scraper.js "toko buah" "Bandung" [limit] [--dry-run]
+ *
+ * Output: POST ke Laravel API atau simpan ke JSON jika --dry-run
+ */
+
+const { chromium } = require("playwright");
+const https = require("https");
+const http = require("http");
+const fs = require("fs");
+const path = require("path");
+
+// ── Config ──────────────────────────────────────────────────────────────────
+const CONFIG = {
+  apiUrl: process.env.MAFAZA_API_URL || "https://fezora.net/mafaza/public/api/places",
+  apiToken: process.env.MAFAZA_API_TOKEN || "",
+  waApiUrl: process.env.WA_API_URL || "http://localhost:8000",
+  waDeviceId: process.env.WA_DEVICE_ID || "device-1780035414781",
+  headless: process.env.HEADLESS !== "false",
+  slowMo: parseInt(process.env.SLOW_MO || "0"),
+};
+
+// ── CLI Args ─────────────────────────────────────────────────────────────────
+const args = process.argv.slice(2);
+const query = args[0] || "toko buah";
+const area = args[1] || "";
+const limit = parseInt(args[2] || "20");
+const isDryRun = args.includes("--dry-run");
+const outputFile = args.find((a) => a.startsWith("--output="))?.split("=")[1];
+
+// Koordinat dari env (diset oleh ScraperController)
+const targetLat  = parseFloat(process.env.LAT  || "");
+const targetLng  = parseFloat(process.env.LNG  || "");
+const targetZoom = parseInt(process.env.ZOOM || "14");
+const useCoords  = !isNaN(targetLat) && !isNaN(targetLng);
+
+if (!query) {
+  console.error("Usage: node gmaps-scraper.js <query> [area] [limit]");
+  process.exit(1);
+}
+
+const searchQuery = area ? `${query} ${area}` : query;
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function sleep(ms) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+function randomDelay(min = 1000, max = 3000) {
+  return sleep(Math.floor(Math.random() * (max - min) + min));
+}
+
+function extractCoordinatesFromUrl(url) {
+  const match = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+  if (match) return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
+  return { lat: null, lng: null };
+}
+
+function extractPlaceIdFromUrl(url) {
+  const match = url.match(/place\/[^/]+\/([^/]+)/);
+  if (match) return match[1];
+  const chunkMatch = url.match(/1s([^!]+)!/);
+  if (chunkMatch) return chunkMatch[1];
+  return null;
+}
+
+function cleanPhone(phone) {
+  if (!phone) return null;
+  return phone.replace(/[\s\-()]/g, "").replace(/^0/, "62");
+}
+
+async function postToApi(place) {
+  return new Promise((resolve, reject) => {
+    const data = JSON.stringify(place);
+    const url = new URL(CONFIG.apiUrl);
+    const isHttps = url.protocol === "https:";
+    const lib = isHttps ? https : http;
+
+    const options = {
+      hostname: url.hostname,
+      port: url.port || (isHttps ? 443 : 80),
+      path: url.pathname,
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Content-Length": Buffer.byteLength(data),
+        "X-API-Token": CONFIG.apiToken,
+      },
+    };
+
+    const req = lib.request(options, (res) => {
+      let body = "";
+      res.on("data", (chunk) => (body += chunk));
+      res.on("end", () => resolve({ status: res.statusCode, body }));
+    });
+
+    req.on("error", reject);
+    req.write(data);
+    req.end();
+  });
+}
+
+// ── Popular Times Parser ──────────────────────────────────────────────────────
+async function extractPopularTimes(page) {
+  try {
+    // Popular times bars have aria-label like "8 AM: Usually not too busy."
+    const bars = await page.$$('[class*="g2BVhd"] [aria-label]');
+    if (bars.length === 0) return null;
+
+    const times = {};
+    for (const bar of bars) {
+      const label = await bar.getAttribute("aria-label");
+      if (label && label.includes(":")) {
+        const [time, ...rest] = label.split(":");
+        times[time.trim()] = rest.join(":").trim();
+      }
+    }
+    return Object.keys(times).length > 0 ? times : null;
+  } catch {
+    return null;
+  }
+}
+
+// ── Extract Place Detail ──────────────────────────────────────────────────────
+async function extractPlaceDetail(page, url) {
+  const detail = {
+    place_id: null,
+    name: null,
+    lat: null,
+    lng: null,
+    maps_url: url,
+    rating: null,
+    review_count: null,
+    category: null,
+    address: null,
+    phone: null,
+    website: null,
+    opening_hours: null,
+    popular_times: null,
+    price_level: null,
+    permanently_closed: false,
+    image_1: null,
+    image_2: null,
+    image_3: null,
+    image_4: null,
+    source: "playwright",
+    parser_version: "1.0",
+  };
+
+  // Koordinat & place_id dari URL
+  const currentUrl = page.url();
+  const coords = extractCoordinatesFromUrl(currentUrl);
+  detail.lat = coords.lat;
+  detail.lng = coords.lng;
+
+  // Ambil place_id bersih dari hex ID di URL (format: 0xABC:0xDEF)
+  const hexMatch = currentUrl.match(/!1s(0x[0-9a-f]+:0x[0-9a-f]+)/i);
+  detail.place_id = hexMatch ? hexMatch[1] : `gm_${Date.now()}`;
+
+  // Nama tempat
+  try {
+    const nameEl = await page.$('h1');
+    if (nameEl) detail.name = (await nameEl.innerText()).trim();
+  } catch {}
+
+  // Rating
+  try {
+    const ratingEl = await page.$('[class*="F7nice"] span[aria-hidden="true"]');
+    if (ratingEl) detail.rating = parseFloat(await ratingEl.innerText());
+  } catch {}
+
+  // Review count — coba beberapa sumber
+  try {
+    // Cara 1: aria-label pada elemen dengan jumlah ulasan
+    const reviewEls = await page.$$('[aria-label]');
+    for (const el of reviewEls) {
+      const label = await el.getAttribute("aria-label");
+      const match = label?.match(/([\d.,]+)\s*(ulasan|review|rating)/i);
+      if (match) {
+        detail.review_count = parseInt(match[1].replace(/[.,]/g, ""));
+        break;
+      }
+    }
+
+    // Cara 2: teks "(X)" di dekat rating
+    if (!detail.review_count) {
+      const bodyText = await page.evaluate(() => {
+        const spans = [...document.querySelectorAll('span')];
+        for (const s of spans) {
+          const m = s.textContent.match(/^\(([0-9.,]+)\)$/);
+          if (m) return m[1];
+        }
+        return null;
+      });
+      if (bodyText) detail.review_count = parseInt(bodyText.replace(/[.,]/g, ""));
+    }
+  } catch {}
+
+  // Kategori
+  try {
+    const catEl = await page.$('button[jsaction*="category"]');
+    if (catEl) detail.category = (await catEl.innerText()).trim();
+    else {
+      // Fallback: ambil dari teks kecil di bawah nama
+      const spans = await page.$$('span[jsan]');
+      for (const s of spans) {
+        const txt = (await s.innerText()).trim();
+        if (txt && txt.length < 50 && !txt.includes("·")) {
+          detail.category = txt;
+          break;
+        }
+      }
+    }
+  } catch {}
+
+  // Alamat
+  try {
+    const addressBtn = await page.$('[data-item-id="address"]');
+    if (addressBtn) {
+      detail.address = (await addressBtn.innerText()).trim();
+    } else {
+      const addressEl = await page.$('[aria-label*="Address"]');
+      if (addressEl) detail.address = (await addressEl.innerText()).replace(/^Address:\s*/i, "").trim();
+    }
+  } catch {}
+
+  // Telepon
+  try {
+    const telLink = await page.$('[href^="tel:"]');
+    if (telLink) {
+      const href = await telLink.getAttribute("href");
+      detail.phone = cleanPhone(href.replace("tel:", ""));
+    } else {
+      const phoneBtn = await page.$('[data-item-id^="phone:"]');
+      if (phoneBtn) detail.phone = cleanPhone((await phoneBtn.innerText()).trim());
+    }
+  } catch {}
+
+  // Website
+  try {
+    const webEl = await page.$('[data-item-id="authority"]');
+    if (webEl) {
+      detail.website = await webEl.getAttribute("href") || (await webEl.innerText()).trim();
+    }
+  } catch {}
+
+  // Opening hours
+  try {
+    // Klik tombol jam buka agar expanded
+    const hoursBtn = await page.$('[aria-label*="hour" i][role="button"]');
+    if (hoursBtn) {
+      await hoursBtn.click();
+      await sleep(500);
+    }
+    const hoursTable = await page.$('[aria-label*="hour" i] table, table[aria-label*="hour" i]');
+    if (hoursTable) {
+      detail.opening_hours = (await hoursTable.innerText()).trim();
+    } else {
+      // Fallback: ambil teks dari area jam
+      const hoursEl = await page.$('[class*="t39EBf"]');
+      if (hoursEl) detail.opening_hours = (await hoursEl.innerText()).trim();
+    }
+  } catch {}
+
+  // Price level ($ symbols)
+  try {
+    const priceEl = await page.$('[aria-label*="Price"]');
+    if (priceEl) detail.price_level = (await priceEl.getAttribute("aria-label"))?.replace(/[^$]/g, "") || null;
+  } catch {}
+
+  // Permanently closed
+  try {
+    const closedEls = await page.$$('[class*=""]');
+    const bodyText = await page.evaluate(() => document.body.innerText);
+    if (bodyText.includes("Permanently closed") || bodyText.includes("Tutup permanen")) {
+      detail.permanently_closed = true;
+    }
+  } catch {}
+
+  // Popular times
+  detail.popular_times = await extractPopularTimes(page);
+
+  // Gambar
+  try {
+    const imgs = await page.$$('img[src*="googleusercontent"], img[src*="ggpht"]');
+    const imgUrls = [];
+    for (const img of imgs) {
+      const src = await img.getAttribute("src");
+      if (src && !src.includes("icon") && !src.includes("avatar") && imgUrls.length < 4) {
+        imgUrls.push(src);
+      }
+    }
+    if (imgUrls[0]) detail.image_1 = imgUrls[0];
+    if (imgUrls[1]) detail.image_2 = imgUrls[1];
+    if (imgUrls[2]) detail.image_3 = imgUrls[2];
+    if (imgUrls[3]) detail.image_4 = imgUrls[3];
+  } catch {}
+
+  return detail;
+}
+
+// ── Main Scraper ──────────────────────────────────────────────────────────────
+async function scrape() {
+  console.log(`\n🔍 Mencari: "${searchQuery}" (limit: ${limit})`);
+  console.log(`Mode: ${isDryRun ? "DRY RUN" : "LIVE → API"}\n`);
+
+  const browser = await chromium.launch({
+    headless: CONFIG.headless,
+    slowMo: CONFIG.slowMo,
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-blink-features=AutomationControlled",
+      "--disable-dev-shm-usage",
+      "--disable-gpu",
+      "--lang=id-ID,id",
+    ],
+  });
+
+  const context = await browser.newContext({
+    userAgent:
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    locale: "id-ID",
+    timezoneId: "Asia/Jakarta",
+    viewport: { width: 1366, height: 768 },
+  });
+
+  // Sembunyikan webdriver flag
+  await context.addInitScript(() => {
+    Object.defineProperty(navigator, "webdriver", { get: () => undefined });
+    window.chrome = { runtime: {} };
+  });
+
+  const page = await context.newPage();
+
+  const results = [];
+  const failed = [];
+
+  try {
+    const mapsUrl = useCoords
+      ? `https://www.google.com/maps/search/${encodeURIComponent(query)}/@${targetLat},${targetLng},${targetZoom}z`
+      : `https://www.google.com/maps/search/${encodeURIComponent(searchQuery)}`;
+
+    if (useCoords) {
+      console.log(`📍 Mode koordinat: lat=${targetLat}, lng=${targetLng}, zoom=${targetZoom}`);
+    }
+    console.log(`🌐 Buka: ${mapsUrl}`);
+    await page.goto(mapsUrl, { waitUntil: "domcontentloaded", timeout: 30000 });
+    // Tunggu panel hasil muncul
+    await page.waitForSelector('div[role="feed"], div[jsaction*="result"]', { timeout: 15000 }).catch(() => {});
+    await randomDelay(2000, 4000);
+
+    // Tutup popup jika ada
+    try {
+      const rejectBtn = await page.$('[aria-label*="Reject all"], [aria-label*="Tolak"]');
+      if (rejectBtn) {
+        await rejectBtn.click();
+        await sleep(1000);
+      }
+    } catch {}
+
+    // Scroll panel hasil sampai limit tercapai
+    console.log(`📋 Mengumpulkan link hasil...`);
+    const feed = await page.$('div[role="feed"]');
+    if (!feed) {
+      console.error("❌ Panel hasil tidak ditemukan. Coba lagi.");
+      await browser.close();
+      return;
+    }
+
+    let placeLinks = [];
+    let prevCount = 0;
+    let stuckCount = 0;
+
+    while (placeLinks.length < limit && stuckCount < 5) {
+      // Ambil semua link place yang ada
+      const links = await page.$$eval('a[href*="/maps/place/"]', (els) =>
+        els.map((a) => a.href).filter((h, i, arr) => arr.indexOf(h) === i)
+      );
+      placeLinks = [...new Set(links)].slice(0, limit);
+
+      if (placeLinks.length === prevCount) {
+        stuckCount++;
+      } else {
+        stuckCount = 0;
+        prevCount = placeLinks.length;
+      }
+
+      if (placeLinks.length >= limit) break;
+
+      // Scroll ke bawah feed
+      await page.evaluate(() => {
+        const feed = document.querySelector('div[role="feed"]');
+        if (feed) feed.scrollTop += 800;
+      });
+      await randomDelay(1500, 2500);
+
+      // Cek apakah sudah habis
+      const endText = await page.$('span[class*="HlvSq"]');
+      if (endText) break;
+    }
+
+    console.log(`✅ Ditemukan ${placeLinks.length} link tempat\n`);
+
+    // Buka tiap tempat
+    for (let i = 0; i < placeLinks.length; i++) {
+      const url = placeLinks[i];
+      console.log(`[${i + 1}/${placeLinks.length}] Buka detail...`);
+
+      try {
+        await page.goto(url, { waitUntil: "domcontentloaded", timeout: 20000 });
+        await randomDelay(2000, 3500);
+
+        const detail = await extractPlaceDetail(page, url);
+
+        // Perbarui koordinat dari URL setelah redirect
+        const finalCoords = extractCoordinatesFromUrl(page.url());
+        if (finalCoords.lat) {
+          detail.lat = finalCoords.lat;
+          detail.lng = finalCoords.lng;
+        }
+
+        console.log(
+          `  ✓ ${detail.name || "(tanpa nama)"} | ${detail.phone || "no phone"} | rating: ${detail.rating || "-"} | reviews: ${detail.review_count || "-"}`
+        );
+
+        results.push(detail);
+
+        if (!isDryRun && CONFIG.apiToken) {
+          try {
+            const res = await postToApi(detail);
+            console.log(`  → API: ${res.status}`);
+          } catch (e) {
+            console.warn(`  → API gagal: ${e.message}`);
+          }
+        }
+
+        await randomDelay(1500, 3000);
+      } catch (e) {
+        console.warn(`  ✗ Gagal: ${e.message}`);
+        failed.push({ url, error: e.message });
+      }
+    }
+  } finally {
+    await browser.close();
+  }
+
+  // Output
+  console.log(`\n📊 Selesai: ${results.length} berhasil, ${failed.length} gagal`);
+  console.log(`  📞 Punya nomor telepon: ${results.filter((r) => r.phone).length}`);
+  console.log(`  ⭐ Rata-rata rating: ${(results.reduce((s, r) => s + (r.rating || 0), 0) / (results.filter((r) => r.rating).length || 1)).toFixed(2)}`);
+
+  if (outputFile || isDryRun) {
+    const outPath = outputFile || path.join(__dirname, `results_${Date.now()}.json`);
+    fs.writeFileSync(outPath, JSON.stringify(results, null, 2));
+    console.log(`  💾 Disimpan ke: ${outPath}`);
+  }
+
+  return results;
+}
+
+scrape().catch((e) => {
+  console.error("Fatal error:", e);
+  process.exit(1);
+});
