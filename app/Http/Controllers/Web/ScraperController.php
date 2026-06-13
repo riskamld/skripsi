@@ -189,6 +189,48 @@ class ScraperController extends Controller
         return response()->json(['job_id' => $jobId, 'limit' => $limit]);
     }
 
+    public function saveCookies(Request $request)
+    {
+        $request->validate(['cookies' => 'required|string']);
+
+        $json = trim($request->input('cookies'));
+
+        // Validate it's a JSON array
+        $decoded = json_decode($json, true);
+        if (!is_array($decoded) || empty($decoded)) {
+            return response()->json(['error' => 'Format tidak valid. Harus berupa JSON array dari cookies.'], 422);
+        }
+
+        // Verify it looks like Google cookies
+        $hasGoogle = collect($decoded)->contains(fn($c) =>
+            isset($c['domain']) && str_contains($c['domain'], 'google')
+        );
+        if (!$hasGoogle) {
+            return response()->json(['error' => 'Tidak ditemukan cookie Google. Pastikan export dari google.com atau maps.google.com.'], 422);
+        }
+
+        $cookieFile = base_path('scraper/google-cookies.json');
+        file_put_contents($cookieFile, $json);
+
+        $count = count($decoded);
+        return response()->json(['success' => true, 'message' => "✅ {$count} cookies tersimpan. Siap untuk rescrape."]);
+    }
+
+    public function cookieStatus()
+    {
+        $cookieFile = base_path('scraper/google-cookies.json');
+        if (!file_exists($cookieFile)) {
+            return response()->json(['exists' => false]);
+        }
+        $count = count(json_decode(file_get_contents($cookieFile), true) ?? []);
+        $mtime = filemtime($cookieFile);
+        return response()->json([
+            'exists'    => true,
+            'count'     => $count,
+            'saved_at'  => date('d M Y H:i', $mtime),
+        ]);
+    }
+
     private function dbStats(): array
     {
         return [

@@ -197,6 +197,43 @@
     </div>
 </div>
 
+{{-- Google Cookies --}}
+<div class="card" style="margin-top:16px" id="cookie-card">
+    <div class="card-header d-flex align-center justify-between">
+        <span style="font-weight:600;font-size:13px">
+            <i class="fas fa-cookie-bite" style="color:#f59e0b;margin-right:6px"></i>Google Cookies
+            <span class="text-xs text-muted" style="margin-left:6px">untuk akses data Jam Ramai</span>
+        </span>
+        <span id="cookie-status-badge" style="font-size:11px"></span>
+    </div>
+    <div class="card-body" style="padding:12px 16px" id="cookie-body-collapsed">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span class="text-xs text-muted">Export cookies dari Chrome saat login ke Google Maps, paste di sini.</span>
+            <button class="btn btn-sm btn-warning" onclick="toggleCookieForm()">
+                <i class="fas fa-upload"></i> Paste Cookies
+            </button>
+        </div>
+    </div>
+    <div id="cookie-form-wrap" style="display:none;padding:0 16px 16px">
+        <p class="text-xs text-muted" style="margin:8px 0">
+            1. Install <strong>Cookie-Editor</strong> di Chrome &nbsp;·&nbsp;
+            2. Buka <strong>maps.google.com</strong> (pastikan login) &nbsp;·&nbsp;
+            3. Klik Cookie-Editor → <strong>Export → Export as JSON</strong> &nbsp;·&nbsp;
+            4. Paste hasilnya di bawah
+        </p>
+        <textarea id="cookie-input" rows="5" class="form-control"
+            style="font-size:11px;font-family:monospace;resize:vertical"
+            placeholder='[{"name":"SID","value":"...","domain":".google.com",...}, ...]'></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+            <button class="btn btn-sm btn-success" onclick="saveCookies()">
+                <i class="fas fa-save"></i> Simpan
+            </button>
+            <button class="btn btn-sm btn-secondary" onclick="toggleCookieForm()">Batal</button>
+            <span id="cookie-msg" style="font-size:12px;margin-left:4px"></span>
+        </div>
+    </div>
+</div>
+
 {{-- Rescrape incomplete data --}}
 <div class="card" style="margin-top:16px" id="rescrape-card">
     <div class="card-header d-flex align-center justify-between">
@@ -591,5 +628,52 @@ $('btn-rescrape-reset').addEventListener('click', function () {
     $('btn-rescrape').disabled = false;
     $('btn-rescrape').innerHTML = '<i class="fas fa-play"></i> Jalankan';
 });
+
+// ── Google Cookies ────────────────────────────────────────────────────────────
+function toggleCookieForm() {
+    const wrap = $('cookie-form-wrap');
+    const body = $('cookie-body-collapsed');
+    const showing = wrap.style.display !== 'none';
+    wrap.style.display = showing ? 'none' : 'block';
+    body.style.display = showing ? 'block' : 'none';
+}
+
+function saveCookies() {
+    const val = $('cookie-input').value.trim();
+    if (!val) { $('cookie-msg').textContent = 'Paste cookies dulu.'; return; }
+    $('cookie-msg').textContent = 'Menyimpan...';
+    fetch('{{ route("scraper.save-cookies") }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+        body: JSON.stringify({ cookies: val }),
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.error) {
+            $('cookie-msg').style.color = '#ef4444';
+            $('cookie-msg').textContent = d.error;
+        } else {
+            $('cookie-msg').style.color = '#22c55e';
+            $('cookie-msg').textContent = d.message;
+            $('cookie-input').value = '';
+            setTimeout(() => { toggleCookieForm(); loadCookieStatus(); }, 1500);
+        }
+    })
+    .catch(e => { $('cookie-msg').textContent = 'Error: ' + e.message; });
+}
+
+function loadCookieStatus() {
+    fetch('{{ route("scraper.cookie-status") }}')
+    .then(r => r.json())
+    .then(d => {
+        const badge = $('cookie-status-badge');
+        if (d.exists) {
+            badge.innerHTML = `<span style="color:#22c55e"><i class="fas fa-check-circle"></i> ${d.count} cookies aktif &nbsp;·&nbsp; disimpan ${d.saved_at}</span>`;
+        } else {
+            badge.innerHTML = `<span style="color:#f59e0b"><i class="fas fa-exclamation-triangle"></i> Belum ada cookies</span>`;
+        }
+    });
+}
+loadCookieStatus();
 </script>
 @endpush
