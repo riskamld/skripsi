@@ -10,8 +10,18 @@ use App\Http\Controllers\Web\ProductPriceController;
 use App\Http\Controllers\Web\DatabaseController;
 use App\Http\Controllers\Web\AiChatController;
 use App\Http\Controllers\Web\MapController;
+use App\Http\Controllers\Web\ScraperController;
+use App\Http\Controllers\Web\WhatsAppController;
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+// Scraper
+Route::get('/scraper', [ScraperController::class, 'index'])->name('scraper.index');
+Route::get('/scraper/stats', [ScraperController::class, 'stats'])->name('scraper.stats');
+Route::post('/scraper/start', [ScraperController::class, 'start'])->name('scraper.start');
+Route::get('/scraper/log/{jobId}', [ScraperController::class, 'log'])->name('scraper.log');
+Route::post('/scraper/rescrape', [ScraperController::class, 'rescrape'])->name('scraper.rescrape');
+Route::get('/scraper/rescrape-count', [ScraperController::class, 'rescrapeCount'])->name('scraper.rescrape-count');
 Route::get('/map', [MapController::class, 'index'])->name('map.index');
 
 // API Routes for Map (moved from api.php as workaround)
@@ -45,6 +55,14 @@ Route::post('/api-tokens/{id}/regenerate', [ApiTokenController::class, 'regenera
 Route::resource('product-prices', ProductPriceController::class);
 Route::post('/product-prices/bulk-delete', [ProductPriceController::class, 'bulkDelete'])->name('product-prices.bulk-delete');
 Route::post('/product-prices/clear-all', [ProductPriceController::class, 'clearAll'])->name('product-prices.clear-all');
+
+// WhatsApp routes
+Route::get('/whatsapp', [WhatsAppController::class, 'index'])->name('whatsapp.index');
+Route::get('/whatsapp/devices', [WhatsAppController::class, 'devices'])->name('whatsapp.devices');
+Route::get('/whatsapp/stats', [WhatsAppController::class, 'stats'])->name('whatsapp.stats');
+Route::post('/whatsapp/check-wa', [WhatsAppController::class, 'checkWA'])->name('whatsapp.check-wa');
+Route::post('/whatsapp/send-outreach', [WhatsAppController::class, 'sendOutreach'])->name('whatsapp.send-outreach');
+Route::post('/whatsapp/mark-status/{id}', [WhatsAppController::class, 'markStatus'])->name('whatsapp.mark-status');
 
 // Database Tools routes
 Route::get('/database', [DatabaseController::class, 'index'])->name('database.index');

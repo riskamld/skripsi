@@ -31,15 +31,43 @@ class Place extends Model
         'image_2',
         'image_3',
         'image_4',
+        // enrichment
+        'has_whatsapp',
+        'wa_checked_at',
+        'is_target',
+        'busyness_score',
+        'popular_times',
+        'price_level',
+        'permanently_closed',
+        'description',
+        'outreach_status',
+        'outreach_sent_at',
+        'outreach_device_id',
     ];
 
     protected $casts = [
-        'is_valid' => 'boolean',
-        'last_scraped_at' => 'datetime',
-        'rating' => 'float',
-        'lat' => 'float',
-        'lng' => 'float',
+        'is_valid'          => 'boolean',
+        'has_whatsapp'      => 'boolean',
+        'is_target'         => 'boolean',
+        'permanently_closed'=> 'boolean',
+        'last_scraped_at'   => 'datetime',
+        'wa_checked_at'     => 'datetime',
+        'rating'            => 'float',
+        'busyness_score'    => 'float',
+        'lat'               => 'float',
+        'lng'               => 'float',
+        'popular_times'     => 'array',
     ];
+
+    public function scopeTargets($query)
+    {
+        return $query->where('is_target', true)->where('has_whatsapp', true);
+    }
+
+    public function scopeHasPhone($query)
+    {
+        return $query->whereNotNull('phone')->where('phone', '!=', '');
+    }
 
     public function scrapeLogs()
     {

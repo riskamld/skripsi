@@ -4,34 +4,31 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\Place;
-use App\Models\ScrapeLog;
-use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
     public function index()
     {
         $stats = [
-            'total_places' => Place::count(),
-            'total_scrape_logs' => ScrapeLog::count(),
-            'places_today' => Place::whereDate('created_at', today())->count(),
-            'logs_today' => ScrapeLog::whereDate('created_at', today())->count(),
-            'avg_rating' => Place::whereNotNull('rating')->avg('rating'),
+            'total'          => Place::count(),
+            'has_phone'      => Place::whereNotNull('phone')->count(),
+            'has_wa'         => Place::where('has_whatsapp', true)->count(),
+            'wa_unchecked'   => Place::whereNotNull('phone')->whereNull('wa_checked_at')->count(),
+            'is_target'      => Place::where('is_target', true)->count(),
+            'today'          => Place::whereDate('created_at', today())->count(),
+            'high_score'     => Place::where('busyness_score', '>', 50)->count(),
             'top_categories' => Place::selectRaw('category, COUNT(*) as count')
                 ->whereNotNull('category')
                 ->groupBy('category')
-                ->orderBy('count', 'desc')
-                ->limit(5)
+                ->orderByDesc('count')
+                ->limit(8)
                 ->get(),
-            'recent_places' => Place::latest()->limit(5)->get(),
-            'recent_logs' => ScrapeLog::with('place')->latest()->limit(10)->get(),
+            'recent_places'  => Place::whereNotNull('phone')
+                ->orderByDesc('busyness_score')
+                ->limit(8)
+                ->get(['name', 'phone', 'category', 'rating', 'review_count', 'busyness_score', 'has_whatsapp', 'is_target', 'address']),
         ];
 
-        // Also pass individual variables for backward compatibility
-        $placesCount = $stats['total_places'];
-        $scrapeLogsCount = $stats['total_scrape_logs'];
-        $apiTokensCount = \App\Models\ApiToken::count();
-
-        return view('dashboard', compact('stats', 'placesCount', 'scrapeLogsCount', 'apiTokensCount'));
+        return view('dashboard', compact('stats'));
     }
 }

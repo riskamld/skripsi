@@ -1,100 +1,76 @@
 @extends('layouts.app')
+@section('title', 'Token API — Mafaza Fortuna')
+@section('page-title', 'Token API')
 
-@section('page-title', __('messages.api_tokens_title'))
-@section('page-subtitle', __('messages.api_tokens_subtitle'))
+@push('topbar-actions')
+<a href="{{ route('api-tokens.create') }}" class="btn btn-primary btn-sm">
+    <i class="fas fa-plus"></i> Buat Token
+</a>
+@endpush
 
 @section('content')
-<!-- Action buttons -->
-<div class="row mb-4">
-    <div class="col-12">
-        <a href="{{ route('api-tokens.create') }}" class="btn btn-primary">
-            <i class="fas fa-plus"></i> 
-        </a>
-    </div>
-</div>
 
-<!-- API Tokens Table -->
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title"></h3>
-
-        <div class="card-tools">
-            <div class="input-group input-group-sm" style="width: 150px;">
-                <input type="text" name="table_search" class="form-control float-right" placeholder="">
-
-                <div class="input-group-append">
-                    <button type="submit" class="btn btn-default">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
+        <span>Token API</span>
+        <span class="text-muted text-sm">{{ $tokens->total() }} token</span>
     </div>
-    <!-- /.card-header -->
-    <div class="card-body table-responsive p-0">
-        <table class="table table-hover text-nowrap table-sm">
+    <div class="table-wrap">
+        <table>
             <thead>
                 <tr>
-                    <th style="width: 20%;"></th>
-                    <th style="width: 10%;"></th>
-                    <th style="width: 20%;"></th>
-                    <th style="width: 15%;"></th>
-                    <th style="width: 35%;"></th>
+                    <th>Nama Token</th>
+                    <th>Status</th>
+                    <th class="hide-mobile">Terakhir Dipakai</th>
+                    <th class="hide-mobile">Dibuat</th>
+                    <th style="text-align:right">Aksi</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse($tokens ?? [] as $token)
-                <tr style="height: 45px;">
-                    <td style="padding: 8px 12px; vertical-align: middle;">
-                        <div style="font-size: 0.875rem; font-weight: 600;">{{ Str::limit($token->name, 15) }}</div>
-                        <small class="text-muted" style="font-size: 0.75rem;">{{ substr($token->token, -8) }}</small>
+                @forelse($tokens as $token)
+                <tr>
+                    <td>
+                        <div class="fw-600" style="font-size:13px">{{ Str::limit($token->name, 20) }}</div>
+                        <code class="text-xs">…{{ substr($token->token, -8) }}</code>
                     </td>
-                    <td style="padding: 8px 12px; vertical-align: middle;">
+                    <td>
                         @if($token->is_active)
-                            <span class="badge badge-success" style="font-size: 0.75rem;">
-                                <i class="fas fa-check-circle"></i>
-                            </span>
+                            <span class="badge badge-green"><i class="fas fa-circle" style="font-size:7px"></i> Aktif</span>
                         @else
-                            <span class="badge badge-secondary" style="font-size: 0.75rem;">
-                                <i class="fas fa-pause-circle"></i>
-                            </span>
+                            <span class="badge badge-gray"><i class="fas fa-circle" style="font-size:7px"></i> Nonaktif</span>
                         @endif
                     </td>
-                    <td style="padding: 8px 12px; vertical-align: middle;">
-                        @if($token->last_used_at)
-                            <span title="{{ $token->last_used_at->format('Y-m-d H:i:s') }}" style="font-size: 0.875rem;">
-                                {{ $token->last_used_at->diffForHumans() }}
-                            </span>
-                        @else
-                            <span class="text-muted" style="font-size: 0.875rem;"></span>
-                        @endif
+                    <td class="hide-mobile text-muted text-sm">
+                        {{ $token->last_used_at ? $token->last_used_at->diffForHumans() : '—' }}
                     </td>
-                    <td style="padding: 8px 12px; vertical-align: middle;">
-                        <span title="{{ $token->created_at->format('Y-m-d H:i:s') }}" style="font-size: 0.875rem;">
-                            {{ $token->created_at->format('M d, Y') }}
-                        </span>
+                    <td class="hide-mobile text-muted text-sm">
+                        {{ $token->created_at->format('d M Y') }}
                     </td>
-                    <td style="padding: 8px 12px; vertical-align: middle;">
-                        <div class="btn-group btn-group-sm">
-                            <a href="{{ route('api-tokens.show', $token) }}" class="btn btn-info btn-sm">
+                    <td>
+                        <div class="d-flex gap-4" style="justify-content:flex-end">
+                            <a href="{{ route('api-tokens.show', $token) }}" class="btn btn-ghost btn-xs" title="Lihat">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            <form method="POST" action="{{ route('api-tokens.toggle-status', $token) }}" class="d-inline">
+                            <form method="POST" action="{{ route('api-tokens.toggle-status', $token) }}">
                                 @csrf
-                                <button type="submit" class="btn {{ $token->is_active ? 'btn-warning' : 'btn-success' }} btn-sm" onclick="return confirm('Apakah Anda yakin ingin {{ $token->is_active ? 'menonaktifkan' : 'mengaktifkan' }} token API ini?')">
-                                    <i class="fas fa-{{ $token->is_active ? 'pause' : 'play' }}"></i>
+                                <button type="submit" class="btn btn-ghost btn-xs"
+                                    title="{{ $token->is_active ? 'Nonaktifkan' : 'Aktifkan' }}"
+                                    onclick="return confirm('{{ $token->is_active ? 'Nonaktifkan' : 'Aktifkan' }} token ini?')">
+                                    <i class="fas fa-{{ $token->is_active ? 'pause' : 'play' }}"
+                                       style="color:{{ $token->is_active ? 'var(--or)' : 'var(--gn)' }}"></i>
                                 </button>
                             </form>
-                            <form method="POST" action="{{ route('api-tokens.regenerate', $token) }}" class="d-inline">
+                            <form method="POST" action="{{ route('api-tokens.regenerate', $token) }}">
                                 @csrf
-                                <button type="submit" class="btn btn-secondary btn-sm" onclick="return confirm('Apakah Anda yakin ingin membuat ulang token API ini? Token lama akan tidak valid.')">
+                                <button type="submit" class="btn btn-ghost btn-xs" title="Buat ulang"
+                                    onclick="return confirm('Token lama akan tidak valid. Lanjutkan?')">
                                     <i class="fas fa-sync-alt"></i>
                                 </button>
                             </form>
-                            <form method="POST" action="{{ route('api-tokens.destroy', $token) }}" class="d-inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus token API ini?')">
+                            <form method="POST" action="{{ route('api-tokens.destroy', $token) }}">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="btn btn-ghost btn-xs" style="color:var(--rd)" title="Hapus"
+                                    onclick="return confirm('Hapus token ini?')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>
@@ -103,173 +79,39 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="5" class="text-center py-4">
-                        <div class="text-muted">
-                            <i class="fas fa-key fa-2x mb-2"></i>
-                            <h5></h5>
-                            <p style="font-size: 0.875rem;"></p>
-                            <a href="{{ route('api-tokens.create') }}" class="btn btn-primary btn-sm">
-                                <i class="fas fa-plus"></i> 
-                            </a>
-                        </div>
+                    <td colspan="5" style="text-align:center;padding:48px;color:var(--tx3)">
+                        <i class="fas fa-key" style="font-size:28px;display:block;margin-bottom:8px"></i>
+                        Belum ada token API.<br>
+                        <a href="{{ route('api-tokens.create') }}" class="btn btn-primary btn-sm mt-8">
+                            <i class="fas fa-plus"></i> Buat Token
+                        </a>
                     </td>
                 </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
-    <!-- /.card-body -->
 
-    <!-- Infinite Scroll Loading Indicator -->
-    <div id="loading-indicator" class="text-center py-3" style="display: none;">
-        <div class="spinner-border text-primary" role="status">
-            <span class="sr-only"></span>
+    @if($tokens->lastPage() > 1)
+    <div class="card-footer d-flex align-center justify-between">
+        <span class="text-xs text-muted">{{ $tokens->firstItem() }}–{{ $tokens->lastItem() }} dari {{ $tokens->total() }}</span>
+        <div class="pagination">
+            @if($tokens->onFirstPage())
+                <span class="page-link disabled">‹</span>
+            @else
+                <a class="page-link" href="{{ $tokens->previousPageUrl() }}">‹</a>
+            @endif
+            @foreach($tokens->getUrlRange(1, $tokens->lastPage()) as $page => $url)
+                <a class="page-link {{ $page == $tokens->currentPage() ? 'active' : '' }}" href="{{ $url }}">{{ $page }}</a>
+            @endforeach
+            @if($tokens->hasMorePages())
+                <a class="page-link" href="{{ $tokens->nextPageUrl() }}">›</a>
+            @else
+                <span class="page-link disabled">›</span>
+            @endif
         </div>
-        <small class="text-muted ml-2"></small>
     </div>
-
-    <!-- End of Results Indicator -->
-    <div id="end-indicator" class="text-center py-3" style="display: none;">
-        <small class="text-muted"></small>
-    </div>
+    @endif
 </div>
-<!-- /.card -->
 
-<script>
-$(document).ready(function() {
-    // Infinite Scroll Variables
-    let currentPage = {{ $tokens->currentPage() }};
-    let isLoading = false;
-    let hasMorePages = {{ $tokens->hasMorePages() ? 'true' : 'false' }};
-
-    // Infinite Scroll Implementation
-    $(window).on('scroll', function() {
-        if (isLoading || !hasMorePages) return;
-
-        const scrollTop = $(window).scrollTop();
-        const windowHeight = $(window).height();
-        const documentHeight = $(document).height();
-
-        // Load more when user is 200px from bottom
-        if (scrollTop + windowHeight >= documentHeight - 200) {
-            loadMoreTokens();
-        }
-    });
-
-    function loadMoreTokens() {
-        if (isLoading || !hasMorePages) return;
-
-        isLoading = true;
-        currentPage++;
-
-        // Show loading indicator
-        $('#loading-indicator').show();
-
-        // Get current URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        urlParams.set('page', currentPage);
-
-        $.ajax({
-            url: '{{ route("api-tokens.index") }}',
-            type: 'GET',
-            data: urlParams.toString(),
-            success: function(response) {
-                if (response.tokens && response.tokens.length > 0) {
-                    // Append new tokens to table
-                    const tbody = $('tbody');
-                    response.tokens.forEach(function(token) {
-                        const rowHtml = generateTokenRow(token);
-                        tbody.append(rowHtml);
-                    });
-
-                    hasMorePages = response.has_more;
-                } else {
-                    hasMorePages = false;
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('Infinite scroll error:', error);
-                hasMorePages = false;
-            },
-            complete: function() {
-                isLoading = false;
-                $('#loading-indicator').hide();
-
-                if (!hasMorePages) {
-                    $('#end-indicator').show();
-                }
-            }
-        });
-    }
-
-    function generateTokenRow(token) {
-        // Generate HTML for a token row
-        let row = '<tr style="height: 35px;">';
-
-        // Token Name column
-        row += '<td style="padding: 8px 12px; vertical-align: middle;">';
-        row += '<div style="font-size: 0.875rem; font-weight: 600;">' + escapeHtml(token.name.substring(0, 15)) + (token.name.length > 15 ? '...' : '') + '</div>';
-        row += '<small class="text-muted" style="font-size: 0.75rem;">' + token.token.substring(-8) + '</small>';
-        row += '</td>';
-
-        // Status column
-        row += '<td style="padding: 8px 12px; vertical-align: middle;">';
-        if (token.is_active) {
-            row += '<span class="badge badge-success" style="font-size: 0.75rem;"><i class="fas fa-check-circle"></i></span>';
-        } else {
-            row += '<span class="badge badge-secondary" style="font-size: 0.75rem;"><i class="fas fa-pause-circle"></i></span>';
-        }
-        row += '</td>';
-
-        // Last Used column
-        row += '<td style="padding: 8px 12px; vertical-align: middle;">';
-        if (token.last_used_at) {
-            row += '<span title="' + token.last_used_at + '" style="font-size: 0.875rem;">Just now</span>';
-        } else {
-            row += '<span class="text-muted" style="font-size: 0.875rem;">Never</span>';
-        }
-        row += '</td>';
-
-        // Created column
-        row += '<td style="padding: 8px 12px; vertical-align: middle;">';
-        row += '<span title="' + token.created_at + '" style="font-size: 0.875rem;">' + new Date(token.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + '</span>';
-        row += '</td>';
-
-        // Actions column
-        row += '<td style="padding: 8px 12px; vertical-align: middle;">';
-        row += '<div class="btn-group btn-group-sm">';
-        row += '<a href="/api-tokens/' + token.id + '" class="btn btn-info btn-sm"><i class="fas fa-eye"></i></a>';
-        row += '<form method="POST" action="/api-tokens/' + token.id + '/toggle-status" class="d-inline">';
-        row += '<input type="hidden" name="_token" value="' + $('meta[name="csrf-token"]').attr('content') + '">';
-        row += '<button type="submit" class="btn ' + (token.is_active ? 'btn-warning' : 'btn-success') + ' btn-sm">';
-        row += '<i class="fas fa-' + (token.is_active ? 'pause' : 'play') + '"></i>';
-        row += '</button>';
-        row += '</form>';
-        row += '<form method="POST" action="/api-tokens/' + token.id + '/regenerate" class="d-inline">';
-        row += '<input type="hidden" name="_token" value="' + $('meta[name="csrf-token"]').attr('content') + '">';
-        row += '<button type="submit" class="btn btn-secondary btn-sm" onclick="return confirm(\'This will invalidate the current token. Continue?\')">';
-        row += '<i class="fas fa-sync-alt"></i>';
-        row += '</button>';
-        row += '</form>';
-        row += '<form method="POST" action="/api-tokens/' + token.id + '" class="d-inline">';
-        row += '<input type="hidden" name="_method" value="DELETE">';
-        row += '<input type="hidden" name="_token" value="' + $('meta[name="csrf-token"]').attr('content') + '">';
-        row += '<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Are you sure you want to delete this token?\')">';
-        row += '<i class="fas fa-trash"></i>';
-        row += '</button>';
-        row += '</form>';
-        row += '</div>';
-        row += '</td>';
-
-        row += '</tr>';
-        return row;
-    }
-
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-});
-</script>
 @endsection

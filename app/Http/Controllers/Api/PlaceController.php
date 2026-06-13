@@ -33,25 +33,30 @@ class PlaceController extends Controller
         ]);
 
         $validator = Validator::make($request->all(), [
-            'place_id' => 'required|string|max:255',
-            'name' => 'nullable|string|max:255',
-            'lat' => 'nullable|numeric',
-            'lng' => 'nullable|numeric',
-            'maps_url' => 'nullable|url',
-            'rating' => 'nullable|numeric|min:0|max:5',
-            'review_count' => 'nullable|integer|min:0',
-            'category' => 'nullable|string|max:255',
-            'address' => 'nullable|string',
-            'phone' => 'nullable|string|max:50',
-            'website' => 'nullable|url',
-            'raw_text' => 'nullable|string',
-            'raw_html' => 'nullable|string',
-            'parser_version' => 'nullable|string|max:20',
-            'opening_hours' => 'nullable|string',
-            'image_1' => 'nullable|url',
-            'image_2' => 'nullable|url',
-            'image_3' => 'nullable|url',
-            'image_4' => 'nullable|url',
+            'place_id'           => 'required|string|max:255',
+            'name'               => 'nullable|string|max:255',
+            'lat'                => 'nullable|numeric',
+            'lng'                => 'nullable|numeric',
+            'maps_url'           => 'nullable|string|max:2048',
+            'rating'             => 'nullable|numeric|min:0|max:5',
+            'review_count'       => 'nullable|integer|min:0',
+            'category'           => 'nullable|string|max:255',
+            'address'            => 'nullable|string',
+            'phone'              => 'nullable|string|max:50',
+            'website'            => 'nullable|string|max:2048',
+            'raw_text'           => 'nullable|string',
+            'raw_html'           => 'nullable|string',
+            'parser_version'     => 'nullable|string|max:20',
+            'source'             => 'nullable|string|max:50',
+            'opening_hours'      => 'nullable|string',
+            'image_1'            => 'nullable|string|max:2048',
+            'image_2'            => 'nullable|string|max:2048',
+            'image_3'            => 'nullable|string|max:2048',
+            'image_4'            => 'nullable|string|max:2048',
+            // enrichment fields dari Playwright
+            'popular_times'      => 'nullable|array',
+            'price_level'        => 'nullable|string|max:10',
+            'permanently_closed' => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -74,7 +79,7 @@ class PlaceController extends Controller
             // 2. Place::updateOrCreate()
             $place = Place::updateOrCreate(
                 ['place_id' => $request->place_id],
-                $request->all()
+                array_merge($validator->validated(), ['last_scraped_at' => now()])
             );
 
             Log::info('✅ [API] Place saved/updated', [
@@ -124,6 +129,74 @@ class PlaceController extends Controller
                 'message' => 'Failed to save place: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function needsRescrape(Request $request)
+    {
+        $limit = min((int) $request->get('limit', 30), 500);
+
+        $places = Place::whereNotNull('maps_url')
+            ->where('maps_url', '!=', '')
+            ->where(function ($q) {
+                $q->whereNull('opening_hours')
+                  ->orWhere('opening_hours', '')
+                  ->orWhereNull('review_count')
+                  ->orWhere('review_count', 0);
+            })
+            ->where(function ($q) {
+                $q->whereNull('last_scraped_at')
+                  ->orWhere('last_scraped_at', '<', now()->subHours(24));
+            })
+            ->orderByRaw('CASE WHEN opening_hours IS NULL OR opening_hours = "" THEN 0 ELSE 1 END')
+            ->orderByRaw('CASE WHEN review_count IS NULL OR review_count = 0 THEN 0 ELSE 1 END')
+            ->limit($limit)
+            ->get(['id', 'name', 'maps_url', 'place_id', 'opening_hours', 'review_count']);
+
+        return response()->json([
+            'status' => 'success',
+            'count'  => $places->count(),
+            'data'   => $places,
+        ]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $place = Place::findOrFail($id);
+
+        $validator = Validator::make($request->all(), [
+            'name'               => 'nullable|string|max:255',
+            'lat'                => 'nullable|numeric',
+            'lng'                => 'nullable|numeric',
+            'place_id'           => 'nullable|string|max:255',
+            'maps_url'           => 'nullable|string|max:2048',
+            'rating'             => 'nullable|numeric|min:0|max:5',
+            'review_count'       => 'nullable|integer|min:0',
+            'category'           => 'nullable|string|max:255',
+            'address'            => 'nullable|string',
+            'phone'              => 'nullable|string|max:50',
+            'website'            => 'nullable|string|max:2048',
+            'opening_hours'      => 'nullable|string',
+            'image_1'            => 'nullable|string|max:2048',
+            'image_2'            => 'nullable|string|max:2048',
+            'image_3'            => 'nullable|string|max:2048',
+            'image_4'            => 'nullable|string|max:2048',
+            'popular_times'      => 'nullable|array',
+            'price_level'        => 'nullable|string|max:10',
+            'permanently_closed' => 'nullable|boolean',
+            'description'        => 'nullable|string',
+            'source'             => 'nullable|string|max:50',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => 'invalid', 'errors' => $validator->errors()], 422);
+        }
+
+        $data = array_filter($validator->validated(), fn($v) => $v !== null && $v !== '' || is_bool($v));
+        $data['last_scraped_at'] = now();
+
+        $place->update($data);
+
+        return response()->json(['status' => 'success', 'data' => $place]);
     }
 
     public function deleteScrapedToday(Request $request)
