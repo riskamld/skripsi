@@ -62,12 +62,14 @@
 <div class="d-flex align-center gap-6 mb-12 flex-wrap" style="font-size:12.5px;">
     <span class="text-muted" style="font-size:11px;font-weight:600;letter-spacing:.4px;white-space:nowrap;">FILTER CEPAT</span>
     @foreach([
-        ['' ,        'Semua',                                           'btn-secondary'],
-        ['wa',       '<i class="fab fa-whatsapp"></i> Punya WA',        'btn-success'],
-        ['target',   '<i class="fas fa-bullseye"></i> Target',          'btn-primary'],
-        ['unsent',   '<i class="fas fa-paper-plane"></i> Belum Kirim',  'btn-info'],
-        ['sent',     '<i class="fas fa-check"></i> Sudah Kirim',        'btn-warning'],
-        ['replied',  '<i class="fas fa-reply"></i> Ada Respon',         'btn-orange'],
+        ['' ,          'Semua',                                              'btn-secondary'],
+        ['unchecked',  '<i class="fas fa-question-circle"></i> Belum Cek WA','btn-secondary'],
+        ['wa',         '<i class="fab fa-whatsapp"></i> Punya WA',           'btn-success'],
+        ['no_wa',      '<i class="fas fa-times-circle"></i> Tidak Ada WA',   'btn-danger'],
+        ['target',     '<i class="fas fa-bullseye"></i> Target',             'btn-primary'],
+        ['unsent',     '<i class="fas fa-paper-plane"></i> Belum Kirim',     'btn-info'],
+        ['sent',       '<i class="fas fa-check"></i> Sudah Kirim',           'btn-warning'],
+        ['replied',    '<i class="fas fa-reply"></i> Ada Respon',            'btn-orange'],
     ] as [$val, $label, $cls])
     @php $active = ($qf === $val); @endphp
     <a href="{{ route('places.index', array_merge(request()->except(['qf','page']), $val ? ['qf'=>$val] : [])) }}"
