@@ -10,7 +10,7 @@ class TelegramSetting extends Model
         'bot_token', 'chat_id', 'enabled',
         'notif_scrape_done', 'notif_scraper_error', 'notif_wa_checked',
         'notif_outreach_sent', 'notif_daily_limit', 'notif_daily_summary',
-        'notif_interested', 'notif_new_order', 'notif_duplicates',
+        'notif_interested', 'notif_incoming_message', 'notif_new_order', 'notif_duplicates',
         'daily_summary_time', 'last_summary_date',
     ];
 
@@ -22,8 +22,9 @@ class TelegramSetting extends Model
         'notif_outreach_sent'  => 'boolean',
         'notif_daily_limit'    => 'boolean',
         'notif_daily_summary'  => 'boolean',
-        'notif_interested'     => 'boolean',
-        'notif_new_order'      => 'boolean',
+        'notif_interested'        => 'boolean',
+        'notif_incoming_message'  => 'boolean',
+        'notif_new_order'         => 'boolean',
         'notif_duplicates'     => 'boolean',
         'last_summary_date'    => 'date',
     ];

@@ -35,9 +35,10 @@ class TelegramController extends Controller
             'notif_outreach_sent' => $request->boolean('notif_outreach_sent'),
             'notif_daily_limit'   => $request->boolean('notif_daily_limit'),
             'notif_daily_summary' => $request->boolean('notif_daily_summary'),
-            'notif_interested'    => $request->boolean('notif_interested'),
-            'notif_new_order'     => $request->boolean('notif_new_order'),
-            'notif_duplicates'    => $request->boolean('notif_duplicates'),
+            'notif_interested'        => $request->boolean('notif_interested'),
+            'notif_incoming_message'  => $request->boolean('notif_incoming_message'),
+            'notif_new_order'         => $request->boolean('notif_new_order'),
+            'notif_duplicates'        => $request->boolean('notif_duplicates'),
         ]);
 
         return response()->json(['status' => 'ok']);

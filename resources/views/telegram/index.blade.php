@@ -51,8 +51,9 @@
       ['notif_wa_checked',     'fas fa-mobile-alt',  '#16a34a', 'Cek WA Selesai',         'Hasil setelah batch pengecekan WA selesai'],
       ['notif_outreach_sent',  'fab fa-whatsapp',    '#16a34a', 'Pesan WA Terkirim',      'Konfirmasi saat batch outreach selesai'],
       ['notif_daily_limit',    'fas fa-ban',         '#ea580c', 'Limit Harian Tercapai',  'Peringatan saat 50 pesan/hari sudah habis'],
-      ['notif_interested',     'fas fa-star',        '#d97706', 'Ada yang Tertarik',      'Notif instan saat status berubah ke "Tertarik"'],
-      ['notif_new_order',      'fas fa-shopping-cart','#7c3aed','Order Baru Masuk',       'Saat order baru dicatat di halaman detail'],
+      ['notif_interested',        'fas fa-star',           '#d97706', 'Ada yang Tertarik',       'Notif instan saat status berubah ke "Tertarik"'],
+      ['notif_incoming_message',  'fas fa-envelope-open',  '#0891b2', 'Pesan WA Masuk',          'Notif instan saat prospek membalas WA (butuh webhook terdaftar)'],
+      ['notif_new_order',         'fas fa-shopping-cart',  '#7c3aed', 'Order Baru Masuk',        'Saat order baru dicatat di halaman detail'],
       ['notif_duplicates',     'fas fa-copy',        '#6b7280', 'Duplikat Terdeteksi',    'Saat cek duplikat menemukan nomor ganda'],
       ['notif_daily_summary',  'fas fa-chart-bar',   '#0891b2', 'Ringkasan Harian',       'Laporan statistik otomatis setiap hari'],
     ];
@@ -131,7 +132,8 @@ async function saveAll() {
   fd.append('daily_summary_time', document.getElementById('daily_summary_time').value);
   if (document.getElementById('enabled').checked) fd.append('enabled', '1');
   ['notif_scrape_done','notif_scraper_error','notif_wa_checked','notif_outreach_sent',
-   'notif_daily_limit','notif_daily_summary','notif_interested','notif_new_order','notif_duplicates'
+   'notif_daily_limit','notif_daily_summary','notif_interested','notif_incoming_message',
+   'notif_new_order','notif_duplicates'
   ].forEach(k => { if (document.getElementById(k).checked) fd.append(k, '1'); });
 
   const r = await fetch('{{ route("telegram.save") }}', {method:'POST', body:fd}).then(r=>r.json());

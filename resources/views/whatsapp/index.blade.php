@@ -1314,19 +1314,19 @@ async function checkWebhookStatus() {
 
 async function registerWebhook() {
     const r = await fetch('{{ route("whatsapp.register-webhook") }}', {
-        method: 'POST', headers: {'X-CSRF-TOKEN': CSRF_TOKEN}
+        method: 'POST', headers: {'X-CSRF-TOKEN': '{{ csrf_token() }}'}
     }).then(r => r.json());
-    if (r.status === 'ok') { showToast('Webhook berhasil didaftarkan!', 'success'); checkWebhookStatus(); }
-    else showToast('Gagal mendaftarkan webhook.', 'error');
+    if (r.status === 'ok') { alert('Webhook berhasil didaftarkan!'); checkWebhookStatus(); }
+    else alert('Gagal mendaftarkan webhook.');
 }
 
 async function unregisterWebhook() {
     if (!confirm('Cabut webhook? Pesan masuk tidak akan diproses otomatis.')) return;
     const r = await fetch('{{ route("whatsapp.unregister-webhook") }}', {
-        method: 'POST', headers: {'X-CSRF-TOKEN': CSRF_TOKEN}
+        method: 'POST', headers: {'X-CSRF-TOKEN': '{{ csrf_token() }}'}
     }).then(r => r.json());
-    if (r.status === 'ok') { showToast('Webhook dicabut.', 'success'); checkWebhookStatus(); }
-    else showToast('Gagal.', 'error');
+    if (r.status === 'ok') { alert('Webhook dicabut.'); checkWebhookStatus(); }
+    else alert('Gagal.');
 }
 
 async function loadIncoming() {

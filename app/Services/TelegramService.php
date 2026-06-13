@@ -100,7 +100,7 @@ class TelegramService
 
     public function notifyIncomingMessage(string $name, string $phone, string $snippet, ?string $status): void
     {
-        if (!$this->isEnabled('notif_interested')) return; // gunakan toggle notif_interested sebagai proxy
+        if (!$this->isEnabled('notif_incoming_message')) return;
         $statusLabel = match ($status) {
             'sent'     => '📤 Sudah Kirim',
             'replied'  => '💬 Sudah Respon',

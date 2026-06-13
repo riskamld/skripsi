@@ -82,9 +82,15 @@ class DashboardController extends Controller
                         return $now->lt($slot) ? $slot : $slot->addDay();
                     })(),
                     'weekly' => (function () use ($s, $now) {
-                        $days = ['', 'Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-                        $target = $now->copy()->next($days[$s->day_of_week] ?? 'Mon')->setHour($s->run_hour)->setMinute(0)->setSecond(0);
-                        return $target;
+                        $days = ['', 'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+                        $dayName = $days[$s->day_of_week] ?? 'Monday';
+                        $slot = $now->copy()->next($dayName)->setHour($s->run_hour)->setMinute(0)->setSecond(0);
+                        // Jika hari ini sama dan belum lewat jam, gunakan hari ini
+                        $todaySlot = $now->copy()->setHour($s->run_hour)->setMinute(0)->setSecond(0);
+                        if ($now->dayOfWeekIso === $s->day_of_week && $now->lt($todaySlot)) {
+                            return $todaySlot;
+                        }
+                        return $slot;
                     })(),
                     default => null,
                 };
