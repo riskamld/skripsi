@@ -551,6 +551,8 @@ class WhatsAppController extends Controller
 
         $remaining = Place::whereNotNull('phone')->where('phone', '!=', '')->where('has_whatsapp', false)->count();
 
+        app(TelegramService::class)->notifyWaChecked($results['has_wa'], $results['no_wa'], $results['checked']);
+
         return response()->json([
             'status'    => 'ok',
             'results'   => $results,
@@ -579,6 +581,10 @@ class WhatsAppController extends Controller
             }
             return ['phone' => $row->phone, 'count' => $row->cnt, 'entries' => $entries];
         }, $dupePhones);
+
+        if (count($dupes) > 0) {
+            app(TelegramService::class)->notifyDuplicatesFound(count($dupes));
+        }
 
         return response()->json(['status' => 'ok', 'count' => count($dupes), 'data' => $dupes]);
     }
