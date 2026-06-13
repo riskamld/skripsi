@@ -341,51 +341,93 @@ $today = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'][date('N') - 
 @endif
 
 {{-- Outreach --}}
+@php
+$statusLabels = [
+    'sent'           => ['label'=>'Terkirim',       'badge'=>'badge-blue',   'icon'=>'fas fa-paper-plane'],
+    'replied'        => ['label'=>'Sudah Respon',    'badge'=>'badge-green',  'icon'=>'fas fa-reply'],
+    'interested'     => ['label'=>'Berminat',        'badge'=>'badge-orange', 'icon'=>'fas fa-thumbs-up'],
+    'not_interested' => ['label'=>'Tidak Berminat',  'badge'=>'badge-red',    'icon'=>'fas fa-thumbs-down'],
+    'ordered'        => ['label'=>'Sudah Order',     'badge'=>'badge-green',  'icon'=>'fas fa-shopping-cart'],
+];
+$currentStatus = $place->outreach_status;
+$sl = $statusLabels[$currentStatus] ?? null;
+@endphp
 <div class="card mb-16">
-    <div class="card-header" style="justify-content:space-between">
+    <div class="card-header" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
         <span><i class="fab fa-whatsapp" style="color:var(--gn);margin-right:6px"></i>Outreach WhatsApp</span>
-        @if($place->outreach_status === 'responded')
-            <span class="badge badge-green"><i class="fas fa-check"></i> Sudah Respon</span>
-        @elseif($place->outreach_status === 'sent')
-            <span class="badge badge-blue">Terkirim {{ $place->outreach_sent_at ? $place->outreach_sent_at->diffForHumans() : '' }}</span>
+        @if($sl)
+            <span class="badge {{ $sl['badge'] }}"><i class="{{ $sl['icon'] }}"></i> {{ $sl['label'] }}
+                @if($currentStatus === 'sent' && $place->outreach_sent_at)
+                    <span style="font-weight:400;opacity:.8"> · {{ $place->outreach_sent_at->diffForHumans() }}</span>
+                @endif
+            </span>
         @endif
     </div>
-    <div class="card-body" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
-        @if($place->has_whatsapp === true)
-            @if(!$place->outreach_status)
-            <a href="{{ route('whatsapp.index') }}"
-               class="btn btn-sm" style="background:var(--gn);color:#fff;border-color:var(--gn)">
-                <i class="fab fa-whatsapp"></i> Kirim Outreach
-            </a>
-            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $place->phone) }}" target="_blank"
-               class="btn btn-sm btn-secondary">
-                <i class="fas fa-external-link-alt"></i> Chat Manual
-            </a>
-            @elseif($place->outreach_status === 'sent')
-            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $place->phone) }}" target="_blank"
-               class="btn btn-sm" style="background:var(--gn);color:#fff;border-color:var(--gn)">
-                <i class="fab fa-whatsapp"></i> Buka Chat
-            </a>
-            <form method="POST" action="{{ route('whatsapp.mark-status', $place->id) }}" style="display:inline">
-                @csrf
-                <input type="hidden" name="status" value="responded">
-                <button type="submit" class="btn btn-sm btn-secondary">✓ Tandai Respon</button>
-            </form>
-            @elseif($place->outreach_status === 'responded')
-            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $place->phone) }}" target="_blank"
-               class="btn btn-sm btn-secondary">
-                <i class="fab fa-whatsapp"></i> Buka Chat
-            </a>
+    <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
+        {{-- Action links --}}
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            @if($place->has_whatsapp === true)
+                @if($place->phone)
+                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $place->phone) }}" target="_blank"
+                   class="btn btn-sm" style="background:var(--gn);color:#fff;border-color:var(--gn)">
+                    <i class="fab fa-whatsapp"></i> Buka Chat
+                </a>
+                @endif
+                @if(!$currentStatus || $currentStatus === 'none')
+                <a href="{{ route('whatsapp.index') }}" class="btn btn-sm btn-secondary">
+                    <i class="fas fa-paper-plane"></i> Kirim Outreach
+                </a>
+                @endif
+            @elseif($place->has_whatsapp === false)
+                <span class="text-sm text-muted"><i class="fas fa-times-circle" style="color:var(--rd)"></i> Tidak ada WA</span>
+            @else
+                <a href="{{ route('whatsapp.index') }}" class="btn btn-sm btn-secondary">
+                    <i class="fas fa-question-circle"></i> Cek WA
+                </a>
             @endif
-        @elseif($place->has_whatsapp === false)
-            <span class="text-sm text-muted"><i class="fas fa-times-circle" style="color:var(--rd)"></i> Nomor ini tidak terdaftar di WhatsApp</span>
-        @else
-            <span class="text-sm text-muted"><i class="fas fa-question-circle"></i> Belum dicek —</span>
-            <a href="{{ route('whatsapp.index') }}" class="btn btn-sm btn-secondary">Cek WA sekarang</a>
+            @if($place->phone)
+            <span class="text-xs text-muted" style="margin-left:auto">{{ $place->phone }}</span>
+            @endif
+        </div>
+
+        {{-- Status buttons --}}
+        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+            <span class="text-xs text-muted" style="width:80px">Ubah status:</span>
+            @foreach($statusLabels as $val => $meta)
+            <button onclick="setStatus('{{ $val }}')"
+                id="btn-status-{{ $val }}"
+                class="btn btn-sm {{ $currentStatus === $val ? '' : 'btn-ghost' }}"
+                style="{{ $currentStatus === $val ? 'background:var(--ac);color:#fff;border-color:var(--ac)' : '' }}">
+                <i class="{{ $meta['icon'] }}"></i> {{ $meta['label'] }}
+            </button>
+            @endforeach
+            <button onclick="setStatus('none')" class="btn btn-sm btn-ghost" style="color:var(--tx3)">
+                <i class="fas fa-undo"></i> Reset
+            </button>
+        </div>
+    </div>
+</div>
+
+{{-- Catatan --}}
+<div class="card mb-16">
+    <div class="card-header" style="justify-content:space-between">
+        <span><i class="fas fa-sticky-note" style="color:var(--ac);margin-right:6px"></i>Catatan</span>
+        @if($place->notes_updated_at)
+        <span class="text-xs text-muted">Diperbarui {{ $place->notes_updated_at->diffForHumans() }}</span>
         @endif
-        @if($place->phone)
-        <span class="text-xs text-muted" style="margin-left:auto">{{ $place->phone }}</span>
-        @endif
+    </div>
+    <div class="card-body" style="padding:12px 16px">
+        <textarea id="notes-input" rows="3" placeholder="Tambahkan catatan tentang tempat ini..."
+            style="width:100%;resize:vertical;background:var(--bg2);border:1px solid var(--bdr);border-radius:6px;padding:8px 10px;font-size:13px;color:var(--tx);font-family:inherit;box-sizing:border-box"
+        >{{ $place->notes }}</textarea>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+            <button onclick="saveNotes()" class="btn btn-sm btn-primary">
+                <i class="fas fa-save"></i> Simpan Catatan
+            </button>
+            <span id="notes-msg" style="font-size:12px;color:var(--gn);display:none">
+                <i class="fas fa-check"></i> Tersimpan
+            </span>
+        </div>
     </div>
 </div>
 
@@ -449,6 +491,44 @@ function showPtDay(key) {
     const tab = document.getElementById('pt-tab-' + key);
     if (day) day.style.display = 'block';
     if (tab) { tab.classList.remove('btn-secondary'); tab.classList.add('btn-primary'); }
+}
+
+async function setStatus(val) {
+    const res = await fetch('{{ route("whatsapp.mark-status", $place->id) }}', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},
+        body: JSON.stringify({status: val}),
+    });
+    if (!res.ok) return;
+    document.querySelectorAll('[id^="btn-status-"]').forEach(btn => {
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-ghost');
+        btn.style.background = '';
+        btn.style.color = '';
+        btn.style.borderColor = '';
+    });
+    if (val !== 'none') {
+        const active = document.getElementById('btn-status-' + val);
+        if (active) {
+            active.classList.remove('btn-ghost');
+            active.style.background = 'var(--ac)';
+            active.style.color = '#fff';
+            active.style.borderColor = 'var(--ac)';
+        }
+    }
+}
+
+async function saveNotes() {
+    const notes = document.getElementById('notes-input').value;
+    const res = await fetch('{{ route("whatsapp.save-notes", $place->id) }}', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},
+        body: JSON.stringify({notes}),
+    });
+    if (!res.ok) return;
+    const msg = document.getElementById('notes-msg');
+    msg.style.display = 'inline';
+    setTimeout(() => { msg.style.display = 'none'; }, 2500);
 }
 </script>
 @endpush

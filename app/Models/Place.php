@@ -43,6 +43,8 @@ class Place extends Model
         'outreach_status',
         'outreach_sent_at',
         'outreach_device_id',
+        'notes',
+        'notes_updated_at',
     ];
 
     protected $casts = [
@@ -52,6 +54,7 @@ class Place extends Model
         'permanently_closed'=> 'boolean',
         'last_scraped_at'   => 'datetime',
         'wa_checked_at'     => 'datetime',
+        'notes_updated_at'  => 'datetime',
         'rating'            => 'float',
         'busyness_score'    => 'float',
         'lat'               => 'float',

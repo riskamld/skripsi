@@ -68,9 +68,12 @@
         ['no_wa',      '<i class="fas fa-times-circle"></i> Tidak Ada WA',   'btn-danger'],
         ['has_pt',     '<i class="fas fa-chart-bar"></i> Ada Jam Ramai',      'btn-primary'],
         ['target',     '<i class="fas fa-bullseye"></i> Target',             'btn-primary'],
-        ['unsent',     '<i class="fas fa-paper-plane"></i> Belum Kirim',     'btn-info'],
-        ['sent',       '<i class="fas fa-check"></i> Sudah Kirim',           'btn-warning'],
-        ['replied',    '<i class="fas fa-reply"></i> Ada Respon',            'btn-orange'],
+        ['unsent',          '<i class="fas fa-paper-plane"></i> Belum Kirim',     'btn-info'],
+        ['sent',            '<i class="fas fa-check"></i> Sudah Kirim',           'btn-warning'],
+        ['replied',         '<i class="fas fa-reply"></i> Ada Respon',            'btn-orange'],
+        ['interested',      '<i class="fas fa-thumbs-up"></i> Berminat',          'btn-success'],
+        ['not_interested',  '<i class="fas fa-thumbs-down"></i> Tidak Berminat',  'btn-danger'],
+        ['ordered',         '<i class="fas fa-shopping-cart"></i> Sudah Order',   'btn-primary'],
     ] as [$val, $label, $cls])
     @php $active = ($qf === $val); @endphp
     <a href="{{ route('places.index', array_merge(request()->except(['qf','page']), $val ? ['qf'=>$val] : [])) }}"

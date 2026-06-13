@@ -18,11 +18,23 @@
     <a href="{{ route('whatsapp.index') }}" style="color:inherit;font-weight:600;text-decoration:underline">Cek sekarang →</a></span>
 </div>
 @endif
-@if($stats['responded'] > 0)
+@if($stats['ordered'] > 0)
 <div class="alert alert-success mb-16" style="display:flex;align-items:center;gap:10px">
-    <i class="fab fa-whatsapp"></i>
-    <span><strong>{{ $stats['responded'] }} toko</strong> sudah membalas pesan outreach.</span>
-    <a href="{{ route('whatsapp.index') }}" class="btn btn-sm btn-success" style="margin-left:auto">Lihat →</a>
+    <i class="fas fa-shopping-cart"></i>
+    <span><strong>{{ $stats['ordered'] }} toko</strong> sudah order! 🎉</span>
+    <a href="{{ route('places.index', ['qf'=>'ordered']) }}" class="btn btn-sm btn-success" style="margin-left:auto">Lihat →</a>
+</div>
+@elseif($stats['interested'] > 0)
+<div class="alert alert-success mb-16" style="display:flex;align-items:center;gap:10px">
+    <i class="fas fa-thumbs-up"></i>
+    <span><strong>{{ $stats['interested'] }} toko</strong> berminat — follow up sekarang!</span>
+    <a href="{{ route('places.index', ['qf'=>'interested']) }}" class="btn btn-sm btn-success" style="margin-left:auto">Follow up →</a>
+</div>
+@elseif($stats['replied'] > 0)
+<div class="alert mb-16" style="display:flex;align-items:center;gap:10px;background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.3);color:var(--tx);border-radius:8px;padding:10px 14px">
+    <i class="fas fa-reply" style="color:#06b6d4"></i>
+    <span><strong>{{ $stats['replied'] }} toko</strong> sudah membalas. Tandai status selanjutnya.</span>
+    <a href="{{ route('places.index', ['qf'=>'replied']) }}" class="btn btn-sm btn-secondary" style="margin-left:auto">Lihat →</a>
 </div>
 @endif
 @if($stats['today'] > 0)
@@ -39,12 +51,14 @@
     <div class="card-body" style="padding:20px 24px">
         @php
         $funnel = [
-            ['label' => 'Total Tempat Scraped',   'val' => $stats['total'],         'color' => '#6b7280', 'icon' => 'fa-store',       'href' => route('places.index')],
-            ['label' => 'Kategori Relevan',        'val' => $stats['relevant'],      'color' => '#3b82f6', 'icon' => 'fa-tag',         'href' => route('places.index')],
-            ['label' => 'Ramai (Score >50)',        'val' => $stats['high_score'],    'color' => '#8b5cf6', 'icon' => 'fa-fire',        'href' => route('places.index', ['sort'=>'busyness_score','direction'=>'desc'])],
-            ['label' => 'Punya WA Aktif',          'val' => $stats['has_wa'],        'color' => '#16a34a', 'icon' => 'fa-whatsapp',    'href' => route('whatsapp.index')],
-            ['label' => 'Sudah Dikirim Outreach',  'val' => $stats['outreach_sent'], 'color' => '#f59e0b', 'icon' => 'fa-paper-plane', 'href' => route('whatsapp.index')],
-            ['label' => 'Respon / Tertarik',       'val' => $stats['responded'],     'color' => '#10b981', 'icon' => 'fa-handshake',   'href' => route('whatsapp.index')],
+            ['label' => 'Total Tempat Scraped',   'val' => $stats['total'],         'color' => '#6b7280', 'icon' => 'fa-store',         'href' => route('places.index')],
+            ['label' => 'Kategori Relevan',        'val' => $stats['relevant'],      'color' => '#3b82f6', 'icon' => 'fa-tag',           'href' => route('places.index')],
+            ['label' => 'Ramai (Score >50)',        'val' => $stats['high_score'],    'color' => '#8b5cf6', 'icon' => 'fa-fire',          'href' => route('places.index', ['sort'=>'busyness_score','direction'=>'desc'])],
+            ['label' => 'Punya WA Aktif',          'val' => $stats['has_wa'],        'color' => '#16a34a', 'icon' => 'fa-whatsapp',      'href' => route('places.index', ['qf'=>'wa'])],
+            ['label' => 'Sudah Dikirim Outreach',  'val' => $stats['outreach_sent'], 'color' => '#f59e0b', 'icon' => 'fa-paper-plane',   'href' => route('places.index', ['qf'=>'sent'])],
+            ['label' => 'Sudah Respon',            'val' => $stats['replied'],       'color' => '#06b6d4', 'icon' => 'fa-reply',         'href' => route('places.index', ['qf'=>'replied'])],
+            ['label' => 'Berminat',                'val' => $stats['interested'],    'color' => '#f97316', 'icon' => 'fa-thumbs-up',     'href' => route('places.index', ['qf'=>'interested'])],
+            ['label' => 'Sudah Order',             'val' => $stats['ordered'],       'color' => '#10b981', 'icon' => 'fa-shopping-cart', 'href' => route('places.index', ['qf'=>'ordered'])],
         ];
         $max = max(array_column($funnel, 'val')) ?: 1;
         @endphp
@@ -65,12 +79,15 @@
             @endforeach
         </div>
         @php
-        $pctWa   = $stats['total'] > 0 ? round($stats['has_wa']/$stats['total']*100, 1) : 0;
-        $pctResp = $stats['outreach_sent'] > 0 ? round($stats['responded']/$stats['outreach_sent']*100, 1) : 0;
+        $pctWa      = $stats['total'] > 0 ? round($stats['has_wa']/$stats['total']*100, 1) : 0;
+        $pctResp    = $stats['outreach_sent'] > 0 ? round($stats['replied']/$stats['outreach_sent']*100, 1) : 0;
+        $pctOrder   = $stats['replied'] > 0 ? round($stats['ordered']/$stats['replied']*100, 1) : 0;
         @endphp
         <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--bdr);display:flex;gap:24px;flex-wrap:wrap">
-            <span class="text-xs text-muted">Konversi scrape→WA: <strong>{{ $pctWa }}%</strong></span>
-            <span class="text-xs text-muted">Konversi outreach→respon: <strong>{{ $pctResp > 0 ? $pctResp.'%' : '—' }}</strong></span>
+            <span class="text-xs text-muted">Scrape→WA: <strong>{{ $pctWa }}%</strong></span>
+            <span class="text-xs text-muted">Outreach→respon: <strong>{{ $pctResp > 0 ? $pctResp.'%' : '—' }}</strong></span>
+            <span class="text-xs text-muted">Respon→order: <strong>{{ $pctOrder > 0 ? $pctOrder.'%' : '—' }}</strong></span>
+            <span class="text-xs text-muted">Tidak berminat: <strong style="color:var(--rd)">{{ number_format($stats['not_interested']) }}</strong></span>
             <span class="text-xs text-muted">Belum dicek WA: <strong style="color:var(--or)">{{ number_format($stats['wa_unchecked']) }}</strong></span>
         </div>
     </div>
@@ -119,8 +136,14 @@
                             @endif
                         </td>
                         <td>
-                            @if($p->outreach_status === 'responded')
-                                <span class="badge badge-green">Respon</span>
+                            @if($p->outreach_status === 'ordered')
+                                <span class="badge badge-green"><i class="fas fa-shopping-cart"></i> Order</span>
+                            @elseif($p->outreach_status === 'interested')
+                                <span class="badge badge-orange"><i class="fas fa-thumbs-up"></i> Berminat</span>
+                            @elseif($p->outreach_status === 'not_interested')
+                                <span class="badge badge-red">Tidak Berminat</span>
+                            @elseif(in_array($p->outreach_status, ['replied','responded']))
+                                <span class="badge badge-blue">Respon</span>
                             @elseif($p->outreach_status === 'sent')
                                 <span class="badge badge-blue">Terkirim</span>
                             @else

@@ -66,6 +66,7 @@ Route::get('/whatsapp/stats', [WhatsAppController::class, 'stats'])->name('whats
 Route::post('/whatsapp/check-wa', [WhatsAppController::class, 'checkWA'])->name('whatsapp.check-wa');
 Route::post('/whatsapp/send-outreach', [WhatsAppController::class, 'sendOutreach'])->name('whatsapp.send-outreach');
 Route::post('/whatsapp/mark-status/{id}', [WhatsAppController::class, 'markStatus'])->name('whatsapp.mark-status');
+Route::post('/whatsapp/save-notes/{id}', [WhatsAppController::class, 'saveNotes'])->name('whatsapp.save-notes');
 Route::get('/whatsapp/target-list', [WhatsAppController::class, 'targetList'])->name('whatsapp.target-list');
 Route::post('/whatsapp/templates', [WhatsAppController::class, 'storeTemplate'])->name('whatsapp.templates.store');
 Route::put('/whatsapp/templates/{template}', [WhatsAppController::class, 'updateTemplate'])->name('whatsapp.templates.update');

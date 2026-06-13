@@ -27,7 +27,10 @@ class DashboardController extends Controller
             'today'          => Place::whereDate('created_at', today())->count(),
             'high_score'     => Place::where('busyness_score', '>', 50)->count(),
             'outreach_sent'  => Place::where('outreach_status', 'sent')->count(),
-            'responded'      => Place::where('outreach_status', 'responded')->count(),
+            'replied'        => Place::whereIn('outreach_status', ['replied','responded'])->count(),
+            'interested'     => Place::where('outreach_status', 'interested')->count(),
+            'not_interested' => Place::where('outreach_status', 'not_interested')->count(),
+            'ordered'        => Place::where('outreach_status', 'ordered')->count(),
             'relevant'       => Place::whereIn('category', self::RELEVANT)->count(),
             'top_categories' => Place::selectRaw('category, COUNT(*) as count')
                 ->whereNotNull('category')

@@ -30,7 +30,7 @@
 @section('content')
 
 {{-- Stats --}}
-<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px">
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px">
     <div class="wa-stat">
         <div class="lbl">Ada WA</div>
         <div class="val" style="color:var(--gn)" id="stat-has-wa">{{ $stats['has_wa'] }}</div>
@@ -47,9 +47,23 @@
         <div class="lbl">Terkirim</div>
         <div class="val" style="color:var(--ac)" id="stat-sent">{{ $stats['outreach_sent'] }}</div>
     </div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px">
     <div class="wa-stat">
-        <div class="lbl">Respon</div>
-        <div class="val" style="color:var(--gn)" id="stat-responded">{{ $stats['responded'] }}</div>
+        <div class="lbl"><i class="fas fa-reply" style="color:var(--ac)"></i> Ada Respon</div>
+        <div class="val" style="color:var(--ac)" id="stat-replied">{{ $stats['replied'] }}</div>
+    </div>
+    <div class="wa-stat">
+        <div class="lbl"><i class="fas fa-thumbs-up" style="color:var(--or)"></i> Berminat</div>
+        <div class="val" style="color:var(--or)" id="stat-interested">{{ $stats['interested'] }}</div>
+    </div>
+    <div class="wa-stat">
+        <div class="lbl"><i class="fas fa-thumbs-down" style="color:var(--rd)"></i> Tidak Berminat</div>
+        <div class="val" style="color:var(--rd)" id="stat-not-interested">{{ $stats['not_interested'] }}</div>
+    </div>
+    <div class="wa-stat">
+        <div class="lbl"><i class="fas fa-shopping-cart" style="color:var(--gn)"></i> Sudah Order</div>
+        <div class="val" style="color:var(--gn)" id="stat-ordered">{{ $stats['ordered'] }}</div>
     </div>
 </div>
 

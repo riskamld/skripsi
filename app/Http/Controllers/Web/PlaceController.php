@@ -41,9 +41,12 @@ class PlaceController extends Controller
             'target'    => $query->where('is_target', true),
             'prospect'  => $query->where('has_whatsapp', true)->where('is_target', true)
                                  ->whereIn('outreach_status', ['none', null, ''])->whereNull('outreach_status'),
-            'sent'      => $query->where('outreach_status', 'sent'),
-            'replied'   => $query->where('outreach_status', 'replied'),
-            'unsent'    => $query->where('has_whatsapp', true)
+            'sent'           => $query->where('outreach_status', 'sent'),
+            'replied'        => $query->where('outreach_status', 'replied'),
+            'interested'     => $query->where('outreach_status', 'interested'),
+            'not_interested' => $query->where('outreach_status', 'not_interested'),
+            'ordered'        => $query->where('outreach_status', 'ordered'),
+            'unsent'         => $query->where('has_whatsapp', true)
                                  ->where(fn($q) => $q->whereNull('outreach_status')->orWhere('outreach_status', 'none')),
             default     => null,
         };

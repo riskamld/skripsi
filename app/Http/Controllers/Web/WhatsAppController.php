@@ -164,9 +164,20 @@ class WhatsAppController extends Controller
 
     public function markStatus(Request $request, $id)
     {
-        $request->validate(['status' => 'required|in:responded,not_interested,sent']);
+        $request->validate(['status' => 'required|in:none,sent,replied,interested,not_interested,ordered']);
         $place = Place::findOrFail($id);
         $place->update(['outreach_status' => $request->status]);
+        return response()->json(['status' => 'ok', 'outreach_status' => $request->status]);
+    }
+
+    public function saveNotes(Request $request, $id)
+    {
+        $request->validate(['notes' => 'nullable|string|max:2000']);
+        $place = Place::findOrFail($id);
+        $place->update([
+            'notes'            => $request->notes ?: null,
+            'notes_updated_at' => now(),
+        ]);
         return response()->json(['status' => 'ok']);
     }
 
@@ -219,9 +230,14 @@ class WhatsAppController extends Controller
             'has_wa'         => Place::where('has_whatsapp', true)->count(),
             'no_wa'          => Place::where('has_whatsapp', false)->count(),
             'unchecked'      => Place::whereNotNull('phone')->where('phone', '!=', '')->whereNull('has_whatsapp')->count(),
-            'outreach_sent'  => Place::where('outreach_status', 'sent')->count(),
-            'responded'      => Place::where('outreach_status', 'responded')->count(),
-            'remaining'      => Place::where('has_whatsapp', true)->whereNull('outreach_status')->count(),
+            'outreach_sent'   => Place::where('outreach_status', 'sent')->count(),
+            'replied'         => Place::whereIn('outreach_status', ['replied','responded'])->count(),
+            'interested'      => Place::where('outreach_status', 'interested')->count(),
+            'not_interested'  => Place::where('outreach_status', 'not_interested')->count(),
+            'ordered'         => Place::where('outreach_status', 'ordered')->count(),
+            'remaining'       => Place::where('has_whatsapp', true)
+                                    ->where(fn($q) => $q->whereNull('outreach_status')->orWhere('outreach_status', 'none'))
+                                    ->count(),
         ];
     }
 
