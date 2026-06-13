@@ -367,9 +367,11 @@ async function extractPopularTimes(page) {
                           'opening_hours','lat','lng','place_id','image_1','image_2','image_3','image_4',
                           'description','permanently_closed','popular_times','source'];
           for (const f of FIELDS) {
-            // popular_times boleh null (tetap skip), object/array dikirim apa adanya
             if (f === 'popular_times') {
-              if (data[f] !== null && data[f] !== undefined) update[f] = data[f];
+              // Kirim {} jika tidak ada data (penanda "sudah dicek, tidak tersedia")
+              // Kirim object sesungguhnya jika ada data
+              // undefined → skip (field tidak di-extract)
+              if (data[f] !== undefined) update[f] = data[f] ?? {};
             } else if (data[f] !== undefined && data[f] !== null && data[f] !== '') {
               update[f] = data[f];
             }
@@ -380,7 +382,8 @@ async function extractPopularTimes(page) {
             totalFail++;
           } else {
             const ok = await patchPlace(place.id, update);
-            const got = `hours:${update.opening_hours?'✓':'–'} ulasan:${update.review_count??'–'} rating:${update.rating??'–'} desc:${update.description?'✓':'–'} tutup:${update.permanently_closed?'YA':'–'}`;
+            const ptStatus = update.popular_times && Object.keys(update.popular_times).length > 0 ? '✓' : (update.popular_times !== undefined ? '∅' : '–');
+            const got = `hours:${update.opening_hours?'✓':'–'} ulasan:${update.review_count??'–'} rating:${update.rating??'–'} pt:${ptStatus} tutup:${update.permanently_closed?'YA':'–'}`;
             if (ok) { console.log(`${label} ✓ ${got}`); totalOk++; }
             else    { console.log(`${label} ✗ PATCH gagal`); totalFail++; }
           }

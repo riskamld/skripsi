@@ -232,7 +232,7 @@ $today = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'][date('N') - 
 @endif
 
 {{-- Popular Times --}}
-@if($place->popular_times)
+@if($place->popular_times && count($place->popular_times) > 0)
 @php
     $ptDays = ['sun'=>'Minggu','mon'=>'Senin','tue'=>'Selasa','wed'=>'Rabu','thu'=>'Kamis','fri'=>'Jumat','sat'=>'Sabtu'];
     $busy   = $place->busiestSlot();
@@ -326,6 +326,16 @@ $today = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'][date('N') - 
         </div>
         @endif
         @endforeach
+    </div>
+</div>
+@elseif(is_array($place->popular_times))
+<div class="card mb-16">
+    <div class="card-header">
+        <span><i class="fas fa-chart-bar" style="color:var(--ac);margin-right:6px"></i>Jam Ramai</span>
+    </div>
+    <div class="card-body" style="padding:16px;color:var(--tx3);font-size:13px">
+        <i class="fas fa-info-circle" style="margin-right:6px"></i>
+        Data jam ramai tidak tersedia untuk tempat ini di Google Maps.
     </div>
 </div>
 @endif

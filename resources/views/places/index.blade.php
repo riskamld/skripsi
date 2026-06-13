@@ -195,7 +195,7 @@
                             $busy  = $place->busiestSlot();
                             $dayLbl= ['sun'=>'Min','mon'=>'Sen','tue'=>'Sel','wed'=>'Rab','thu'=>'Kam','fri'=>'Jum','sat'=>'Sab'];
                         @endphp
-                        @if($pt)
+                        @if($pt && count($pt) > 0)
                         <div style="display:flex;flex-direction:column;gap:3px;cursor:default">
                             <div style="display:flex;gap:2px;align-items:flex-end;height:20px">
                                 @foreach($days as $d)
@@ -213,8 +213,10 @@
                             </div>
                             @endif
                         </div>
+                        @elseif(is_array($pt))
+                        <span style="font-size:10px;color:#6b7280;background:#f3f4f6;border:1px solid #d1d5db;border-radius:4px;padding:1px 5px;white-space:nowrap">Tidak Ada</span>
                         @else
-                        <span class="text-muted text-xs">—</span>
+                        <span style="font-size:10px;color:#92400e;background:#fef3c7;border:1px solid #fcd34d;border-radius:4px;padding:1px 5px;white-space:nowrap">Belum</span>
                         @endif
                     </td>
                     <td class="hide-mobile">
