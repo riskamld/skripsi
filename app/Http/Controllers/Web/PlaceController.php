@@ -54,8 +54,19 @@ class PlaceController extends Controller
         // Sort
         $sortBy  = $request->get('sort', 'created_at');
         $sortDir = $request->get('direction', 'desc');
-        $allowedSorts = ['name', 'rating', 'review_count', 'busyness_score', 'created_at', 'updated_at', 'last_scraped_at', 'pt_peak'];
-        if ($sortBy === 'pt_peak') {
+        $relevantCats = \App\Http\Controllers\Web\WhatsAppController::RELEVANT_CATEGORIES;
+        $catList = implode(',', array_map(fn($c) => "'" . addslashes($c) . "'", $relevantCats));
+        $prioritySql = "
+            (CASE WHEN category IN ({$catList}) THEN 30 ELSE 0 END)
+            + (CASE WHEN popular_times IS NOT NULL AND popular_times != '[]' THEN 20 ELSE 0 END)
+            + (CASE WHEN review_count >= 200 THEN 20 WHEN review_count >= 100 THEN 15 WHEN review_count >= 50 THEN 10 WHEN review_count >= 10 THEN 5 ELSE 0 END)
+            + (CASE WHEN rating >= 4.5 THEN 5 WHEN rating >= 4.0 THEN 3 ELSE 0 END)
+        ";
+
+        $allowedSorts = ['name', 'rating', 'review_count', 'busyness_score', 'created_at', 'updated_at', 'last_scraped_at', 'pt_peak', 'priority'];
+        if ($sortBy === 'priority') {
+            $query->orderByRaw("({$prioritySql}) DESC");
+        } elseif ($sortBy === 'pt_peak') {
             // Tempat dengan jam ramai dulu, urut terbanyak
             $query->orderByRaw("CASE WHEN popular_times IS NULL OR popular_times = '[]' THEN 0 ELSE 1 END DESC")
                   ->orderByDesc('review_count');

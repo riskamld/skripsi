@@ -42,6 +42,7 @@
         <option value="last_scraped_at|desc" {{ request('sort')=='last_scraped_at'&&request('direction','desc')=='desc'?'selected':'' }}>Diperbarui</option>
         <option value="name|asc" {{ request('sort')=='name'&&request('direction','asc')=='asc'?'selected':'' }}>Nama A–Z</option>
         <option value="pt_peak|desc" {{ request('sort')=='pt_peak'?'selected':'' }}>Ada Jam Ramai</option>
+        <option value="priority|desc" {{ request('sort')=='priority'?'selected':'' }}>Prioritas Tertinggi</option>
     </select>
 
     <div class="ml-auto d-flex align-center gap-8">

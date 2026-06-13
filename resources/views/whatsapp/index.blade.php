@@ -241,33 +241,69 @@
         </div>
 
         <div class="card">
-            <div class="card-header">
+            <div class="card-header" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
                 <span><i class="fas fa-paper-plane" style="color:var(--ac);margin-right:6px"></i>Kirim Outreach</span>
+                {{-- Limit harian --}}
+                <div style="display:flex;align-items:center;gap:8px">
+                    <span class="text-xs text-muted">Limit hari ini:</span>
+                    <div style="display:flex;align-items:center;gap:6px">
+                        <div style="width:100px;height:6px;background:var(--bdr);border-radius:3px;overflow:hidden">
+                            <div id="daily-bar" style="height:100%;border-radius:3px;background:var(--ac);transition:width .3s;width:{{ min(100, round($stats['sent_today']/$stats['daily_limit']*100)) }}%"></div>
+                        </div>
+                        <span class="text-xs"><span id="sent-today">{{ $stats['sent_today'] }}</span>/<span id="daily-limit">{{ $stats['daily_limit'] }}</span></span>
+                    </div>
+                </div>
             </div>
             <div class="card-body">
-                <p class="text-sm text-muted mb-12">
-                    Target tersisa (punya WA, belum dikirim): <strong id="remaining-count">{{ $stats['remaining'] }}</strong>
-                </p>
-                <div class="d-flex align-center gap-8 mb-12">
+                {{-- Sisa target --}}
+                <div style="display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap">
+                    <div class="text-sm text-muted">
+                        Kategori relevan belum kirim: <strong id="remaining-relevant">{{ $stats['remaining_relevant'] }}</strong>
+                    </div>
+                    <div class="text-sm text-muted">
+                        Semua punya WA belum kirim: <strong id="remaining-count">{{ $stats['remaining'] }}</strong>
+                    </div>
+                </div>
+
+                {{-- Filter kategori --}}
+                <div style="margin-bottom:12px">
+                    <label class="text-xs text-muted fw-600" style="display:block;margin-bottom:4px">Target Kategori:</label>
+                    <div style="display:flex;gap:6px;flex-wrap:wrap" id="cat-filter-btns">
+                        <button class="btn btn-sm btn-primary cat-filter-btn" data-cat="relevant" onclick="setCatFilter(this)">
+                            <i class="fas fa-star"></i> Kategori Relevan ({{ $stats['remaining_relevant'] }})
+                        </button>
+                        <button class="btn btn-sm btn-ghost cat-filter-btn" data-cat="" onclick="setCatFilter(this)">
+                            Semua ({{ $stats['remaining'] }})
+                        </button>
+                    </div>
+                </div>
+                <input type="hidden" id="category-filter" value="relevant">
+
+                {{-- Kirim --}}
+                <div class="d-flex align-center gap-8 mb-12 flex-wrap">
                     <label class="text-xs text-muted">Kirim:</label>
                     <select id="send-limit" class="form-control" style="width:80px;font-size:13px">
                         <option value="3">3</option>
                         <option value="5" selected>5</option>
                         <option value="10">10</option>
                         <option value="20">20</option>
+                        <option value="50">50</option>
                     </select>
                     <label class="text-xs text-muted">pesan</label>
                     <button id="btn-send" class="btn btn-sm" style="background:var(--ac);color:#fff;border-color:var(--ac)"
                             onclick="runSendOutreach()">
                         <i class="fas fa-paper-plane"></i> Kirim Sekarang
                     </button>
+                    <span id="daily-warn" style="font-size:11px;color:var(--rd);display:none">
+                        <i class="fas fa-exclamation-triangle"></i> Limit harian hampir tercapai!
+                    </span>
                 </div>
                 <div class="progress-bar-wrap" id="send-progress-wrap" style="display:none">
                     <div class="progress-bar-fill" id="send-progress-bar" style="width:0%"></div>
                 </div>
                 <div class="log-box" id="send-log" style="display:none"></div>
                 <p class="text-xs text-muted mt-8">
-                    <i class="fas fa-info-circle"></i> Delay random 3–7 detik antar pesan otomatis diterapkan.
+                    <i class="fas fa-info-circle"></i> Delay random 3–7 detik · prioritas: kategori relevan + ramai + banyak ulasan · skip duplikat nomor.
                 </p>
             </div>
         </div>
@@ -276,15 +312,21 @@
     {{-- Tab: Daftar Target --}}
     <div id="tab-list" class="tab-panel" style="display:none">
         <div class="card">
-            <div class="card-header" style="justify-content:space-between">
+            <div class="card-header" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
                 <span><i class="fas fa-list" style="color:var(--ac);margin-right:6px"></i>Target Outreach</span>
-                <div class="d-flex gap-8">
+                <div class="d-flex gap-8 flex-wrap">
+                    <select id="list-category" class="form-control" style="width:auto;font-size:12px"
+                            onchange="loadTargetList()">
+                        <option value="relevant">Kategori Relevan</option>
+                        <option value="">Semua Kategori</option>
+                    </select>
                     <select id="list-filter" class="form-control" style="width:auto;font-size:12px"
                             onchange="loadTargetList()">
-                        <option value="pending">Belum dikirim (ada WA)</option>
+                        <option value="pending">Belum dikirim — prioritas tertinggi</option>
                         <option value="sent">Sudah dikirim</option>
                         <option value="responded">Sudah respon</option>
-                        <option value="all">Semua punya WA</option>
+                        <option value="interested">Berminat</option>
+                        <option value="ordered">Sudah order</option>
                     </select>
                 </div>
             </div>
@@ -509,12 +551,38 @@ function logSend(msg) {
     box.scrollTop = box.scrollHeight;
 }
 
+function setCatFilter(btn) {
+    document.querySelectorAll('.cat-filter-btn').forEach(b => {
+        b.classList.remove('btn-primary'); b.classList.add('btn-ghost');
+    });
+    btn.classList.add('btn-primary'); btn.classList.remove('btn-ghost');
+    document.getElementById('category-filter').value = btn.dataset.cat;
+}
+
+function updateDailyBar(sentToday, dailyLimit) {
+    const pct = Math.min(100, Math.round(sentToday / dailyLimit * 100));
+    document.getElementById('daily-bar').style.width = pct + '%';
+    document.getElementById('daily-bar').style.background = pct >= 90 ? '#ef4444' : pct >= 70 ? '#f97316' : 'var(--ac)';
+    document.getElementById('sent-today').textContent = sentToday;
+    const warn = document.getElementById('daily-warn');
+    warn.style.display = pct >= 80 ? 'inline' : 'none';
+}
+
 async function runSendOutreach() {
     if (!selectedDeviceId) { alert('Pilih device terlebih dahulu'); return; }
-    const remaining = parseInt(document.getElementById('remaining-count').textContent) || 0;
-    if (remaining === 0) { alert('Tidak ada target tersisa.'); return; }
+    const sentToday = parseInt(document.getElementById('sent-today').textContent) || 0;
+    const dailyLimit = parseInt(document.getElementById('daily-limit').textContent) || 50;
+    if (sentToday >= dailyLimit) { alert(`Limit harian ${dailyLimit} pesan sudah tercapai. Coba lagi besok.`); return; }
+
+    const catFilter   = document.getElementById('category-filter').value;
+    const remaining   = catFilter === 'relevant'
+        ? parseInt(document.getElementById('remaining-relevant').textContent) || 0
+        : parseInt(document.getElementById('remaining-count').textContent) || 0;
+    if (remaining === 0) { alert('Tidak ada target tersisa untuk filter ini.'); return; }
+
     const limit = parseInt(document.getElementById('send-limit').value);
-    if (!confirm(`Kirim ${limit} pesan menggunakan template yang dipilih?`)) return;
+    const catLabel = catFilter === 'relevant' ? 'kategori relevan' : catFilter || 'semua kategori';
+    if (!confirm(`Kirim ${limit} pesan ke ${catLabel} menggunakan template yang dipilih?\n\nSudah terkirim hari ini: ${sentToday}/${dailyLimit}`)) return;
 
     const btn = document.getElementById('btn-send');
     btn.disabled = true;
@@ -524,14 +592,15 @@ async function runSendOutreach() {
     document.getElementById('send-progress-bar').style.width = '10%';
 
     try {
-        logSend(`Mengirim ${limit} pesan... (delay 3–7 detik per pesan)`);
+        logSend(`Mengirim ${limit} pesan ke ${catLabel}... (delay 3–7 detik per pesan)`);
         const resp = await fetch('{{ route("whatsapp.send-outreach") }}', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
             body: JSON.stringify({
-                device_id:   selectedDeviceId,
-                template_id: selectedTemplateId,
-                limit
+                device_id:       selectedDeviceId,
+                template_id:     selectedTemplateId,
+                limit,
+                category_filter: catFilter,
             })
         });
         const d = await resp.json();
@@ -540,6 +609,7 @@ async function runSendOutreach() {
             logSend(`✓ Terkirim: ${d.results.sent} | Gagal: ${d.results.failed}`);
             logSend(`Sisa target: ${d.remaining}`);
             document.getElementById('remaining-count').textContent = d.remaining;
+            updateDailyBar(d.sent_today, d.daily_limit);
             refreshStats();
         } else {
             logSend('✗ ' + (d.error || 'Gagal'));
@@ -554,54 +624,67 @@ async function runSendOutreach() {
 
 // ── target list ───────────────────────────────────────────────────────────────
 function loadTargetList() {
-    const filter = document.getElementById('list-filter').value;
-    const wrap = document.getElementById('target-list-wrap');
+    const filter   = document.getElementById('list-filter').value;
+    const category = document.getElementById('list-category').value;
+    const wrap     = document.getElementById('target-list-wrap');
     wrap.innerHTML = '<p class="text-sm text-muted" style="padding:16px"><i class="fas fa-spinner fa-spin"></i> Memuat...</p>';
 
-    fetch(`{{ route('whatsapp.target-list') }}?filter=${filter}`)
+    fetch(`{{ route('whatsapp.target-list') }}?filter=${filter}&category=${encodeURIComponent(category)}`)
         .then(r => r.json())
         .then(d => {
             if (!d.data || d.data.length === 0) {
                 wrap.innerHTML = '<p class="text-sm text-muted" style="padding:16px">Tidak ada data untuk filter ini.</p>';
                 return;
             }
-            const statusLabel = { sent: '<span style="color:var(--ac);font-weight:600">Terkirim</span>',
-                                  responded: '<span style="color:var(--gn);font-weight:600">Respon</span>',
-                                  null: '—' };
-            const rows = d.data.map(p => `
-                <tr>
-                    <td style="padding:8px 12px;font-weight:500">${escHtml(p.name)}</td>
-                    <td style="padding:8px 12px;color:var(--tx2);font-size:12px">${escHtml(p.category || '—')}</td>
-                    <td style="padding:8px 12px;font-size:12px"><a href="tel:${escHtml(p.phone)}">${escHtml(p.phone)}</a></td>
-                    <td style="padding:8px 12px;font-size:12px">${statusLabel[p.outreach_status] || '—'}</td>
-                    <td style="padding:8px 12px;font-size:11px;color:var(--tx2)">${p.outreach_sent_at ? p.outreach_sent_at.replace('T',' ').slice(0,16) : '—'}</td>
-                    <td style="padding:8px 12px">
-                        ${p.outreach_status === 'sent' ? `<button class="btn btn-xs" style="background:var(--gn);color:#fff;border-color:var(--gn)" onclick="markStatus(${p.id},'responded',this)">✓ Respon</button>` : ''}
+            const statusBadge = {
+                sent:           '<span style="color:#3b82f6;font-weight:600;font-size:11px">Terkirim</span>',
+                replied:        '<span style="color:#06b6d4;font-weight:600;font-size:11px">Respon</span>',
+                responded:      '<span style="color:#06b6d4;font-weight:600;font-size:11px">Respon</span>',
+                interested:     '<span style="color:#f97316;font-weight:600;font-size:11px">Berminat</span>',
+                not_interested: '<span style="color:#9ca3af;font-weight:600;font-size:11px">Tidak Berminat</span>',
+                ordered:        '<span style="color:#10b981;font-weight:600;font-size:11px">Order ✓</span>',
+            };
+            const scoreColor = s => s >= 50 ? '#10b981' : s >= 30 ? '#f97316' : '#9ca3af';
+            const rows = d.data.map(p => {
+                const score = p.priority_score || 0;
+                const waLink = p.phone ? `<a href="https://wa.me/${p.phone.replace(/\D/g,'')}" target="_blank" class="btn btn-xs" style="background:#22c55e;color:#fff;border-color:#22c55e" title="Buka WA"><i class="fab fa-whatsapp"></i></a>` : '';
+                const detailLink = `<a href="/mafaza/public/places/${p.id}" target="_blank" class="btn btn-xs btn-ghost" title="Detail"><i class="fas fa-eye"></i></a>`;
+                const actionBtn = p.outreach_status === 'sent'
+                    ? `<button class="btn btn-xs btn-secondary" onclick="markStatus(${p.id},'replied',this)">↩ Respon</button>`
+                    : p.outreach_status === 'replied' || p.outreach_status === 'responded'
+                    ? `<button class="btn btn-xs" style="background:#f97316;color:#fff;border-color:#f97316" onclick="markStatus(${p.id},'interested',this)">👍</button>`
+                    : '';
+                return `<tr>
+                    <td style="padding:7px 12px">
+                        <div class="fw-600" style="font-size:12px">${escHtml(p.name)}</div>
+                        <div style="font-size:10px;color:var(--tx3)">${escHtml(p.category || '—')}</div>
                     </td>
-                </tr>
-            `).join('');
+                    <td style="padding:7px 12px;font-size:11px;color:var(--tx2)">${escHtml(p.phone || '—')}</td>
+                    <td style="padding:7px 12px;text-align:center">
+                        <span style="font-size:11px;font-weight:700;color:${scoreColor(score)}">${score}</span>
+                    </td>
+                    <td style="padding:7px 12px">${statusBadge[p.outreach_status] || '<span style="color:var(--tx3);font-size:11px">Belum</span>'}</td>
+                    <td style="padding:7px 12px;font-size:10px;color:var(--tx3)">${p.outreach_sent_at ? p.outreach_sent_at.replace('T',' ').slice(0,10) : '—'}</td>
+                    <td style="padding:7px 12px"><div style="display:flex;gap:4px">${waLink}${detailLink}${actionBtn}</div></td>
+                </tr>`;
+            }).join('');
             wrap.innerHTML = `
-                <div style="font-size:12px;color:var(--tx2);padding:8px 12px;border-bottom:1px solid var(--bdr)">${d.count} data</div>
+                <div style="font-size:12px;color:var(--tx2);padding:6px 12px;border-bottom:1px solid var(--bdr)">${d.count} tempat</div>
                 <div style="overflow-x:auto">
-                <table style="width:100%;border-collapse:collapse;font-size:13px">
-                    <thead>
-                        <tr style="border-bottom:1px solid var(--bdr);background:var(--bg)">
-                            <th style="padding:8px 12px;text-align:left;font-weight:600;font-size:12px">Nama</th>
-                            <th style="padding:8px 12px;text-align:left;font-weight:600;font-size:12px">Kategori</th>
-                            <th style="padding:8px 12px;text-align:left;font-weight:600;font-size:12px">Telepon</th>
-                            <th style="padding:8px 12px;text-align:left;font-weight:600;font-size:12px">Status</th>
-                            <th style="padding:8px 12px;text-align:left;font-weight:600;font-size:12px">Dikirim</th>
-                            <th style="padding:8px 12px"></th>
-                        </tr>
-                    </thead>
+                <table style="width:100%;border-collapse:collapse">
+                    <thead><tr style="border-bottom:1px solid var(--bdr);background:var(--bg2)">
+                        <th style="padding:7px 12px;text-align:left;font-size:11px;font-weight:600">Nama / Kategori</th>
+                        <th style="padding:7px 12px;text-align:left;font-size:11px;font-weight:600">Telepon</th>
+                        <th style="padding:7px 12px;text-align:center;font-size:11px;font-weight:600">Score</th>
+                        <th style="padding:7px 12px;text-align:left;font-size:11px;font-weight:600">Status</th>
+                        <th style="padding:7px 12px;text-align:left;font-size:11px;font-weight:600">Kirim</th>
+                        <th style="padding:7px 12px"></th>
+                    </tr></thead>
                     <tbody>${rows}</tbody>
                 </table>
-                </div>
-            `;
+                </div>`;
         })
-        .catch(() => {
-            wrap.innerHTML = '<p class="text-sm text-muted" style="padding:16px;color:var(--rd)">Gagal memuat data.</p>';
-        });
+        .catch(() => { wrap.innerHTML = '<p style="padding:16px;color:var(--rd)">Gagal memuat.</p>'; });
 }
 
 function escHtml(s) {

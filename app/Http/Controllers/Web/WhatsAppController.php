@@ -94,34 +94,56 @@ class WhatsAppController extends Controller
     public function sendOutreach(Request $request)
     {
         $request->validate([
-            'device_id'   => 'required|string',
-            'template_id' => 'required',        // 0 = acak, angka = id spesifik
-            'limit'       => 'integer|min:1|max:20',
+            'device_id'       => 'required|string',
+            'template_id'     => 'required',
+            'limit'           => 'integer|min:1|max:50',
+            'category_filter' => 'nullable|string', // 'relevant' | specific category | '' = semua
         ]);
 
-        $deviceId   = $request->device_id;
-        $templateId = $request->template_id;   // "0" = random
-        $limit      = (int) $request->get('limit', 5);
-        $isRandom   = ($templateId == 0);
+        $deviceId      = $request->device_id;
+        $templateId    = $request->template_id;
+        $limit         = (int) $request->get('limit', 5);
+        $categoryFilter= $request->get('category_filter', 'relevant');
+        $isRandom      = ($templateId == 0);
+
+        // Cek limit harian
+        $sentToday = OutreachLog::where('action', 'sent')
+            ->whereDate('created_at', today())->count();
+        $dailyLimit = (int) env('WA_DAILY_LIMIT', 50);
+        if ($sentToday >= $dailyLimit) {
+            return response()->json(['error' => "Limit harian {$dailyLimit} pesan sudah tercapai ({$sentToday} terkirim hari ini)."], 422);
+        }
+        $canSend = min($limit, $dailyLimit - $sentToday);
 
         $activeTemplates = WaTemplate::active()->get();
         if ($activeTemplates->isEmpty()) {
             return response()->json(['error' => 'Tidak ada template aktif'], 422);
         }
-
         if (!$isRandom) {
             $single = $activeTemplates->firstWhere('id', $templateId);
-            if (!$single) {
-                return response()->json(['error' => 'Template tidak valid'], 422);
-            }
+            if (!$single) return response()->json(['error' => 'Template tidak valid'], 422);
         }
 
-        // Places: punya WA, belum pernah di-outreach
-        $places = Place::where('has_whatsapp', true)
+        // Ambil phone yang sudah pernah dikirim untuk dedup
+        $sentPhones = Place::where('outreach_status', 'sent')
+            ->whereNotNull('phone')->pluck('phone')->flip()->all();
+
+        $q = Place::where('has_whatsapp', true)
             ->whereNull('outreach_status')
             ->whereNotNull('phone')
-            ->limit($limit)
-            ->get(['id', 'name', 'phone', 'category', 'address']);
+            ->where('phone', '!=', '');
+
+        if ($categoryFilter === 'relevant') {
+            $q->whereIn('category', self::RELEVANT_CATEGORIES);
+        } elseif ($categoryFilter) {
+            $q->where('category', $categoryFilter);
+        }
+
+        $places = $q->orderByRaw($this->priorityScoreExpr() . ' DESC')
+            ->limit($canSend * 3) // ambil lebih, filter dupes di PHP
+            ->get(['id', 'name', 'phone', 'category', 'address'])
+            ->filter(fn($p) => !isset($sentPhones[$p->phone]))
+            ->take($canSend);
 
         $results = ['sent' => 0, 'failed' => 0];
 
@@ -155,12 +177,17 @@ class WhatsAppController extends Controller
             usleep(rand(3000000, 7000000));
         }
 
-        $remaining = Place::where('has_whatsapp', true)->whereNull('outreach_status')->count();
+        $remaining = Place::where('has_whatsapp', true)->whereNull('outreach_status')
+            ->when($categoryFilter === 'relevant', fn($q) => $q->whereIn('category', self::RELEVANT_CATEGORIES))
+            ->when($categoryFilter && $categoryFilter !== 'relevant', fn($q) => $q->where('category', $categoryFilter))
+            ->count();
 
         return response()->json([
-            'status'    => 'ok',
-            'results'   => $results,
-            'remaining' => $remaining,
+            'status'     => 'ok',
+            'results'    => $results,
+            'remaining'  => $remaining,
+            'sent_today' => $sentToday + $results['sent'],
+            'daily_limit'=> $dailyLimit,
         ]);
     }
 
@@ -197,20 +224,35 @@ class WhatsAppController extends Controller
 
     public function targetList(Request $request)
     {
-        $filter = $request->get('filter', 'pending');
+        $filter   = $request->get('filter', 'pending');
+        $category = $request->get('category', '');
 
         $q = Place::where('has_whatsapp', true)->whereNotNull('phone');
 
         match ($filter) {
             'sent'      => $q->where('outreach_status', 'sent'),
-            'responded' => $q->where('outreach_status', 'responded'),
+            'responded' => $q->whereIn('outreach_status', ['responded','replied']),
+            'interested'=> $q->where('outreach_status', 'interested'),
+            'ordered'   => $q->where('outreach_status', 'ordered'),
             'pending'   => $q->whereNull('outreach_status'),
             default     => null,
         };
 
-        $places = $q->orderByDesc('outreach_sent_at')
-            ->limit(100)
-            ->get(['id', 'name', 'phone', 'category', 'address', 'rating', 'outreach_status', 'outreach_sent_at']);
+        if ($category === 'relevant') {
+            $q->whereIn('category', self::RELEVANT_CATEGORIES);
+        } elseif ($category) {
+            $q->where('category', $category);
+        }
+
+        $q->selectRaw('id, name, phone, category, address, rating, review_count, outreach_status, outreach_sent_at, (' . $this->priorityScoreExpr() . ') as priority_score');
+
+        if ($filter === 'pending') {
+            $q->orderByRaw('priority_score DESC');
+        } else {
+            $q->orderByDesc('outreach_sent_at');
+        }
+
+        $places = $q->limit(200)->get();
 
         return response()->json([
             'status' => 'ok',
@@ -219,7 +261,36 @@ class WhatsAppController extends Controller
         ]);
     }
 
+    // ── constants ─────────────────────────────────────────────────────────────
+
+    const RELEVANT_CATEGORIES = [
+        'Restoran', 'Warung Makan', 'Restoran Ayam', 'Restoran Bakso',
+        'Restoran Cepat Saji', 'Restoran Seafood', 'Restoran Sate',
+        'Restoran Mie', 'Restoran Nasi Goreng', 'Restoran China',
+        'Restoran Indonesia', 'Restoran Padang',
+        'Toko Buah dan Sayur', 'Toko Buah dan Sayuran', 'Grosir Buah dan Sayur',
+        'Toko grosir buah dan sayur', 'Toko Buah Kering',
+        'Toko Bahan Makanan', 'Minimarket', 'Supermarket', 'Pasar',
+        'Kedai Jus', 'Kedai Hidangan Penutup', 'Toko Es Krim',
+        'Kedai Kopi', 'Pusat Perbelanjaan',
+    ];
+
     // ── private ───────────────────────────────────────────────────────────────
+
+    private function priorityScoreExpr(): string
+    {
+        $cats = implode(',', array_map(fn($c) => "'" . addslashes($c) . "'", self::RELEVANT_CATEGORIES));
+        return "
+            (CASE WHEN category IN ({$cats}) THEN 30 ELSE 0 END)
+            + (CASE WHEN popular_times IS NOT NULL AND popular_times != '[]' THEN 20 ELSE 0 END)
+            + (CASE WHEN review_count >= 200 THEN 20
+                    WHEN review_count >= 100 THEN 15
+                    WHEN review_count >= 50  THEN 10
+                    WHEN review_count >= 10  THEN 5
+                    ELSE 0 END)
+            + (CASE WHEN rating >= 4.5 THEN 5 WHEN rating >= 4.0 THEN 3 ELSE 0 END)
+        ";
+    }
 
     private function getDevices(): array
     {
@@ -233,6 +304,8 @@ class WhatsAppController extends Controller
 
     private function getStats(): array
     {
+        $dailyLimit = (int) env('WA_DAILY_LIMIT', 50);
+        $sentToday  = OutreachLog::where('action', 'sent')->whereDate('created_at', today())->count();
         return [
             'total'          => Place::count(),
             'with_phone'     => Place::whereNotNull('phone')->where('phone', '!=', '')->count(),
@@ -247,6 +320,13 @@ class WhatsAppController extends Controller
             'remaining'       => Place::where('has_whatsapp', true)
                                     ->where(fn($q) => $q->whereNull('outreach_status')->orWhere('outreach_status', 'none'))
                                     ->count(),
+            'remaining_relevant' => Place::where('has_whatsapp', true)
+                                    ->whereIn('category', self::RELEVANT_CATEGORIES)
+                                    ->where(fn($q) => $q->whereNull('outreach_status')->orWhere('outreach_status', 'none'))
+                                    ->count(),
+            'sent_today'     => $sentToday,
+            'daily_limit'    => $dailyLimit,
+            'daily_remaining'=> max(0, $dailyLimit - $sentToday),
         ];
     }
 

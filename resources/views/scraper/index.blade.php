@@ -124,8 +124,17 @@
             <span class="chip" data-q="supplier buah">supplier buah</span>
             <span class="chip" data-q="grosir buah">grosir buah</span>
             <span class="chip" data-q="pasar buah">pasar buah</span>
+            <span class="chip" data-q="pedagang buah">pedagang buah</span>
             <span class="chip" data-q="restoran">restoran</span>
+            <span class="chip" data-q="rumah makan">rumah makan</span>
+            <span class="chip" data-q="warung makan">warung makan</span>
+            <span class="chip" data-q="warung nasi">warung nasi</span>
+            <span class="chip" data-q="depot makan">depot makan</span>
+            <span class="chip" data-q="catering">catering</span>
+            <span class="chip" data-q="kedai jus buah">kedai jus buah</span>
             <span class="chip" data-q="supermarket">supermarket</span>
+            <span class="chip" data-q="minimarket">minimarket</span>
+            <span class="chip" data-q="toko bahan makanan">toko bahan makanan</span>
         </div>
 
         {{-- Keyword + Jumlah --}}
