@@ -236,6 +236,7 @@ async function extractFromPage(page) {
 
 async function extractPopularTimes(page) {
   try {
+    // Method 1: JS embed (fast, works on some pages)
     const fromJs = await page.evaluate(() => {
       for (const script of document.querySelectorAll('script:not([src])')) {
         const t = script.textContent;
@@ -251,47 +252,43 @@ async function extractPopularTimes(page) {
       return result;
     }
 
-    const fromDom = await page.evaluate(() => {
-      const selectors = ['[jslog*="popular_times"]','[aria-label*="Popular times"]',
-                         '[aria-label*="Jam ramai"]','[aria-label*="Jam populer"]'];
-      let container = null;
-      for (const s of selectors) { container = document.querySelector(s); if (container) break; }
-      if (!container) return null;
-
-      const dayMap = { 'minggu':0,'senin':1,'selasa':2,'rabu':3,'kamis':4,'jumat':5,'sabtu':6,
-                       'sunday':0,'monday':1,'tuesday':2,'wednesday':3,'thursday':4,'friday':5,'saturday':6 };
-      const days = [{},{},{},{},{},,{}];
-      let currentDay = -1;
-      for (const bar of container.querySelectorAll('[aria-label]')) {
-        const lbl = (bar.getAttribute('aria-label') || '').toLowerCase();
-        for (const [name, idx] of Object.entries(dayMap)) {
-          if (lbl === name) { currentDay = idx; break; }
-        }
-        const pctMatch = lbl.match(/(\d{1,3})%/);
-        const hrMatch  = lbl.match(/pukul (\d{1,2})\.(\d{2})|(\d{1,2})\s?(am|pm)/i);
-        if (pctMatch && hrMatch && currentDay >= 0) {
-          let hr = hrMatch[3] ? parseInt(hrMatch[3]) : parseInt(hrMatch[1]);
-          const pm = hrMatch[4] && hrMatch[4].toLowerCase() === 'pm';
-          if (pm && hr !== 12) hr += 12;
-          if (!pm && hr === 12) hr = 0;
-          if (!days[currentDay]) days[currentDay] = {};
-          days[currentDay][hr] = parseInt(pctMatch[1]);
-        }
+    // Method 2: Click each day tab and read aria-label bars
+    // Format: "37% ramai pada pukul 10.00."
+    // Read all bars at once — all 7 days are pre-loaded in DOM (even if hidden)
+    const allBars = await page.evaluate(() => {
+      const out = [];
+      for (const el of document.querySelectorAll('[aria-label]')) {
+        const lbl = el.getAttribute('aria-label') || '';
+        const pct = lbl.match(/^(\d{1,3})%\s+ramai\s+pada\s+pukul\s+(\d{1,2})/);
+        if (pct) out.push({ hr: parseInt(pct[2]), val: parseInt(pct[1]) });
       }
-      const result = {};
-      const keys = ['sun','mon','tue','wed','thu','fri','sat'];
-      let hasData = false;
-      days.forEach((d, i) => {
-        if (d && Object.keys(d).length > 0) {
-          hasData = true;
-          const arr = Array(24).fill(0);
-          for (const [h, v] of Object.entries(d)) arr[parseInt(h)] = v;
-          result[keys[i]] = arr;
-        }
-      });
-      return hasData ? result : null;
+      return out;
     });
-    return fromDom;
+    if (allBars.length < 18) return null;  // no popular times data
+
+    // Split into day groups (hour resets = new day)
+    const groups = [];
+    let cur = [];
+    for (let i = 0; i < allBars.length; i++) {
+      if (i > 0 && allBars[i].hr <= allBars[i-1].hr && cur.length > 0) {
+        groups.push(cur); cur = [];
+      }
+      cur.push(allBars[i]);
+    }
+    if (cur.length > 0) groups.push(cur);
+    if (groups.length !== 7) return null;
+
+    // First group = today's data; map forward from today
+    const dayKeys  = ['sun','mon','tue','wed','thu','fri','sat'];
+    const todayIdx = new Date().getDay();
+    const result   = {};
+    groups.forEach((group, i) => {
+      const dayIdx = (todayIdx + i) % 7;
+      const arr = Array(24).fill(0);
+      group.forEach(({ hr, val }) => { arr[hr] = val; });
+      result[dayKeys[dayIdx]] = arr;
+    });
+    return result;
   } catch { return null; }
 }
 
