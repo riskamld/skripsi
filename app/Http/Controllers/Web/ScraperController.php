@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\ApiToken;
 use App\Models\Place;
+use App\Services\TelegramService;
 use Illuminate\Http\Request;
 
 class ScraperController extends Controller
@@ -325,6 +326,48 @@ class ScraperController extends Controller
         }
 
         return response()->json($result);
+    }
+
+    public function notifyDone(string $jobId)
+    {
+        if (!preg_match('/^s(?:crape|ched)_[a-f0-9._]+$/', $jobId)) {
+            return response()->json(['ok' => false]);
+        }
+
+        $logFile  = $this->logDir . "/{$jobId}.log";
+        $metaFile = $this->logDir . "/{$jobId}.meta";
+        $meta     = file_exists($metaFile) ? (json_decode(file_get_contents($metaFile), true) ?? []) : [];
+
+        $content   = file_exists($logFile) ? file_get_contents($logFile) : '';
+        $processed = 0;
+        foreach (explode("\n", $content) as $line) {
+            if (preg_match('/^\[(\d+)\/\d+\]/', $line, $m)) {
+                $processed = (int) $m[1];
+            }
+        }
+
+        app(TelegramService::class)->notifyScrapeDone(
+            $meta['query'] ?? 'Scraping',
+            $meta['area'] ?? '',
+            $processed,
+            Place::count()
+        );
+
+        return response()->json(['ok' => true]);
+    }
+
+    public function notifyError(string $jobId)
+    {
+        if (!preg_match('/^s(?:crape|ched)_[a-f0-9._]+$/', $jobId)) {
+            return response()->json(['ok' => false]);
+        }
+
+        $metaFile = $this->logDir . "/{$jobId}.meta";
+        $meta     = file_exists($metaFile) ? (json_decode(file_get_contents($metaFile), true) ?? []) : [];
+
+        app(TelegramService::class)->notifyScraperError($meta['query'] ?? 'Scraping', 'Scraper berakhir dengan error.');
+
+        return response()->json(['ok' => true]);
     }
 
     private function dbStats(): array

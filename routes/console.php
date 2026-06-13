@@ -11,3 +11,14 @@ Schedule::command('places:score --mark-targets --min-score=5')
 Schedule::command('places:normalize-categories')
     ->weeklyOn(1, '03:30')
     ->withoutOverlapping();
+
+// Jadwal scraping otomatis — cek setiap menit
+Schedule::command('scraper:run-scheduled')
+    ->everyMinute()
+    ->withoutOverlapping()
+    ->runInBackground();
+
+// Ringkasan harian Telegram — cek setiap jam
+Schedule::command('telegram:daily-summary')
+    ->hourly()
+    ->withoutOverlapping();

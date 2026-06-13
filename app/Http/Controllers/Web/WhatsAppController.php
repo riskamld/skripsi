@@ -7,6 +7,7 @@ use App\Models\OutreachLog;
 use App\Models\Place;
 use App\Models\PlaceOrder;
 use App\Models\WaTemplate;
+use App\Services\TelegramService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -86,6 +87,8 @@ class WhatsAppController extends Controller
 
         $remaining = Place::whereNotNull('phone')->where('phone', '!=', '')->whereNull('has_whatsapp')->count();
 
+        app(TelegramService::class)->notifyWaChecked($results['has_wa'], $results['no_wa'], $results['checked']);
+
         return response()->json([
             'status'    => 'ok',
             'results'   => $results,
@@ -116,6 +119,7 @@ class WhatsAppController extends Controller
             ->whereDate('created_at', today())->count();
         $dailyLimit = (int) env('WA_DAILY_LIMIT', 50);
         if ($sentToday >= $dailyLimit) {
+            app(TelegramService::class)->notifyDailyLimit($dailyLimit);
             return response()->json(['error' => "Limit harian {$dailyLimit} pesan sudah tercapai ({$sentToday} terkirim hari ini)."], 422);
         }
         $canSend = min(!empty($placeIds) ? count($placeIds) : $limit, $dailyLimit - $sentToday);
@@ -203,6 +207,14 @@ class WhatsAppController extends Controller
             ->when($categoryFilter && $categoryFilter !== 'relevant', fn($q) => $q->where('category', $categoryFilter))
             ->count();
 
+        if ($results['sent'] > 0) {
+            $tplName = $isRandom ? 'Acak' : ($single->name ?? 'Template');
+            app(TelegramService::class)->notifyOutreachSent(
+                $results['sent'], $results['failed'], $tplName,
+                $sentToday + $results['sent'], $dailyLimit
+            );
+        }
+
         return response()->json([
             'status'     => 'ok',
             'results'    => $results,
@@ -220,6 +232,9 @@ class WhatsAppController extends Controller
         $place->update(['outreach_status' => $request->status]);
         if ($old !== $request->status) {
             OutreachLog::create(['place_id' => $place->id, 'action' => 'status_changed', 'status' => $request->status]);
+            if ($request->status === 'interested') {
+                app(TelegramService::class)->notifyInterested($place->name, $place->phone ?? '');
+            }
         }
         return response()->json(['status' => 'ok', 'outreach_status' => $request->status]);
     }
@@ -440,6 +455,8 @@ class WhatsAppController extends Controller
             'order_date' => $request->order_date,
             'notes'      => $request->notes,
         ]);
+
+        app(TelegramService::class)->notifyNewOrder($place->name, $request->item, (float) $request->total_rp);
 
         return response()->json(['status' => 'ok', 'order' => $order]);
     }

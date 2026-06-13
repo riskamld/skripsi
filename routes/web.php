@@ -11,6 +11,8 @@ use App\Http\Controllers\Web\DatabaseController;
 use App\Http\Controllers\Web\AiChatController;
 use App\Http\Controllers\Web\MapController;
 use App\Http\Controllers\Web\ScraperController;
+use App\Http\Controllers\Web\ScraperScheduleController;
+use App\Http\Controllers\Web\TelegramController;
 use App\Http\Controllers\Web\WhatsAppController;
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
@@ -27,6 +29,21 @@ Route::get('/scraper/active-job', [ScraperController::class, 'activeJob'])->name
 Route::post('/scraper/save-cookies', [ScraperController::class, 'saveCookies'])->name('scraper.save-cookies');
 Route::get('/scraper/cookie-status', [ScraperController::class, 'cookieStatus'])->name('scraper.cookie-status');
 Route::post('/scraper/check-cookies', [ScraperController::class, 'checkCookies'])->name('scraper.check-cookies');
+Route::get('/scraper/notify-done/{jobId}', [ScraperController::class, 'notifyDone'])->name('scraper.notify-done');
+Route::get('/scraper/notify-error/{jobId}', [ScraperController::class, 'notifyError'])->name('scraper.notify-error');
+
+// Jadwal Scraping
+Route::get('/jadwal-scraping', [ScraperScheduleController::class, 'index'])->name('scraper-schedule.index');
+Route::post('/jadwal-scraping', [ScraperScheduleController::class, 'store'])->name('scraper-schedule.store');
+Route::put('/jadwal-scraping/{scrapeSchedule}', [ScraperScheduleController::class, 'update'])->name('scraper-schedule.update');
+Route::delete('/jadwal-scraping/{scrapeSchedule}', [ScraperScheduleController::class, 'destroy'])->name('scraper-schedule.destroy');
+Route::post('/jadwal-scraping/{scrapeSchedule}/toggle', [ScraperScheduleController::class, 'toggle'])->name('scraper-schedule.toggle');
+
+// Telegram
+Route::get('/telegram', [TelegramController::class, 'index'])->name('telegram.index');
+Route::post('/telegram/save', [TelegramController::class, 'save'])->name('telegram.save');
+Route::post('/telegram/test', [TelegramController::class, 'test'])->name('telegram.test');
+
 Route::get('/map', [MapController::class, 'index'])->name('map.index');
 
 // API Routes for Map (moved from api.php as workaround)

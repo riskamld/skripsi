@@ -217,8 +217,11 @@ code{font-size:11.5px;background:var(--bg);padding:1px 5px;border-radius:3px;bor
       <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
         <i class="fas fa-home nav-icon"></i> Dasbor
       </a>
-      <a href="{{ route('scraper.index') }}" class="nav-link {{ request()->routeIs('scraper.*') ? 'active' : '' }}">
+      <a href="{{ route('scraper.index') }}" class="nav-link {{ request()->routeIs('scraper.index','scraper.stats') ? 'active' : '' }}">
         <i class="fas fa-robot nav-icon"></i> Scraping
+      </a>
+      <a href="{{ route('scraper-schedule.index') }}" class="nav-link {{ request()->routeIs('scraper-schedule.*') ? 'active' : '' }}" style="padding-left:24px">
+        <i class="fas fa-calendar-alt nav-icon"></i> Jadwal Scraping
       </a>
       <a href="{{ route('whatsapp.index') }}" class="nav-link {{ request()->routeIs('whatsapp.*') ? 'active' : '' }}" style="display:flex;align-items:center;justify-content:space-between">
         <span><i class="fab fa-whatsapp nav-icon"></i> WhatsApp</span>
@@ -241,6 +244,9 @@ code{font-size:11.5px;background:var(--bg);padding:1px 5px;border-radius:3px;bor
       </a>
       <a href="{{ route('api-tokens.index') }}" class="nav-link {{ request()->routeIs('api-tokens.*') ? 'active' : '' }}">
         <i class="fas fa-key nav-icon"></i> Token API
+      </a>
+      <a href="{{ route('telegram.index') }}" class="nav-link {{ request()->routeIs('telegram.*') ? 'active' : '' }}">
+        <i class="fab fa-telegram nav-icon" style="color:#229ED9"></i> Telegram
       </a>
     </nav>
   </aside>

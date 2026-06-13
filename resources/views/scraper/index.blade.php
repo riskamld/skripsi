@@ -580,8 +580,10 @@ function showDone(status, lines) {
         $('rs-rating').textContent = s.rating;
         $('result-strip').style.display = 'flex';
         refreshStats();
+        if (jobId) fetch(`{{ url('/scraper/notify-done') }}/${jobId}`).catch(()=>{});
     } else {
         setStatus('error', 'Error — cek log');
+        if (jobId) fetch(`{{ url('/scraper/notify-error') }}/${jobId}`).catch(()=>{});
     }
 }
 
