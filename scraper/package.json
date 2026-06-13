@@ -1,0 +1,13 @@
+{
+  "name": "mafaza-gmaps-scraper",
+  "version": "1.0.0",
+  "description": "Google Maps scraper menggunakan Playwright untuk Mafaza Fortuna",
+  "main": "gmaps-scraper.js",
+  "scripts": {
+    "scrape": "node gmaps-scraper.js",
+    "test": "node gmaps-scraper.js \"toko buah\" \"Bandung\" 3 --dry-run"
+  },
+  "dependencies": {
+    "playwright": "^1.44.0"
+  }
+}

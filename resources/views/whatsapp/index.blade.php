@@ -146,17 +146,83 @@
     {{-- Tab: Outreach --}}
     <div id="tab-outreach" class="tab-panel" style="display:none">
         <div class="card mb-16">
-            <div class="card-header">
-                <span><i class="fas fa-comment-alt" style="color:var(--ac);margin-right:6px"></i>Pilih Template Pesan</span>
+            <div class="card-header" style="justify-content:space-between">
+                <span><i class="fas fa-comment-alt" style="color:var(--ac);margin-right:6px"></i>Template Pesan</span>
+                <button class="btn btn-primary btn-xs" onclick="openAddTemplate()">
+                    <i class="fas fa-plus"></i> Tambah
+                </button>
             </div>
-            <div class="card-body" style="display:flex;flex-direction:column;gap:8px">
-                @foreach($templates as $tid => $tpl)
-                <div class="template-card {{ $tid === 0 ? 'active' : '' }}" onclick="selectTemplate({{ $tid }})" id="tpl-{{ $tid }}">
-                    <div class="template-name" style="font-weight:600;font-size:13px">{{ $tpl['name'] }}</div>
-                    <div class="template-body">{{ $tpl['body'] }}</div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:8px" id="template-list">
+                {{-- Opsi Acak --}}
+                <div class="template-card active" onclick="selectTemplate(0)" id="tpl-0" style="border-color:var(--ac);background:#eff6ff">
+                    <div style="display:flex;align-items:center;gap:6px">
+                        <i class="fas fa-random" style="color:var(--ac)"></i>
+                        <span style="font-weight:700;font-size:13px;color:var(--ac)">Acak (bergantian)</span>
+                    </div>
+                    <div class="template-body" style="color:var(--tx3)">Tiap penerima mendapat template berbeda secara acak — lebih aman dari deteksi spam.</div>
+                </div>
+
+                @foreach($templates as $tpl)
+                <div class="template-card {{ !$tpl->is_active ? 'opacity-50' : '' }}"
+                     onclick="selectTemplate({{ $tpl->id }})"
+                     id="tpl-{{ $tpl->id }}"
+                     style="{{ !$tpl->is_active ? 'opacity:.45;pointer-events:none' : '' }}">
+                    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+                        <div class="template-name" style="font-weight:600;font-size:13px">{{ $tpl->name }}</div>
+                        <div style="display:flex;gap:4px;flex-shrink:0" onclick="event.stopPropagation()">
+                            <button class="btn btn-xs btn-secondary" title="{{ $tpl->is_active ? 'Nonaktifkan' : 'Aktifkan' }}"
+                                onclick="toggleTemplate({{ $tpl->id }}, this)">
+                                <i class="fas fa-{{ $tpl->is_active ? 'eye' : 'eye-slash' }}"></i>
+                            </button>
+                            <button class="btn btn-xs btn-secondary" title="Edit"
+                                onclick="editTemplate({{ $tpl->id }}, {{ json_encode($tpl->name) }}, {{ json_encode($tpl->body) }})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-xs btn-ghost" style="color:var(--rd)" title="Hapus"
+                                onclick="deleteTemplate({{ $tpl->id }}, {{ json_encode($tpl->name) }})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="template-body">{{ $tpl->body }}</div>
                 </div>
                 @endforeach
                 <input type="hidden" id="selected-template" value="0">
+            </div>
+        </div>
+
+        {{-- Modal tambah/edit template --}}
+        <div id="tpl-modal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.45);align-items:center;justify-content:center">
+            <div class="card" style="width:min(520px,95vw);max-height:90vh;overflow-y:auto">
+                <div class="card-header" style="justify-content:space-between">
+                    <span id="tpl-modal-title">Tambah Template</span>
+                    <button class="btn btn-ghost btn-xs" onclick="closeTplModal()"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
+                    <input type="hidden" id="tpl-edit-id" value="">
+                    <div>
+                        <label class="form-label">Nama Template</label>
+                        <input type="text" id="tpl-name-input" class="form-control" placeholder="contoh: Perkenalan Singkat">
+                    </div>
+                    <div>
+                        <label class="form-label">Isi Pesan</label>
+                        <div style="font-size:11px;color:var(--tx3);margin-bottom:4px">
+                            Variabel: <code>{nama}</code> = nama tempat &nbsp; <code>{kategori}</code> = kategori &nbsp; <code>{alamat}</code> = alamat
+                        </div>
+                        <textarea id="tpl-body-input" class="form-control" rows="8"
+                            style="font-family:monospace;font-size:12px;resize:vertical"
+                            placeholder="Halo {nama} 👋..."></textarea>
+                        <div style="font-size:11px;color:var(--tx3);margin-top:4px;text-align:right">
+                            <span id="tpl-char-count">0</span> karakter
+                        </div>
+                    </div>
+                    <div class="d-flex gap-8 justify-end">
+                        <button class="btn btn-secondary btn-sm" onclick="closeTplModal()">Batal</button>
+                        <button class="btn btn-primary btn-sm" onclick="saveTplModal()">
+                            <i class="fas fa-save"></i> Simpan
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -284,7 +350,68 @@ function selectTemplate(id) {
     selectedTemplateId = id;
     document.getElementById('selected-template').value = id;
     document.querySelectorAll('.template-card').forEach(el => el.classList.remove('active'));
-    document.getElementById('tpl-' + id).classList.add('active');
+    const card = document.getElementById('tpl-' + id);
+    if (card) card.classList.add('active');
+}
+
+function openAddTemplate() {
+    document.getElementById('tpl-edit-id').value = '';
+    document.getElementById('tpl-name-input').value = '';
+    document.getElementById('tpl-body-input').value = '';
+    document.getElementById('tpl-char-count').textContent = '0';
+    document.getElementById('tpl-modal-title').textContent = 'Tambah Template';
+    document.getElementById('tpl-modal').style.display = 'flex';
+}
+
+function editTemplate(id, name, body) {
+    document.getElementById('tpl-edit-id').value = id;
+    document.getElementById('tpl-name-input').value = name;
+    document.getElementById('tpl-body-input').value = body;
+    document.getElementById('tpl-char-count').textContent = body.length;
+    document.getElementById('tpl-modal-title').textContent = 'Edit Template';
+    document.getElementById('tpl-modal').style.display = 'flex';
+}
+
+function closeTplModal() {
+    document.getElementById('tpl-modal').style.display = 'none';
+}
+
+document.getElementById('tpl-body-input')?.addEventListener('input', function() {
+    document.getElementById('tpl-char-count').textContent = this.value.length;
+});
+
+async function saveTplModal() {
+    const id   = document.getElementById('tpl-edit-id').value;
+    const name = document.getElementById('tpl-name-input').value.trim();
+    const body = document.getElementById('tpl-body-input').value.trim();
+    if (!name || !body) { alert('Nama dan isi pesan wajib diisi'); return; }
+
+    const url    = id ? `/mafaza/public/whatsapp/templates/${id}` : '/mafaza/public/whatsapp/templates';
+    const method = id ? 'PUT' : 'POST';
+    const resp   = await fetch(url, {
+        method, headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+        body: JSON.stringify({ name, body }),
+    });
+    const d = await resp.json();
+    if (d.status === 'ok') { closeTplModal(); location.reload(); }
+    else alert('Gagal menyimpan template');
+}
+
+async function deleteTemplate(id, name) {
+    if (!confirm(`Hapus template "${name}"?`)) return;
+    const resp = await fetch(`/mafaza/public/whatsapp/templates/${id}`, {
+        method: 'DELETE', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+    });
+    const d = await resp.json();
+    if (d.status === 'ok') location.reload();
+}
+
+async function toggleTemplate(id, btn) {
+    const resp = await fetch(`/mafaza/public/whatsapp/templates/${id}/toggle`, {
+        method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+    });
+    const d = await resp.json();
+    if (d.status === 'ok') location.reload();
 }
 
 // ── cek WA ───────────────────────────────────────────────────────────────────

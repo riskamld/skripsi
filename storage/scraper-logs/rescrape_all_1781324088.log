@@ -1,0 +1,307 @@
+🔄 Mengambil 985 tempat dengan data tidak lengkap...
+📋 Ditemukan 100 tempat. Mulai rescraping...
+[1/100] 🌐 Warung Lesehan
+[1/100]    missing: opening_hours review_count
+[1/100] ✓ Updated — hours:– reviews:– rating:–
+[2/100] 🌐 Warung Mak Yah
+[2/100]    missing: opening_hours review_count
+[2/100] ⚠ Gagal extract — halaman tidak merespons dalam batas waktu
+[3/100] 🌐 Upline Dimsum
+[3/100]    missing: opening_hours review_count
+[3/100] ✓ Updated — hours:– reviews:– rating:–
+[4/100] 🌐 Warung Sate Cak Budi
+[4/100]    missing: opening_hours review_count
+[4/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[5/100] 🌐 4sFruit
+[5/100]    missing: opening_hours review_count
+[5/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[6/100] 🌐 Auraku fresh fruits shop
+[6/100]    missing: opening_hours review_count
+[6/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[7/100] 🌐 NR BERKAH BUAH 🍉🍉🍉🍉🍉
+[7/100]    missing: opening_hours review_count
+[7/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[8/100] 🌐 Bakso PLN
+[8/100]    missing: opening_hours review_count
+[8/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[9/100] 🌐 Toko Sayur Radhwaa
+[9/100]    missing: opening_hours review_count
+[9/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[10/100] 🌐 ABIM FRESH
+[10/100]    missing: opening_hours review_count
+[10/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[11/100] 🌐 Diana fresh fruits
+[11/100]    missing: opening_hours review_count
+[11/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[12/100] 🌐 Toko Sayur Sumber Rejeki
+[12/100]    missing: opening_hours review_count
+[12/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[13/100] 🌐 KEDAI NASI UDUK
+[13/100]    missing: opening_hours review_count
+[13/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[14/100] 🌐 DW Smoothies & Aneka Jus Buah
+[14/100]    missing: opening_hours review_count
+[14/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[15/100] 🌐 SHAKA FRUITS
+[15/100]    missing: opening_hours review_count
+[15/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[16/100] 🌐 Warung ummi raqi'
+[16/100]    missing: opening_hours review_count
+[16/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[17/100] 🌐 KIOS BUAH
+[17/100]    missing: opening_hours review_count
+[17/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[18/100] 🌐 Toko Kelontong dan Sayur
+[18/100]    missing: opening_hours review_count
+[18/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[19/100] 🌐 Toko Buah Pojok Karisma Jaya 2 (Mbak Lisa Buah)
+[19/100]    missing: opening_hours review_count
+[19/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[20/100] 🌐 Horti Hut
+[20/100]    missing: opening_hours review_count
+[20/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[21/100] 🌐 UD Buah Segar Cak Gemblung
+[21/100]    missing: opening_hours review_count
+[21/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[22/100] 🌐 Azzura Grosir Jember
+[22/100]    missing: opening_hours review_count
+[22/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[23/100] 🌐 Lesa fruits
+[23/100]    missing: opening_hours review_count
+[23/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[24/100] 🌐 Peti buah
+[24/100]    missing: opening_hours review_count
+[24/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[25/100] 🌐 Jual Semangka Segar Ecer dan Grosir
+[25/100]    missing: opening_hours review_count
+[25/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[26/100] 🌐 Gemoy Mart
+[26/100]    missing: opening_hours review_count
+[26/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[27/100] 🌐 Toko Sayur P. Ram
+[27/100]    missing: opening_hours review_count
+[27/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[28/100] 🌐 Sate Ayam Gule Kambing
+[28/100]    missing: opening_hours review_count
+[28/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[29/100] 🌐 Kiki florist
+[29/100]    missing: opening_hours review_count
+[29/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[30/100] 🌐 Kembar buah
+[30/100]    missing: opening_hours review_count
+[30/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[31/100] 🌐 Toko Buah Jambearum
+[31/100]    missing: opening_hours review_count
+[31/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[32/100] 🌐 Nikitajaya buah
+[32/100]    missing: opening_hours review_count
+[32/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[33/100] 🌐 W
+[33/100]    missing: opening_hours review_count
+[33/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[34/100] 🌐 Erinda's fresh fruit
+[34/100]    missing: opening_hours review_count
+[34/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[35/100] 🌐 TOKO BUNGA HIAS LELIS_FLORIST
+[35/100]    missing: opening_hours review_count
+[35/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[36/100] 🌐 Toko Sayur Sriwijaya
+[36/100]    missing: opening_hours review_count
+[36/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[37/100] 🌐 Hasanah buah timur balaidesa
+[37/100]    missing: opening_hours review_count
+[37/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[38/100] 🌐 HN Florist
+[38/100]    missing: opening_hours review_count
+[38/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[39/100] 🌐 Fitt_Craft
+[39/100]    missing: opening_hours review_count
+[39/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[40/100] 🌐 Toko Sembako Bu Holes
+[40/100]    missing: opening_hours review_count
+[40/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[41/100] 🌐 Shiwocraft
+[41/100]    missing: opening_hours review_count
+[41/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[42/100] 🌐 Bakso Barokah
+[42/100]    missing: opening_hours review_count
+[42/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[43/100] 🌐 Banana house
+[43/100]    missing: opening_hours review_count
+[43/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[44/100] 🌐 Buket Gallery dwiart
+[44/100]    missing: opening_hours review_count
+[44/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[45/100] 🌐 LABA SAYUR
+[45/100]    missing: opening_hours review_count
+[45/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[46/100] 🌐 HONAI BAHALAP YURIS ANGGREK
+[46/100]    missing: opening_hours review_count
+[46/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[47/100] 🌐 KAULA STORE
+[47/100]    missing: opening_hours review_count
+[47/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[48/100] 🌐 Lalapan Sego Deso
+[48/100]    missing: opening_hours review_count
+[48/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[49/100] 🌐 Lubna Florist
+[49/100]    missing: opening_hours review_count
+[49/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[50/100] 🌐 Gendjah Seed
+[50/100]    missing: opening_hours review_count
+[50/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[51/100] 🌐 Warung makan NINK ALIN
+[51/100]    missing: opening_hours review_count
+[51/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[52/100] 🌐 Buah segar asli semboro
+[52/100]    missing: opening_hours review_count
+[52/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[53/100] 🌐 BUNGA DAHLIA
+[53/100]    missing: opening_hours review_count
+[53/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[54/100] 🌐 Mini market sayuran
+[54/100]    missing: opening_hours review_count
+[54/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[55/100] 🌐 shaf_bouquet
+[55/100]    missing: opening_hours review_count
+[55/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[56/100] 🌐 Juragan Duren Tanggul
+[56/100]    missing: opening_hours review_count
+[56/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[57/100] 🌐 Warung seafood
+[57/100]    missing: opening_hours review_count
+[57/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[58/100] 🌐 Mbak Sus
+[58/100]    missing: opening_hours review_count
+[58/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[59/100] 🌐 Makan bacot yuk (bakso bekicot) tanggul
+[59/100]    missing: opening_hours review_count
+[59/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[60/100] 🌐 Ma Azam craft
+[60/100]    missing: opening_hours review_count
+[60/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[61/100] 🌐 Sayur Sae
+[61/100]    missing: opening_hours review_count
+[61/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[62/100] 🌐 Bibit segala tanaman pak mai
+[62/100]    missing: opening_hours review_count
+[62/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[63/100] 🌐 Pak Yanto Buah Semboro
+[63/100]    missing: opening_hours review_count
+[63/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[64/100] 🌐 A6 Nursery
+[64/100]    missing: opening_hours review_count
+[64/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[65/100] 🌐 Agen buah lokal dan import, ecer grosir
+[65/100]    missing: opening_hours review_count
+[65/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[66/100] 🌐 Segar Sehat
+[66/100]    missing: opening_hours review_count
+[66/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[67/100] 🌐 Ikan nila
+[67/100]    missing: opening_hours review_count
+[67/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[68/100] 🌐 Flower Nursery
+[68/100]    missing: opening_hours review_count
+[68/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[69/100] 🌐 ROSI BUAH
+[69/100]    missing: opening_hours review_count
+[69/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[70/100] 🌐 Boba Bear drink
+[70/100]    missing: opening_hours review_count
+[70/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[71/100] 🌐 Pastelo mommy syam
+[71/100]    missing: opening_hours review_count
+[71/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[72/100] 🌐 Rembulan Florist
+[72/100]    missing: opening_hours review_count
+[72/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[73/100] 🌐 Juss qt
+[73/100]    missing: opening_hours review_count
+[73/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[74/100] 🌐 ZIYADUL KHOIR
+[74/100]    missing: opening_hours review_count
+[74/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[75/100] 🌐 Jual Jus Buah
+[75/100]    missing: opening_hours review_count
+[75/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[76/100] 🌐 MEGA BUHA
+[76/100]    missing: opening_hours review_count
+[76/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[77/100] 🌐 Kedai mira berliyana
+[77/100]    missing: opening_hours review_count
+[77/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[78/100] 🌐 Cabil buah.melayani jual beli jeruk semboro
+[78/100]    missing: opening_hours review_count
+[78/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[79/100] 🌐 Toko buah jeruk pak cik jaya
+[79/100]    missing: opening_hours review_count
+[79/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[80/100] 🌐 Aneka Buah Lokal & import Mayang
+[80/100]    missing: opening_hours review_count
+[80/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[81/100] 🌐 Toko Buah Evila
+[81/100]    missing: opening_hours review_count
+[81/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[82/100] 🌐 Sister Beauty Collection/ES Nya Sister
+[82/100]    missing: opening_hours review_count
+[82/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[83/100] 🌐 Pembibitan Pak Arifin
+[83/100]    missing: opening_hours review_count
+[83/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[84/100] 🌐 Rumah Es degan & es jeruk
+[84/100]    missing: opening_hours review_count
+[84/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[85/100] 🌐 SUNDAE EVERYDAE TANGGUL
+[85/100]    missing: opening_hours review_count
+[85/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[86/100] 🌐 Toko buah P. surajun
+[86/100]    missing: opening_hours review_count
+[86/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[87/100] 🌐 Tahu Kocek Mbok'e
+[87/100]    missing: opening_hours review_count
+[87/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[88/100] 🌐 ASEH PEMBUAT KUE
+[88/100]    missing: opening_hours review_count
+[88/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[89/100] 🌐 TOKO SAYUR NR
+[89/100]    missing: opening_hours review_count
+[89/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[90/100] 🌐 waras buah
+[90/100]    missing: opening_hours review_count
+[90/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[91/100] 🌐 LTi
+[91/100]    missing: opening_hours review_count
+[91/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[92/100] 🌐 Durian Monthong Super
+[92/100]    missing: opening_hours review_count
+[92/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[93/100] 🌐 Rokiban fresh fruit
+[93/100]    missing: opening_hours review_count
+[93/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[94/100] 🌐 Lapak jus buah dan aneka sosis mbak nisa
+[94/100]    missing: opening_hours review_count
+[94/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[95/100] 🌐 Toko buah Nina Sofia
+[95/100]    missing: opening_hours review_count
+[95/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[96/100] 🌐 Bucket Andast Galeri
+[96/100]    missing: opening_hours review_count
+[96/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[97/100] 🌐 ES buah MAMA
+[97/100]    missing: opening_hours review_count
+[97/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[98/100] 🌐 AMELIA Fruit
+[98/100]    missing: opening_hours review_count
+[98/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[99/100] 🌐 Bunga mekar
+[99/100]    missing: opening_hours review_count
+[99/100] ✗ Error: page.goto: Target page, context or browser has been closed
+[100/100] 🌐 Kedai Barokah
+[100/100]    missing: opening_hours review_count
+[100/100] ✗ Error: page.goto: Target page, context or browser has been closed
+
+📊 Selesai: 2 berhasil, 98 gagal
+   Punya nomor telepon: 0
+   Rata-rata rating: –
+__SUMMARY__ Selesai: 2 berhasil, 98 gagal

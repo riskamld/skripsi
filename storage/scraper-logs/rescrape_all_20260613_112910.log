@@ -1,0 +1,2949 @@
+🔄 Mulai rescraping hingga 1000 tempat dengan data tidak lengkap...
+
+📋 Batch baru: 50 tempat (total diproses: 0/1000)
+[1/50] 🌐 Warung Mak Yah
+[1/50]    perlu: jam_buka, ulasan
+[1/50] ⚠ Tidak bisa extract — timeout
+[2/50] 🌐 Warung makan NINK ALIN
+[2/50]    perlu: jam_buka, ulasan
+[2/50] ✓ hours:✓ ulasan:8 rating:4 desc:– tutup:–
+[3/50] 🌐 Buah segar asli semboro
+[3/50]    perlu: jam_buka, ulasan
+[3/50] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[4/50] 🌐 BUNGA DAHLIA
+[4/50]    perlu: jam_buka, ulasan
+[4/50] ✓ hours:– ulasan:– rating:– desc:– tutup:–
+[5/50] 🌐 Mini market sayuran
+[5/50]    perlu: jam_buka, ulasan
+[5/50] ✓ hours:– ulasan:4 rating:4.8 desc:– tutup:–
+[6/50] 🌐 shaf_bouquet
+[6/50]    perlu: jam_buka, ulasan
+[6/50] ✓ hours:✓ ulasan:– rating:– desc:– tutup:–
+[7/50] 🌐 Juragan Duren Tanggul
+[7/50]    perlu: jam_buka, ulasan
+[7/50] ✓ hours:✓ ulasan:5 rating:4.6 desc:– tutup:–
+[8/50] 🌐 Warung seafood
+[8/50]    perlu: jam_buka, ulasan
+[8/50] ✓ hours:– ulasan:6 rating:4.5 desc:– tutup:–
+[9/50] 🌐 Mbak Sus
+[9/50]    perlu: jam_buka, ulasan
+[9/50] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[10/50] 🌐 Makan bacot yuk (bakso bekicot) tanggul
+[10/50]    perlu: jam_buka, ulasan
+[10/50] ✓ hours:– ulasan:1 rating:4 desc:– tutup:–
+[11/50] 🌐 Ma Azam craft
+[11/50]    perlu: jam_buka, ulasan
+[11/50] ✓ hours:– ulasan:4 rating:4.5 desc:– tutup:–
+[12/50] 🌐 Sayur Sae
+[12/50]    perlu: jam_buka, ulasan
+[12/50] ✓ hours:✓ ulasan:6 rating:4.5 desc:– tutup:–
+[13/50] 🌐 Bibit segala tanaman pak mai
+[13/50]    perlu: jam_buka, ulasan
+[13/50] ✓ hours:✓ ulasan:5 rating:5 desc:– tutup:–
+[14/50] 🌐 Pak Yanto Buah Semboro
+[14/50]    perlu: jam_buka, ulasan
+[14/50] ✓ hours:✓ ulasan:3 rating:5 desc:– tutup:–
+[15/50] 🌐 A6 Nursery
+[15/50]    perlu: jam_buka, ulasan
+[15/50] ✓ hours:– ulasan:11 rating:4.8 desc:– tutup:–
+[16/50] 🌐 Agen buah lokal dan import, ecer grosir
+[16/50]    perlu: jam_buka, ulasan
+[16/50] ✓ hours:– ulasan:– rating:– desc:– tutup:–
+[17/50] 🌐 Segar Sehat
+[17/50]    perlu: jam_buka, ulasan
+[17/50] ✓ hours:– ulasan:– rating:– desc:– tutup:–
+[18/50] 🌐 Ikan nila
+[18/50]    perlu: jam_buka, ulasan
+[18/50] ✓ hours:– ulasan:– rating:– desc:– tutup:–
+[19/50] 🌐 Flower Nursery
+[19/50]    perlu: jam_buka, ulasan
+[19/50] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[20/50] 🌐 ROSI BUAH
+[20/50]    perlu: jam_buka, ulasan
+[20/50] ✓ hours:✓ ulasan:– rating:– desc:– tutup:–
+[21/50] 🌐 Boba Bear drink
+[21/50]    perlu: jam_buka, ulasan
+[21/50] ✓ hours:– ulasan:3 rating:4.7 desc:– tutup:–
+[22/50] 🌐 Pastelo mommy syam
+[22/50]    perlu: jam_buka, ulasan
+[22/50] ✓ hours:✓ ulasan:10 rating:4 desc:– tutup:–
+[23/50] 🌐 Rembulan Florist
+[23/50]    perlu: jam_buka, ulasan
+[23/50] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[24/50] 🌐 Juss qt
+[24/50]    perlu: jam_buka, ulasan
+[24/50] ✓ hours:– ulasan:– rating:– desc:– tutup:–
+[25/50] 🌐 ZIYADUL KHOIR
+[25/50]    perlu: jam_buka, ulasan
+[25/50] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[26/50] 🌐 Jual Jus Buah
+[26/50]    perlu: jam_buka, ulasan
+[26/50] ✓ hours:– ulasan:40 rating:4.4 desc:– tutup:–
+[27/50] 🌐 MEGA BUHA
+[27/50]    perlu: jam_buka, ulasan
+[27/50] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[28/50] 🌐 Kedai mira berliyana
+[28/50]    perlu: jam_buka, ulasan
+[28/50] ✓ hours:✓ ulasan:9 rating:4.2 desc:– tutup:–
+[29/50] 🌐 Cabil buah.melayani jual beli jeruk semboro
+[29/50]    perlu: jam_buka, ulasan
+[29/50] ✓ hours:– ulasan:1 rating:4 desc:– tutup:–
+[30/50] 🌐 Toko buah jeruk pak cik jaya
+[30/50]    perlu: jam_buka, ulasan
+[30/50] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[31/50] 🌐 Aneka Buah Lokal & import Mayang
+[31/50]    perlu: jam_buka, ulasan
+[31/50] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[32/50] 🌐 Toko Buah Evila
+[32/50]    perlu: jam_buka, ulasan
+[32/50] ✓ hours:✓ ulasan:– rating:– desc:– tutup:–
+[33/50] 🌐 Sister Beauty Collection/ES Nya Sister
+[33/50]    perlu: jam_buka, ulasan
+[33/50] ✓ hours:– ulasan:– rating:– desc:– tutup:–
+[34/50] 🌐 Pembibitan Pak Arifin
+[34/50]    perlu: jam_buka, ulasan
+[34/50] ✓ hours:– ulasan:– rating:– desc:– tutup:–
+[35/50] 🌐 Rumah Es degan & es jeruk
+[35/50]    perlu: jam_buka, ulasan
+[35/50] ✓ hours:– ulasan:1 rating:4 desc:– tutup:–
+[36/50] 🌐 SUNDAE EVERYDAE TANGGUL
+[36/50]    perlu: jam_buka, ulasan
+[36/50] ✓ hours:– ulasan:11 rating:3.1 desc:– tutup:–
+[37/50] 🌐 Toko buah P. surajun
+[37/50]    perlu: jam_buka, ulasan
+[37/50] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[38/50] 🌐 Tahu Kocek Mbok'e
+[38/50]    perlu: jam_buka, ulasan
+[38/50] ✓ hours:✓ ulasan:2 rating:4.5 desc:– tutup:–
+[39/50] 🌐 ASEH PEMBUAT KUE
+[39/50]    perlu: jam_buka, ulasan
+[39/50] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[40/50] 🌐 TOKO SAYUR NR
+[40/50]    perlu: jam_buka, ulasan
+[40/50] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[41/50] 🌐 waras buah
+[41/50]    perlu: jam_buka, ulasan
+[41/50] ✓ hours:– ulasan:– rating:– desc:– tutup:–
+[42/50] 🌐 LTi
+[42/50]    perlu: jam_buka, ulasan
+[42/50] ✓ hours:✓ ulasan:4 rating:5 desc:– tutup:–
+[43/50] 🌐 Durian Monthong Super
+[43/50]    perlu: jam_buka, ulasan
+[43/50] ✓ hours:– ulasan:4 rating:5 desc:– tutup:–
+[44/50] 🌐 Rokiban fresh fruit
+[44/50]    perlu: jam_buka, ulasan
+[44/50] ✓ hours:✓ ulasan:1 rating:4 desc:– tutup:–
+[45/50] 🌐 Lapak jus buah dan aneka sosis mbak nisa
+[45/50]    perlu: jam_buka, ulasan
+[45/50] ✓ hours:✓ ulasan:8 rating:4.8 desc:– tutup:–
+[46/50] 🌐 Toko buah Nina Sofia
+[46/50]    perlu: jam_buka, ulasan
+[46/50] ✓ hours:✓ ulasan:9 rating:4.2 desc:– tutup:–
+[47/50] 🌐 Bucket Andast Galeri
+[47/50]    perlu: jam_buka, ulasan
+[47/50] ✓ hours:– ulasan:3 rating:5 desc:– tutup:–
+[48/50] 🌐 ES buah MAMA
+[48/50]    perlu: jam_buka, ulasan
+[48/50] ✓ hours:– ulasan:4 rating:5 desc:– tutup:–
+[49/50] 🌐 AMELIA Fruit
+[49/50]    perlu: jam_buka, ulasan
+[49/50] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[50/50] 🌐 Bunga mekar
+[50/50]    perlu: jam_buka, ulasan
+[50/50] ✓ hours:✓ ulasan:79 rating:5 desc:– tutup:–
+
+📋 Batch baru: 50 tempat (total diproses: 50/1000)
+[51/100] 🌐 Warung Mak Yah
+[51/100]    perlu: jam_buka, ulasan
+[51/100] ⚠ Tidak bisa extract — timeout
+[52/100] 🌐 Kedai Barokah
+[52/100]    perlu: jam_buka, ulasan
+[52/100] ✓ hours:✓ ulasan:3 rating:4.3 desc:– tutup:–
+[53/100] 🌐 Solo Fresh88
+[53/100]    perlu: jam_buka, ulasan
+[53/100] ✓ hours:– ulasan:– rating:– desc:– tutup:–
+[54/100] 🌐 Pohon Buah Jember
+[54/100]    perlu: jam_buka, ulasan
+[54/100] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[55/100] 🌐 Bonsai paleran
+[55/100]    perlu: jam_buka, ulasan
+[55/100] ✓ hours:✓ ulasan:6 rating:4.8 desc:– tutup:–
+[56/100] 🌐 Bibit Buah Sayyid
+[56/100]    perlu: jam_buka, ulasan
+[56/100] ✓ hours:✓ ulasan:3 rating:5 desc:– tutup:–
+[57/100] 🌐 Warung buah Adi barat pom tanggul
+[57/100]    perlu: jam_buka, ulasan
+[57/100] ✓ hours:– ulasan:7 rating:5 desc:– tutup:–
+[58/100] 🌐 Valin Buah Aneka Buah Segar & Parcel Buah
+[58/100]    perlu: jam_buka, ulasan
+[58/100] ✓ hours:– ulasan:– rating:– desc:– tutup:–
+[59/100] 🌐 Bonsai Kang Syukur
+[59/100]    perlu: jam_buka, ulasan
+[59/100] ✓ hours:– ulasan:– rating:– desc:– tutup:–
+[60/100] 🌐 LA Handmade
+[60/100]    perlu: jam_buka, ulasan
+[60/100] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[61/100] 🌐 Farhan jeruk
+[61/100]    perlu: jam_buka, ulasan
+[61/100] ✓ hours:– ulasan:– rating:– desc:– tutup:–
+[62/100] 🌐 Garasi buah cantok
+[62/100]    perlu: jam_buka, ulasan
+[62/100] ✓ hours:– ulasan:2 rating:5 desc:– tutup:–
+[63/100] 🌐 Es Puter
+[63/100]    perlu: jam_buka, ulasan
+[63/100] ✓ hours:– ulasan:7 rating:4 desc:– tutup:–
+[64/100] 🌐 Agista Fruits (toko buah)
+[64/100]    perlu: jam_buka, ulasan
+[64/100] ✓ hours:✓ ulasan:6 rating:4.5 desc:– tutup:–
+[65/100] 🌐 Stand Bunga Bolo Sewu Jember
+[65/100]    perlu: jam_buka, ulasan
+[65/100] ✓ hours:– ulasan:2 rating:2 desc:– tutup:–
+[66/100] 🌐 P.Anang/B.yuni
+[66/100]    perlu: jam_buka, ulasan
+[66/100] ✓ hours:– ulasan:4 rating:4.5 desc:– tutup:–
+[67/100] 🌐 SuperMolyoBuah#Grosir Buah Segar
+[67/100]    perlu: jam_buka, ulasan
+[67/100] ✓ hours:– ulasan:2 rating:5 desc:– tutup:–
+[68/100] 🌐 TOKO BUAH DUA PUTRI
+[68/100]    perlu: jam_buka, ulasan
+[68/100] ✓ hours:– ulasan:– rating:– desc:– tutup:–
+[69/100] 🌐 Warung Kayla Pojok
+[69/100]    perlu: jam_buka, ulasan
+[69/100] ✓ hours:✓ ulasan:– rating:– desc:– tutup:–
+[70/100] 🌐 Kios buah DELISHA
+[70/100]    perlu: jam_buka, ulasan
+[70/100] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[71/100] 🌐 Rika Buket Crafts
+[71/100]    perlu: jam_buka, ulasan
+[71/100] ✓ hours:✓ ulasan:– rating:– desc:– tutup:–
+[72/100] 🌐 RamaiJaya Buah & Bibit Tanaman
+[72/100]    perlu: jam_buka, ulasan
+[72/100] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[73/100] 🌐 Fresh fruits kalisat
+[73/100]    perlu: jam_buka, ulasan
+[73/100] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[74/100] 🌐 AFKA BUAH
+[74/100]    perlu: jam_buka, ulasan
+[74/100] ✓ hours:– ulasan:4 rating:3.3 desc:– tutup:–
+[75/100] 🌐 Warung buah Az-Zahra
+[75/100]    perlu: jam_buka, ulasan
+[75/100] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[76/100] 🌐 Kembang Appi
+[76/100]    perlu: jam_buka, ulasan
+[76/100] ✓ hours:– ulasan:– rating:– desc:– tutup:–
+[77/100] 🌐 Istana Buah Kalianyar
+[77/100]    perlu: jam_buka, ulasan
+[77/100] ✓ hours:– ulasan:14 rating:4.9 desc:– tutup:–
+[78/100] 🌐 Dila Buah 2 Menerima Pesanan Parsel
+[78/100]    perlu: jam_buka, ulasan
+[78/100] ✓ hours:– ulasan:5 rating:4 desc:– tutup:–
+[79/100] 🌐 Buah segar MA
+[79/100]    perlu: jam_buka, ulasan
+[79/100] ✓ hours:✓ ulasan:3 rating:4.7 desc:– tutup:–
+[80/100] 🌐 Bunga taman
+[80/100]    perlu: jam_buka, ulasan
+[80/100] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[81/100] 🌐 D'JAGUAR FOOD
+[81/100]    perlu: jam_buka, ulasan
+[81/100] ✓ hours:– ulasan:5 rating:5 desc:– tutup:–
+[82/100] 🌐 Toko Rumah Arumi ( Buket & Suvenir)
+[82/100]    perlu: jam_buka, ulasan
+[82/100] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[83/100] 🌐 Warung Niki Sae "999"
+[83/100]    perlu: jam_buka, ulasan
+[83/100] ✓ hours:– ulasan:170 rating:4 desc:– tutup:–
+[84/100] 🌐 NABILA
+[84/100]    perlu: jam_buka, ulasan
+[84/100] ✓ hours:– ulasan:– rating:– desc:– tutup:–
+[85/100] 🌐 Warung Makan ''Barokah''
+[85/100]    perlu: jam_buka, ulasan
+[85/100] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[86/100] 🌐 Anita Aglonema
+[86/100]    perlu: jam_buka, ulasan
+[86/100] ✓ hours:✓ ulasan:2 rating:2.5 desc:– tutup:–
+[87/100] 🌐 Mbah Nur
+[87/100]    perlu: jam_buka, ulasan
+[87/100] ✓ hours:– ulasan:10 rating:4.6 desc:– tutup:–
+[88/100] 🌐 Stand Mama Amel
+[88/100]    perlu: jam_buka, ulasan
+[88/100] ✓ hours:– ulasan:– rating:– desc:– tutup:–
+[89/100] 🌐 Djava Flora
+[89/100]    perlu: jam_buka, ulasan
+[89/100] ✓ hours:✓ ulasan:– rating:– desc:– tutup:–
+[90/100] 🌐 Sari Buah Rambipuji
+[90/100]    perlu: jam_buka, ulasan
+[90/100] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[91/100] 🌐 Warung "sania"
+[91/100]    perlu: jam_buka, ulasan
+[91/100] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[92/100] 🌐 Kedai Buah Cendrawasih
+[92/100]    perlu: jam_buka, ulasan
+[92/100] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[93/100] 🌐 Tumbas Bouquet
+[93/100]    perlu: jam_buka, ulasan
+[93/100] ✓ hours:✓ ulasan:4 rating:5 desc:– tutup:–
+[94/100] 🌐 Buah Indah
+[94/100]    perlu: jam_buka, ulasan
+[94/100] ✓ hours:– ulasan:3 rating:4.3 desc:– tutup:–
+[95/100] 🌐 Amee’s cookies
+[95/100]    perlu: jam_buka, ulasan
+[95/100] ✓ hours:✓ ulasan:– rating:– desc:– tutup:–
+[96/100] 🌐 Toko Devayu Florist & Room Decor
+[96/100]    perlu: jam_buka, ulasan
+[96/100] ✓ hours:✓ ulasan:2 rating:4 desc:– tutup:–
+[97/100] 🌐 rigo bibit
+[97/100]    perlu: jam_buka, ulasan
+[97/100] ✓ hours:– ulasan:2 rating:3 desc:– tutup:–
+[98/100] 🌐 Kedai Buah Berkah
+[98/100]    perlu: jam_buka, ulasan
+[98/100] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[99/100] 🌐 KIOS BUAH SEGAR SUMBER
+[99/100]    perlu: jam_buka, ulasan
+[99/100] ✓ hours:– ulasan:6 rating:4.2 desc:– tutup:–
+[100/100] 🌐 Stand Bunga Cak Is
+[100/100]    perlu: jam_buka, ulasan
+[100/100] ✓ hours:✓ ulasan:– rating:– desc:– tutup:–
+
+📋 Batch baru: 50 tempat (total diproses: 100/1000)
+[101/150] 🌐 Warung Mak Yah
+[101/150]    perlu: jam_buka, ulasan
+[101/150] ⚠ Tidak bisa extract — timeout
+[102/150] 🌐 Toko Buah Arfi
+[102/150]    perlu: jam_buka, ulasan
+[102/150] ✓ hours:– ulasan:4 rating:4.5 desc:– tutup:–
+[103/150] 🌐 Toko Sari Buah
+[103/150]    perlu: jam_buka, ulasan
+[103/150] ✓ hours:– ulasan:2 rating:5 desc:– tutup:–
+[104/150] 🌐 Kios Buah & Sayur Mayur "Mayra"
+[104/150]    perlu: jam_buka, ulasan
+[104/150] ✓ hours:– ulasan:– rating:– desc:– tutup:–
+[105/150] 🌐 Istana Buah Segar
+[105/150]    perlu: jam_buka, ulasan
+[105/150] ✓ hours:✓ ulasan:4 rating:5 desc:– tutup:–
+[106/150] 🌐 Kios Buah Kebonsari
+[106/150]    perlu: jam_buka, ulasan
+[106/150] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[107/150] 🌐 Griya Buah Alfi
+[107/150]    perlu: jam_buka, ulasan
+[107/150] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[108/150] 🌐 GRIYA BUAH ALEX
+[108/150]    perlu: jam_buka, ulasan
+[108/150] ✓ hours:– ulasan:3 rating:3.7 desc:– tutup:–
+[109/150] 🌐 Boss Bouquet & Craft
+[109/150]    perlu: jam_buka, ulasan
+[109/150] ✓ hours:– ulasan:– rating:– desc:– tutup:–
+[110/150] 🌐 Unie hany OLSHOP BUAH
+[110/150]    perlu: jam_buka, ulasan
+[110/150] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[111/150] 🌐 Sunflow buket
+[111/150]    perlu: jam_buka, ulasan
+[111/150] ✓ hours:✓ ulasan:4 rating:4.5 desc:– tutup:–
+[112/150] 🌐 Kios Buah Kaji Surya
+[112/150]    perlu: jam_buka, ulasan
+[112/150] ✓ hours:– ulasan:6 rating:4.2 desc:– tutup:–
+[113/150] 🌐 Buah Segar Mangga Dua
+[113/150]    perlu: jam_buka, ulasan
+[113/150] ✓ hours:– ulasan:4 rating:5 desc:– tutup:–
+[114/150] 🌐 JB.floral Jember
+[114/150]    perlu: jam_buka, ulasan
+[114/150] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[115/150] 🌐 Fruits and drinks
+[115/150]    perlu: jam_buka, ulasan
+[115/150] ✓ hours:✓ ulasan:12 rating:3 desc:– tutup:–
+[116/150] 🌐 SAYUR DIFANAR
+[116/150]    perlu: jam_buka, ulasan
+[116/150] ✓ hours:✓ ulasan:12 rating:3 desc:– tutup:–
+[117/150] 🌐 Febryan Jaya Buah
+[117/150]    perlu: jam_buka, ulasan
+[117/150] ✓ hours:– ulasan:16 rating:4.8 desc:– tutup:–
+[118/150] 🌐 Kedai sayur dan buah by cemplang cemplung
+[118/150]    perlu: jam_buka, ulasan
+[118/150] ✓ hours:– ulasan:4 rating:5 desc:– tutup:–
+[119/150] 🌐 Toko sayur dan sembako bu Risa
+[119/150]    perlu: jam_buka, ulasan
+[119/150] ✓ hours:– ulasan:– rating:– desc:– tutup:–
+[120/150] 🌐 Simba's Home
+[120/150]    perlu: jam_buka, ulasan
+[120/150] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[121/150] 🌐 Evergreen Organic Fruit and Vegetables
+[121/150]    perlu: jam_buka, ulasan
+[121/150] ✓ hours:✓ ulasan:– rating:– desc:– tutup:–
+[122/150] 🌐 Jus buah 5 ribu
+[122/150]    perlu: jam_buka, ulasan
+[122/150] ✓ hours:– ulasan:– rating:– desc:– tutup:–
+[123/150] 🌐 Warung bebas Akas Asri 2
+[123/150]    perlu: jam_buka, ulasan
+[123/150] ✓ hours:✓ ulasan:6 rating:4.8 desc:– tutup:–
+[124/150] 🌐 Nasi Goreng dan Jus Buah Azka Jember
+[124/150]    perlu: jam_buka, ulasan
+[124/150] ✓ hours:✓ ulasan:– rating:– desc:– tutup:–
+[125/150] 🌐 Tien's Meal ( Kiana Jus & Buah Segar )
+[125/150]    perlu: jam_buka, ulasan
+[125/150] ✓ hours:✓ ulasan:6 rating:4.7 desc:– tutup:–
+[126/150] 🌐 Bestie Food & Baverage
+[126/150]    perlu: jam_buka, ulasan
+[126/150] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[127/150] 🌐 Kedai Pisang Joss
+[127/150]    perlu: jam_buka, ulasan
+[127/150] ✓ hours:– ulasan:3 rating:4.3 desc:– tutup:–
+[128/150] 🌐 DAN'S FRUIT & JUICE
+[128/150]    perlu: jam_buka
+[128/150] ✓ hours:✓ ulasan:12 rating:3 desc:– tutup:–
+[129/150] 🌐 Warung Asih
+[129/150]    perlu: jam_buka
+[129/150] ✓ hours:✓ ulasan:350 rating:4.3 desc:– tutup:–
+[130/150] 🌐 Soto Ayam Madura Cab. Rambipuji H. Khaliq
+[130/150]    perlu: jam_buka
+[130/150] ✓ hours:✓ ulasan:355 rating:4.5 desc:– tutup:–
+[131/150] 🌐 Hamparan Buah Rr Suplier
+[131/150]    perlu: jam_buka
+[131/150] ✓ hours:✓ ulasan:4 rating:4 desc:– tutup:–
+[132/150] 🌐 LALAPAN MBAK IFA 2
+[132/150]    perlu: jam_buka
+[132/150] ✓ hours:✓ ulasan:10 rating:3.4 desc:– tutup:–
+[133/150] 🌐 Toko Buah Semua Suka
+[133/150]    perlu: jam_buka
+[133/150] ✓ hours:✓ ulasan:5 rating:4.8 desc:– tutup:–
+[134/150] 🌐 Salad Ichiki
+[134/150]    perlu: jam_buka
+[134/150] ✓ hours:✓ ulasan:9 rating:5 desc:– tutup:–
+[135/150] 🌐 RUMAH MAKAN ARBANI
+[135/150]    perlu: jam_buka
+[135/150] ✓ hours:– ulasan:26 rating:4.5 desc:– tutup:–
+[136/150] 🌐 ikakris buah
+[136/150]    perlu: jam_buka
+[136/150] ✓ hours:✓ ulasan:5 rating:4.8 desc:– tutup:–
+[137/150] 🌐 Ayam Bakar Kobongan
+[137/150]    perlu: jam_buka
+[137/150] ✓ hours:✓ ulasan:279 rating:4.3 desc:– tutup:–
+[138/150] 🌐 Warung Sate Pak Toha
+[138/150]    perlu: jam_buka
+[138/150] ✓ hours:✓ ulasan:1058 rating:4.5 desc:– tutup:–
+[139/150] 🌐 JM Cafe & Resto
+[139/150]    perlu: jam_buka
+[139/150] ✓ hours:✓ ulasan:88 rating:4.4 desc:– tutup:–
+[140/150] 🌐 Seblak Barokah 354
+[140/150]    perlu: jam_buka
+[140/150] ✓ hours:✓ ulasan:41 rating:4.4 desc:– tutup:–
+[141/150] 🌐 RAMAY SAYUR
+[141/150]    perlu: jam_buka
+[141/150] ✓ hours:✓ ulasan:12 rating:4.6 desc:– tutup:–
+[142/150] 🌐 Buah Segar Arjasa
+[142/150]    perlu: jam_buka
+[142/150] ✓ hours:✓ ulasan:4 rating:4 desc:– tutup:–
+[143/150] 🌐 Mie Corner
+[143/150]    perlu: jam_buka
+[143/150] ✓ hours:✓ ulasan:33 rating:4.2 desc:– tutup:–
+[144/150] 🌐 kedai sssStasiun
+[144/150]    perlu: jam_buka
+[144/150] ✓ hours:✓ ulasan:85 rating:4.2 desc:– tutup:–
+[145/150] 🌐 Bakso nyonyor 99 (pedesnya tak kaprahh)
+[145/150]    perlu: jam_buka
+[145/150] ✓ hours:– ulasan:43 rating:4.6 desc:– tutup:–
+[146/150] 🌐 Sayuran azka
+[146/150]    perlu: jam_buka
+[146/150] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[147/150] 🌐 Kedai Buah Segar
+[147/150]    perlu: jam_buka
+[147/150] ✓ hours:✓ ulasan:3 rating:5 desc:– tutup:–
+[148/150] 🌐 WARUNG NASI PECEL DAN RAWON BU WIWIK
+[148/150]    perlu: jam_buka
+[148/150] ✓ hours:✓ ulasan:15 rating:4.1 desc:– tutup:–
+[149/150] 🌐 ANEKA BUAH SEGAR
+[149/150]    perlu: jam_buka
+[149/150] ✓ hours:– ulasan:3 rating:4.7 desc:– tutup:–
+[150/150] 🌐 warung Prasojo
+[150/150]    perlu: jam_buka
+[150/150] ✓ hours:✓ ulasan:54 rating:4.6 desc:– tutup:–
+
+📋 Batch baru: 50 tempat (total diproses: 150/1000)
+[151/200] 🌐 Warung Mak Yah
+[151/200]    perlu: jam_buka, ulasan
+[151/200] ⚠ Tidak bisa extract — timeout
+[152/200] 🌐 Dimsum 99
+[152/200]    perlu: jam_buka
+[152/200] ✓ hours:✓ ulasan:3 rating:3.7 desc:– tutup:–
+[153/200] 🌐 Quba.fruit
+[153/200]    perlu: jam_buka
+[153/200] ✓ hours:✓ ulasan:2 rating:4.5 desc:– tutup:–
+[154/200] 🌐 CAFE & PUJASERA ZAM-ZAM
+[154/200]    perlu: jam_buka
+[154/200] ✓ hours:✓ ulasan:220 rating:4 desc:– tutup:–
+[155/200] 🌐 Rumah Makan Dinar
+[155/200]    perlu: jam_buka
+[155/200] ✓ hours:✓ ulasan:125 rating:4.1 desc:– tutup:–
+[156/200] 🌐 Toko Kurma Jajananlia dan SAMEEHA Trip
+[156/200]    perlu: jam_buka
+[156/200] ✓ hours:✓ ulasan:26 rating:4.8 desc:– tutup:–
+[157/200] 🌐 Warung "Bu ADIM"
+[157/200]    perlu: jam_buka
+[157/200] ✓ hours:✓ ulasan:22 rating:4.9 desc:– tutup:–
+[158/200] 🌐 Warung Cak Mad
+[158/200]    perlu: jam_buka
+[158/200] ✓ hours:✓ ulasan:9 rating:4 desc:– tutup:–
+[159/200] 🌐 Parcel Jember
+[159/200]    perlu: jam_buka
+[159/200] ✓ hours:✓ ulasan:8 rating:4.9 desc:– tutup:–
+[160/200] 🌐 Nasi Goreng Cak Mat
+[160/200]    perlu: jam_buka
+[160/200] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[161/200] 🌐 Soto Ayam Kampung Pak Kohar
+[161/200]    perlu: jam_buka
+[161/200] ✓ hours:✓ ulasan:35 rating:4.6 desc:– tutup:–
+[162/200] 🌐 FIRDA BUAH
+[162/200]    perlu: jam_buka
+[162/200] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[163/200] 🌐 SiRaja Buah
+[163/200]    perlu: jam_buka
+[163/200] ✓ hours:✓ ulasan:3 rating:4.7 desc:– tutup:–
+[164/200] 🌐 Jajanan Pasar Pasar Sore Tanggul
+[164/200]    perlu: jam_buka
+[164/200] ✓ hours:✓ ulasan:7 rating:4.1 desc:– tutup:–
+[165/200] 🌐 Warung Diana (P. Man)
+[165/200]    perlu: jam_buka
+[165/200] ✓ hours:✓ ulasan:2 rating:4.5 desc:– tutup:–
+[166/200] 🌐 UD BUAH ABADI
+[166/200]    perlu: jam_buka
+[166/200] ✓ hours:✓ ulasan:3 rating:4.7 desc:– tutup:–
+[167/200] 🌐 ES BUAH INDRA JAYA
+[167/200]    perlu: jam_buka
+[167/200] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[168/200] 🌐 Warung Nongkrong B.May
+[168/200]    perlu: jam_buka
+[168/200] ✓ hours:✓ ulasan:15 rating:4.5 desc:– tutup:–
+[169/200] 🌐 Nasi Goreng Masakan Suramadu
+[169/200]    perlu: jam_buka
+[169/200] ✓ hours:– ulasan:2 rating:5 desc:– tutup:–
+[170/200] 🌐 JAYA BUAH (ECKO) Dpn Masjid Asshirothol Mustaqim RAMBIPUJI
+[170/200]    perlu: jam_buka
+[170/200] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[171/200] 🌐 Mitramart jember
+[171/200]    perlu: jam_buka
+[171/200] ✓ hours:– ulasan:7 rating:5 desc:– tutup:–
+[172/200] 🌐 Warung Pojok Bu Yasmin
+[172/200]    perlu: jam_buka
+[172/200] ✓ hours:✓ ulasan:7 rating:5 desc:– tutup:–
+[173/200] 🌐 Sayur OMA ACI - MAF Farm & Hidroponik
+[173/200]    perlu: jam_buka
+[173/200] ✓ hours:✓ ulasan:31 rating:5 desc:– tutup:–
+[174/200] 🌐 Toko Amira
+[174/200]    perlu: jam_buka
+[174/200] ✓ hours:✓ ulasan:25 rating:4.3 desc:– tutup:–
+[175/200] 🌐 warung Juice buah segar Damar PinulunG
+[175/200]    perlu: jam_buka
+[175/200] ✓ hours:– ulasan:1 rating:4 desc:– tutup:–
+[176/200] 🌐 Bakso kabul jl.Merpati jubung lor
+[176/200]    perlu: jam_buka
+[176/200] ✓ hours:✓ ulasan:77 rating:4.3 desc:– tutup:–
+[177/200] 🌐 Toko Trubus Jember
+[177/200]    perlu: jam_buka
+[177/200] ✓ hours:✓ ulasan:95 rating:4.4 desc:– tutup:–
+[178/200] 🌐 Taman Buah Naga Gading Asri
+[178/200]    perlu: jam_buka
+[178/200] ✓ hours:– ulasan:282 rating:4.3 desc:– tutup:–
+[179/200] 🌐 Warung Ponidi
+[179/200]    perlu: jam_buka
+[179/200] ✓ hours:– ulasan:3 rating:5 desc:– tutup:–
+[180/200] 🌐 Warung Blok M Pecel,Lalapan,Nasgor
+[180/200]    perlu: jam_buka
+[180/200] ✓ hours:– ulasan:2 rating:5 desc:– tutup:–
+[181/200] 🌐 Toko Buah dan Es Degan Sunnah
+[181/200]    perlu: jam_buka
+[181/200] ✓ hours:✓ ulasan:8 rating:4.3 desc:– tutup:–
+[182/200] 🌐 Buah Kawan
+[182/200]    perlu: jam_buka
+[182/200] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[183/200] 🌐 Warung Mumet
+[183/200]    perlu: jam_buka
+[183/200] ✓ hours:✓ ulasan:48 rating:4.4 desc:– tutup:–
+[184/200] 🌐 PEMPEK PALEMBANG ARSEN 10
+[184/200]    perlu: jam_buka
+[184/200] ✓ hours:✓ ulasan:3 rating:4.7 desc:– tutup:–
+[185/200] 🌐 TOKO HAVIA BAROKAH
+[185/200]    perlu: jam_buka
+[185/200] ✓ hours:✓ ulasan:4 rating:5 desc:– tutup:–
+[186/200] 🌐 Bakso & Mie Ayam Solo Wonogiri
+[186/200]    perlu: jam_buka
+[186/200] ✓ hours:✓ ulasan:353 rating:4.4 desc:– tutup:–
+[187/200] 🌐 Nanda Buah 78
+[187/200]    perlu: jam_buka
+[187/200] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[188/200] 🌐 Warung Nasgor MIDO (JOKO Tawang Alun Jember)
+[188/200]    perlu: jam_buka
+[188/200] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[189/200] 🌐 Yazid Hidroponik
+[189/200]    perlu: jam_buka
+[189/200] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[190/200] 🌐 Rujak buah dan buah segar iris
+[190/200]    perlu: jam_buka
+[190/200] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[191/200] 🌐 Tempo Doeloe Kopitiam
+[191/200]    perlu: jam_buka
+[191/200] ✓ hours:✓ ulasan:501 rating:4.7 desc:– tutup:–
+[192/200] 🌐 FIRDA BUAH CAB 2
+[192/200]    perlu: jam_buka
+[192/200] ✓ hours:✓ ulasan:1 rating:4 desc:– tutup:–
+[193/200] 🌐 GUDANG SEMANGKA SBH
+[193/200]    perlu: jam_buka
+[193/200] ✓ hours:✓ ulasan:5 rating:5 desc:– tutup:–
+[194/200] 🌐 Aneka Tahu Surya Jaya
+[194/200]    perlu: jam_buka
+[194/200] ✓ hours:✓ ulasan:2 rating:4 desc:– tutup:–
+[195/200] 🌐 Resto Legian Jember
+[195/200]    perlu: jam_buka
+[195/200] ✓ hours:✓ ulasan:1716 rating:4.3 desc:– tutup:–
+[196/200] 🌐 Buah segar
+[196/200]    perlu: jam_buka
+[196/200] ✓ hours:✓ ulasan:1 rating:3 desc:– tutup:–
+[197/200] 🌐 Hongdae Korean Grill
+[197/200]    perlu: jam_buka
+[197/200] ✓ hours:✓ ulasan:709 rating:4.4 desc:– tutup:–
+[198/200] 🌐 Radar Buah
+[198/200]    perlu: jam_buka
+[198/200] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[199/200] 🌐 Restoran Sari Utama
+[199/200]    perlu: jam_buka
+[199/200] ✓ hours:✓ ulasan:498 rating:4.4 desc:– tutup:–
+[200/200] 🌐 Rumah Durian Gebang
+[200/200]    perlu: jam_buka
+[200/200] ✓ hours:✓ ulasan:24 rating:4.8 desc:– tutup:–
+
+📋 Batch baru: 50 tempat (total diproses: 200/1000)
+[201/250] 🌐 Warung Mak Yah
+[201/250]    perlu: jam_buka, ulasan
+[201/250] ⚠ Tidak bisa extract — timeout
+[202/250] 🌐 BOYZ JUICE mangli 2
+[202/250]    perlu: jam_buka
+[202/250] ✓ hours:✓ ulasan:27 rating:4.7 desc:– tutup:–
+[203/250] 🌐 Ayam Geprek Enzil
+[203/250]    perlu: jam_buka
+[203/250] ✓ hours:✓ ulasan:37 rating:4.6 desc:– tutup:–
+[204/250] 🌐 Warung Tera'
+[204/250]    perlu: jam_buka
+[204/250] ✓ hours:✓ ulasan:815 rating:4.4 desc:– tutup:–
+[205/250] 🌐 Sanjiwani Buah
+[205/250]    perlu: jam_buka
+[205/250] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[206/250] 🌐 Es Buah dan Jus Jawa 21
+[206/250]    perlu: jam_buka
+[206/250] ✓ hours:✓ ulasan:29 rating:3 desc:– tutup:–
+[207/250] 🌐 Finabarkah 1.0 Lalapan & Seafood
+[207/250]    perlu: jam_buka
+[207/250] ✓ hours:✓ ulasan:40 rating:4.2 desc:– tutup:–
+[208/250] 🌐 Gudeg dan Pecel Lumintu Jember
+[208/250]    perlu: jam_buka
+[208/250] ✓ hours:✓ ulasan:3934 rating:4.6 desc:– tutup:–
+[209/250] 🌐 Istana Sayur 67
+[209/250]    perlu: jam_buka
+[209/250] ✓ hours:✓ ulasan:14 rating:5 desc:– tutup:–
+[210/250] 🌐 Rumah Makan Robyong
+[210/250]    perlu: jam_buka
+[210/250] ✓ hours:✓ ulasan:66 rating:4.1 desc:– tutup:–
+[211/250] 🌐 YOEMI CAFE AND RESTO
+[211/250]    perlu: jam_buka
+[211/250] ✓ hours:✓ ulasan:113 rating:4.4 desc:– tutup:–
+[212/250] 🌐 Djayafresh Tangggul
+[212/250]    perlu: jam_buka
+[212/250] ✓ hours:✓ ulasan:2 rating:3 desc:– tutup:–
+[213/250] 🌐 Gajahmada Fresh Fruits
+[213/250]    perlu: jam_buka
+[213/250] ✓ hours:– ulasan:2 rating:5 desc:– tutup:–
+[214/250] 🌐 Kebuli Resto
+[214/250]    perlu: jam_buka
+[214/250] ✓ hours:✓ ulasan:8 rating:5 desc:– tutup:–
+[215/250] 🌐 KSN (KEDAI SARI NIKMAT)
+[215/250]    perlu: jam_buka
+[215/250] ✓ hours:✓ ulasan:364 rating:4.4 desc:– tutup:–
+[216/250] 🌐 Warung Makan Sederhana
+[216/250]    perlu: jam_buka
+[216/250] ✓ hours:✓ ulasan:57 rating:4.5 desc:– tutup:YA
+[217/250] 🌐 Iwak Pe Yu Sinto
+[217/250]    perlu: jam_buka
+[217/250] ✓ hours:✓ ulasan:418 rating:4.4 desc:– tutup:–
+[218/250] 🌐 GREENBOOM [ Toko Buah Kasiyan Timur Puger ]
+[218/250]    perlu: jam_buka
+[218/250] ✓ hours:✓ ulasan:3 rating:5 desc:– tutup:–
+[219/250] 🌐 TAQI JUICE
+[219/250]    perlu: jam_buka
+[219/250] ✓ hours:✓ ulasan:10 rating:4.1 desc:– tutup:–
+[220/250] 🌐 Warung Nasi Pecel Bu Mujo
+[220/250]    perlu: jam_buka
+[220/250] ✓ hours:– ulasan:43 rating:4.6 desc:– tutup:–
+[221/250] 🌐 Pondok Makan Kendi Garden
+[221/250]    perlu: jam_buka
+[221/250] ✓ hours:✓ ulasan:27 rating:4.8 desc:– tutup:–
+[222/250] 🌐 Toko Buah Aka Fresh
+[222/250]    perlu: jam_buka
+[222/250] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[223/250] 🌐 Fresh Juice
+[223/250]    perlu: jam_buka
+[223/250] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[224/250] 🌐 VFC (Vidaf Fried Chicken )
+[224/250]    perlu: jam_buka
+[224/250] ✓ hours:✓ ulasan:15 rating:4.4 desc:– tutup:–
+[225/250] 🌐 Pule Resto Sukorambi
+[225/250]    perlu: jam_buka
+[225/250] ✓ hours:✓ ulasan:173 rating:4.6 desc:– tutup:–
+[226/250] 🌐 durian fiesta
+[226/250]    perlu: jam_buka
+[226/250] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[227/250] 🌐 Xoxo Toko
+[227/250]    perlu: jam_buka
+[227/250] ✓ hours:✓ ulasan:686 rating:4.8 desc:– tutup:–
+[228/250] 🌐 Mafia Pentol
+[228/250]    perlu: jam_buka
+[228/250] ✓ hours:– ulasan:1 rating:1 desc:– tutup:–
+[229/250] 🌐 Warung Makan Tanjung
+[229/250]    perlu: jam_buka
+[229/250] ✓ hours:✓ ulasan:30 rating:4.8 desc:– tutup:–
+[230/250] 🌐 BIBIT BUAH JEMBER
+[230/250]    perlu: jam_buka
+[230/250] ✓ hours:– ulasan:5 rating:5 desc:– tutup:–
+[231/250] 🌐 Apokat mentega Jember
+[231/250]    perlu: jam_buka
+[231/250] ✓ hours:– ulasan:6 rating:4 desc:– tutup:–
+[232/250] 🌐 Bakso Tenes Asik
+[232/250]    perlu: jam_buka
+[232/250] ✓ hours:✓ ulasan:54 rating:4.4 desc:– tutup:–
+[233/250] 🌐 RM Sari Jaya
+[233/250]    perlu: jam_buka
+[233/250] ✓ hours:✓ ulasan:502 rating:4.3 desc:– tutup:–
+[234/250] 🌐 Azalia Sayur
+[234/250]    perlu: jam_buka
+[234/250] ✓ hours:✓ ulasan:18 rating:3 desc:– tutup:–
+[235/250] 🌐 SALAD BUAH KONGKOW
+[235/250]    perlu: jam_buka
+[235/250] ✓ hours:✓ ulasan:11 rating:5 desc:– tutup:–
+[236/250] 🌐 Queen Cafe & Resto Jember
+[236/250]    perlu: jam_buka
+[236/250] ✓ hours:✓ ulasan:352 rating:4.4 desc:– tutup:–
+[237/250] 🌐 Rumah Buah Durian
+[237/250]    perlu: jam_buka
+[237/250] ✓ hours:✓ ulasan:2 rating:3 desc:– tutup:–
+[238/250] 🌐 Nasi Padang Food Car- Dapur Uni Erni
+[238/250]    perlu: jam_buka
+[238/250] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[239/250] 🌐 New Soponyono Resto
+[239/250]    perlu: jam_buka
+[239/250] ✓ hours:✓ ulasan:161 rating:4.6 desc:– tutup:–
+[240/250] 🌐 AyuniAf
+[240/250]    perlu: jam_buka
+[240/250] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[241/250] 🌐 Clairy's Kitchen and Patisserie
+[241/250]    perlu: jam_buka
+[241/250] ✓ hours:✓ ulasan:1666 rating:4.6 desc:– tutup:–
+[242/250] 🌐 Ayam geprek inyonk
+[242/250]    perlu: jam_buka
+[242/250] ✓ hours:✓ ulasan:72 rating:4.6 desc:– tutup:–
+[243/250] 🌐 Warung Bu Darum
+[243/250]    perlu: jam_buka
+[243/250] ✓ hours:✓ ulasan:1399 rating:4.5 desc:– tutup:–
+[244/250] 🌐 Prima Sari
+[244/250]    perlu: jam_buka
+[244/250] ✓ hours:– ulasan:9 rating:4.7 desc:– tutup:–
+[245/250] 🌐 AIS KITCHEN & FROZEN
+[245/250]    perlu: jam_buka
+[245/250] ✓ hours:✓ ulasan:8 rating:5 desc:– tutup:–
+[246/250] 🌐 Ayam Geprek Rasakan Pedasnya!
+[246/250]    perlu: jam_buka
+[246/250] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[247/250] 🌐 Pawon hanana
+[247/250]    perlu: jam_buka
+[247/250] ✓ hours:✓ ulasan:11 rating:4.8 desc:– tutup:–
+[248/250] 🌐 Khusnul Gesya Fruit
+[248/250]    perlu: jam_buka
+[248/250] ✓ hours:✓ ulasan:3 rating:5 desc:– tutup:–
+[249/250] 🌐 Kedai Mbak inuy
+[249/250]    perlu: jam_buka
+[249/250] ✓ hours:✓ ulasan:23 rating:4.7 desc:– tutup:–
+[250/250] 🌐 Warung nasi goreng
+[250/250]    perlu: jam_buka
+[250/250] ✓ hours:– ulasan:3 rating:5 desc:– tutup:–
+
+📋 Batch baru: 50 tempat (total diproses: 250/1000)
+[251/300] 🌐 Warung Mak Yah
+[251/300]    perlu: jam_buka, ulasan
+[251/300] ⚠ Tidak bisa extract — timeout
+[252/300] 🌐 RESTO IKAN GORENG CIANJUR JEMBER
+[252/300]    perlu: jam_buka
+[252/300] ✓ hours:✓ ulasan:1375 rating:4.4 desc:✓ tutup:–
+[253/300] 🌐 Mabes fresh fruits
+[253/300]    perlu: jam_buka
+[253/300] ✓ hours:✓ ulasan:3 rating:4.7 desc:– tutup:–
+[254/300] 🌐 Mama Juice
+[254/300]    perlu: jam_buka
+[254/300] ✓ hours:✓ ulasan:28 rating:4.5 desc:– tutup:–
+[255/300] 🌐 Warung Bu Kartini
+[255/300]    perlu: jam_buka
+[255/300] ✓ hours:– ulasan:10 rating:4.5 desc:– tutup:–
+[256/300] 🌐 Feven Kitchen
+[256/300]    perlu: jam_buka
+[256/300] ✓ hours:✓ ulasan:111 rating:4.6 desc:– tutup:–
+[257/300] 🌐 Toko Buah Kotta Blater
+[257/300]    perlu: jam_buka
+[257/300] ✓ hours:✓ ulasan:76 rating:4.2 desc:– tutup:–
+[258/300] 🌐 Puding Jember | Hampers Jember | Mom's Ira Kitchen
+[258/300]    perlu: jam_buka
+[258/300] ✓ hours:– ulasan:347 rating:5 desc:– tutup:–
+[259/300] 🌐 RM. Padang Ampera Murni
+[259/300]    perlu: jam_buka
+[259/300] ✓ hours:✓ ulasan:38 rating:4.4 desc:– tutup:–
+[260/300] 🌐 Warung Nadifa
+[260/300]    perlu: jam_buka
+[260/300] ✓ hours:– ulasan:394 rating:4.2 desc:– tutup:–
+[261/300] 🌐 Indomaret Fresh Hayam Wuruk Jember
+[261/300]    perlu: jam_buka
+[261/300] ✓ hours:✓ ulasan:126 rating:4.2 desc:– tutup:–
+[262/300] 🌐 Ki Wae
+[262/300]    perlu: jam_buka
+[262/300] ✓ hours:✓ ulasan:90 rating:3.2 desc:– tutup:–
+[263/300] 🌐 SEGO SAMBEL BANYUMILI
+[263/300]    perlu: jam_buka
+[263/300] ✓ hours:✓ ulasan:383 rating:4.4 desc:– tutup:–
+[264/300] 🌐 ANEKA FRUIT FRESH
+[264/300]    perlu: jam_buka
+[264/300] ✓ hours:– ulasan:4 rating:3.3 desc:– tutup:–
+[265/300] 🌐 SPRINGS MILK
+[265/300]    perlu: jam_buka
+[265/300] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[266/300] 🌐 Warung seblak has bandung
+[266/300]    perlu: jam_buka
+[266/300] ✓ hours:✓ ulasan:4 rating:4.3 desc:– tutup:–
+[267/300] 🌐 JEJAK RASA BY KEDAI TOEBRUK
+[267/300]    perlu: jam_buka
+[267/300] ✓ hours:✓ ulasan:212 rating:4.3 desc:– tutup:–
+[268/300] 🌐 Sushikun - Lippo plaza jember
+[268/300]    perlu: jam_buka
+[268/300] ✓ hours:✓ ulasan:3202 rating:4.9 desc:– tutup:–
+[269/300] 🌐 Amora Agro (Spesialis Bibit Tanaman Buah-buahan)
+[269/300]    perlu: jam_buka
+[269/300] ✓ hours:✓ ulasan:7 rating:4.4 desc:– tutup:–
+[270/300] 🌐 Rujak Manis dan Es Campur Ciliwung
+[270/300]    perlu: jam_buka
+[270/300] ✓ hours:✓ ulasan:196 rating:4.6 desc:– tutup:–
+[271/300] 🌐 Penyet Tempe Pak Sumo
+[271/300]    perlu: jam_buka
+[271/300] ✓ hours:– ulasan:2 rating:4 desc:– tutup:–
+[272/300] 🌐 LEZAT RESTO JEMBER
+[272/300]    perlu: jam_buka
+[272/300] ✓ hours:✓ ulasan:157 rating:4.5 desc:– tutup:–
+[273/300] 🌐 Say Bread Indomaret Raya PB Sudirman
+[273/300]    perlu: jam_buka
+[273/300] ✓ hours:– ulasan:3 rating:3.7 desc:– tutup:–
+[274/300] 🌐 Mr.seblak tanggul
+[274/300]    perlu: jam_buka
+[274/300] ✓ hours:✓ ulasan:58 rating:4.5 desc:– tutup:–
+[275/300] 🌐 QUA-LI Jember
+[275/300]    perlu: jam_buka
+[275/300] ✓ hours:✓ ulasan:173 rating:4.6 desc:– tutup:–
+[276/300] 🌐 Fruits Sandwich Jember
+[276/300]    perlu: jam_buka
+[276/300] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[277/300] 🌐 Transmall Jember
+[277/300]    perlu: jam_buka
+[277/300] ✓ hours:✓ ulasan:7159 rating:4.5 desc:– tutup:–
+[278/300] 🌐 Nasi Pecel Kauman
+[278/300]    perlu: jam_buka
+[278/300] ✓ hours:– ulasan:1 rating:4 desc:– tutup:–
+[279/300] 🌐 MOMOYO SULTAN AGUNG JEMBER
+[279/300]    perlu: jam_buka
+[279/300] ✓ hours:✓ ulasan:1216 rating:4.9 desc:– tutup:–
+[280/300] 🌐 Depot Sate Ida Ambri
+[280/300]    perlu: jam_buka
+[280/300] ✓ hours:✓ ulasan:28 rating:4.6 desc:– tutup:–
+[281/300] 🌐 Radhwa Shop
+[281/300]    perlu: jam_buka
+[281/300] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[282/300] 🌐 Menantea Gajah Mada Jember
+[282/300]    perlu: jam_buka
+[282/300] ✓ hours:✓ ulasan:86 rating:4.6 desc:– tutup:YA
+[283/300] 🌐 DIMAS 99
+[283/300]    perlu: jam_buka
+[283/300] ✓ hours:✓ ulasan:6 rating:4.8 desc:– tutup:–
+[284/300] 🌐 RM Sumber Nikmat
+[284/300]    perlu: jam_buka
+[284/300] ✓ hours:✓ ulasan:160 rating:4 desc:– tutup:–
+[285/300] 🌐 Indomaret
+[285/300]    perlu: jam_buka
+[285/300] ✓ hours:✓ ulasan:14 rating:4.6 desc:– tutup:–
+[286/300] 🌐 Donato Jember
+[286/300]    perlu: jam_buka
+[286/300] ✓ hours:✓ ulasan:824 rating:4.4 desc:– tutup:–
+[287/300] 🌐 Indomaret Dr. Soebandi
+[287/300]    perlu: jam_buka
+[287/300] ✓ hours:✓ ulasan:27 rating:3.1 desc:– tutup:–
+[288/300] 🌐 Chinese food Gentleman Warung Muslim
+[288/300]    perlu: jam_buka
+[288/300] ✓ hours:✓ ulasan:80 rating:4.5 desc:– tutup:–
+[289/300] 🌐 SALAD BUAH SS
+[289/300]    perlu: jam_buka
+[289/300] ✓ hours:✓ ulasan:8 rating:3.8 desc:– tutup:–
+[290/300] 🌐 Warung makan F2
+[290/300]    perlu: jam_buka
+[290/300] ✓ hours:✓ ulasan:3 rating:5 desc:– tutup:–
+[291/300] 🌐 AsRi Resto & Cafe
+[291/300]    perlu: jam_buka
+[291/300] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[292/300] 🌐 MANDIRI AGEN TOKO BUAH LINTANG
+[292/300]    perlu: jam_buka
+[292/300] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[293/300] 🌐 Boyz juice jember 3
+[293/300]    perlu: jam_buka
+[293/300] ✓ hours:✓ ulasan:31 rating:4.7 desc:– tutup:–
+[294/300] 🌐 CBezt Fried Chicken Tegal Besar
+[294/300]    perlu: jam_buka
+[294/300] ✓ hours:✓ ulasan:550 rating:4.6 desc:– tutup:–
+[295/300] 🌐 Toko Basmalah Sidogiri Jenggawah
+[295/300]    perlu: jam_buka
+[295/300] ✓ hours:✓ ulasan:180 rating:4.5 desc:– tutup:–
+[296/300] 🌐 Sate Mulyo
+[296/300]    perlu: jam_buka
+[296/300] ✓ hours:✓ ulasan:11 rating:4.5 desc:– tutup:–
+[297/300] 🌐 Fujiyama Sushi Jember
+[297/300]    perlu: jam_buka
+[297/300] ✓ hours:✓ ulasan:1367 rating:4.5 desc:– tutup:–
+[298/300] 🌐 Toko Dilla
+[298/300]    perlu: jam_buka
+[298/300] ✓ hours:– ulasan:4 rating:4.5 desc:– tutup:–
+[299/300] 🌐 D’Cost Roxy Square Jember
+[299/300]    perlu: jam_buka
+[299/300] ✓ hours:✓ ulasan:334 rating:4 desc:– tutup:–
+[300/300] 🌐 Bakso Bu Jun Tanggul
+[300/300]    perlu: jam_buka
+[300/300] ✓ hours:✓ ulasan:121 rating:4.1 desc:– tutup:–
+
+📋 Batch baru: 50 tempat (total diproses: 300/1000)
+[301/350] 🌐 Warung Mak Yah
+[301/350]    perlu: jam_buka, ulasan
+[301/350] ⚠ Tidak bisa extract — timeout
+[302/350] 🌐 Rumah makan 99
+[302/350]    perlu: jam_buka
+[302/350] ✓ hours:✓ ulasan:52 rating:4.4 desc:– tutup:–
+[303/350] 🌐 Seli Salad
+[303/350]    perlu: jam_buka
+[303/350] ✓ hours:✓ ulasan:5 rating:5 desc:– tutup:–
+[304/350] 🌐 Warung Pecel Ponira
+[304/350]    perlu: jam_buka
+[304/350] ✓ hours:✓ ulasan:19 rating:3.9 desc:– tutup:–
+[305/350] 🌐 Ta Wan - Lippo Plaza Jember
+[305/350]    perlu: jam_buka
+[305/350] ✓ hours:✓ ulasan:331 rating:4.6 desc:– tutup:–
+[306/350] 🌐 Farid sayur
+[306/350]    perlu: jam_buka
+[306/350] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[307/350] 🌐 Warung Rujak Cingur Bu Fajar
+[307/350]    perlu: jam_buka
+[307/350] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[308/350] 🌐 Celcius Resto
+[308/350]    perlu: jam_buka
+[308/350] ✓ hours:✓ ulasan:25 rating:4.6 desc:– tutup:–
+[309/350] 🌐 Anugerah buah
+[309/350]    perlu: jam_buka
+[309/350] ✓ hours:– ulasan:1 rating:1 desc:– tutup:–
+[310/350] 🌐 JM Bakso Special Bakso Pentungan
+[310/350]    perlu: jam_buka
+[310/350] ✓ hours:– ulasan:3 rating:4.3 desc:– tutup:–
+[311/350] 🌐 Bakwan Eddy Gajah Mada Jember
+[311/350]    perlu: jam_buka
+[311/350] ✓ hours:✓ ulasan:742 rating:4.4 desc:– tutup:–
+[312/350] 🌐 Grosir Tanaman Jember Toko Tanaman Bunga dan Buah
+[312/350]    perlu: jam_buka
+[312/350] ✓ hours:✓ ulasan:11 rating:5 desc:– tutup:–
+[313/350] 🌐 Es Buah Cak Didik
+[313/350]    perlu: jam_buka
+[313/350] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[314/350] 🌐 Soto Mayar 90
+[314/350]    perlu: jam_buka
+[314/350] ✓ hours:✓ ulasan:7 rating:4.9 desc:– tutup:–
+[315/350] 🌐 Mie Rejeki
+[315/350]    perlu: jam_buka
+[315/350] ✓ hours:✓ ulasan:295 rating:4.5 desc:– tutup:–
+[316/350] 🌐 PayPonic - Hydrofarm
+[316/350]    perlu: jam_buka
+[316/350] ✓ hours:✓ ulasan:8 rating:5 desc:– tutup:YA
+[317/350] 🌐 Cita Rasa Anda Lalapan Dan Nasi Goreng
+[317/350]    perlu: jam_buka
+[317/350] ✓ hours:✓ ulasan:6 rating:4.7 desc:– tutup:–
+[318/350] 🌐 Depot Pangsit Mie Gandrung
+[318/350]    perlu: jam_buka
+[318/350] ✓ hours:✓ ulasan:1982 rating:4.5 desc:– tutup:–
+[319/350] 🌐 Warung Bu. Andy
+[319/350]    perlu: jam_buka
+[319/350] ✓ hours:– ulasan:5 rating:5 desc:– tutup:–
+[320/350] 🌐 HAMRY KULINER BAKSO PRASMANAN TANGGUL
+[320/350]    perlu: jam_buka
+[320/350] ✓ hours:✓ ulasan:9 rating:3.8 desc:– tutup:YA
+[321/350] 🌐 McDonald's
+[321/350]    perlu: jam_buka
+[321/350] ✓ hours:✓ ulasan:4126 rating:4.6 desc:✓ tutup:–
+[322/350] 🌐 Warung Ngangeni
+[322/350]    perlu: jam_buka
+[322/350] ✓ hours:– ulasan:2 rating:5 desc:– tutup:–
+[323/350] 🌐 Ayam Pedas Mbah Darmo
+[323/350]    perlu: jam_buka
+[323/350] ✓ hours:– ulasan:11 rating:4.9 desc:– tutup:–
+[324/350] 🌐 KING FOTOCOPY & KING SOP BUAH
+[324/350]    perlu: jam_buka
+[324/350] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[325/350] 🌐 Warung Gorengan Tanggul Kulon
+[325/350]    perlu: jam_buka
+[325/350] ✓ hours:– ulasan:1 rating:4 desc:– tutup:–
+[326/350] 🌐 Kuliner opo wae
+[326/350]    perlu: jam_buka
+[326/350] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[327/350] 🌐 WARUNG IBU LIA
+[327/350]    perlu: jam_buka
+[327/350] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[328/350] 🌐 Warung makan
+[328/350]    perlu: jam_buka
+[328/350] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[329/350] 🌐 Rujak Jambu Kristal Nusantara 1
+[329/350]    perlu: jam_buka
+[329/350] ✓ hours:✓ ulasan:12 rating:5 desc:– tutup:–
+[330/350] 🌐 Nasi goreng cak fen
+[330/350]    perlu: jam_buka
+[330/350] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[331/350] 🌐 Peco Peco Sushi Jember
+[331/350]    perlu: jam_buka
+[331/350] ✓ hours:✓ ulasan:85 rating:4.4 desc:– tutup:–
+[332/350] 🌐 HydroLariz Umbulrejo
+[332/350]    perlu: jam_buka
+[332/350] ✓ hours:– ulasan:4 rating:5 desc:– tutup:–
+[333/350] 🌐 Rujak Cingur Bu Munawati
+[333/350]    perlu: jam_buka
+[333/350] ✓ hours:✓ ulasan:7 rating:4.7 desc:– tutup:–
+[334/350] 🌐 Mie Rama Jember
+[334/350]    perlu: jam_buka
+[334/350] ✓ hours:✓ ulasan:809 rating:4.5 desc:– tutup:–
+[335/350] 🌐 Warung Lampu Merah Tanggul
+[335/350]    perlu: jam_buka
+[335/350] ✓ hours:✓ ulasan:3 rating:4.3 desc:– tutup:–
+[336/350] 🌐 Yoshinoya Japanese Restaurant
+[336/350]    perlu: jam_buka
+[336/350] ✓ hours:✓ ulasan:1416 rating:4.4 desc:– tutup:–
+[337/350] 🌐 OGEL OGEL
+[337/350]    perlu: jam_buka
+[337/350] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[338/350] 🌐 AGEN PETI BUAH,AZIZ JAYA
+[338/350]    perlu: jam_buka
+[338/350] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[339/350] 🌐 Warung tahu geprek meymey
+[339/350]    perlu: jam_buka
+[339/350] ✓ hours:✓ ulasan:6 rating:4.5 desc:– tutup:YA
+[340/350] 🌐 Waroenk Toebruk
+[340/350]    perlu: jam_buka
+[340/350] ✓ hours:✓ ulasan:11 rating:5 desc:– tutup:–
+[341/350] 🌐 Mahkota buah
+[341/350]    perlu: jam_buka
+[341/350] ✓ hours:– ulasan:2 rating:5 desc:– tutup:–
+[342/350] 🌐 Sego sambel Lombok ijo
+[342/350]    perlu: jam_buka
+[342/350] ✓ hours:✓ ulasan:7 rating:4.7 desc:– tutup:–
+[343/350] 🌐 Semeru Cafe & Resto
+[343/350]    perlu: jam_buka
+[343/350] ✓ hours:✓ ulasan:880 rating:4.5 desc:– tutup:–
+[344/350] 🌐 Toko sembako + sayuran
+[344/350]    perlu: jam_buka
+[344/350] ✓ hours:✓ ulasan:1 rating:4 desc:– tutup:–
+[345/350] 🌐 Buah dobel B
+[345/350]    perlu: jam_buka
+[345/350] ✓ hours:– ulasan:2 rating:5 desc:– tutup:–
+[346/350] 🌐 Bakso manteb
+[346/350]    perlu: jam_buka
+[346/350] ✓ hours:✓ ulasan:14 rating:4.5 desc:– tutup:–
+[347/350] 🌐 Foodgasm Bistro
+[347/350]    perlu: jam_buka
+[347/350] ✓ hours:✓ ulasan:1752 rating:4.6 desc:– tutup:–
+[348/350] 🌐 Schoneflorist
+[348/350]    perlu: jam_buka
+[348/350] ✓ hours:✓ ulasan:5 rating:5 desc:– tutup:–
+[349/350] 🌐 Cafe Segar Candu
+[349/350]    perlu: jam_buka
+[349/350] ✓ hours:✓ ulasan:13 rating:4.2 desc:– tutup:–
+[350/350] 🌐 Sate Madura K-Conk
+[350/350]    perlu: jam_buka
+[350/350] ✓ hours:✓ ulasan:4 rating:4.5 desc:– tutup:–
+
+📋 Batch baru: 50 tempat (total diproses: 350/1000)
+[351/400] 🌐 Warung Mak Yah
+[351/400]    perlu: jam_buka, ulasan
+[351/400] ⚠ Tidak bisa extract — timeout
+[352/400] 🌐 Dapur louna
+[352/400]    perlu: jam_buka
+[352/400] ✓ hours:✓ ulasan:19 rating:4.8 desc:– tutup:YA
+[353/400] 🌐 Berlin bhee florist
+[353/400]    perlu: jam_buka
+[353/400] ✓ hours:✓ ulasan:1 rating:4 desc:– tutup:–
+[354/400] 🌐 Rumah Makan Hj. Yatik
+[354/400]    perlu: jam_buka
+[354/400] ✓ hours:– ulasan:5 rating:5 desc:– tutup:–
+[355/400] 🌐 Warung Om Boy
+[355/400]    perlu: jam_buka
+[355/400] ✓ hours:✓ ulasan:801 rating:4.4 desc:– tutup:–
+[356/400] 🌐 Toko buket dan hampers
+[356/400]    perlu: jam_buka
+[356/400] ✓ hours:✓ ulasan:6 rating:5 desc:– tutup:–
+[357/400] 🌐 Agil Buah
+[357/400]    perlu: jam_buka
+[357/400] ✓ hours:✓ ulasan:4 rating:4 desc:– tutup:–
+[358/400] 🌐 Hasan bakso
+[358/400]    perlu: jam_buka
+[358/400] ✓ hours:– ulasan:2 rating:4.5 desc:– tutup:–
+[359/400] 🌐 Warung Bromo
+[359/400]    perlu: jam_buka
+[359/400] ✓ hours:✓ ulasan:992 rating:4.4 desc:– tutup:–
+[360/400] 🌐 Nabila Plants
+[360/400]    perlu: jam_buka
+[360/400] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[361/400] 🌐 Central Bibit Tanaman | Jual Bibit Bunga Dan Buah Eceran & Partaian
+[361/400]    perlu: jam_buka
+[361/400] ✓ hours:✓ ulasan:35 rating:4 desc:– tutup:–
+[362/400] 🌐 Pasar Pagi Perumahan Mojopahit
+[362/400]    perlu: jam_buka
+[362/400] ✓ hours:✓ ulasan:32 rating:4.2 desc:– tutup:YA
+[363/400] 🌐 Rumah Makan Lestari Jember
+[363/400]    perlu: jam_buka
+[363/400] ✓ hours:✓ ulasan:2569 rating:4.4 desc:✓ tutup:–
+[364/400] 🌐 Vii Buket Jatiroto
+[364/400]    perlu: jam_buka
+[364/400] ✓ hours:✓ ulasan:12 rating:5 desc:– tutup:–
+[365/400] 🌐 Pastel Echo
+[365/400]    perlu: jam_buka
+[365/400] ✓ hours:✓ ulasan:18 rating:4.8 desc:– tutup:–
+[366/400] 🌐 Puding Jember
+[366/400]    perlu: jam_buka
+[366/400] ✓ hours:✓ ulasan:6 rating:5 desc:– tutup:–
+[367/400] 🌐 SRI REJEKI Resto
+[367/400]    perlu: jam_buka
+[367/400] ✓ hours:✓ ulasan:1325 rating:4.7 desc:– tutup:–
+[368/400] 🌐 Awinart Buket Lumajang
+[368/400]    perlu: jam_buka
+[368/400] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[369/400] 🌐 Indomaret Plus Gajah Mada
+[369/400]    perlu: jam_buka
+[369/400] ✓ hours:✓ ulasan:460 rating:4.3 desc:– tutup:–
+[370/400] 🌐 Cafe & Resto Ala Bagio
+[370/400]    perlu: jam_buka
+[370/400] ✓ hours:✓ ulasan:76 rating:4.6 desc:– tutup:–
+[371/400] 🌐 Rien Collection
+[371/400]    perlu: jam_buka
+[371/400] ✓ hours:✓ ulasan:657 rating:4.3 desc:– tutup:–
+[372/400] 🌐 Queen Fried Chicken (Singkong Keju QFC)
+[372/400]    perlu: jam_buka
+[372/400] ✓ hours:✓ ulasan:1 rating:4 desc:– tutup:YA
+[373/400] 🌐 Warung Makan Hana Asri
+[373/400]    perlu: jam_buka
+[373/400] ✓ hours:✓ ulasan:276 rating:4.7 desc:– tutup:–
+[374/400] 🌐 Indah Flowers Tanggul
+[374/400]    perlu: jam_buka
+[374/400] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[375/400] 🌐 Tunas Berkah Bibit Buah
+[375/400]    perlu: jam_buka
+[375/400] ✓ hours:✓ ulasan:15 rating:5 desc:– tutup:–
+[376/400] 🌐 Ayam Geprek Sambel Ijo stasiun tanggul
+[376/400]    perlu: jam_buka
+[376/400] ✓ hours:– ulasan:2 rating:3 desc:– tutup:–
+[377/400] 🌐 Cak Sis Resto (CSR)
+[377/400]    perlu: jam_buka
+[377/400] ✓ hours:✓ ulasan:2161 rating:4.4 desc:✓ tutup:–
+[378/400] 🌐 Mika Flowers
+[378/400]    perlu: jam_buka
+[378/400] ✓ hours:– ulasan:2 rating:4 desc:– tutup:–
+[379/400] 🌐 Depot Jawa Timur
+[379/400]    perlu: jam_buka
+[379/400] ✓ hours:✓ ulasan:1775 rating:4.3 desc:– tutup:–
+[380/400] 🌐 BiTA CactuSucculents
+[380/400]    perlu: jam_buka
+[380/400] ✓ hours:✓ ulasan:8 rating:5 desc:– tutup:–
+[381/400] 🌐 Pusat Hidroponik Jember
+[381/400]    perlu: jam_buka
+[381/400] ✓ hours:✓ ulasan:14 rating:4.9 desc:– tutup:–
+[382/400] 🌐 Martabak - Terang bulan YUDISTIRA
+[382/400]    perlu: jam_buka
+[382/400] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[383/400] 🌐 Kedai LenQuas
+[383/400]    perlu: jam_buka
+[383/400] ✓ hours:✓ ulasan:684 rating:4.6 desc:– tutup:–
+[384/400] 🌐 Budhi Pisang
+[384/400]    perlu: jam_buka
+[384/400] ✓ hours:– ulasan:3 rating:4.3 desc:– tutup:–
+[385/400] 🌐 Dio Buah
+[385/400]    perlu: jam_buka
+[385/400] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[386/400] 🌐 Nasi Goreng Mawut Hasbullah
+[386/400]    perlu: jam_buka
+[386/400] ✓ hours:✓ ulasan:3 rating:4.3 desc:– tutup:–
+[387/400] 🌐 Valonia Bistro
+[387/400]    perlu: jam_buka
+[387/400] ✓ hours:✓ ulasan:129 rating:4.8 desc:– tutup:–
+[388/400] 🌐 Art Shop Bonsai Agus Santosa RI
+[388/400]    perlu: jam_buka
+[388/400] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[389/400] 🌐 Warung peracangan
+[389/400]    perlu: jam_buka
+[389/400] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[390/400] 🌐 Ershanda Rifqi
+[390/400]    perlu: jam_buka
+[390/400] ✓ hours:– ulasan:5 rating:4.4 desc:– tutup:–
+[391/400] 🌐 Tahu Petis Marzuki
+[391/400]    perlu: jam_buka
+[391/400] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[392/400] 🌐 WARUNG PEDESAN
+[392/400]    perlu: jam_buka
+[392/400] ✓ hours:✓ ulasan:526 rating:4.6 desc:– tutup:–
+[393/400] 🌐 Mafia Adenium
+[393/400]    perlu: jam_buka
+[393/400] ✓ hours:– ulasan:2 rating:5 desc:– tutup:–
+[394/400] 🌐 Warung Sate Ayam & Kambing
+[394/400]    perlu: jam_buka
+[394/400] ✓ hours:– ulasan:2 rating:5 desc:– tutup:–
+[395/400] 🌐 Waroeng Spesial Sambal "SS" Jember
+[395/400]    perlu: jam_buka
+[395/400] ✓ hours:✓ ulasan:3269 rating:4.4 desc:– tutup:–
+[396/400] 🌐 Rony Flower
+[396/400]    perlu: jam_buka
+[396/400] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[397/400] 🌐 Pondok Buah
+[397/400]    perlu: jam_buka
+[397/400] ✓ hours:✓ ulasan:235 rating:4.2 desc:– tutup:–
+[398/400] 🌐 Pasar Lerok Jatimulyo
+[398/400]    perlu: jam_buka
+[398/400] ✓ hours:✓ ulasan:238 rating:4.2 desc:– tutup:–
+[399/400] 🌐 Resto Ikan bakar Srawung Jember
+[399/400]    perlu: jam_buka
+[399/400] ✓ hours:✓ ulasan:30 rating:4.9 desc:– tutup:–
+[400/400] 🌐 Toko Buah Sehat Segar
+[400/400]    perlu: jam_buka
+[400/400] ✓ hours:✓ ulasan:42 rating:4.8 desc:– tutup:–
+
+📋 Batch baru: 50 tempat (total diproses: 400/1000)
+[401/450] 🌐 Warung Mak Yah
+[401/450]    perlu: jam_buka, ulasan
+[401/450] ⚠ Tidak bisa extract — timeout
+[402/450] 🌐 Dhani Jaya
+[402/450]    perlu: jam_buka
+[402/450] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[403/450] 🌐 Tahu Tek Mr. B
+[403/450]    perlu: jam_buka
+[403/450] ✓ hours:✓ ulasan:3 rating:5 desc:– tutup:–
+[404/450] 🌐 Grandma's Ji-Wan
+[404/450]    perlu: jam_buka
+[404/450] ✓ hours:✓ ulasan:65 rating:4.7 desc:– tutup:–
+[405/450] 🌐 Toko Buah P.Samud 2
+[405/450]    perlu: jam_buka
+[405/450] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[406/450] 🌐 Mie-Tsuka
+[406/450]    perlu: jam_buka
+[406/450] ✓ hours:✓ ulasan:7 rating:5 desc:– tutup:–
+[407/450] 🌐 NOG (New Ocean Garden) Resto
+[407/450]    perlu: jam_buka
+[407/450] ✓ hours:✓ ulasan:994 rating:4.2 desc:– tutup:–
+[408/450] 🌐 Dhita Fresh Fruit
+[408/450]    perlu: jam_buka
+[408/450] ✓ hours:– ulasan:60 rating:4.3 desc:– tutup:–
+[409/450] 🌐 Warung adelia rujuk buah
+[409/450]    perlu: jam_buka
+[409/450] ✓ hours:– ulasan:2 rating:5 desc:– tutup:–
+[410/450] 🌐 Resto & Cafe Red Pepper Tawang Mangu Jember
+[410/450]    perlu: jam_buka
+[410/450] ✓ hours:✓ ulasan:22 rating:4.6 desc:– tutup:–
+[411/450] 🌐 Toko buket Aiskha Crafts
+[411/450]    perlu: jam_buka
+[411/450] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[412/450] 🌐 Sinar Buah
+[412/450]    perlu: jam_buka
+[412/450] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[413/450] 🌐 Resto Blambangan
+[413/450]    perlu: jam_buka
+[413/450] ✓ hours:✓ ulasan:1181 rating:4.3 desc:– tutup:–
+[414/450] 🌐 PELANGI BUAH SEGAR ( PBS )
+[414/450]    perlu: jam_buka
+[414/450] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[415/450] 🌐 Bakso Sunny Tanggul
+[415/450]    perlu: jam_buka
+[415/450] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[416/450] 🌐 Bebek Galak 88
+[416/450]    perlu: jam_buka
+[416/450] ✓ hours:✓ ulasan:2390 rating:4.5 desc:– tutup:–
+[417/450] 🌐 Istana Buah88 Ambulu
+[417/450]    perlu: jam_buka
+[417/450] ✓ hours:✓ ulasan:3 rating:5 desc:– tutup:–
+[418/450] 🌐 Mie & Bakso Cak Sugeng
+[418/450]    perlu: jam_buka
+[418/450] ✓ hours:✓ ulasan:14 rating:4.5 desc:– tutup:–
+[419/450] 🌐 Sea Food Barokah
+[419/450]    perlu: jam_buka
+[419/450] ✓ hours:✓ ulasan:142 rating:4.7 desc:– tutup:–
+[420/450] 🌐 Durian Lumajang
+[420/450]    perlu: jam_buka
+[420/450] ✓ hours:✓ ulasan:7 rating:5 desc:– tutup:–
+[421/450] 🌐 Alfarisi Buah & Sayur Box
+[421/450]    perlu: jam_buka
+[421/450] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[422/450] 🌐 Sambel Sasa Resto dan Cafe Jember
+[422/450]    perlu: jam_buka
+[422/450] ✓ hours:✓ ulasan:10 rating:4.9 desc:– tutup:–
+[423/450] 🌐 Bumi Asri (jual bibit segala macam tanaman)
+[423/450]    perlu: jam_buka
+[423/450] ✓ hours:✓ ulasan:5 rating:5 desc:– tutup:–
+[424/450] 🌐 Distro buah
+[424/450]    perlu: jam_buka
+[424/450] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[425/450] 🌐 Bakso Sayur Pak Doel
+[425/450]    perlu: jam_buka
+[425/450] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[426/450] 🌐 Warung Sulastri
+[426/450]    perlu: jam_buka
+[426/450] ✓ hours:✓ ulasan:428 rating:4.4 desc:– tutup:–
+[427/450] 🌐 Alo Fresh Fruit
+[427/450]    perlu: jam_buka
+[427/450] ✓ hours:– ulasan:2 rating:5 desc:– tutup:–
+[428/450] 🌐 TOKO BUAH MB
+[428/450]    perlu: jam_buka
+[428/450] ✓ hours:✓ ulasan:4 rating:4 desc:– tutup:–
+[429/450] 🌐 cafe resto selera bunda
+[429/450]    perlu: jam_buka
+[429/450] ✓ hours:✓ ulasan:1 rating:2 desc:– tutup:–
+[430/450] 🌐 Rumah Pazta P&G
+[430/450]    perlu: jam_buka
+[430/450] ✓ hours:✓ ulasan:117 rating:4.7 desc:– tutup:–
+[431/450] 🌐 Buah Hati Baby Kids
+[431/450]    perlu: jam_buka
+[431/450] ✓ hours:✓ ulasan:26 rating:3.5 desc:– tutup:–
+[432/450] 🌐 LIJO TOSA
+[432/450]    perlu: jam_buka
+[432/450] ✓ hours:– ulasan:7 rating:5 desc:– tutup:–
+[433/450] 🌐 Matjeo Korean Grill Jember
+[433/450]    perlu: jam_buka
+[433/450] ✓ hours:✓ ulasan:259 rating:4.3 desc:– tutup:–
+[434/450] 🌐 Firdausi florist
+[434/450]    perlu: jam_buka
+[434/450] ✓ hours:– ulasan:1 rating:1 desc:– tutup:–
+[435/450] 🌐 Karuna Hydrofarm
+[435/450]    perlu: jam_buka
+[435/450] ✓ hours:✓ ulasan:5 rating:4.6 desc:– tutup:–
+[436/450] 🌐 Toko Buah Evi
+[436/450]    perlu: jam_buka
+[436/450] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[437/450] 🌐 Chicken Top 99
+[437/450]    perlu: jam_buka
+[437/450] ⚠ Tidak bisa extract — timeout
+[438/450] 🌐 Ayam Gephok Pak Giek
+[438/450]    perlu: jam_buka
+[438/450] ✓ hours:✓ ulasan:2097 rating:4.6 desc:✓ tutup:–
+[439/450] 🌐 Pengepul Bunga Arief Fachruddien
+[439/450]    perlu: jam_buka
+[439/450] ✓ hours:– ulasan:8 rating:3 desc:– tutup:–
+[440/450] 🌐 Buah nusantara..
+[440/450]    perlu: jam_buka
+[440/450] ✓ hours:✓ ulasan:2 rating:4 desc:– tutup:–
+[441/450] 🌐 Mie Ayam Bu Pri
+[441/450]    perlu: jam_buka
+[441/450] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[442/450] 🌐 Warung Lesehan Ayam Goreng Bu Kadir
+[442/450]    perlu: jam_buka
+[442/450] ✓ hours:✓ ulasan:1164 rating:4.5 desc:– tutup:–
+[443/450] 🌐 NR Buah Tanggul
+[443/450]    perlu: jam_buka
+[443/450] ✓ hours:✓ ulasan:5 rating:4.8 desc:– tutup:–
+[444/450] 🌐 MIE AYAM DAN BAKSO SOLO RASAANUNGGAL
+[444/450]    perlu: jam_buka
+[444/450] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[445/450] 🌐 CiX Kitchen
+[445/450]    perlu: jam_buka
+[445/450] ✓ hours:– ulasan:163 rating:4.5 desc:– tutup:–
+[446/450] 🌐 Sumber Rejeki
+[446/450]    perlu: jam_buka
+[446/450] ✓ hours:✓ ulasan:202 rating:4.1 desc:– tutup:–
+[447/450] 🌐 Mie Pangsit & Es Sarang Burung
+[447/450]    perlu: jam_buka
+[447/450] ✓ hours:✓ ulasan:5 rating:5 desc:– tutup:–
+[448/450] 🌐 Ineri Suki & Grill Sumbersari
+[448/450]    perlu: jam_buka
+[448/450] ✓ hours:– ulasan:42 rating:4.5 desc:– tutup:–
+[449/450] 🌐 Wong Rowokangkung Brahim Salam ngaret
+[449/450]    perlu: jam_buka
+[449/450] ✓ hours:– ulasan:5 rating:5 desc:– tutup:–
+[450/450] 🌐 Jagat Buah "Pak Imam"
+[450/450]    perlu: jam_buka
+[450/450] ✓ hours:✓ ulasan:4 rating:4.8 desc:– tutup:–
+
+📋 Batch baru: 50 tempat (total diproses: 450/1000)
+[451/500] 🌐 Warung Mak Yah
+[451/500]    perlu: jam_buka, ulasan
+[451/500] ⚠ Tidak bisa extract — timeout
+[452/500] 🌐 Chicken Top 99
+[452/500]    perlu: jam_buka
+[452/500] ⚠ Tidak bisa extract — timeout
+[453/500] 🌐 Restoran Ikan bakar bang deng jember
+[453/500]    perlu: jam_buka
+[453/500] ✓ hours:✓ ulasan:53 rating:4.6 desc:– tutup:–
+[454/500] 🌐 Asri Florist
+[454/500]    perlu: jam_buka
+[454/500] ✓ hours:✓ ulasan:4 rating:5 desc:– tutup:–
+[455/500] 🌐 Cak No Sea Food
+[455/500]    perlu: jam_buka
+[455/500] ✓ hours:✓ ulasan:127 rating:4.4 desc:– tutup:–
+[456/500] 🌐 Bibit Buah dan Tanaman Hias Rowotengah
+[456/500]    perlu: jam_buka
+[456/500] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[457/500] 🌐 Toke buah buahan
+[457/500]    perlu: jam_buka
+[457/500] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[458/500] 🌐 Pisang kembung
+[458/500]    perlu: jam_buka
+[458/500] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[459/500] 🌐 Ayam Fried Chicken Mayashi Jember
+[459/500]    perlu: jam_buka
+[459/500] ✓ hours:✓ ulasan:33 rating:5 desc:– tutup:–
+[460/500] 🌐 Rumah Zellina/Pak Didik
+[460/500]    perlu: jam_buka
+[460/500] ✓ hours:✓ ulasan:1 rating:3 desc:– tutup:–
+[461/500] 🌐 Sahabat Tani
+[461/500]    perlu: jam_buka
+[461/500] ✓ hours:✓ ulasan:75 rating:4.6 desc:– tutup:–
+[462/500] 🌐 Agen Es Batu Kristal Ambulu
+[462/500]    perlu: jam_buka
+[462/500] ✓ hours:✓ ulasan:3 rating:5 desc:– tutup:–
+[463/500] 🌐 WARUNG MAKAN BU NENENG
+[463/500]    perlu: jam_buka
+[463/500] ✓ hours:✓ ulasan:25 rating:4.1 desc:– tutup:–
+[464/500] 🌐 Resto sulthan
+[464/500]    perlu: jam_buka
+[464/500] ✓ hours:✓ ulasan:61 rating:4.8 desc:– tutup:–
+[465/500] 🌐 azzam bunga
+[465/500]    perlu: jam_buka
+[465/500] ✓ hours:✓ ulasan:4 rating:4.5 desc:– tutup:–
+[466/500] 🌐 Es Coklat Kuwentel By RJS Cabang_Tanggul
+[466/500]    perlu: jam_buka
+[466/500] ✓ hours:✓ ulasan:19 rating:4.2 desc:– tutup:–
+[467/500] 🌐 Oleh oleh khas jember | cookies lezatto,grabah
+[467/500]    perlu: jam_buka
+[467/500] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[468/500] 🌐 Sari Tirta Resto
+[468/500]    perlu: jam_buka
+[468/500] ✓ hours:✓ ulasan:16 rating:5 desc:– tutup:YA
+[469/500] 🌐 Neko Ice Cream Tanggul
+[469/500]    perlu: jam_buka
+[469/500] ✓ hours:✓ ulasan:229 rating:4.7 desc:– tutup:–
+[470/500] 🌐 Indomaret Perhutani Ambulu
+[470/500]    perlu: jam_buka
+[470/500] ✓ hours:✓ ulasan:100 rating:4 desc:– tutup:–
+[471/500] 🌐 Warung Bakso Bu Sumi
+[471/500]    perlu: jam_buka
+[471/500] ✓ hours:– ulasan:2 rating:5 desc:– tutup:–
+[472/500] 🌐 Kahyangan Resto & Cafe
+[472/500]    perlu: jam_buka
+[472/500] ✓ hours:✓ ulasan:30 rating:5 desc:– tutup:–
+[473/500] 🌐 Toko Perhiasan Bunga MAS
+[473/500]    perlu: jam_buka
+[473/500] ✓ hours:✓ ulasan:3 rating:3.3 desc:– tutup:–
+[474/500] 🌐 King drink
+[474/500]    perlu: jam_buka
+[474/500] ✓ hours:– ulasan:2 rating:5 desc:– tutup:–
+[475/500] 🌐 LALAPAN MBAK IFA
+[475/500]    perlu: jam_buka
+[475/500] ✓ hours:✓ ulasan:196 rating:4.1 desc:– tutup:–
+[476/500] 🌐 Bherung Indah
+[476/500]    perlu: jam_buka
+[476/500] ✓ hours:– ulasan:38 rating:4.2 desc:– tutup:–
+[477/500] 🌐 Virain Florist (Buket Jatiroto)
+[477/500]    perlu: jam_buka
+[477/500] ✓ hours:✓ ulasan:3 rating:5 desc:– tutup:–
+[478/500] 🌐 woody buah
+[478/500]    perlu: jam_buka
+[478/500] ✓ hours:✓ ulasan:4 rating:5 desc:– tutup:–
+[479/500] 🌐 Alkhashop Branded
+[479/500]    perlu: jam_buka
+[479/500] ✓ hours:✓ ulasan:3 rating:5 desc:– tutup:–
+[480/500] 🌐 LALAPAN & Nasi Goreng CAK BERRO
+[480/500]    perlu: jam_buka
+[480/500] ✓ hours:✓ ulasan:25 rating:4.6 desc:– tutup:–
+[481/500] 🌐 Cafe & Resto D'Bamboo
+[481/500]    perlu: jam_buka
+[481/500] ✓ hours:✓ ulasan:257 rating:4.5 desc:– tutup:–
+[482/500] 🌐 ES PISJO by Bunda Farhan
+[482/500]    perlu: jam_buka
+[482/500] ✓ hours:✓ ulasan:3 rating:5 desc:– tutup:–
+[483/500] 🌐 Ayam Goreng dan Ayam Pedas Sekar Jati
+[483/500]    perlu: jam_buka
+[483/500] ✓ hours:✓ ulasan:17 rating:4.2 desc:– tutup:–
+[484/500] 🌐 Warung Kembang
+[484/500]    perlu: jam_buka
+[484/500] ✓ hours:✓ ulasan:1463 rating:4.3 desc:– tutup:–
+[485/500] 🌐 Kangen smoothies
+[485/500]    perlu: jam_buka
+[485/500] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[486/500] 🌐 Furano Food & Coffee
+[486/500]    perlu: jam_buka
+[486/500] ✓ hours:✓ ulasan:291 rating:4.5 desc:– tutup:–
+[487/500] 🌐 Rumah Floristku Lillahi Ta'alla
+[487/500]    perlu: jam_buka
+[487/500] ✓ hours:✓ ulasan:23 rating:4.9 desc:– tutup:–
+[488/500] 🌐 Indomaret Pangsud Tanggul
+[488/500]    perlu: jam_buka
+[488/500] ✓ hours:✓ ulasan:35 rating:4.1 desc:– tutup:–
+[489/500] 🌐 Es boba bunga ponisri
+[489/500]    perlu: jam_buka
+[489/500] ✓ hours:✓ ulasan:1 rating:4 desc:– tutup:–
+[490/500] 🌐 Warung Barokah Rica2
+[490/500]    perlu: jam_buka
+[490/500] ✓ hours:✓ ulasan:91 rating:4.2 desc:– tutup:–
+[491/500] 🌐 Rumah makan lantabure
+[491/500]    perlu: jam_buka
+[491/500] ✓ hours:✓ ulasan:120 rating:4.7 desc:– tutup:–
+[492/500] 🌐 Toko bunga lumajang
+[492/500]    perlu: jam_buka
+[492/500] ✓ hours:✓ ulasan:34 rating:4.9 desc:– tutup:–
+[493/500] 🌐 MEIRO MIXUE TANGGUL
+[493/500]    perlu: jam_buka
+[493/500] ✓ hours:✓ ulasan:63 rating:3.9 desc:– tutup:–
+[494/500] 🌐 Jus Buah Gorene
+[494/500]    perlu: jam_buka
+[494/500] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[495/500] 🌐 RM LINSEY
+[495/500]    perlu: jam_buka
+[495/500] ✓ hours:✓ ulasan:57 rating:4.2 desc:– tutup:–
+[496/500] 🌐 Waroeng Steak & Shake Jember Pb sudirman
+[496/500]    perlu: jam_buka
+[496/500] ✓ hours:✓ ulasan:1826 rating:4.5 desc:– tutup:–
+[497/500] 🌐 Toko Bucket Lafloristt.co
+[497/500]    perlu: jam_buka
+[497/500] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[498/500] 🌐 Toko KURMA MURAH La Tahzan
+[498/500]    perlu: jam_buka
+[498/500] ✓ hours:✓ ulasan:6 rating:5 desc:– tutup:–
+[499/500] 🌐 Kuliner Suliswati
+[499/500]    perlu: jam_buka
+[499/500] ✓ hours:✓ ulasan:5 rating:4.6 desc:– tutup:–
+[500/500] 🌐 Resto Kemuning Rembangan
+[500/500]    perlu: jam_buka
+[500/500] ✓ hours:✓ ulasan:96 rating:4.3 desc:– tutup:–
+
+📋 Batch baru: 50 tempat (total diproses: 500/1000)
+[501/550] 🌐 Warung Mak Yah
+[501/550]    perlu: jam_buka, ulasan
+[501/550] ⚠ Tidak bisa extract — timeout
+[502/550] 🌐 Chicken Top 99
+[502/550]    perlu: jam_buka
+[502/550] ⚠ Tidak bisa extract — timeout
+[503/550] 🌐 BOLO TANI
+[503/550]    perlu: jam_buka
+[503/550] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[504/550] 🌐 AMANDA BUAH
+[504/550]    perlu: jam_buka
+[504/550] ✓ hours:✓ ulasan:1 rating:2 desc:– tutup:–
+[505/550] 🌐 RM Layungsari 1
+[505/550]    perlu: jam_buka
+[505/550] ✓ hours:✓ ulasan:48 rating:4.2 desc:– tutup:–
+[506/550] 🌐 Emperan"WAK ARIES"
+[506/550]    perlu: jam_buka
+[506/550] ✓ hours:– ulasan:27 rating:4.7 desc:– tutup:–
+[507/550] 🌐 Buket Bunga Florisma Lumajang
+[507/550]    perlu: jam_buka
+[507/550] ✓ hours:✓ ulasan:10 rating:4.7 desc:– tutup:–
+[508/550] 🌐 Warung Ayam Pedas (mbak Lilik)
+[508/550]    perlu: jam_buka
+[508/550] ✓ hours:✓ ulasan:29 rating:4.8 desc:– tutup:–
+[509/550] 🌐 Toko Kembang B. Pur
+[509/550]    perlu: jam_buka
+[509/550] ✓ hours:✓ ulasan:17 rating:4.8 desc:– tutup:–
+[510/550] 🌐 MANDIRI AGEN TOKO TIAN
+[510/550]    perlu: jam_buka
+[510/550] ✓ hours:✓ ulasan:3 rating:5 desc:– tutup:–
+[511/550] 🌐 Warung bek tut
+[511/550]    perlu: jam_buka
+[511/550] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[512/550] 🌐 RM. Rangas Chicken Foodd
+[512/550]    perlu: jam_buka
+[512/550] ✓ hours:✓ ulasan:45 rating:4.4 desc:– tutup:–
+[513/550] 🌐 KEDUNG ORCHID
+[513/550]    perlu: jam_buka
+[513/550] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[514/550] 🌐 Dimsum by Fourpy Kitchen
+[514/550]    perlu: jam_buka
+[514/550] ✓ hours:✓ ulasan:16 rating:4.9 desc:– tutup:–
+[515/550] 🌐 Oleh-Oleh Khas Jenggawah Rengginang "Ranung"
+[515/550]    perlu: jam_buka
+[515/550] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[516/550] 🌐 Strawberries Florist
+[516/550]    perlu: jam_buka
+[516/550] ✓ hours:✓ ulasan:3 rating:5 desc:– tutup:–
+[517/550] 🌐 QUEEN@BUAH
+[517/550]    perlu: jam_buka
+[517/550] ✓ hours:✓ ulasan:6 rating:5 desc:– tutup:–
+[518/550] 🌐 Rujak campur endok Ami
+[518/550]    perlu: jam_buka
+[518/550] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[519/550] 🌐 Warung Doroku
+[519/550]    perlu: jam_buka
+[519/550] ✓ hours:✓ ulasan:322 rating:4.5 desc:– tutup:–
+[520/550] 🌐 Wijaya Florist 88 Yosowilangun
+[520/550]    perlu: jam_buka
+[520/550] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[521/550] 🌐 Kue kacang Assyifa jaya
+[521/550]    perlu: jam_buka
+[521/550] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[522/550] 🌐 Agus Triyanto
+[522/550]    perlu: jam_buka
+[522/550] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[523/550] 🌐 Mbak Mus Melati
+[523/550]    perlu: jam_buka
+[523/550] ✓ hours:– ulasan:4 rating:5 desc:– tutup:–
+[524/550] 🌐 Tape Manis Madu
+[524/550]    perlu: jam_buka
+[524/550] ✓ hours:– ulasan:3 rating:5 desc:– tutup:–
+[525/550] 🌐 QueenChoco (pusat olahan cokelat)
+[525/550]    perlu: jam_buka
+[525/550] ✓ hours:– ulasan:5 rating:4.8 desc:– tutup:–
+[526/550] 🌐 Bakso Sulikan Ela Bangsalsari
+[526/550]    perlu: jam_buka
+[526/550] ✓ hours:✓ ulasan:12 rating:4.3 desc:– tutup:–
+[527/550] 🌐 Adinda Resto n Cafe
+[527/550]    perlu: jam_buka
+[527/550] ✓ hours:✓ ulasan:65 rating:4.5 desc:– tutup:–
+[528/550] 🌐 GALLERY LAHANDMADE
+[528/550]    perlu: jam_buka
+[528/550] ✓ hours:– ulasan:2 rating:5 desc:– tutup:–
+[529/550] 🌐 Kedai Mbak Lutfiah
+[529/550]    perlu: jam_buka
+[529/550] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[530/550] 🌐 Toko NN Agen Mandiri Chandra
+[530/550]    perlu: jam_buka
+[530/550] ✓ hours:✓ ulasan:18 rating:4.9 desc:– tutup:–
+[531/550] 🌐 Ayam Geprek Alfia
+[531/550]    perlu: jam_buka
+[531/550] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[532/550] 🌐 Warung TUM-BIN
+[532/550]    perlu: jam_buka
+[532/550] ✓ hours:✓ ulasan:1260 rating:4.4 desc:– tutup:–
+[533/550] 🌐 Kedai Jajanan Umik
+[533/550]    perlu: jam_buka
+[533/550] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[534/550] 🌐 Mahveen Cookies jember
+[534/550]    perlu: jam_buka
+[534/550] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[535/550] 🌐 Seblak Gambirono prasmanan ratna
+[535/550]    perlu: jam_buka
+[535/550] ✓ hours:✓ ulasan:25 rating:4.9 desc:– tutup:–
+[536/550] 🌐 Warung Bu Elok
+[536/550]    perlu: jam_buka
+[536/550] ✓ hours:✓ ulasan:2645 rating:4.4 desc:– tutup:–
+[537/550] 🌐 Indomaret Graha Citra Mas
+[537/550]    perlu: jam_buka
+[537/550] ✓ hours:✓ ulasan:242 rating:4.4 desc:– tutup:–
+[538/550] 🌐 Warung 86
+[538/550]    perlu: jam_buka
+[538/550] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[539/550] 🌐 RM.ARJUNA
+[539/550]    perlu: jam_buka
+[539/550] ✓ hours:✓ ulasan:40 rating:4.9 desc:– tutup:–
+[540/550] 🌐 Kios Bunga impian
+[540/550]    perlu: jam_buka
+[540/550] ✓ hours:✓ ulasan:4 rating:5 desc:– tutup:–
+[541/550] 🌐 Kedai Camilan Bu Syahril
+[541/550]    perlu: jam_buka
+[541/550] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[542/550] 🌐 Boyz juice kelompangn
+[542/550]    perlu: jam_buka
+[542/550] ✓ hours:✓ ulasan:4 rating:4 desc:– tutup:–
+[543/550] 🌐 Bakso Yuni Rasa
+[543/550]    perlu: jam_buka
+[543/550] ✓ hours:✓ ulasan:56 rating:4.2 desc:– tutup:–
+[544/550] 🌐 PAWON TELU
+[544/550]    perlu: jam_buka
+[544/550] ✓ hours:✓ ulasan:28 rating:4.9 desc:– tutup:–
+[545/550] 🌐 Galery Kulon Kali
+[545/550]    perlu: jam_buka
+[545/550] ✓ hours:✓ ulasan:6 rating:3 desc:– tutup:–
+[546/550] 🌐 Kucang Bu lusi
+[546/550]    perlu: jam_buka
+[546/550] ✓ hours:– ulasan:6 rating:5 desc:– tutup:–
+[547/550] 🌐 Depot barokah
+[547/550]    perlu: jam_buka
+[547/550] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[548/550] 🌐 Ryu's Culinary
+[548/550]    perlu: jam_buka
+[548/550] ✓ hours:✓ ulasan:11 rating:5 desc:– tutup:–
+[549/550] 🌐 The Hasanah Florist
+[549/550]    perlu: jam_buka
+[549/550] ✓ hours:✓ ulasan:14 rating:4.6 desc:– tutup:–
+[550/550] 🌐 Ketan Susu A3
+[550/550]    perlu: jam_buka
+[550/550] ✓ hours:✓ ulasan:1 rating:3 desc:– tutup:–
+
+📋 Batch baru: 50 tempat (total diproses: 550/1000)
+[551/600] 🌐 Warung Mak Yah
+[551/600]    perlu: jam_buka, ulasan
+[551/600] ⚠ Tidak bisa extract — timeout
+[552/600] 🌐 Chicken Top 99
+[552/600]    perlu: jam_buka
+[552/600] ⚠ Tidak bisa extract — timeout
+[553/600] 🌐 Ken's Colony
+[553/600]    perlu: jam_buka
+[553/600] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[554/600] 🌐 Kusuma11
+[554/600]    perlu: jam_buka
+[554/600] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[555/600] 🌐 Warung Makan N N
+[555/600]    perlu: jam_buka
+[555/600] ✓ hours:✓ ulasan:15 rating:4.9 desc:– tutup:–
+[556/600] 🌐 Aglaonema Garden ( FAD )
+[556/600]    perlu: jam_buka
+[556/600] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[557/600] 🌐 Mama syafiq
+[557/600]    perlu: jam_buka
+[557/600] ✓ hours:– ulasan:1 rating:4 desc:– tutup:–
+[558/600] 🌐 Dapur aura
+[558/600]    perlu: jam_buka
+[558/600] ✓ hours:✓ ulasan:21 rating:4.9 desc:– tutup:–
+[559/600] 🌐 UQ Florist Lumajang
+[559/600]    perlu: jam_buka
+[559/600] ✓ hours:✓ ulasan:9 rating:5 desc:– tutup:–
+[560/600] 🌐 Toko Budi Indah Jaya
+[560/600]    perlu: jam_buka
+[560/600] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[561/600] 🌐 Alfamart Basuki Rahmat
+[561/600]    perlu: jam_buka
+[561/600] ✓ hours:✓ ulasan:319 rating:4.4 desc:– tutup:–
+[562/600] 🌐 Ayam Geprek Mantul
+[562/600]    perlu: jam_buka
+[562/600] ✓ hours:– ulasan:5 rating:5 desc:– tutup:–
+[563/600] 🌐 DAPUR BUNDA UD.CAHAYA BAYU
+[563/600]    perlu: jam_buka
+[563/600] ✓ hours:✓ ulasan:60 rating:4.7 desc:– tutup:–
+[564/600] 🌐 Toko Bima Flower & Ceramic
+[564/600]    perlu: jam_buka
+[564/600] ✓ hours:✓ ulasan:6 rating:3 desc:– tutup:–
+[565/600] 🌐 Elok Buah
+[565/600]    perlu: jam_buka
+[565/600] ✓ hours:– ulasan:2 rating:3 desc:– tutup:–
+[566/600] 🌐 Caco BRORING keripik brownies garing
+[566/600]    perlu: jam_buka
+[566/600] ✓ hours:– ulasan:3 rating:4.3 desc:– tutup:–
+[567/600] 🌐 BAKSO MBAK WIWIT
+[567/600]    perlu: jam_buka
+[567/600] ✓ hours:✓ ulasan:5 rating:4.6 desc:– tutup:–
+[568/600] 🌐 Kedai Mutiara
+[568/600]    perlu: jam_buka
+[568/600] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[569/600] 🌐 Alfamart Tanggul
+[569/600]    perlu: jam_buka
+[569/600] ✓ hours:✓ ulasan:15 rating:3.6 desc:– tutup:–
+[570/600] 🌐 Toko bu siti
+[570/600]    perlu: jam_buka
+[570/600] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[571/600] 🌐 Depot Selera
+[571/600]    perlu: jam_buka
+[571/600] ✓ hours:✓ ulasan:43 rating:4.6 desc:– tutup:–
+[572/600] 🌐 BAKSO DAN MIE AYAM
+[572/600]    perlu: jam_buka
+[572/600] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[573/600] 🌐 Pizza Hut Restoran
+[573/600]    perlu: jam_buka
+[573/600] ✓ hours:✓ ulasan:4828 rating:4.6 desc:✓ tutup:–
+[574/600] 🌐 VR FLORISTMA
+[574/600]    perlu: jam_buka
+[574/600] ✓ hours:✓ ulasan:8 rating:4.8 desc:– tutup:–
+[575/600] 🌐 Toko Buah Karomah / Umi Bawon
+[575/600]    perlu: jam_buka
+[575/600] ✓ hours:✓ ulasan:7 rating:4.3 desc:– tutup:–
+[576/600] 🌐 Warung Nasi Goreng Mitra Mie 99
+[576/600]    perlu: jam_buka
+[576/600] ✓ hours:✓ ulasan:10 rating:4.7 desc:– tutup:–
+[577/600] 🌐 Depot Bu Lanny Spesial Ayam Kremes
+[577/600]    perlu: jam_buka
+[577/600] ✓ hours:✓ ulasan:1936 rating:4.4 desc:– tutup:–
+[578/600] 🌐 Stand bunga DTRJ duta tanaman rambipuji
+[578/600]    perlu: jam_buka
+[578/600] ✓ hours:✓ ulasan:7 rating:4.9 desc:– tutup:–
+[579/600] 🌐 Bakso Urat Pak Dha
+[579/600]    perlu: jam_buka
+[579/600] ✓ hours:✓ ulasan:34 rating:4.3 desc:– tutup:–
+[580/600] 🌐 Warung lesehan rembangan
+[580/600]    perlu: jam_buka
+[580/600] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[581/600] 🌐 Kadink Bonsai
+[581/600]    perlu: jam_buka
+[581/600] ✓ hours:✓ ulasan:1 rating:3 desc:– tutup:–
+[582/600] 🌐 TOKO MAKIN BERKAH
+[582/600]    perlu: jam_buka
+[582/600] ✓ hours:✓ ulasan:7 rating:5 desc:– tutup:–
+[583/600] 🌐 Marfuah Melati
+[583/600]    perlu: jam_buka
+[583/600] ✓ hours:✓ ulasan:4 rating:5 desc:– tutup:–
+[584/600] 🌐 Holida fruit
+[584/600]    perlu: jam_buka
+[584/600] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[585/600] 🌐 Aiskha craft 2
+[585/600]    perlu: jam_buka
+[585/600] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[586/600] 🌐 BAKSO MERCON & COFFEE MBAK DIAH
+[586/600]    perlu: jam_buka
+[586/600] ✓ hours:✓ ulasan:9 rating:5 desc:– tutup:–
+[587/600] 🌐 Ruls Florist Umbulsari Jember
+[587/600]    perlu: jam_buka
+[587/600] ✓ hours:– ulasan:6 rating:4.8 desc:– tutup:–
+[588/600] 🌐 Wisata Durian Pakusari
+[588/600]    perlu: jam_buka
+[588/600] ✓ hours:✓ ulasan:227 rating:4.2 desc:– tutup:–
+[589/600] 🌐 Laily Hanik
+[589/600]    perlu: jam_buka
+[589/600] ✓ hours:– ulasan:9 rating:4.6 desc:– tutup:–
+[590/600] 🌐 Warung pahlawan 20 kampus
+[590/600]    perlu: jam_buka
+[590/600] ✓ hours:✓ ulasan:17 rating:4.8 desc:– tutup:–
+[591/600] 🌐 ANGGIT FLORIST
+[591/600]    perlu: jam_buka
+[591/600] ✓ hours:✓ ulasan:3 rating:5 desc:– tutup:–
+[592/600] 🌐 Warkop dan fruit cak lihin
+[592/600]    perlu: jam_buka
+[592/600] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[593/600] 🌐 Bakso Tenes Pak Hasan
+[593/600]    perlu: jam_buka
+[593/600] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[594/600] 🌐 Warung B.andik
+[594/600]    perlu: jam_buka
+[594/600] ✓ hours:✓ ulasan:12 rating:4.6 desc:– tutup:–
+[595/600] 🌐 Bakul Kembang "KEN KEN"
+[595/600]    perlu: jam_buka
+[595/600] ✓ hours:✓ ulasan:1 rating:3 desc:– tutup:–
+[596/600] 🌐 Buah Amanah
+[596/600]    perlu: jam_buka
+[596/600] ✓ hours:– ulasan:2 rating:5 desc:– tutup:–
+[597/600] 🌐 Mie Ayam & Bakso Berkah Roso Wonogiri - Solo
+[597/600]    perlu: jam_buka
+[597/600] ✓ hours:✓ ulasan:141 rating:4.3 desc:– tutup:–
+[598/600] 🌐 Rumah Makan Terapung
+[598/600]    perlu: jam_buka
+[598/600] ✓ hours:✓ ulasan:68 rating:4.3 desc:– tutup:–
+[599/600] 🌐 B. Lilik jual bunga
+[599/600]    perlu: jam_buka
+[599/600] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[600/600] 🌐 Agung buah
+[600/600]    perlu: jam_buka
+[600/600] ✓ hours:– ulasan:1 rating:4 desc:– tutup:–
+
+📋 Batch baru: 50 tempat (total diproses: 600/1000)
+[601/650] 🌐 Warung Mak Yah
+[601/650]    perlu: jam_buka, ulasan
+[601/650] ⚠ Tidak bisa extract — timeout
+[602/650] 🌐 Chicken Top 99
+[602/650]    perlu: jam_buka
+[602/650] ⚠ Tidak bisa extract — timeout
+[603/650] 🌐 New Sari Utama Restaurant
+[603/650]    perlu: jam_buka
+[603/650] ✓ hours:✓ ulasan:37 rating:4.7 desc:– tutup:–
+[604/650] 🌐 Lillah Buket lumajang
+[604/650]    perlu: jam_buka
+[604/650] ✓ hours:✓ ulasan:5 rating:4.8 desc:– tutup:–
+[605/650] 🌐 FJ MUTIARA BUAH
+[605/650]    perlu: jam_buka
+[605/650] ✓ hours:✓ ulasan:1 rating:4 desc:– tutup:–
+[606/650] 🌐 VE juss
+[606/650]    perlu: jam_buka
+[606/650] ✓ hours:– ulasan:1 rating:4 desc:– tutup:–
+[607/650] 🌐 Sate Ayam Santo Bangsalsari
+[607/650]    perlu: jam_buka
+[607/650] ✓ hours:✓ ulasan:16 rating:4.8 desc:– tutup:–
+[608/650] 🌐 Warung Makan B'Denny
+[608/650]    perlu: jam_buka
+[608/650] ✓ hours:✓ ulasan:3 rating:5 desc:– tutup:–
+[609/650] 🌐 TOKO PAKAN HEWAN JAYA ABADI (ternak & petshop)
+[609/650]    perlu: jam_buka
+[609/650] ✓ hours:✓ ulasan:7 rating:5 desc:– tutup:–
+[610/650] 🌐 Indo Resto
+[610/650]    perlu: jam_buka
+[610/650] ✓ hours:✓ ulasan:25 rating:4.2 desc:– tutup:–
+[611/650] 🌐 Warung Cak Mat
+[611/650]    perlu: jam_buka
+[611/650] ✓ hours:✓ ulasan:14 rating:4.4 desc:– tutup:–
+[612/650] 🌐 Warung Mama
+[612/650]    perlu: jam_buka
+[612/650] ✓ hours:✓ ulasan:12 rating:4.9 desc:– tutup:–
+[613/650] 🌐 Lidia Nursery
+[613/650]    perlu: jam_buka
+[613/650] ✓ hours:– ulasan:3 rating:4.7 desc:– tutup:–
+[614/650] 🌐 DURIAN MONTHONG EDUKASI
+[614/650]    perlu: jam_buka
+[614/650] ✓ hours:– ulasan:4 rating:5 desc:– tutup:–
+[615/650] 🌐 WARUNG SOTO LAMONGAN (EMPAT PUTRA)
+[615/650]    perlu: jam_buka
+[615/650] ✓ hours:✓ ulasan:15 rating:4.6 desc:– tutup:–
+[616/650] 🌐 Kedai Haji Umar
+[616/650]    perlu: jam_buka
+[616/650] ✓ hours:✓ ulasan:31 rating:4.8 desc:– tutup:–
+[617/650] 🌐 SS GARDEN
+[617/650]    perlu: jam_buka
+[617/650] ✓ hours:✓ ulasan:4 rating:4.5 desc:– tutup:–
+[618/650] 🌐 Warung Nasi Bu Eva
+[618/650]    perlu: jam_buka
+[618/650] ✓ hours:✓ ulasan:10 rating:4.7 desc:– tutup:–
+[619/650] 🌐 Depot Sari Rasa
+[619/650]    perlu: jam_buka
+[619/650] ✓ hours:✓ ulasan:191 rating:4.6 desc:– tutup:–
+[620/650] 🌐 RANITA FLORIST (Buket dan Karangan Bunga Papan)
+[620/650]    perlu: jam_buka
+[620/650] ✓ hours:✓ ulasan:79 rating:5 desc:– tutup:–
+[621/650] 🌐 Toko buah Gito
+[621/650]    perlu: jam_buka
+[621/650] ✓ hours:– ulasan:2 rating:3 desc:– tutup:–
+[622/650] 🌐 Warung Sandy
+[622/650]    perlu: jam_buka
+[622/650] ✓ hours:✓ ulasan:274 rating:4.3 desc:– tutup:–
+[623/650] 🌐 Queenissa florist
+[623/650]    perlu: jam_buka
+[623/650] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[624/650] 🌐 Pusat nanas bang Z
+[624/650]    perlu: jam_buka
+[624/650] ✓ hours:✓ ulasan:3 rating:4.3 desc:– tutup:–
+[625/650] 🌐 MIE UBER BANGSALSARI
+[625/650]    perlu: jam_buka
+[625/650] ✓ hours:✓ ulasan:34 rating:4 desc:– tutup:–
+[626/650] 🌐 Rumah Makan Barokah
+[626/650]    perlu: jam_buka
+[626/650] ✓ hours:✓ ulasan:62 rating:4.4 desc:– tutup:–
+[627/650] 🌐 Ita Anggrek
+[627/650]    perlu: jam_buka
+[627/650] ✓ hours:✓ ulasan:59 rating:4 desc:– tutup:–
+[628/650] 🌐 Kedai sate & gule Cak Soleh
+[628/650]    perlu: jam_buka
+[628/650] ✓ hours:– ulasan:2 rating:5 desc:– tutup:–
+[629/650] 🌐 MAKANAN ADAT KOS JEMBER
+[629/650]    perlu: jam_buka
+[629/650] ✓ hours:– ulasan:35 rating:4.2 desc:– tutup:–
+[630/650] 🌐 Toko Fortuna
+[630/650]    perlu: jam_buka
+[630/650] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[631/650] 🌐 Seblak Bledos Lellye Kitchen
+[631/650]    perlu: jam_buka
+[631/650] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[632/650] 🌐 Depot 333 Chinese Food - Halal
+[632/650]    perlu: jam_buka
+[632/650] ✓ hours:✓ ulasan:102 rating:4.6 desc:– tutup:–
+[633/650] 🌐 Dalkom Buket Lumajang
+[633/650]    perlu: jam_buka
+[633/650] ✓ hours:– ulasan:26 rating:5 desc:– tutup:–
+[634/650] 🌐 Toko Vinka Raja Buah
+[634/650]    perlu: jam_buka
+[634/650] ✓ hours:– ulasan:2 rating:5 desc:– tutup:–
+[635/650] 🌐 P Windi Jagung Manis
+[635/650]    perlu: jam_buka
+[635/650] ✓ hours:– ulasan:4 rating:3 desc:– tutup:–
+[636/650] 🌐 Warung Bang Heri(WBH)
+[636/650]    perlu: jam_buka
+[636/650] ✓ hours:✓ ulasan:9 rating:4.7 desc:– tutup:–
+[637/650] 🌐 Kedai Keboen
+[637/650]    perlu: jam_buka
+[637/650] ✓ hours:✓ ulasan:6 rating:5 desc:– tutup:–
+[638/650] 🌐 Nayla Florist
+[638/650]    perlu: jam_buka
+[638/650] ✓ hours:✓ ulasan:7 rating:5 desc:– tutup:–
+[639/650] 🌐 LIAN FRESH FRUIT ( Qio drink's )
+[639/650]    perlu: jam_buka
+[639/650] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[640/650] 🌐 warung Bu Dafi
+[640/650]    perlu: jam_buka
+[640/650] ✓ hours:– ulasan:4 rating:4 desc:– tutup:–
+[641/650] 🌐 Rumah Makan Pangestu
+[641/650]    perlu: jam_buka
+[641/650] ✓ hours:✓ ulasan:136 rating:3.9 desc:– tutup:–
+[642/650] 🌐 Es buah segar bang ali
+[642/650]    perlu: jam_buka
+[642/650] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[643/650] 🌐 Bakso Beranak ACC
+[643/650]    perlu: jam_buka
+[643/650] ✓ hours:✓ ulasan:22 rating:4.3 desc:– tutup:–
+[644/650] 🌐 DEEKITCHEN Mbak Dian
+[644/650]    perlu: jam_buka
+[644/650] ✓ hours:✓ ulasan:8 rating:4.9 desc:– tutup:–
+[645/650] 🌐 Bella florist
+[645/650]    perlu: jam_buka
+[645/650] ✓ hours:✓ ulasan:8 rating:4.9 desc:– tutup:–
+[646/650] 🌐 Warung Sutrini
+[646/650]    perlu: jam_buka
+[646/650] ✓ hours:– ulasan:4 rating:5 desc:– tutup:–
+[647/650] 🌐 Rumah buah bondowoso
+[647/650]    perlu: jam_buka
+[647/650] ✓ hours:– ulasan:14 rating:4.9 desc:– tutup:–
+[648/650] 🌐 Lalapan Ais
+[648/650]    perlu: jam_buka
+[648/650] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[649/650] 🌐 Flowers barokah ( toko bunga )
+[649/650]    perlu: jam_buka
+[649/650] ✓ hours:✓ ulasan:2 rating:4.5 desc:– tutup:–
+[650/650] 🌐 Warung Mbk LA
+[650/650]    perlu: jam_buka
+[650/650] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+
+📋 Batch baru: 50 tempat (total diproses: 650/1000)
+[651/700] 🌐 Warung Mak Yah
+[651/700]    perlu: jam_buka, ulasan
+[651/700] ⚠ Tidak bisa extract — timeout
+[652/700] 🌐 Chicken Top 99
+[652/700]    perlu: jam_buka
+[652/700] ⚠ Tidak bisa extract — timeout
+[653/700] 🌐 Sate buah kemulan coklat
+[653/700]    perlu: jam_buka
+[653/700] ✓ hours:✓ ulasan:2 rating:3.5 desc:– tutup:–
+[654/700] 🌐 Warung Nasi Pecel Jamila
+[654/700]    perlu: jam_buka
+[654/700] ✓ hours:✓ ulasan:14 rating:4.6 desc:– tutup:–
+[655/700] 🌐 Aneka Buah Murah
+[655/700]    perlu: jam_buka
+[655/700] ✓ hours:✓ ulasan:4 rating:5 desc:– tutup:–
+[656/700] 🌐 Istana Buah Cak No
+[656/700]    perlu: jam_buka
+[656/700] ✓ hours:✓ ulasan:7 rating:4.1 desc:– tutup:–
+[657/700] 🌐 Warung Nasi Sederhana
+[657/700]    perlu: jam_buka
+[657/700] ✓ hours:✓ ulasan:9 rating:3.8 desc:– tutup:–
+[658/700] 🌐 Warung buah haris
+[658/700]    perlu: jam_buka
+[658/700] ✓ hours:✓ ulasan:23 rating:4.3 desc:– tutup:–
+[659/700] 🌐 LAHANDMADE 2
+[659/700]    perlu: jam_buka
+[659/700] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[660/700] 🌐 nasi goreng pak tedjo
+[660/700]    perlu: jam_buka
+[660/700] ✓ hours:✓ ulasan:26 rating:4.2 desc:– tutup:–
+[661/700] 🌐 Sanjaya Buah
+[661/700]    perlu: jam_buka
+[661/700] ✓ hours:✓ ulasan:7 rating:5 desc:– tutup:–
+[662/700] 🌐 Kumbung bonsai
+[662/700]    perlu: jam_buka
+[662/700] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[663/700] 🌐 Warung buk ro
+[663/700]    perlu: jam_buka
+[663/700] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[664/700] 🌐 Griya Buah Eza
+[664/700]    perlu: jam_buka
+[664/700] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[665/700] 🌐 Yulia / P. Agus
+[665/700]    perlu: jam_buka
+[665/700] ✓ hours:✓ ulasan:3 rating:5 desc:– tutup:–
+[666/700] 🌐 BONENG JAYA (Pengepul Buah)
+[666/700]    perlu: jam_buka
+[666/700] ✓ hours:✓ ulasan:114 rating:4.4 desc:– tutup:–
+[667/700] 🌐 Imam garden
+[667/700]    perlu: jam_buka
+[667/700] ✓ hours:– ulasan:4 rating:5 desc:– tutup:–
+[668/700] 🌐 Omah donuts G2/14/GelasanRCK
+[668/700]    perlu: jam_buka
+[668/700] ✓ hours:– ulasan:2 rating:5 desc:– tutup:–
+[669/700] 🌐 Sate Mbak Sum
+[669/700]    perlu: jam_buka
+[669/700] ✓ hours:✓ ulasan:7 rating:4.9 desc:– tutup:–
+[670/700] 🌐 KEKE FRUIT MAYANG ( Jual Aneka Buah Segar/FRESH berkwalitas )
+[670/700]    perlu: jam_buka
+[670/700] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[671/700] 🌐 BUKET ULFA
+[671/700]    perlu: jam_buka
+[671/700] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[672/700] 🌐 Toko Buah H. Zaeni
+[672/700]    perlu: jam_buka
+[672/700] ✓ hours:✓ ulasan:11 rating:5 desc:– tutup:–
+[673/700] 🌐 Warung Purnama
+[673/700]    perlu: jam_buka
+[673/700] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[674/700] 🌐 AZKIYA BUAH
+[674/700]    perlu: jam_buka
+[674/700] ✓ hours:– ulasan:2 rating:5 desc:– tutup:–
+[675/700] 🌐 Buket Giftmee
+[675/700]    perlu: jam_buka
+[675/700] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[676/700] 🌐 Buah seger bu aminah
+[676/700]    perlu: jam_buka
+[676/700] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[677/700] 🌐 Pasar Buah Gebang
+[677/700]    perlu: jam_buka
+[677/700] ✓ hours:✓ ulasan:544 rating:4 desc:– tutup:–
+[678/700] 🌐 Warung makan MBK RETNO
+[678/700]    perlu: jam_buka
+[678/700] ✓ hours:✓ ulasan:4 rating:4 desc:– tutup:–
+[679/700] 🌐 Toko Buah Cermee
+[679/700]    perlu: jam_buka
+[679/700] ✓ hours:✓ ulasan:18 rating:3.9 desc:– tutup:–
+[680/700] 🌐 Zahra bouquet
+[680/700]    perlu: jam_buka
+[680/700] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[681/700] 🌐 TOKO BUAH JAYA
+[681/700]    perlu: jam_buka
+[681/700] ✗ PATCH gagal
+[682/700] 🌐 Toko citra buah segar
+[682/700]    perlu: jam_buka
+[682/700] ✓ hours:✓ ulasan:4 rating:4.8 desc:– tutup:–
+[683/700] 🌐 Martabak khas tegal
+[683/700]    perlu: jam_buka
+[683/700] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[684/700] 🌐 Buket By Aisyah [Aisyah_Eliezha]
+[684/700]    perlu: jam_buka
+[684/700] ✓ hours:✓ ulasan:23 rating:5 desc:– tutup:–
+[685/700] 🌐 Toko Buah Rizqy
+[685/700]    perlu: jam_buka
+[685/700] ✓ hours:✓ ulasan:2 rating:4 desc:– tutup:–
+[686/700] 🌐 Momoyo Roxy Square Jember
+[686/700]    perlu: jam_buka
+[686/700] ✓ hours:✓ ulasan:1665 rating:5 desc:– tutup:–
+[687/700] 🌐 Lalapan mbak Holip
+[687/700]    perlu: jam_buka
+[687/700] ✓ hours:✓ ulasan:8 rating:4.6 desc:– tutup:–
+[688/700] 🌐 Danang Buah
+[688/700]    perlu: jam_buka
+[688/700] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:YA
+[689/700] 🌐 DNS FLOWERS & CAR WASH
+[689/700]    perlu: jam_buka
+[689/700] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[690/700] 🌐 UD. Tani agung Distributor Buah
+[690/700]    perlu: jam_buka
+[690/700] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[691/700] 🌐 Warung soto babat
+[691/700]    perlu: jam_buka
+[691/700] ✓ hours:– ulasan:3 rating:5 desc:– tutup:–
+[692/700] 🌐 Aneka buah nuryzio
+[692/700]    perlu: jam_buka
+[692/700] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[693/700] 🌐 FAISAL 🍎 BUAH
+[693/700]    perlu: jam_buka
+[693/700] ✓ hours:– ulasan:2 rating:5 desc:– tutup:–
+[694/700] 🌐 Chilla buah
+[694/700]    perlu: jam_buka
+[694/700] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[695/700] 🌐 Bakso Solo&Mie Ayam pak hila
+[695/700]    perlu: jam_buka
+[695/700] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[696/700] 🌐 Cahaya Buah
+[696/700]    perlu: jam_buka
+[696/700] ✓ hours:– ulasan:2 rating:5 desc:– tutup:–
+[697/700] 🌐 Ulum bibit
+[697/700]    perlu: jam_buka
+[697/700] ✓ hours:✓ ulasan:2 rating:3 desc:– tutup:–
+[698/700] 🌐 UD. Hasli Buah
+[698/700]    perlu: jam_buka
+[698/700] ✓ hours:✓ ulasan:11 rating:4.5 desc:– tutup:–
+[699/700] 🌐 RIFKI D
+[699/700]    perlu: jam_buka
+[699/700] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[700/700] 🌐 Toko Buah Cak Jam
+[700/700]    perlu: jam_buka
+[700/700] ✓ hours:✓ ulasan:7 rating:4.4 desc:– tutup:–
+
+📋 Batch baru: 50 tempat (total diproses: 700/1000)
+[701/750] 🌐 Warung Mak Yah
+[701/750]    perlu: jam_buka, ulasan
+[701/750] ⚠ Tidak bisa extract — timeout
+[702/750] 🌐 Chicken Top 99
+[702/750]    perlu: jam_buka
+[702/750] ⚠ Tidak bisa extract — timeout
+[703/750] 🌐 TOKO BUAH JAYA
+[703/750]    perlu: jam_buka
+[703/750] ✗ PATCH gagal
+[704/750] 🌐 Bunda Jus dan Salad Buah
+[704/750]    perlu: jam_buka
+[704/750] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[705/750] 🌐 Nasi Goreng Akeee
+[705/750]    perlu: jam_buka
+[705/750] ✓ hours:✓ ulasan:5 rating:5 desc:– tutup:–
+[706/750] 🌐 KIOS BUAH ASIS
+[706/750]    perlu: jam_buka
+[706/750] ✓ hours:✓ ulasan:6 rating:4.5 desc:– tutup:–
+[707/750] 🌐 Mixue Sempusari Jember
+[707/750]    perlu: jam_buka
+[707/750] ✓ hours:✓ ulasan:20 rating:4.6 desc:– tutup:–
+[708/750] 🌐 Seblak Gacor mama Raffa
+[708/750]    perlu: jam_buka
+[708/750] ✓ hours:– ulasan:2 rating:5 desc:– tutup:–
+[709/750] 🌐 TYDA BUKET
+[709/750]    perlu: jam_buka
+[709/750] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[710/750] 🌐 Panen Padi Jagung Berkualitas ( dea )
+[710/750]    perlu: jam_buka
+[710/750] ✓ hours:– ulasan:2 rating:5 desc:– tutup:–
+[711/750] 🌐 SK Milky Sea
+[711/750]    perlu: jam_buka
+[711/750] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[712/750] 🌐 Arik Sari Buah / Asri Jaya Buah
+[712/750]    perlu: jam_buka
+[712/750] ✓ hours:✓ ulasan:3 rating:3.7 desc:– tutup:–
+[713/750] 🌐 Istana bunga
+[713/750]    perlu: jam_buka
+[713/750] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[714/750] 🌐 Toko Buah WITA (Aurora Helmet Lumajang)
+[714/750]    perlu: jam_buka
+[714/750] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[715/750] 🌐 Toko sembako dan sayur
+[715/750]    perlu: jam_buka
+[715/750] ✓ hours:✓ ulasan:1 rating:4 desc:– tutup:–
+[716/750] 🌐 Toko kue dan buah AR
+[716/750]    perlu: jam_buka
+[716/750] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[717/750] 🌐 Amanda
+[717/750]    perlu: jam_buka
+[717/750] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[718/750] 🌐 Caca Donat Karakter
+[718/750]    perlu: jam_buka
+[718/750] ✓ hours:✓ ulasan:6 rating:5 desc:– tutup:–
+[719/750] 🌐 Fajar Buah (jual beli buah)
+[719/750]    perlu: jam_buka
+[719/750] ✓ hours:✓ ulasan:6 rating:4.8 desc:– tutup:–
+[720/750] 🌐 Warung Mie ayam & es degan
+[720/750]    perlu: jam_buka
+[720/750] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[721/750] 🌐 Kembang makmur
+[721/750]    perlu: jam_buka
+[721/750] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[722/750] 🌐 Warung Bu Arik
+[722/750]    perlu: jam_buka
+[722/750] ✓ hours:✓ ulasan:5 rating:4.4 desc:– tutup:–
+[723/750] 🌐 Toko Nurhasan
+[723/750]    perlu: jam_buka
+[723/750] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[724/750] 🌐 Bakso Nikmat
+[724/750]    perlu: jam_buka
+[724/750] ✓ hours:– ulasan:1 rating:3 desc:– tutup:–
+[725/750] 🌐 Pembibitan Cak Imron
+[725/750]    perlu: jam_buka
+[725/750] ✓ hours:– ulasan:17 rating:4.5 desc:– tutup:–
+[726/750] 🌐 Dawet mbak hus
+[726/750]    perlu: jam_buka
+[726/750] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[727/750] 🌐 Rujak bu sri
+[727/750]    perlu: jam_buka
+[727/750] ✓ hours:– ulasan:2 rating:5 desc:– tutup:–
+[728/750] 🌐 Tahu crispy 89
+[728/750]    perlu: jam_buka
+[728/750] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[729/750] 🌐 NUR KOLES barokah bunga
+[729/750]    perlu: jam_buka
+[729/750] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[730/750] 🌐 Es mager
+[730/750]    perlu: jam_buka
+[730/750] ✓ hours:– ulasan:5 rating:5 desc:– tutup:–
+[731/750] 🌐 D Ray Hidroponik
+[731/750]    perlu: jam_buka
+[731/750] ✓ hours:✓ ulasan:6 rating:5 desc:– tutup:–
+[732/750] 🌐 Kebunku Jember
+[732/750]    perlu: jam_buka
+[732/750] ✓ hours:✓ ulasan:4 rating:5 desc:– tutup:–
+[733/750] 🌐 Zahra Florist
+[733/750]    perlu: jam_buka
+[733/750] ✓ hours:– ulasan:2 rating:5 desc:– tutup:–
+[734/750] 🌐 J.CO Donuts
+[734/750]    perlu: jam_buka
+[734/750] ✓ hours:✓ ulasan:1559 rating:4.5 desc:– tutup:–
+[735/750] 🌐 Bakso Ayam&Mie Ayam Bu hila
+[735/750]    perlu: jam_buka
+[735/750] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[736/750] 🌐 Pesona Buah
+[736/750]    perlu: jam_buka
+[736/750] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[737/750] 🌐 Go Flower Store
+[737/750]    perlu: jam_buka
+[737/750] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[738/750] 🌐 Mixue Bangsalsari Jember
+[738/750]    perlu: jam_buka
+[738/750] ✓ hours:✓ ulasan:56 rating:4.8 desc:– tutup:YA
+[739/750] 🌐 Donat Odi
+[739/750]    perlu: jam_buka
+[739/750] ✓ hours:✓ ulasan:10 rating:5 desc:– tutup:YA
+[740/750] 🌐 Toko buah D'MASWI
+[740/750]    perlu: jam_buka
+[740/750] ✓ hours:✓ ulasan:7 rating:4.4 desc:– tutup:–
+[741/750] 🌐 Pisang Keju 99 Mangli
+[741/750]    perlu: jam_buka
+[741/750] ✓ hours:✓ ulasan:16 rating:4.7 desc:– tutup:–
+[742/750] 🌐 toko buah segar zam-zam’s
+[742/750]    perlu: jam_buka
+[742/750] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[743/750] 🌐 Cowina Es Cream
+[743/750]    perlu: jam_buka
+[743/750] ✓ hours:✓ ulasan:9 rating:5 desc:– tutup:–
+[744/750] 🌐 Baroness Brownies
+[744/750]    perlu: jam_buka
+[744/750] ✓ hours:✓ ulasan:5 rating:5 desc:– tutup:–
+[745/750] 🌐 zahra Buah & Cellular
+[745/750]    perlu: jam_buka
+[745/750] ✓ hours:✓ ulasan:5 rating:3.8 desc:– tutup:–
+[746/750] 🌐 GALERISTA Florist
+[746/750]    perlu: jam_buka
+[746/750] ✓ hours:✓ ulasan:17 rating:4.6 desc:– tutup:–
+[747/750] 🌐 Sweet donuts bibi
+[747/750]    perlu: jam_buka
+[747/750] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[748/750] 🌐 NBL Buah (Pengepul Mangga)
+[748/750]    perlu: jam_buka
+[748/750] ✓ hours:✓ ulasan:3 rating:5 desc:– tutup:–
+[749/750] 🌐 Pasar Tradisional Bangsalsari
+[749/750]    perlu: jam_buka
+[749/750] ✓ hours:✓ ulasan:554 rating:4.4 desc:– tutup:–
+[750/750] 🌐 Pia Kepel
+[750/750]    perlu: jam_buka
+[750/750] ✓ hours:✓ ulasan:32 rating:4.8 desc:– tutup:–
+
+📋 Batch baru: 50 tempat (total diproses: 750/1000)
+[751/800] 🌐 Warung Mak Yah
+[751/800]    perlu: jam_buka, ulasan
+[751/800] ⚠ Tidak bisa extract — timeout
+[752/800] 🌐 Chicken Top 99
+[752/800]    perlu: jam_buka
+[752/800] ⚠ Tidak bisa extract — timeout
+[753/800] 🌐 TOKO BUAH JAYA
+[753/800]    perlu: jam_buka
+[753/800] ✗ PATCH gagal
+[754/800] 🌐 Kedai Nasi Goreng
+[754/800]    perlu: jam_buka
+[754/800] ✓ hours:– ulasan:1 rating:4 desc:– tutup:–
+[755/800] 🌐 NAZYFA BUAH PANARUKAN
+[755/800]    perlu: jam_buka
+[755/800] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[756/800] 🌐 LEMBAH HIJAU
+[756/800]    perlu: jam_buka
+[756/800] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[757/800] 🌐 satria wifi'n Aice iceCream
+[757/800]    perlu: jam_buka
+[757/800] ✓ hours:✓ ulasan:4 rating:4.5 desc:– tutup:–
+[758/800] 🌐 Mixue Gajah Mada Jember
+[758/800]    perlu: jam_buka
+[758/800] ✓ hours:✓ ulasan:121 rating:4.5 desc:– tutup:–
+[759/800] 🌐 Jual Buah Segar siap Antar
+[759/800]    perlu: jam_buka
+[759/800] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[760/800] 🌐 Mellaris.Id
+[760/800]    perlu: jam_buka
+[760/800] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[761/800] 🌐 OMAH DONATE 'O
+[761/800]    perlu: jam_buka
+[761/800] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[762/800] 🌐 Oleh-Oleh Jember DKM Cakes & Cookies
+[762/800]    perlu: jam_buka
+[762/800] ✓ hours:✓ ulasan:379 rating:4.9 desc:– tutup:–
+[763/800] 🌐 Toko AgeN Buah-Buahan / AgeN Palawija Sri Rahayu { H. Nahrayu }
+[763/800]    perlu: jam_buka
+[763/800] ✓ hours:✓ ulasan:9 rating:4 desc:– tutup:–
+[764/800] 🌐 DKM Cakes & Cookies Jember (Kue Tart Cake, Kue Basah Hantaran, Snack Box, Bolen Pisang, Kue Kering Lebaran, Oleh Oleh Jember)
+[764/800]    perlu: jam_buka
+[764/800] ✗ PATCH gagal
+[765/800] 🌐 Warung Nasi
+[765/800]    perlu: jam_buka
+[765/800] ✓ hours:✓ ulasan:11 rating:3.6 desc:– tutup:–
+[766/800] 🌐 Kedai Cerita Buah
+[766/800]    perlu: jam_buka
+[766/800] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[767/800] 🌐 Warung Cilok Bakar Mbak Sus
+[767/800]    perlu: jam_buka
+[767/800] ✓ hours:✓ ulasan:4 rating:4.3 desc:– tutup:–
+[768/800] 🌐 Kios bunga DP flower
+[768/800]    perlu: jam_buka
+[768/800] ✓ hours:– ulasan:2 rating:5 desc:– tutup:–
+[769/800] 🌐 RUJAK NAJWA MANGLI
+[769/800]    perlu: jam_buka
+[769/800] ✓ hours:– ulasan:16 rating:4.3 desc:– tutup:–
+[770/800] 🌐 AFRA Bouquet
+[770/800]    perlu: jam_buka
+[770/800] ✓ hours:✓ ulasan:63 rating:5 desc:– tutup:–
+[771/800] 🌐 Barokah Ice Cream
+[771/800]    perlu: jam_buka
+[771/800] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[772/800] 🌐 RUJAK CINGUR MBAK ISA
+[772/800]    perlu: jam_buka
+[772/800] ✓ hours:✓ ulasan:9 rating:5 desc:– tutup:YA
+[773/800] 🌐 Rumah aglonema
+[773/800]    perlu: jam_buka
+[773/800] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[774/800] 🌐 Ofiluza Production
+[774/800]    perlu: jam_buka
+[774/800] ✓ hours:– ulasan:13 rating:4.8 desc:– tutup:–
+[775/800] 🌐 RESTO SYACO JOGLO
+[775/800]    perlu: jam_buka
+[775/800] ✓ hours:✓ ulasan:134 rating:4.3 desc:– tutup:–
+[776/800] 🌐 Florarian
+[776/800]    perlu: jam_buka
+[776/800] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:YA
+[777/800] 🌐 Rumah Makan
+[777/800]    perlu: jam_buka
+[777/800] ✓ hours:✓ ulasan:34 rating:4.4 desc:– tutup:–
+[778/800] 🌐 Toko Sinar Gloria
+[778/800]    perlu: jam_buka
+[778/800] ✓ hours:✓ ulasan:78 rating:4.4 desc:– tutup:–
+[779/800] 🌐 Warung & Cathering Bismillah 99
+[779/800]    perlu: jam_buka
+[779/800] ✓ hours:✓ ulasan:7 rating:5 desc:– tutup:–
+[780/800] 🌐 Sakti Bunga
+[780/800]    perlu: jam_buka
+[780/800] ✓ hours:– ulasan:4 rating:5 desc:– tutup:–
+[781/800] 🌐 Taraphone jember
+[781/800]    perlu: jam_buka
+[781/800] ✓ hours:✓ ulasan:511 rating:5 desc:– tutup:–
+[782/800] 🌐 WARUNG NASI MBAK MUK
+[782/800]    perlu: jam_buka
+[782/800] ✓ hours:✓ ulasan:76 rating:4.2 desc:– tutup:–
+[783/800] 🌐 Izna Flowers
+[783/800]    perlu: jam_buka
+[783/800] ✓ hours:✓ ulasan:9 rating:4.8 desc:– tutup:–
+[784/800] 🌐 ISTANA BUNGA ( P. MARNO )
+[784/800]    perlu: jam_buka
+[784/800] ✓ hours:✓ ulasan:6 rating:5 desc:– tutup:–
+[785/800] 🌐 CV Nugen Crop Indonesia NUCINDO Marketing Office Produsen Nutrisi Tanaman
+[785/800]    perlu: jam_buka
+[785/800] ✓ hours:✓ ulasan:7 rating:5 desc:– tutup:–
+[786/800] 🌐 Jember Roxy Square
+[786/800]    perlu: jam_buka
+[786/800] ✓ hours:✓ ulasan:16604 rating:4.5 desc:– tutup:–
+[787/800] 🌐 Warung Mas Deky
+[787/800]    perlu: jam_buka
+[787/800] ✓ hours:✓ ulasan:49 rating:4.7 desc:– tutup:–
+[788/800] 🌐 McDonald’s Ice Cream
+[788/800]    perlu: jam_buka
+[788/800] ✓ hours:– ulasan:5 rating:4.2 desc:– tutup:–
+[789/800] 🌐 Pecel Pedes Mbok Di
+[789/800]    perlu: jam_buka
+[789/800] ✓ hours:– ulasan:46 rating:4.2 desc:– tutup:–
+[790/800] 🌐 Sunarsri flower
+[790/800]    perlu: jam_buka
+[790/800] ✓ hours:– ulasan:2 rating:5 desc:– tutup:–
+[791/800] 🌐 Mangga viral rujak ayu
+[791/800]    perlu: jam_buka
+[791/800] ✓ hours:✓ ulasan:54 rating:3.4 desc:– tutup:–
+[792/800] 🌐 IKAN HIAS PANDAWA (pusat ikan hias jember)
+[792/800]    perlu: jam_buka
+[792/800] ✓ hours:✓ ulasan:371 rating:4.4 desc:– tutup:–
+[793/800] 🌐 Tuniang, Masakan Khas Bali - Rambipuji
+[793/800]    perlu: jam_buka
+[793/800] ✓ hours:✓ ulasan:29 rating:4.7 desc:– tutup:–
+[794/800] 🌐 Fleur de Fer (Toko Buket)
+[794/800]    perlu: jam_buka
+[794/800] ✓ hours:✓ ulasan:4 rating:4.5 desc:– tutup:–
+[795/800] 🌐 KEDAI A-A TAHWA, RONDE,ANGSLE & KACANG IJO
+[795/800]    perlu: jam_buka
+[795/800] ✓ hours:✓ ulasan:6 rating:5 desc:– tutup:–
+[796/800] 🌐 RM Pangestu Pecoro
+[796/800]    perlu: jam_buka
+[796/800] ✓ hours:✓ ulasan:56 rating:3.9 desc:– tutup:–
+[797/800] 🌐 INTCOLLECTION x INTBOUQUET
+[797/800]    perlu: jam_buka
+[797/800] ✓ hours:✓ ulasan:10 rating:5 desc:– tutup:–
+[798/800] 🌐 Oemah buah jember
+[798/800]    perlu: jam_buka
+[798/800] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[799/800] 🌐 POINT COFFEE INDOMARET FRESH HAYAM WURUK JEMBER
+[799/800]    perlu: jam_buka
+[799/800] ✓ hours:✓ ulasan:661 rating:4.7 desc:– tutup:–
+[800/800] 🌐 Cihuy Fruits
+[800/800]    perlu: jam_buka
+[800/800] ✓ hours:✓ ulasan:9 rating:4.9 desc:– tutup:–
+
+📋 Batch baru: 50 tempat (total diproses: 800/1000)
+[801/850] 🌐 Warung Mak Yah
+[801/850]    perlu: jam_buka, ulasan
+[801/850] ⚠ Tidak bisa extract — timeout
+[802/850] 🌐 Chicken Top 99
+[802/850]    perlu: jam_buka
+[802/850] ⚠ Tidak bisa extract — timeout
+[803/850] 🌐 TOKO BUAH JAYA
+[803/850]    perlu: jam_buka
+[803/850] ✗ PATCH gagal
+[804/850] 🌐 DKM Cakes & Cookies Jember (Kue Tart Cake, Kue Basah Hantaran, Snack Box, Bolen Pisang, Kue Kering Lebaran, Oleh Oleh Jember)
+[804/850]    perlu: jam_buka
+[804/850] ✗ PATCH gagal
+[805/850] 🌐 Toko Yudhistira buah
+[805/850]    perlu: jam_buka
+[805/850] ✓ hours:– ulasan:3 rating:4.3 desc:– tutup:–
+[806/850] 🌐 RM REGITA JATAH (Ikan Segar)Since1989
+[806/850]    perlu: jam_buka
+[806/850] ✓ hours:✓ ulasan:67 rating:4.7 desc:– tutup:–
+[807/850] 🌐 Toko bunga Wakhidiyah
+[807/850]    perlu: jam_buka
+[807/850] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[808/850] 🌐 Hofei jaya buah
+[808/850]    perlu: jam_buka
+[808/850] ✓ hours:– ulasan:3 rating:3 desc:– tutup:–
+[809/850] 🌐 Nasi Goreng Cak Pur
+[809/850]    perlu: jam_buka
+[809/850] ✓ hours:✓ ulasan:33 rating:4.7 desc:– tutup:–
+[810/850] 🌐 Royal sayur 55
+[810/850]    perlu: jam_buka
+[810/850] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[811/850] 🌐 Violafeltcraft
+[811/850]    perlu: jam_buka
+[811/850] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[812/850] 🌐 Mitra buah alam muktisari jember
+[812/850]    perlu: jam_buka
+[812/850] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[813/850] 🌐 MOMOYO RAMBIPUJI JEMBER
+[813/850]    perlu: jam_buka
+[813/850] ✓ hours:✓ ulasan:40 rating:4.8 desc:– tutup:–
+[814/850] 🌐 Warung Ida
+[814/850]    perlu: jam_buka
+[814/850] ✓ hours:– ulasan:6 rating:4.8 desc:– tutup:–
+[815/850] 🌐 Harapan Tani
+[815/850]    perlu: jam_buka
+[815/850] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[816/850] 🌐 Manggar jaya fresh
+[816/850]    perlu: jam_buka
+[816/850] ✓ hours:✓ ulasan:7 rating:4.4 desc:– tutup:–
+[817/850] 🌐 Shandra purwhandari
+[817/850]    perlu: jam_buka
+[817/850] ✓ hours:✓ ulasan:9 rating:4.6 desc:– tutup:–
+[818/850] 🌐 Rumah hijau
+[818/850]    perlu: jam_buka
+[818/850] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[819/850] 🌐 KIOS BUAH ARUM MANIS
+[819/850]    perlu: jam_buka
+[819/850] ✓ hours:✓ ulasan:3 rating:5 desc:– tutup:–
+[820/850] 🌐 Bu Sugi Cakes & Cookies Premium
+[820/850]    perlu: jam_buka
+[820/850] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[821/850] 🌐 Rumah Makan Jogja
+[821/850]    perlu: jam_buka
+[821/850] ✓ hours:✓ ulasan:43 rating:4.2 desc:– tutup:–
+[822/850] 🌐 Andina Flowers
+[822/850]    perlu: jam_buka
+[822/850] ✓ hours:✓ ulasan:20 rating:4.5 desc:– tutup:–
+[823/850] 🌐 Mira Buah
+[823/850]    perlu: jam_buka
+[823/850] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[824/850] 🌐 Wisma Joglo Rambi (WARUNGE DEWE)
+[824/850]    perlu: jam_buka
+[824/850] ✓ hours:✓ ulasan:8 rating:5 desc:– tutup:–
+[825/850] 🌐 Jannah Bouquet
+[825/850]    perlu: jam_buka
+[825/850] ✓ hours:– ulasan:2 rating:5 desc:– tutup:–
+[826/850] 🌐 Budi Buah
+[826/850]    perlu: jam_buka
+[826/850] ✓ hours:✓ ulasan:5 rating:4.4 desc:– tutup:–
+[827/850] 🌐 Warung Cipta Rasa
+[827/850]    perlu: jam_buka
+[827/850] ✓ hours:✓ ulasan:26 rating:4.4 desc:– tutup:–
+[828/850] 🌐 San's Flora
+[828/850]    perlu: jam_buka
+[828/850] ✓ hours:✓ ulasan:19 rating:4.8 desc:– tutup:–
+[829/850] 🌐 Kantor Lovely Buket
+[829/850]    perlu: jam_buka
+[829/850] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[830/850] 🌐 Official Buah Tangan (Pusat oleh-oleh)
+[830/850]    perlu: jam_buka
+[830/850] ✓ hours:✓ ulasan:4 rating:4.8 desc:– tutup:–
+[831/850] 🌐 Bakso Mbok Khaji bin Ripin
+[831/850]    perlu: jam_buka
+[831/850] ✓ hours:✓ ulasan:10 rating:4.7 desc:– tutup:–
+[832/850] 🌐 Dfrezh Juice And Fruits
+[832/850]    perlu: jam_buka
+[832/850] ✓ hours:– ulasan:3 rating:3.7 desc:– tutup:–
+[833/850] 🌐 Oleh-oleh khas jember JAYA RASA
+[833/850]    perlu: jam_buka
+[833/850] ✓ hours:✓ ulasan:17 rating:4.4 desc:– tutup:–
+[834/850] 🌐 Taman Daun Rumah Makan
+[834/850]    perlu: jam_buka
+[834/850] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[835/850] 🌐 Hendry Bibit Jeruk
+[835/850]    perlu: jam_buka
+[835/850] ✓ hours:– ulasan:4 rating:5 desc:– tutup:–
+[836/850] 🌐 Es Teler Ikiwawa
+[836/850]    perlu: jam_buka
+[836/850] ✓ hours:✓ ulasan:732 rating:4.4 desc:– tutup:–
+[837/850] 🌐 Kedai sea food ale crispy
+[837/850]    perlu: jam_buka
+[837/850] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[838/850] 🌐 K@D - K@D C. O. R. N. E. R.
+[838/850]    perlu: jam_buka
+[838/850] ✓ hours:✓ ulasan:27 rating:4.8 desc:– tutup:–
+[839/850] 🌐 Bibit Lombok Pak Arif
+[839/850]    perlu: jam_buka
+[839/850] ✓ hours:– ulasan:2 rating:5 desc:– tutup:–
+[840/850] 🌐 Airlangga Buah
+[840/850]    perlu: jam_buka
+[840/850] ✓ hours:– ulasan:1 rating:1 desc:– tutup:–
+[841/850] 🌐 PANGESTU LALAPAN
+[841/850]    perlu: jam_buka
+[841/850] ✓ hours:✓ ulasan:292 rating:4.1 desc:– tutup:–
+[842/850] 🌐 Femin krisan
+[842/850]    perlu: jam_buka
+[842/850] ✓ hours:✓ ulasan:2 rating:3 desc:– tutup:–
+[843/850] 🌐 Restoran Taman Mangli Indah
+[843/850]    perlu: jam_buka
+[843/850] ✓ hours:✓ ulasan:2029 rating:4.4 desc:– tutup:–
+[844/850] 🌐 Jual bibit lombok dan sayuran
+[844/850]    perlu: jam_buka
+[844/850] ✓ hours:– ulasan:2 rating:5 desc:– tutup:–
+[845/850] 🌐 TOKO MAMA ALFI & GROSIR BUAH
+[845/850]    perlu: jam_buka
+[845/850] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[846/850] 🌐 Banyumili resto
+[846/850]    perlu: jam_buka
+[846/850] ✓ hours:✓ ulasan:74 rating:3.9 desc:– tutup:–
+[847/850] 🌐 Floressa Bouquet
+[847/850]    perlu: jam_buka
+[847/850] ✓ hours:✓ ulasan:5 rating:5 desc:– tutup:–
+[848/850] 🌐 Anisa Jaya Buah Melon, Semangka
+[848/850]    perlu: jam_buka
+[848/850] ✓ hours:– ulasan:1 rating:1 desc:– tutup:–
+[849/850] 🌐 Rumah Makan Pangestu 6 Kaliwining
+[849/850]    perlu: jam_buka
+[849/850] ✓ hours:✓ ulasan:129 rating:3.9 desc:– tutup:–
+[850/850] 🌐 Dapoer Bakaran mbak vivin
+[850/850]    perlu: jam_buka
+[850/850] ✓ hours:✓ ulasan:15 rating:3.9 desc:– tutup:–
+
+📋 Batch baru: 50 tempat (total diproses: 850/1000)
+[851/900] 🌐 Warung Mak Yah
+[851/900]    perlu: jam_buka, ulasan
+[851/900] ⚠ Tidak bisa extract — timeout
+[852/900] 🌐 Chicken Top 99
+[852/900]    perlu: jam_buka
+[852/900] ⚠ Tidak bisa extract — timeout
+[853/900] 🌐 TOKO BUAH JAYA
+[853/900]    perlu: jam_buka
+[853/900] ✗ PATCH gagal
+[854/900] 🌐 DKM Cakes & Cookies Jember (Kue Tart Cake, Kue Basah Hantaran, Snack Box, Bolen Pisang, Kue Kering Lebaran, Oleh Oleh Jember)
+[854/900]    perlu: jam_buka
+[854/900] ✗ PATCH gagal
+[855/900] 🌐 Buket Jember (@kamelia_craft)
+[855/900]    perlu: jam_buka
+[855/900] ✓ hours:✓ ulasan:6 rating:5 desc:– tutup:–
+[856/900] 🌐 Ineri Suki & Grill Kaliwates
+[856/900]    perlu: jam_buka
+[856/900] ✓ hours:✓ ulasan:76 rating:4.5 desc:– tutup:–
+[857/900] 🌐 Bu Sul Bunga
+[857/900]    perlu: jam_buka
+[857/900] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[858/900] 🌐 ADINDA BUAH
+[858/900]    perlu: jam_buka
+[858/900] ✓ hours:– ulasan:3 rating:3.7 desc:– tutup:–
+[859/900] 🌐 Warung Mbak Mila
+[859/900]    perlu: jam_buka
+[859/900] ✓ hours:✓ ulasan:255 rating:4.6 desc:– tutup:–
+[860/900] 🌐 Queen Fruits Jember
+[860/900]    perlu: jam_buka
+[860/900] ✓ hours:– ulasan:623 rating:5 desc:– tutup:–
+[861/900] 🌐 Rumah Makan Pinang Gading
+[861/900]    perlu: jam_buka
+[861/900] ✓ hours:✓ ulasan:31 rating:4.4 desc:– tutup:–
+[862/900] 🌐 Kios Buah Pandawa
+[862/900]    perlu: jam_buka
+[862/900] ✓ hours:✓ ulasan:702 rating:4.4 desc:– tutup:–
+[863/900] 🌐 Kavara shop "tempat belanja kebutuhan buah hati anda""
+[863/900]    perlu: jam_buka
+[863/900] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[864/900] 🌐 Warung Bamboe
+[864/900]    perlu: jam_buka
+[864/900] ✓ hours:✓ ulasan:140 rating:4.4 desc:– tutup:–
+[865/900] 🌐 Warung Rudy
+[865/900]    perlu: jam_buka
+[865/900] ✓ hours:✓ ulasan:72 rating:4.3 desc:– tutup:–
+[866/900] 🌐 Sari Buah
+[866/900]    perlu: jam_buka
+[866/900] ✓ hours:✓ ulasan:243 rating:4.4 desc:– tutup:–
+[867/900] 🌐 GEDANG+62
+[867/900]    perlu: jam_buka
+[867/900] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[868/900] 🌐 Hello Fruits Jember
+[868/900]    perlu: jam_buka
+[868/900] ✓ hours:✓ ulasan:32 rating:4.8 desc:– tutup:–
+[869/900] 🌐 Salad Buah Premium MAMA CORRIE
+[869/900]    perlu: jam_buka
+[869/900] ✓ hours:✓ ulasan:9 rating:4.8 desc:– tutup:–
+[870/900] 🌐 Lesehan nayla
+[870/900]    perlu: jam_buka
+[870/900] ✓ hours:✓ ulasan:28 rating:4.1 desc:– tutup:–
+[871/900] 🌐 NIKI SAE RESTO & CAFE
+[871/900]    perlu: jam_buka
+[871/900] ✓ hours:✓ ulasan:170 rating:4 desc:– tutup:–
+[872/900] 🌐 Toko Litira
+[872/900]    perlu: jam_buka
+[872/900] ✓ hours:✓ ulasan:480 rating:4.7 desc:– tutup:–
+[873/900] 🌐 Jus Buah & Tahu Kocek B.Ani
+[873/900]    perlu: jam_buka
+[873/900] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[874/900] 🌐 Pawon Bang Brewok
+[874/900]    perlu: jam_buka
+[874/900] ✓ hours:✓ ulasan:172 rating:4.3 desc:– tutup:–
+[875/900] 🌐 Warteg Tante Ami
+[875/900]    perlu: jam_buka
+[875/900] ✓ hours:– ulasan:267 rating:4.5 desc:– tutup:–
+[876/900] 🌐 Boyz fruit's Jember ( pusat buah lokal dan import)
+[876/900]    perlu: jam_buka
+[876/900] ✓ hours:– ulasan:28 rating:4.9 desc:– tutup:–
+[877/900] 🌐 TERANG BULAN 66
+[877/900]    perlu: jam_buka
+[877/900] ✓ hours:✓ ulasan:8 rating:4.9 desc:– tutup:–
+[878/900] 🌐 TOKO Buah Sayur Agrimart
+[878/900]    perlu: jam_buka
+[878/900] ✓ hours:✓ ulasan:97 rating:4.6 desc:– tutup:–
+[879/900] 🌐 Salad 18 Salad Buah & Jus Jember
+[879/900]    perlu: jam_buka
+[879/900] ✓ hours:✓ ulasan:3 rating:5 desc:– tutup:–
+[880/900] 🌐 Warung Bebas Padang Jati
+[880/900]    perlu: jam_buka
+[880/900] ✓ hours:✓ ulasan:29 rating:4.8 desc:– tutup:–
+[881/900] 🌐 Sari Buah Trunojoyo
+[881/900]    perlu: jam_buka
+[881/900] ✓ hours:✓ ulasan:58 rating:4.2 desc:– tutup:–
+[882/900] 🌐 KEDAI MB NDUT
+[882/900]    perlu: jam_buka
+[882/900] ✓ hours:✓ ulasan:17 rating:4.8 desc:– tutup:–
+[883/900] 🌐 Queen Fruits 2 Jember
+[883/900]    perlu: jam_buka
+[883/900] ✓ hours:– ulasan:308 rating:5 desc:– tutup:–
+[884/900] 🌐 Donat Labu Daeng Mua Jln M. Yamin 4
+[884/900]    perlu: jam_buka
+[884/900] ✓ hours:✓ ulasan:19 rating:5 desc:– tutup:–
+[885/900] 🌐 Warung Suka Suka
+[885/900]    perlu: jam_buka
+[885/900] ✓ hours:✓ ulasan:401 rating:4.3 desc:– tutup:–
+[886/900] 🌐 BEBEK SANJAY JEMBER
+[886/900]    perlu: jam_buka
+[886/900] ✓ hours:✓ ulasan:229 rating:4.5 desc:– tutup:–
+[887/900] 🌐 Litirafruits, Toko Buah dan Parcel Cabang 2 Tegal Besar
+[887/900]    perlu: jam_buka
+[887/900] ✓ hours:✓ ulasan:195 rating:4.9 desc:– tutup:–
+[888/900] 🌐 BAKAT RASA
+[888/900]    perlu: jam_buka
+[888/900] ⚠ Tidak bisa extract — timeout
+[889/900] 🌐 Bakso Campur Kaliwining
+[889/900]    perlu: jam_buka
+[889/900] ✓ hours:✓ ulasan:141 rating:4.4 desc:– tutup:–
+[890/900] 🌐 Toko Buah Agrimart Kampus
+[890/900]    perlu: jam_buka
+[890/900] ✓ hours:✓ ulasan:37 rating:4.8 desc:– tutup:–
+[891/900] 🌐 Toko Pertanian SANTOSO
+[891/900]    perlu: jam_buka
+[891/900] ✓ hours:✓ ulasan:72 rating:4.5 desc:– tutup:–
+[892/900] 🌐 Mie Sakera Cabang Tanggul
+[892/900]    perlu: jam_buka
+[892/900] ✓ hours:✓ ulasan:275 rating:4.7 desc:– tutup:–
+[893/900] 🌐 Warung Bu Ndiyah
+[893/900]    perlu: jam_buka
+[893/900] ✓ hours:✓ ulasan:392 rating:4.3 desc:– tutup:–
+[894/900] 🌐 CAHAYA BUAH JEMBER
+[894/900]    perlu: jam_buka
+[894/900] ✓ hours:✓ ulasan:6 rating:5 desc:– tutup:–
+[895/900] 🌐 Sate Simpang Tiga Mangli Jember
+[895/900]    perlu: jam_buka
+[895/900] ✓ hours:✓ ulasan:565 rating:4.6 desc:– tutup:–
+[896/900] 🌐 Toko Buah dan Parcel "UMI" R&Z Jember
+[896/900]    perlu: jam_buka
+[896/900] ✓ hours:✓ ulasan:3 rating:5 desc:– tutup:–
+[897/900] 🌐 Rumah Sayur
+[897/900]    perlu: jam_buka
+[897/900] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[898/900] 🌐 Warung Soto Pak Sup Ajung Klanceng
+[898/900]    perlu: jam_buka
+[898/900] ✓ hours:✓ ulasan:273 rating:4.7 desc:– tutup:–
+[899/900] 🌐 TOKO BUAH DJAWA
+[899/900]    perlu: jam_buka
+[899/900] ✓ hours:✓ ulasan:2 rating:3 desc:– tutup:–
+[900/900] 🌐 Depot Lestari Bu Seger
+[900/900]    perlu: jam_buka
+[900/900] ✓ hours:✓ ulasan:40 rating:4.6 desc:– tutup:–
+
+📋 Batch baru: 50 tempat (total diproses: 900/1000)
+[901/950] 🌐 Warung Mak Yah
+[901/950]    perlu: jam_buka, ulasan
+[901/950] ⚠ Tidak bisa extract — timeout
+[902/950] 🌐 Chicken Top 99
+[902/950]    perlu: jam_buka
+[902/950] ⚠ Tidak bisa extract — timeout
+[903/950] 🌐 TOKO BUAH JAYA
+[903/950]    perlu: jam_buka
+[903/950] ✗ PATCH gagal
+[904/950] 🌐 DKM Cakes & Cookies Jember (Kue Tart Cake, Kue Basah Hantaran, Snack Box, Bolen Pisang, Kue Kering Lebaran, Oleh Oleh Jember)
+[904/950]    perlu: jam_buka
+[904/950] ✗ PATCH gagal
+[905/950] 🌐 BAKAT RASA
+[905/950]    perlu: jam_buka
+[905/950] ⚠ Tidak bisa extract — timeout
+[906/950] 🌐 Heri Buah
+[906/950]    perlu: jam_buka
+[906/950] ✓ hours:✓ ulasan:16 rating:4.8 desc:– tutup:–
+[907/950] 🌐 Toko Buah Barokah
+[907/950]    perlu: jam_buka
+[907/950] ✓ hours:✓ ulasan:8 rating:4.6 desc:– tutup:–
+[908/950] 🌐 HAMRY KULINER SEBLAK PRASMANAN & BAKARAN
+[908/950]    perlu: jam_buka
+[908/950] ✓ hours:✓ ulasan:108 rating:3 desc:– tutup:–
+[909/950] 🌐 warung mandala
+[909/950]    perlu: jam_buka
+[909/950] ✓ hours:✓ ulasan:5 rating:4.8 desc:– tutup:–
+[910/950] 🌐 Toko Buah HJ.SURYA
+[910/950]    perlu: jam_buka
+[910/950] ✓ hours:✓ ulasan:6 rating:4.2 desc:– tutup:–
+[911/950] 🌐 Grosir Fashion Wanita & Agen Buah Segar
+[911/950]    perlu: jam_buka
+[911/950] ✓ hours:– ulasan:1 rating:1 desc:– tutup:–
+[912/950] 🌐 CBR RESTO & CAFE
+[912/950]    perlu: jam_buka
+[912/950] ✓ hours:✓ ulasan:63 rating:4.6 desc:– tutup:–
+[913/950] 🌐 UD. Indofresh Jaya
+[913/950]    perlu: jam_buka
+[913/950] ✓ hours:✓ ulasan:28 rating:4.5 desc:– tutup:–
+[914/950] 🌐 Es Puter Super Panda
+[914/950]    perlu: jam_buka
+[914/950] ⚠ Tidak bisa extract — timeout
+[915/950] 🌐 PKL Buah, Jatian
+[915/950]    perlu: jam_buka
+[915/950] ✓ hours:✓ ulasan:10 rating:4.4 desc:– tutup:–
+[916/950] 🌐 Rengginang Singkong Khas Jember | El Marom Store
+[916/950]    perlu: jam_buka
+[916/950] ✓ hours:✓ ulasan:46 rating:5 desc:– tutup:–
+[917/950] 🌐 Anisa Buah
+[917/950]    perlu: jam_buka
+[917/950] ✓ hours:– ulasan:4 rating:5 desc:– tutup:–
+[918/950] 🌐 Indomaret Fresh PB. Sudirman 2 Jember
+[918/950]    perlu: jam_buka
+[918/950] ✓ hours:✓ ulasan:68 rating:3.3 desc:– tutup:–
+[919/950] 🌐 Nasi Burger Rambipuji
+[919/950]    perlu: jam_buka
+[919/950] ✓ hours:– ulasan:1 rating:5 desc:– tutup:–
+[920/950] 🌐 GMU Buah Tropis ( Pusat Penjualan Bibit Tanaman Buah Hortikultura) Terlengkap!!!
+[920/950]    perlu: jam_buka
+[920/950] ✓ hours:✓ ulasan:163 rating:4.7 desc:– tutup:–
+[921/950] 🌐 toko buah
+[921/950]    perlu: jam_buka
+[921/950] ✓ hours:✓ ulasan:6 rating:4.3 desc:– tutup:–
+[922/950] 🌐 Kedai Jus Buah & Wedang cor
+[922/950]    perlu: jam_buka
+[922/950] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[923/950] 🌐 Bakso Panggung
+[923/950]    perlu: jam_buka
+[923/950] ✓ hours:✓ ulasan:70 rating:4.5 desc:– tutup:–
+[924/950] 🌐 Bakso Pak Ripin
+[924/950]    perlu: jam_buka
+[924/950] ✓ hours:✓ ulasan:1016 rating:4.3 desc:– tutup:–
+[925/950] 🌐 Toko Buah Nanda Edi
+[925/950]    perlu: jam_buka
+[925/950] ✓ hours:– ulasan:8 rating:5 desc:– tutup:–
+[926/950] 🌐 Warung Kupang Keraton Tanggul
+[926/950]    perlu: jam_buka
+[926/950] ✓ hours:✓ ulasan:17 rating:4.9 desc:– tutup:–
+[927/950] 🌐 Ayam Geprek @V_Rambipuji (Food Teras)
+[927/950]    perlu: jam_buka
+[927/950] ✓ hours:✓ ulasan:15 rating:4.6 desc:– tutup:–
+[928/950] 🌐 D2C SUNPRIDE "TJIPTA BUAH NUSANTARA"
+[928/950]    perlu: jam_buka
+[928/950] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[929/950] 🌐 rumah es nina
+[929/950]    perlu: jam_buka
+[929/950] ✓ hours:✓ ulasan:32 rating:4.9 desc:– tutup:–
+[930/950] 🌐 Mbok Galak Tanggul
+[930/950]    perlu: jam_buka
+[930/950] ✓ hours:✓ ulasan:63 rating:4.3 desc:– tutup:–
+[931/950] 🌐 Sari Buah Jember
+[931/950]    perlu: jam_buka
+[931/950] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[932/950] 🌐 Jus buah Riau
+[932/950]    perlu: jam_buka
+[932/950] ✓ hours:✓ ulasan:1 rating:1 desc:– tutup:–
+[933/950] 🌐 Stand Sate Cak Bagio
+[933/950]    perlu: jam_buka
+[933/950] ✓ hours:✓ ulasan:1 rating:4 desc:– tutup:–
+[934/950] 🌐 Nasi Goreng Banban
+[934/950]    perlu: jam_buka
+[934/950] ✓ hours:– ulasan:32 rating:4.5 desc:– tutup:–
+[935/950] 🌐 ISTANA BUAH
+[935/950]    perlu: jam_buka
+[935/950] ✓ hours:✓ ulasan:2 rating:5 desc:– tutup:–
+[936/950] 🌐 Indomaret Basuki Rahmad
+[936/950]    perlu: jam_buka
+[936/950] ✓ hours:✓ ulasan:29 rating:3.8 desc:– tutup:–
+[937/950] 🌐 Warung Bu Yudi
+[937/950]    perlu: jam_buka
+[937/950] ✓ hours:✓ ulasan:4 rating:5 desc:– tutup:–
+[938/950] 🌐 Pujasera Ikan Paus dan Kos-kosan
+[938/950]    perlu: jam_buka
+[938/950] ✓ hours:✓ ulasan:33 rating:4.6 desc:– tutup:–
+[939/950] 🌐 TOKO BUAH HANANIA JENGGAWAH
+[939/950]    perlu: jam_buka
+[939/950] ✓ hours:✓ ulasan:4 rating:5 desc:– tutup:–
+[940/950] 🌐 Madu At-tiin (Sahl Food)
+[940/950]    perlu: jam_buka
+[940/950] ✓ hours:✓ ulasan:36 rating:5 desc:– tutup:–
+[941/950] 🌐 BEBEK SINJAYKU
+[941/950]    perlu: jam_buka
+[941/950] ✓ hours:✓ ulasan:20 rating:4.7 desc:– tutup:–
+[942/950] 🌐 Warung Sate Cak Jumadi
+[942/950]    perlu: jam_buka
+[942/950] ✓ hours:✓ ulasan:1063 rating:4.5 desc:– tutup:–
+[943/950] 🌐 KIOS BUAH KITA
+[943/950]    perlu: jam_buka
+[943/950] ✓ hours:– ulasan:17 rating:4.9 desc:– tutup:–
+[944/950] 🌐 Bolen pisang brownies pusat oleh-oleh Istana Bolen
+[944/950]    perlu: jam_buka
+[944/950] ✓ hours:✓ ulasan:118 rating:5 desc:– tutup:–
+[945/950] 🌐 Kupang Basah Tanggul
+[945/950]    perlu: jam_buka
+[945/950] ✓ hours:✓ ulasan:19 rating:4.6 desc:– tutup:–
+[946/950] 🌐 Gendhis Food
+[946/950]    perlu: jam_buka
+[946/950] ✓ hours:✓ ulasan:8 rating:4.8 desc:– tutup:–
+[947/950] 🌐 kios buah arumanis
+[947/950]    perlu: jam_buka
+[947/950] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[948/950] 🌐 Indomaret Point PB Sudirman
+[948/950]    perlu: jam_buka
+[948/950] ✓ hours:✓ ulasan:67 rating:3.5 desc:– tutup:–
+[949/950] 🌐 MAS PAK LEK
+[949/950]    perlu: jam_buka
+[949/950] ✓ hours:✓ ulasan:1 rating:4 desc:– tutup:–
+[950/950] 🌐 C'Bezt Fried Chicken
+[950/950]    perlu: jam_buka
+[950/950] ✓ hours:✓ ulasan:178 rating:4 desc:– tutup:–
+
+📋 Batch baru: 18 tempat (total diproses: 950/1000)
+[951/968] 🌐 Warung Mak Yah
+[951/968]    perlu: jam_buka, ulasan
+[951/968] ⚠ Tidak bisa extract — timeout
+[952/968] 🌐 Chicken Top 99
+[952/968]    perlu: jam_buka
+[952/968] ⚠ Tidak bisa extract — timeout
+[953/968] 🌐 TOKO BUAH JAYA
+[953/968]    perlu: jam_buka
+[953/968] ✗ PATCH gagal
+[954/968] 🌐 DKM Cakes & Cookies Jember (Kue Tart Cake, Kue Basah Hantaran, Snack Box, Bolen Pisang, Kue Kering Lebaran, Oleh Oleh Jember)
+[954/968]    perlu: jam_buka
+[954/968] ✗ PATCH gagal
+[955/968] 🌐 BAKAT RASA
+[955/968]    perlu: jam_buka
+[955/968] ⚠ Tidak bisa extract — timeout
+[956/968] 🌐 Es Puter Super Panda
+[956/968]    perlu: jam_buka
+[956/968] ⚠ Tidak bisa extract — timeout
+[957/968] 🌐 Aneka Buah & Sayur Mas Yudi
+[957/968]    perlu: jam_buka
+[957/968] ✓ hours:✓ ulasan:4 rating:5 desc:– tutup:–
+[958/968] 🌐 Sate buah selimut coklat RAISA (es kul-kul)
+[958/968]    perlu: jam_buka
+[958/968] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[959/968] 🌐 Warung Sederhana (Warung Makan LA Pecoro)
+[959/968]    perlu: jam_buka
+[959/968] ✓ hours:✓ ulasan:7 rating:5 desc:– tutup:–
+[960/968] 🌐 Istana buah panti
+[960/968]    perlu: jam_buka
+[960/968] ✓ hours:✓ ulasan:3 rating:5 desc:– tutup:–
+[961/968] 🌐 Purnama Jati Pusat Oleh-oleh Khas Jember
+[961/968]    perlu: jam_buka
+[961/968] ✓ hours:✓ ulasan:499 rating:4.6 desc:– tutup:–
+[962/968] 🌐 Warung PAPATLIMO
+[962/968]    perlu: jam_buka
+[962/968] ✓ hours:✓ ulasan:76 rating:4.4 desc:– tutup:–
+[963/968] 🌐 Warung Berkah
+[963/968]    perlu: jam_buka
+[963/968] ✓ hours:– ulasan:14 rating:4.1 desc:– tutup:–
+[964/968] 🌐 Toko buah indra
+[964/968]    perlu: jam_buka
+[964/968] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[965/968] 🌐 Kartila Jaya Chinese Food
+[965/968]    perlu: jam_buka
+[965/968] ✓ hours:✓ ulasan:67 rating:4.6 desc:– tutup:–
+[966/968] 🌐 Warung Mbak Diah
+[966/968]    perlu: jam_buka
+[966/968] ✓ hours:✓ ulasan:1 rating:5 desc:– tutup:–
+[967/968] 🌐 Homefresh Jember
+[967/968]    perlu: jam_buka
+[967/968] ✓ hours:✓ ulasan:3 rating:5 desc:– tutup:–
+[968/968] 🌐 Warung "Mbak Enik"
+[968/968]    perlu: jam_buka
+[968/968] ✓ hours:✓ ulasan:4 rating:5 desc:– tutup:–
+
+📊 Selesai: 919 berhasil, 49 gagal dari 968 diproses
+__SUMMARY__ Selesai: 919 berhasil, 49 gagal
+__DONE_OK__

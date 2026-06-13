@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\Place;
+use App\Models\WaTemplate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -19,9 +20,9 @@ class WhatsAppController extends Controller
 
     public function index()
     {
-        $devices  = $this->getDevices();
-        $stats    = $this->getStats();
-        $templates = $this->getTemplates();
+        $devices   = $this->getDevices();
+        $stats     = $this->getStats();
+        $templates = WaTemplate::orderBy('sort_order')->orderBy('id')->get();
 
         return view('whatsapp.index', compact('devices', 'stats', 'templates'));
     }
@@ -93,19 +94,26 @@ class WhatsAppController extends Controller
     {
         $request->validate([
             'device_id'   => 'required|string',
-            'template_id' => 'required|integer',
+            'template_id' => 'required',        // 0 = acak, angka = id spesifik
             'limit'       => 'integer|min:1|max:20',
         ]);
 
         $deviceId   = $request->device_id;
-        $templateId = (int) $request->template_id;
+        $templateId = $request->template_id;   // "0" = random
         $limit      = (int) $request->get('limit', 5);
-        $templates  = $this->getTemplates();
+        $isRandom   = ($templateId == 0);
 
-        if (!isset($templates[$templateId])) {
-            return response()->json(['error' => 'Template tidak valid'], 422);
+        $activeTemplates = WaTemplate::active()->get();
+        if ($activeTemplates->isEmpty()) {
+            return response()->json(['error' => 'Tidak ada template aktif'], 422);
         }
-        $template = $templates[$templateId];
+
+        if (!$isRandom) {
+            $single = $activeTemplates->firstWhere('id', $templateId);
+            if (!$single) {
+                return response()->json(['error' => 'Template tidak valid'], 422);
+            }
+        }
 
         // Places: punya WA, belum pernah di-outreach
         $places = Place::where('has_whatsapp', true)
@@ -117,7 +125,8 @@ class WhatsAppController extends Controller
         $results = ['sent' => 0, 'failed' => 0];
 
         foreach ($places as $place) {
-            $message = $this->renderTemplate($template['body'], $place);
+            $template = $isRandom ? $activeTemplates->random() : $single;
+            $message  = $this->renderTemplate($template->body, $place);
 
             try {
                 $resp = Http::timeout(15)->post("{$this->waApiUrl}/send-message?deviceId={$deviceId}", [
@@ -216,22 +225,43 @@ class WhatsAppController extends Controller
         ];
     }
 
-    public function getTemplates(): array
+    // ── Template CRUD ─────────────────────────────────────────────────────────
+
+    public function storeTemplate(Request $request)
     {
-        return [
-            0 => [
-                'name' => 'Perkenalan Singkat',
-                'body' => "Halo {nama} 👋\n\nSaya dari *Mafaza Fortuna*, supplier buah segar lokal & impor.\n\nKami menyediakan berbagai jenis buah berkualitas dengan harga grosir yang kompetitif, cocok untuk toko buah, warung, atau usaha kuliner.\n\nBoleh saya share daftar harga & produk terbaru kami?",
-            ],
-            1 => [
-                'name' => 'Tawaran Harga Grosir',
-                'body' => "Assalamu'alaikum {nama} 🌟\n\nPerkenalkan, kami *Mafaza Fortuna* — distributor buah segar untuk area Jawa Timur.\n\n🍎 Buah lokal & impor pilihan\n💰 Harga grosir langsung dari kebun\n🚚 Pengiriman ke lokasi Anda\n\nAda kebutuhan buah untuk usaha Anda? Kami siap bantu!",
-            ],
-            2 => [
-                'name' => 'Casual & Singkat',
-                'body' => "Halo kak {nama} 😊\n\nMau tanya, apakah {nama} sering butuh pasokan buah segar untuk usahanya?\n\nKami supplier buah dengan harga bersaing. Kalau tertarik boleh chat sini ya, gratis konsultasi 🙏",
-            ],
-        ];
+        $request->validate([
+            'name' => 'required|string|max:80',
+            'body' => 'required|string|max:2000',
+        ]);
+        $tpl = WaTemplate::create([
+            'name'       => $request->name,
+            'body'       => $request->body,
+            'is_active'  => true,
+            'sort_order' => WaTemplate::max('sort_order') + 1,
+        ]);
+        return response()->json(['status' => 'ok', 'template' => $tpl]);
+    }
+
+    public function updateTemplate(Request $request, WaTemplate $template)
+    {
+        $request->validate([
+            'name' => 'required|string|max:80',
+            'body' => 'required|string|max:2000',
+        ]);
+        $template->update($request->only('name', 'body'));
+        return response()->json(['status' => 'ok', 'template' => $template]);
+    }
+
+    public function destroyTemplate(WaTemplate $template)
+    {
+        $template->delete();
+        return response()->json(['status' => 'ok']);
+    }
+
+    public function toggleTemplate(WaTemplate $template)
+    {
+        $template->update(['is_active' => !$template->is_active]);
+        return response()->json(['status' => 'ok', 'is_active' => $template->is_active]);
     }
 
     private function renderTemplate(string $body, Place $place): string

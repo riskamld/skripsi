@@ -64,6 +64,10 @@ Route::post('/whatsapp/check-wa', [WhatsAppController::class, 'checkWA'])->name(
 Route::post('/whatsapp/send-outreach', [WhatsAppController::class, 'sendOutreach'])->name('whatsapp.send-outreach');
 Route::post('/whatsapp/mark-status/{id}', [WhatsAppController::class, 'markStatus'])->name('whatsapp.mark-status');
 Route::get('/whatsapp/target-list', [WhatsAppController::class, 'targetList'])->name('whatsapp.target-list');
+Route::post('/whatsapp/templates', [WhatsAppController::class, 'storeTemplate'])->name('whatsapp.templates.store');
+Route::put('/whatsapp/templates/{template}', [WhatsAppController::class, 'updateTemplate'])->name('whatsapp.templates.update');
+Route::delete('/whatsapp/templates/{template}', [WhatsAppController::class, 'destroyTemplate'])->name('whatsapp.templates.destroy');
+Route::post('/whatsapp/templates/{template}/toggle', [WhatsAppController::class, 'toggleTemplate'])->name('whatsapp.templates.toggle');
 
 // Database Tools routes
 Route::get('/database', [DatabaseController::class, 'index'])->name('database.index');

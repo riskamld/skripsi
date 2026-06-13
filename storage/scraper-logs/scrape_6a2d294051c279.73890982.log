@@ -1,0 +1,29 @@
+
+🔍 Mencari: "toko buah" (limit: 5)
+Mode: LIVE → API
+
+📍 Mode koordinat: lat=-8.2198154, lng=113.5474777, zoom=14
+🌐 Buka: https://www.google.com/maps/search/toko%20buah/@-8.2198154,113.5474777,14z
+📋 Mengumpulkan link hasil...
+✅ Ditemukan 5 link tempat
+
+[1/5] Buka detail...
+  ✓ TOKO MAMA ALFI & GROSIR BUAH | no phone | rating: 5 | reviews: 1
+  → API: 201
+[2/5] Buka detail...
+  ✓ Total Buah Segar | 62213152011 | rating: 4 | reviews: 1021
+  → API: 201
+[3/5] Buka detail...
+  ✓ Agil Buah | 6282335391498 | rating: 4 | reviews: 4
+  → API: 201
+[4/5] Buka detail...
+  ✓ Kios buah DELISHA | 6282241018753 | rating: 5 | reviews: 1
+  → API: 201
+[5/5] Buka detail...
+  ✓ ANEKA FRUIT FRESH | 6285655298067 | rating: 3 | reviews: 4
+  → API: 201
+
+📊 Selesai: 5 berhasil, 0 gagal
+  📞 Punya nomor telepon: 4
+  ⭐ Rata-rata rating: 4.20
+__DONE_OK__

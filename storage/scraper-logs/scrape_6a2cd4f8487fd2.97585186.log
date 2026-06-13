@@ -1,0 +1,38 @@
+🔄 Mengambil 10 tempat dengan data tidak lengkap...
+📋 Ditemukan 10 tempat. Mulai rescraping...
+[1/10] 🌐 Warung Lesehan
+[1/10]    missing: opening_hours review_count
+[1/10] ✓ Updated — hours:– reviews:– rating:–
+[2/10] 🌐 WARUNG ANNAS
+[2/10]    missing: opening_hours review_count
+[2/10] ✓ Updated — hours:– reviews:1 rating:5
+[3/10] 🌐 Warung Nasi Bu Samsul
+[3/10]    missing: opening_hours review_count
+[3/10] ✓ Updated — hours:✓ reviews:1 rating:1
+[4/10] 🌐 Warung Bu Ningsih
+[4/10]    missing: opening_hours review_count
+[4/10] ✓ Updated — hours:– reviews:13 rating:4.7
+[5/10] 🌐 Warung Mak Yah
+[5/10]    missing: opening_hours review_count
+[5/10] ⚠ Gagal extract — halaman tidak terbuka dengan benar
+[6/10] 🌐 Toko Buah "NENK DATUS"
+[6/10]    missing: opening_hours review_count
+[6/10] ✓ Updated — hours:✓ reviews:1 rating:5
+[7/10] 🌐 Suplier buah dan hasil bumi jember
+[7/10]    missing: opening_hours review_count
+[7/10] ✓ Updated — hours:✓ reviews:1 rating:5
+[8/10] 🌐 Upline Dimsum
+[8/10]    missing: opening_hours review_count
+[8/10] ✓ Updated — hours:– reviews:– rating:–
+[9/10] 🌐 Toko buah grosir
+[9/10]    missing: opening_hours review_count
+[9/10] ✓ Updated — hours:– reviews:2 rating:5
+[10/10] 🌐 Nafil Buah Impor dan Lokal
+[10/10]    missing: opening_hours review_count
+[10/10] ✓ Updated — hours:✓ reviews:3 rating:4.7
+
+📊 Selesai: 9 berhasil, 1 gagal
+   Punya nomor telepon: 0
+   Rata-rata rating: –
+__SUMMARY__ Selesai: 9 berhasil, 1 gagal
+__DONE_OK__
