@@ -431,6 +431,47 @@ $sl = $statusLabels[$currentStatus] ?? null;
     </div>
 </div>
 
+{{-- Riwayat Outreach --}}
+@if($outreachLogs->count() > 0)
+<div class="card mb-16">
+    <div class="card-header">
+        <span><i class="fas fa-history" style="color:var(--ac);margin-right:6px"></i>Riwayat Outreach</span>
+    </div>
+    <div class="card-body p-0">
+        @php
+        $actionLabel = [
+            'sent'           => ['label'=>'Pesan terkirim',     'icon'=>'fa-paper-plane', 'color'=>'#3b82f6'],
+            'status_changed' => ['label'=>'Status diubah',      'icon'=>'fa-exchange-alt', 'color'=>'var(--ac)'],
+            'note_added'     => ['label'=>'Catatan ditambahkan','icon'=>'fa-sticky-note',  'color'=>'#f59e0b'],
+        ];
+        $statusLabel = [
+            'sent'=>'Terkirim','replied'=>'Ada Respon','interested'=>'Berminat',
+            'not_interested'=>'Tidak Berminat','ordered'=>'Sudah Order','none'=>'Di-reset',
+        ];
+        @endphp
+        @foreach($outreachLogs as $log)
+        @php $a = $actionLabel[$log->action] ?? ['label'=>$log->action,'icon'=>'fa-circle','color'=>'var(--tx3)']; @endphp
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 16px;border-bottom:1px solid var(--bdr)">
+            <div style="width:28px;height:28px;border-radius:50%;background:{{ $a['color'] }}20;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">
+                <i class="fas {{ $a['icon'] }}" style="color:{{ $a['color'] }};font-size:11px"></i>
+            </div>
+            <div style="flex:1;min-width:0">
+                <div style="font-size:12px;font-weight:500">{{ $a['label'] }}
+                    @if($log->status && isset($statusLabel[$log->status]))
+                    → <strong>{{ $statusLabel[$log->status] }}</strong>
+                    @endif
+                </div>
+                @if($log->note)
+                <div class="text-xs text-muted" style="margin-top:2px">{{ Str::limit($log->note, 100) }}</div>
+                @endif
+                <div class="text-xs text-muted" style="margin-top:2px">{{ $log->created_at->diffForHumans() }}</div>
+            </div>
+        </div>
+        @endforeach
+    </div>
+</div>
+@endif
+
 {{-- Description --}}
 @if($place->description)
 <div class="card mb-16">

@@ -31,6 +31,9 @@ class DashboardController extends Controller
             'interested'     => Place::where('outreach_status', 'interested')->count(),
             'not_interested' => Place::where('outreach_status', 'not_interested')->count(),
             'ordered'        => Place::where('outreach_status', 'ordered')->count(),
+            'followup_due'   => Place::where('outreach_status', 'sent')
+                                    ->where('outreach_sent_at', '<', now()->subDays(3))
+                                    ->count(),
             'relevant'       => Place::whereIn('category', self::RELEVANT)->count(),
             'top_categories' => Place::selectRaw('category, COUNT(*) as count')
                 ->whereNotNull('category')

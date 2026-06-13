@@ -197,6 +197,24 @@ class ScraperController extends Controller
         return response()->json(['job_id' => $jobId, 'limit' => $limit]);
     }
 
+    public function rescrapeProgress()
+    {
+        $total    = Place::count();
+        $scraped  = Place::whereNotNull('popular_times')->count();
+        $hasPt    = \DB::selectOne('SELECT COUNT(*) as c FROM places WHERE popular_times IS NOT NULL AND popular_times != JSON_ARRAY()')->c;
+        $noPt     = $scraped - $hasPt;
+        $running  = (bool) shell_exec('pgrep -f gmaps-rescraper 2>/dev/null');
+        return response()->json([
+            'total'   => $total,
+            'scraped' => $scraped,
+            'has_pt'  => $hasPt,
+            'no_pt'   => $noPt,
+            'pending' => $total - $scraped,
+            'pct'     => $total > 0 ? round($scraped / $total * 100, 1) : 0,
+            'running' => $running,
+        ]);
+    }
+
     public function saveCookies(Request $request)
     {
         $request->validate(['cookies' => 'required|string']);

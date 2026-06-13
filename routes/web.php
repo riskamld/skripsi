@@ -22,6 +22,7 @@ Route::post('/scraper/start', [ScraperController::class, 'start'])->name('scrape
 Route::get('/scraper/log/{jobId}', [ScraperController::class, 'log'])->name('scraper.log');
 Route::post('/scraper/rescrape', [ScraperController::class, 'rescrape'])->name('scraper.rescrape');
 Route::get('/scraper/rescrape-count', [ScraperController::class, 'rescrapeCount'])->name('scraper.rescrape-count');
+Route::get('/scraper/rescrape-progress', [ScraperController::class, 'rescrapeProgress'])->name('scraper.rescrape-progress');
 Route::post('/scraper/save-cookies', [ScraperController::class, 'saveCookies'])->name('scraper.save-cookies');
 Route::get('/scraper/cookie-status', [ScraperController::class, 'cookieStatus'])->name('scraper.cookie-status');
 Route::post('/scraper/check-cookies', [ScraperController::class, 'checkCookies'])->name('scraper.check-cookies');

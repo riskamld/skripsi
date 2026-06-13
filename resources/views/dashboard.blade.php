@@ -18,6 +18,13 @@
     <a href="{{ route('whatsapp.index') }}" style="color:inherit;font-weight:600;text-decoration:underline">Cek sekarang →</a></span>
 </div>
 @endif
+@if($stats['followup_due'] > 0)
+<div class="alert mb-16" style="display:flex;align-items:center;gap:10px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);color:var(--tx);border-radius:8px;padding:10px 14px">
+    <i class="fas fa-bell" style="color:#ef4444"></i>
+    <span><strong>{{ $stats['followup_due'] }} toko</strong> sudah 3+ hari terkirim tapi belum ada respon — saatnya follow up!</span>
+    <a href="{{ route('places.index', ['qf'=>'sent']) }}" class="btn btn-sm btn-secondary" style="margin-left:auto">Lihat →</a>
+</div>
+@endif
 @if($stats['ordered'] > 0)
 <div class="alert alert-success mb-16" style="display:flex;align-items:center;gap:10px">
     <i class="fas fa-shopping-cart"></i>

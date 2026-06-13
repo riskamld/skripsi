@@ -54,8 +54,12 @@ class PlaceController extends Controller
         // Sort
         $sortBy  = $request->get('sort', 'created_at');
         $sortDir = $request->get('direction', 'desc');
-        $allowedSorts = ['name', 'rating', 'review_count', 'busyness_score', 'created_at', 'updated_at', 'last_scraped_at'];
-        if (in_array($sortBy, $allowedSorts)) {
+        $allowedSorts = ['name', 'rating', 'review_count', 'busyness_score', 'created_at', 'updated_at', 'last_scraped_at', 'pt_peak'];
+        if ($sortBy === 'pt_peak') {
+            // Tempat dengan jam ramai dulu, urut terbanyak
+            $query->orderByRaw("CASE WHEN popular_times IS NULL OR popular_times = '[]' THEN 0 ELSE 1 END DESC")
+                  ->orderByDesc('review_count');
+        } elseif (in_array($sortBy, $allowedSorts)) {
             if (in_array($sortBy, ['review_count', 'rating', 'busyness_score'])) {
                 $dir = $sortDir === 'asc' ? 'ASC' : 'DESC';
                 $query->orderByRaw("{$sortBy} IS NULL ASC, {$sortBy} {$dir}");
@@ -107,7 +111,9 @@ class PlaceController extends Controller
     public function show(Place $place)
     {
         $place->load('scrapeLogs');
-        return view('places.show', compact('place'));
+        $outreachLogs = \App\Models\OutreachLog::where('place_id', $place->id)
+            ->orderByDesc('created_at')->limit(20)->get();
+        return view('places.show', compact('place', 'outreachLogs'));
     }
 
     public function edit(Place $place)

@@ -251,6 +251,33 @@
     </div>
 </div>
 
+{{-- Rescrape Progress Jam Ramai --}}
+<div class="card" style="margin-top:16px" id="pt-progress-card">
+    <div class="card-header d-flex align-center justify-between">
+        <span style="font-weight:600;font-size:13px">
+            <i class="fas fa-chart-bar" style="color:var(--ac);margin-right:6px"></i>Progress Scrape Jam Ramai
+            <span id="pt-running-dot" style="display:none;margin-left:6px;width:8px;height:8px;border-radius:50%;background:#d29922;display:none;animation:pulse 1s infinite;vertical-align:middle"></span>
+        </span>
+        <span id="pt-status-badge" class="text-xs text-muted"></span>
+    </div>
+    <div class="card-body" style="padding:12px 16px">
+        <div style="display:flex;gap:20px;margin-bottom:10px;flex-wrap:wrap">
+            <div><div class="text-xs text-muted">Total</div><div class="fw-700" id="pt-total">—</div></div>
+            <div><div class="text-xs text-muted">Sudah Discrape</div><div class="fw-700 text-ac" id="pt-scraped">—</div></div>
+            <div><div class="text-xs text-muted">Ada Jam Ramai</div><div class="fw-700" style="color:#22c55e" id="pt-has">—</div></div>
+            <div><div class="text-xs text-muted">Tidak Ada</div><div class="fw-700 text-muted" id="pt-no">—</div></div>
+            <div><div class="text-xs text-muted">Sisa</div><div class="fw-700" style="color:var(--or)" id="pt-pending">—</div></div>
+        </div>
+        <div style="background:var(--bdr);border-radius:4px;height:8px;overflow:hidden">
+            <div id="pt-bar" style="height:100%;background:var(--ac);border-radius:4px;width:0%;transition:width .4s"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:11px;color:var(--tx3)">
+            <span id="pt-pct">0%</span>
+            <span id="pt-eta"></span>
+        </div>
+    </div>
+</div>
+
 {{-- Rescrape incomplete data --}}
 <div class="card" style="margin-top:16px" id="rescrape-card">
     <div class="card-header d-flex align-center justify-between">
@@ -792,5 +819,52 @@ function loadCookieStatus() {
     });
 }
 loadCookieStatus();
+
+// ── Progress Jam Ramai ────────────────────────────────────────────────────────
+let ptPollTimer = null;
+let ptPrevScraped = null;
+let ptPollStart = Date.now();
+
+async function loadPtProgress() {
+    try {
+        const d = await fetch('{{ route("scraper.rescrape-progress") }}').then(r => r.json());
+        $('pt-total').textContent   = d.total.toLocaleString();
+        $('pt-scraped').textContent = d.scraped.toLocaleString();
+        $('pt-has').textContent     = d.has_pt.toLocaleString();
+        $('pt-no').textContent      = d.no_pt.toLocaleString();
+        $('pt-pending').textContent = d.pending.toLocaleString();
+        $('pt-bar').style.width     = d.pct + '%';
+        $('pt-pct').textContent     = d.pct + '%';
+        const badge = $('pt-status-badge');
+        const dot   = $('pt-running-dot');
+        if (d.running) {
+            badge.innerHTML = '<span style="color:#d29922"><i class="fas fa-circle-notch fa-spin"></i> Sedang berjalan…</span>';
+            dot.style.display = 'inline-block';
+            // ETA estimation
+            if (ptPrevScraped !== null && d.scraped > ptPrevScraped) {
+                const rate = (d.scraped - ptPrevScraped) / 30; // per second
+                if (rate > 0 && d.pending > 0) {
+                    const secs = Math.round(d.pending / rate);
+                    const mins = Math.floor(secs / 60);
+                    const s = secs % 60;
+                    $('pt-eta').textContent = `ETA ~${mins > 0 ? mins+'m ' : ''}${s}s`;
+                }
+            }
+            ptPrevScraped = d.scraped;
+        } else {
+            dot.style.display = 'none';
+            if (d.pending === 0) {
+                badge.innerHTML = '<span style="color:#22c55e"><i class="fas fa-check-circle"></i> Selesai</span>';
+                $('pt-eta').textContent = '';
+                clearInterval(ptPollTimer);
+            } else {
+                badge.innerHTML = '<span style="color:var(--tx3)">Tidak berjalan</span>';
+                $('pt-eta').textContent = '';
+            }
+        }
+    } catch(e) {}
+}
+loadPtProgress();
+ptPollTimer = setInterval(loadPtProgress, 30000);
 </script>
 @endpush

@@ -488,6 +488,19 @@ document.addEventListener('DOMContentLoaded', function() {
     var markers = [];
     var categoryGroups = {};
 
+    // Warna dot berdasarkan status outreach, fallback ke WA status
+    function getPlaceDotColor(place) {
+        var st = place.outreach_status;
+        if (st === 'ordered')        return '#10b981';
+        if (st === 'interested')     return '#f97316';
+        if (st === 'replied' || st === 'responded') return '#06b6d4';
+        if (st === 'not_interested') return '#6b7280';
+        if (st === 'sent')           return '#3b82f6';
+        if (place.has_whatsapp === true  || place.has_whatsapp == 1)  return '#22c55e';
+        if (place.has_whatsapp === false || place.has_whatsapp == 0)  return '#ef4444';
+        return '#9ca3af';
+    }
+
     // Function to create marker for a place
     function createMarkerForPlace(place) {
         if (!place.lat || !place.lng) return null;
@@ -527,11 +540,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Create custom marker icon with name and review badge
+        var dotColor = getPlaceDotColor(place);
         var markerIcon = L.divIcon({
             className: 'custom-marker-with-label',
             html: `
                 <div class="marker-container">
-                    <div class="marker-dot" style="background-color: ${color};"></div>
+                    <div class="marker-dot" style="background-color: ${dotColor};"></div>
                     <div class="marker-content">
                         <div class="marker-name">${shortName}</div>
                     </div>
@@ -572,13 +586,28 @@ document.addEventListener('DOMContentLoaded', function() {
                     <strong>📞 Telepon:</strong> ${place.phone}
                 </div>` : ''}
 
-                ${place.has_whatsapp === true || place.has_whatsapp == 1 ? `<div style="margin-bottom:4px;font-size:12px;color:#16a34a;font-weight:600;">✓ WhatsApp aktif${place.outreach_status === 'responded' ? ' · <span style="color:#10b981">Sudah respon</span>' : place.outreach_status === 'sent' ? ' · Terkirim' : ''}</div>` : (place.has_whatsapp === false || place.has_whatsapp == 0 ? '<div style="margin-bottom:4px;font-size:12px;color:#9ca3af;">✗ Tidak ada WA</div>' : '')}
+                ${(function() {
+                    const statusMap = {
+                        ordered: '🛒 Sudah Order', interested: '👍 Berminat',
+                        not_interested: '👎 Tidak Berminat', replied: '↩ Ada Respon',
+                        responded: '↩ Ada Respon', sent: '📨 Terkirim',
+                    };
+                    const statusColor = {
+                        ordered:'#10b981', interested:'#f97316', not_interested:'#9ca3af',
+                        replied:'#06b6d4', responded:'#06b6d4', sent:'#3b82f6',
+                    };
+                    const st = place.outreach_status;
+                    if (st && statusMap[st]) return `<div style="margin-bottom:4px;font-size:12px;font-weight:600;color:${statusColor[st]}">${statusMap[st]}</div>`;
+                    if (place.has_whatsapp === true || place.has_whatsapp == 1) return `<div style="margin-bottom:4px;font-size:12px;color:#16a34a;font-weight:600;">✓ WhatsApp aktif</div>`;
+                    if (place.has_whatsapp === false || place.has_whatsapp == 0) return `<div style="margin-bottom:4px;font-size:12px;color:#9ca3af;">✗ Tidak ada WA</div>`;
+                    return '';
+                })()}
 
-                ${googleMapsUrl ? `<div style="margin-top: 8px;">
-                    <a href="${googleMapsUrl}" target="_blank" style="background-color: #4285f4; color: white; padding: 6px 12px; text-decoration: none; border-radius: 4px; font-size: 12px; display: inline-block;">
-                        🗺️ Lihat di Google Maps
-                    </a>
-                </div>` : ''}
+                <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+                    ${place.phone ? `<a href="https://wa.me/${place.phone.replace(/\D/g,'')}" target="_blank" style="background:#22c55e;color:#fff;padding:5px 10px;text-decoration:none;border-radius:4px;font-size:11px;font-weight:600">💬 WA</a>` : ''}
+                    ${googleMapsUrl ? `<a href="${googleMapsUrl}" target="_blank" style="background:#4285f4;color:white;padding:5px 10px;text-decoration:none;border-radius:4px;font-size:11px">🗺️ Maps</a>` : ''}
+                    <a href="/mafaza/public/places/${place.id}" target="_blank" style="background:#f3f4f6;color:#374151;padding:5px 10px;text-decoration:none;border-radius:4px;font-size:11px">Detail →</a>
+                </div>
             </div>
         `;
 
@@ -664,9 +693,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 var catOk = activeCategories.has(categoryKey);
                 var outreachOk = true;
-                if (outreachFilter === 'has_wa')    outreachOk = place.has_whatsapp === true || place.has_whatsapp == 1;
-                else if (outreachFilter === 'sent') outreachOk = place.outreach_status === 'sent';
-                else if (outreachFilter === 'responded') outreachOk = place.outreach_status === 'responded';
+                        if (outreachFilter === 'has_wa')        outreachOk = place.has_whatsapp === true || place.has_whatsapp == 1;
+                else if (outreachFilter === 'sent')     outreachOk = place.outreach_status === 'sent';
+                else if (outreachFilter === 'replied')  outreachOk = ['replied','responded'].includes(place.outreach_status);
+                else if (outreachFilter === 'interested')     outreachOk = place.outreach_status === 'interested';
+                else if (outreachFilter === 'not_interested') outreachOk = place.outreach_status === 'not_interested';
+                else if (outreachFilter === 'ordered')  outreachOk = place.outreach_status === 'ordered';
 
                 var shouldShow = catOk && outreachOk;
                 console.log('Marker', marker.placeId, 'category:', categoryKey, 'should show:', shouldShow);
@@ -697,12 +729,16 @@ document.addEventListener('DOMContentLoaded', function() {
     outreachCtrl.onAdd = function() {
         var d = L.DomUtil.create('div');
         d.style.cssText = 'background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.2);padding:6px 8px;display:flex;gap:4px;align-items:center;font-family:sans-serif';
+        var btnStyle = 'font-size:10px;padding:3px 7px;border:1px solid #d1d5db;border-radius:4px;cursor:pointer;background:#fff;color:#374151';
         d.innerHTML = `
-            <span style="font-size:10px;font-weight:600;color:#6b7280;margin-right:2px">WA:</span>
-            <button class="ofbtn" data-f="all"       style="font-size:10px;padding:3px 8px;border:1px solid #d1d5db;border-radius:4px;cursor:pointer;background:#16a34a;color:#fff" onclick="setOutreachFilter('all')">Semua</button>
-            <button class="ofbtn" data-f="has_wa"    style="font-size:10px;padding:3px 8px;border:1px solid #d1d5db;border-radius:4px;cursor:pointer;background:#fff;color:#374151" onclick="setOutreachFilter('has_wa')">Punya WA</button>
-            <button class="ofbtn" data-f="sent"      style="font-size:10px;padding:3px 8px;border:1px solid #d1d5db;border-radius:4px;cursor:pointer;background:#fff;color:#374151" onclick="setOutreachFilter('sent')">Terkirim</button>
-            <button class="ofbtn" data-f="responded" style="font-size:10px;padding:3px 8px;border:1px solid #d1d5db;border-radius:4px;cursor:pointer;background:#fff;color:#374151" onclick="setOutreachFilter('responded')">Respon</button>
+            <span style="font-size:10px;font-weight:600;color:#6b7280;margin-right:2px">Filter:</span>
+            <button class="ofbtn" data-f="all"            style="${btnStyle};background:#16a34a;color:#fff" onclick="setOutreachFilter('all')">Semua</button>
+            <button class="ofbtn" data-f="has_wa"         style="${btnStyle}" onclick="setOutreachFilter('has_wa')">Punya WA</button>
+            <button class="ofbtn" data-f="sent"           style="${btnStyle}" onclick="setOutreachFilter('sent')">Terkirim</button>
+            <button class="ofbtn" data-f="replied"        style="${btnStyle}" onclick="setOutreachFilter('replied')">Respon</button>
+            <button class="ofbtn" data-f="interested"     style="${btnStyle}" onclick="setOutreachFilter('interested')">Berminat</button>
+            <button class="ofbtn" data-f="not_interested" style="${btnStyle}" onclick="setOutreachFilter('not_interested')">Tidak Berminat</button>
+            <button class="ofbtn" data-f="ordered"        style="${btnStyle}" onclick="setOutreachFilter('ordered')">Order</button>
         `;
         L.DomEvent.disableClickPropagation(d);
         return d;

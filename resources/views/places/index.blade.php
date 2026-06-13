@@ -41,6 +41,7 @@
         <option value="review_count|desc" {{ request('sort')=='review_count'&&request('direction','desc')=='desc'?'selected':'' }}>Ulasan ↓</option>
         <option value="last_scraped_at|desc" {{ request('sort')=='last_scraped_at'&&request('direction','desc')=='desc'?'selected':'' }}>Diperbarui</option>
         <option value="name|asc" {{ request('sort')=='name'&&request('direction','asc')=='asc'?'selected':'' }}>Nama A–Z</option>
+        <option value="pt_peak|desc" {{ request('sort')=='pt_peak'?'selected':'' }}>Ada Jam Ramai</option>
     </select>
 
     <div class="ml-auto d-flex align-center gap-8">
@@ -235,7 +236,14 @@
                         @endif
                     </td>
                     <td>
-                        <div class="d-flex gap-4 justify-content:flex-end" style="justify-content:flex-end">
+                        <div class="d-flex gap-4 justify-content:flex-end" style="justify-content:flex-end;flex-wrap:wrap">
+                            @if($place->has_whatsapp === true && $place->phone)
+                            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $place->phone) }}"
+                               target="_blank" class="btn btn-xs" title="Buka Chat WA"
+                               style="background:#22c55e;color:#fff;border-color:#22c55e">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                            @endif
                             <a href="{{ route('places.show', $place) }}" class="btn btn-ghost btn-xs" title="Lihat">
                                 <i class="fas fa-eye"></i>
                             </a>

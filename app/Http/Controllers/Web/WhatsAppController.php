@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\OutreachLog;
 use App\Models\Place;
 use App\Models\WaTemplate;
 use Illuminate\Http\Request;
@@ -140,6 +141,7 @@ class WhatsAppController extends Controller
                         'outreach_sent_at'   => now(),
                         'outreach_device_id' => $deviceId,
                     ]);
+                    OutreachLog::create(['place_id' => $place->id, 'action' => 'sent', 'status' => 'sent']);
                     $results['sent']++;
                 } else {
                     $results['failed']++;
@@ -166,7 +168,11 @@ class WhatsAppController extends Controller
     {
         $request->validate(['status' => 'required|in:none,sent,replied,interested,not_interested,ordered']);
         $place = Place::findOrFail($id);
+        $old = $place->outreach_status;
         $place->update(['outreach_status' => $request->status]);
+        if ($old !== $request->status) {
+            OutreachLog::create(['place_id' => $place->id, 'action' => 'status_changed', 'status' => $request->status]);
+        }
         return response()->json(['status' => 'ok', 'outreach_status' => $request->status]);
     }
 
@@ -178,6 +184,9 @@ class WhatsAppController extends Controller
             'notes'            => $request->notes ?: null,
             'notes_updated_at' => now(),
         ]);
+        if ($request->notes) {
+            OutreachLog::create(['place_id' => $place->id, 'action' => 'note_added', 'note' => mb_substr($request->notes, 0, 200)]);
+        }
         return response()->json(['status' => 'ok']);
     }
 
