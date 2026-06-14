@@ -401,15 +401,19 @@ async function extractPlaceDetail(page, url) {
   // Popular times
   detail.popular_times = await extractPopularTimes(page);
 
-  // Gambar
+  // Gambar — deduplicate berdasarkan hash URL (sebelum =w) agar foto berbeda
   try {
     const imgs = await page.$$('img[src*="googleusercontent"], img[src*="ggpht"]');
     const imgUrls = [];
+    const seenHashes = new Set();
     for (const img of imgs) {
+      if (imgUrls.length >= 4) break;
       const src = await img.getAttribute("src");
-      if (src && !src.includes("icon") && !src.includes("avatar") && imgUrls.length < 4) {
-        imgUrls.push(src);
-      }
+      if (!src || src.includes("icon") || src.includes("avatar")) continue;
+      const hash = src.split('=')[0];
+      if (seenHashes.has(hash)) continue;
+      seenHashes.add(hash);
+      imgUrls.push(src);
     }
     if (imgUrls[0]) detail.image_1 = imgUrls[0];
     if (imgUrls[1]) detail.image_2 = imgUrls[1];
