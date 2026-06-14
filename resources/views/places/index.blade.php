@@ -432,6 +432,7 @@ document.getElementById('deselAll').addEventListener('click', function(){
   function showPreview(el, e) {
     const seen = new Set();
     const imgs = (el.dataset.imgs || '').split('|').filter(Boolean).reduce(function(acc, u){
+      if (u.includes('/ogw/') || u.includes('-c-mo') || u.includes('=s32') || u.includes('=s64')) return acc;
       const hash = u.split('=')[0];
       if (!seen.has(hash)) { seen.add(hash); acc.push(u.replace(/=w\d+-h\d+[^"]*$/, '=w400-h300-k-no')); }
       return acc;

@@ -224,7 +224,7 @@ async function extractFromPage(page) {
   try {
     const allImgs = await page.$$eval(
       'img[src*="googleusercontent"], img[src*="lh3.google"], img[src*="lh4.google"]',
-      els => els.map(e => e.src).filter(s => s && !s.includes('logo') && s.length > 50)
+      els => els.map(e => e.src).filter(s => s && s.length > 50 && !s.includes('logo') && !s.includes('/ogw/') && !s.includes('=s32') && !s.includes('=s64') && !s.includes('-c-mo'))
     );
     const seenHashes = new Set();
     const imgs = [];

@@ -409,7 +409,7 @@ async function extractPlaceDetail(page, url) {
     for (const img of imgs) {
       if (imgUrls.length >= 4) break;
       const src = await img.getAttribute("src");
-      if (!src || src.includes("icon") || src.includes("avatar")) continue;
+      if (!src || src.includes("icon") || src.includes("avatar") || src.includes("/ogw/") || src.includes("=s32") || src.includes("=s64") || src.includes("-c-mo")) continue;
       const hash = src.split('=')[0];
       if (seenHashes.has(hash)) continue;
       seenHashes.add(hash);
