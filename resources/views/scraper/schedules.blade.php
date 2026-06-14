@@ -480,9 +480,22 @@ async function deleteSchedule(id, name) {
   if (r.status === 'ok') { document.getElementById(`row-${id}`)?.remove(); showToast('Jadwal dihapus.', true); }
 }
 
+let disableConfirm = false, disableTimer = null;
 async function disableAll() {
-  if (!confirm('Hentikan semua jadwal dan proses scraping yang berjalan?')) return;
   const btn = document.getElementById('btn-disable-all');
+  if (!disableConfirm) {
+    disableConfirm = true;
+    btn.innerHTML = '<i class="fas fa-stop-circle"></i> Yakin? Klik lagi';
+    btn.style.opacity = '0.8';
+    disableTimer = setTimeout(() => {
+      disableConfirm = false;
+      btn.innerHTML = '<i class="fas fa-stop-circle"></i> Hentikan Semua';
+      btn.style.opacity = '1';
+    }, 3000);
+    return;
+  }
+  clearTimeout(disableTimer);
+  disableConfirm = false;
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menghentikan…';
   try {
@@ -494,14 +507,28 @@ async function disableAll() {
     setTimeout(() => location.reload(), 800);
   } catch(e) {
     showToast('Gagal menghentikan.', false);
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-stop-circle"></i> Hentikan Semua';
+    btn.style.opacity = '1';
   }
-  btn.disabled = false;
-  btn.innerHTML = '<i class="fas fa-stop-circle"></i> Hentikan Semua';
 }
 
+let enableConfirm = false, enableTimer = null;
 async function enableAll() {
-  if (!confirm('Aktifkan semua jadwal?')) return;
   const btn = document.getElementById('btn-enable-all');
+  if (!enableConfirm) {
+    enableConfirm = true;
+    btn.innerHTML = '<i class="fas fa-play-circle"></i> Yakin? Klik lagi';
+    btn.style.opacity = '0.8';
+    enableTimer = setTimeout(() => {
+      enableConfirm = false;
+      btn.innerHTML = '<i class="fas fa-play-circle"></i> Nyalakan Semua';
+      btn.style.opacity = '1';
+    }, 3000);
+    return;
+  }
+  clearTimeout(enableTimer);
+  enableConfirm = false;
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengaktifkan…';
   try {
@@ -513,9 +540,10 @@ async function enableAll() {
     setTimeout(() => location.reload(), 800);
   } catch(e) {
     showToast('Gagal mengaktifkan.', false);
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-play-circle"></i> Nyalakan Semua';
+    btn.style.opacity = '1';
   }
-  btn.disabled = false;
-  btn.innerHTML = '<i class="fas fa-play-circle"></i> Nyalakan Semua';
 }
 
 async function toggleSchedule(id, cb) {
