@@ -7,21 +7,24 @@ use Illuminate\Database\Eloquent\Model;
 class ScrapeSchedule extends Model
 {
     protected $fillable = [
-        'name', 'query', 'area', 'limit', 'frequency',
+        'name', 'query', 'area', 'lat', 'lng', 'zoom', 'limit', 'frequency',
         'interval_hours', 'run_hour', 'day_of_week',
         'enabled', 'is_running', 'current_log_file',
         'last_run_at', 'last_result',
     ];
 
     protected $casts = [
-        'enabled'     => 'boolean',
-        'is_running'  => 'boolean',
-        'last_run_at' => 'datetime',
-        'last_result' => 'array',
-        'limit'       => 'integer',
-        'run_hour'    => 'integer',
+        'enabled'        => 'boolean',
+        'is_running'     => 'boolean',
+        'last_run_at'    => 'datetime',
+        'last_result'    => 'array',
+        'limit'          => 'integer',
+        'run_hour'       => 'integer',
         'interval_hours' => 'integer',
-        'day_of_week' => 'integer',
+        'day_of_week'    => 'integer',
+        'lat'            => 'float',
+        'lng'            => 'float',
+        'zoom'           => 'integer',
     ];
 
     public function shouldRunNow(): bool

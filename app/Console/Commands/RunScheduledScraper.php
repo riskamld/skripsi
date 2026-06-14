@@ -51,7 +51,11 @@ class RunScheduledScraper extends Command
             $area    = escapeshellarg($schedule->area ?? '');
             $limit   = (int) $schedule->limit;
 
-            $cmd = "MAFAZA_API_TOKEN={$token} HEADLESS=true"
+            $coords = ($schedule->lat && $schedule->lng)
+                ? " LAT={$schedule->lat} LNG={$schedule->lng} ZOOM={$schedule->zoom}"
+                : '';
+
+            $cmd = "MAFAZA_API_TOKEN={$token} HEADLESS=true{$coords}"
                  . " {$node} " . escapeshellarg($scraperPath)
                  . " {$query} {$area} {$limit}"
                  . " >> " . escapeshellarg($logFile) . " 2>&1"
