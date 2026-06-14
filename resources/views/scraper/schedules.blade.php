@@ -9,7 +9,7 @@
 @section('content')
 
 {{-- Status bar running --}}
-<div id="status-bar" style="display:none;background:var(--acl,#eff6ff);border:1px solid var(--ac);border-radius:8px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;font-size:13px">
+<div id="status-bar" style="display:none;background:var(--acl,#eff6ff);border:1px solid var(--ac);border-radius:8px;padding:10px 14px;margin-bottom:14px;align-items:center;gap:10px;font-size:13px">
   <span class="spin-icon" style="display:inline-block;animation:spin 1s linear infinite;color:var(--ac)"><i class="fas fa-circle-notch"></i></span>
   <span id="status-bar-text">Scraper sedang berjalan...</span>
 </div>
@@ -222,6 +222,8 @@
 
 <script>
 const CSRF = '{{ csrf_token() }}';
+// Base path yang benar (support /mafaza/public/ prefix)
+const SCHED_BASE = window.location.pathname.replace(/\/jadwal-scraping.*/, '/jadwal-scraping');
 let logPollTimer = null;
 let currentLogId = null;
 let autoScrollLog = true;
@@ -245,7 +247,7 @@ function startRefreshCountdown() {
 
 async function pollStatus() {
   try {
-    const rows = await fetch('/jadwal-scraping/status').then(r => r.json());
+    const rows = await fetch(`${SCHED_BASE}/status`).then(r => r.json());
     let anyRunning = false;
     rows.forEach(r => {
       const row = document.getElementById('row-' + r.id);
@@ -327,7 +329,7 @@ function openLog(id, name) {
 async function fetchLog() {
   if (!currentLogId) return;
   try {
-    const data = await fetch(`/jadwal-scraping/${currentLogId}/log`).then(r => r.json());
+    const data = await fetch(`${SCHED_BASE}/${currentLogId}/log`).then(r => r.json());
     const el = document.getElementById('log-content');
     const badge = document.getElementById('log-running-badge');
     const proc  = document.getElementById('log-processed');
@@ -418,7 +420,7 @@ async function submitForm(e) {
     run_hour:       freq !== 'every_n_hours' ? document.getElementById('f-run-hour').value : 0,
     day_of_week:    freq === 'weekly' ? document.getElementById('f-day-of-week').value : null,
   };
-  const r = await fetch(id ? `/jadwal-scraping/${id}` : '/jadwal-scraping', {
+  const r = await fetch(id ? `${SCHED_BASE}/${id}` : SCHED_BASE, {
     method:  id ? 'PUT' : 'POST',
     headers: {'Content-Type':'application/json','X-CSRF-TOKEN':CSRF},
     body:    JSON.stringify(body),
@@ -429,7 +431,7 @@ async function submitForm(e) {
 
 async function deleteSchedule(id, name) {
   if (!confirm(`Hapus jadwal "${name}"?`)) return;
-  const r = await fetch(`/jadwal-scraping/${id}`, {
+  const r = await fetch(`${SCHED_BASE}/${id}`, {
     method:  'DELETE',
     headers: {'X-CSRF-TOKEN': CSRF},
   }).then(r => r.json());
@@ -437,7 +439,7 @@ async function deleteSchedule(id, name) {
 }
 
 async function toggleSchedule(id, cb) {
-  const r = await fetch(`/jadwal-scraping/${id}/toggle`, {
+  const r = await fetch(`${SCHED_BASE}/${id}/toggle`, {
     method:  'POST',
     headers: {'X-CSRF-TOKEN': CSRF},
   }).then(r => r.json());
