@@ -258,36 +258,51 @@ class ScraperController extends Controller
         $scraped  = Place::whereNotNull('popular_times')->count();
         $hasPt    = \DB::selectOne('SELECT COUNT(*) as c FROM places WHERE popular_times IS NOT NULL AND popular_times != JSON_ARRAY()')->c;
         $noPt     = $scraped - $hasPt;
-        $running  = !empty(trim(shell_exec('pgrep -f "[g]maps-rescraper" 2>/dev/null') ?? ''));
+        $rescrapeRunning = !empty(trim(shell_exec('pgrep -f "[g]maps-rescraper" 2>/dev/null') ?? ''));
 
         // Photo update progress — baca log file
-        $photoProgress = null;
+        $photoProgress  = null;
+        $photoRunning   = false;
         $logFile = storage_path('logs/photo-update-all.log');
         if (file_exists($logFile)) {
             $lines = file($logFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [];
-            $batchDone   = 0; // total selesai di batch-batch sebelumnya
-            $photoTotal  = 0;
-            $batchCurrent = 0; // progress dalam batch aktif saat ini
-            $batchSize   = 50;
+            $batchDone    = 0;
+            $batchCurrent = 0;
+            $batchSize    = 50;
 
             foreach ($lines as $line) {
-                // "total diproses: N/2000" → muncul di awal tiap batch baru
-                if (preg_match('/total diproses:\s*(\d+)\/(\d+)/u', $line, $m)) {
-                    $batchDone  = (int) $m[1];
-                    $photoTotal = (int) $m[2];
-                    $batchCurrent = 0; // reset counter batch baru
+                if (preg_match('/total diproses:\s*(\d+)\/\d+/u', $line, $m)) {
+                    $batchDone    = (int) $m[1];
+                    $batchCurrent = 0;
                 }
-                // "[X/50]" → progress item dalam batch aktif
                 if (preg_match('/^\[(\d+)\/(\d+)\]/', $line, $m)) {
                     $batchCurrent = (int) $m[1];
                     $batchSize    = (int) $m[2];
                 }
             }
 
-            $processed = $batchDone + $batchCurrent;
-            $startTime = filectime($logFile);
-            $elapsed   = max(1, time() - $startTime);
-            $speed     = $processed > 0 ? $elapsed / $processed : 0; // detik/item
+            $photoTotal = Place::count(); // pakai count DB, bukan LIMIT
+            $processed  = $batchDone + $batchCurrent;
+            $photoRunning = $rescrapeRunning;
+
+            // Elapsed dari start time proses rescraper — parse format "Sun Jun 14 13:23:54 2026"
+            $pid = trim(shell_exec('pgrep -f "[g]maps-rescraper" 2>/dev/null') ?? '');
+            $procStart = null;
+            if ($pid) {
+                $lstart = trim(shell_exec("ps -o lstart= -p {$pid} 2>/dev/null") ?? '');
+                if ($lstart) {
+                    // ps lstart output dalam timezone OS (bukan PHP timezone yg UTC)
+                    $sysTzName = trim((string) @file_get_contents('/etc/timezone'))
+                        ?: trim((string) shell_exec('date +%Z'));
+                    try { $sysTz = new \DateTimeZone($sysTzName ?: 'Asia/Jakarta'); }
+                    catch (\Exception $e) { $sysTz = new \DateTimeZone('Asia/Jakarta'); }
+                    $dt = \DateTime::createFromFormat('D M j H:i:s Y', $lstart, $sysTz)
+                       ?: \DateTime::createFromFormat('D M  j H:i:s Y', $lstart, $sysTz);
+                    if ($dt) $procStart = $dt->getTimestamp();
+                }
+            }
+            $elapsed = $procStart ? max(1, time() - $procStart) : max(1, $processed * 20);
+            $speed   = $processed > 0 ? $elapsed / $processed : 20; // detik/item
             $remaining = ($photoTotal > $processed && $speed > 0)
                 ? round($speed * ($photoTotal - $processed) / 60)
                 : 0;
@@ -298,9 +313,12 @@ class ScraperController extends Controller
                 'total'       => $photoTotal,
                 'pct'         => $pct,
                 'eta_minutes' => $remaining,
-                'running'     => $running,
+                'running'     => $photoRunning,
             ];
         }
+
+        // Jika rescraper sedang update foto, jangan tandai popular times sebagai running
+        $ptRunning = $rescrapeRunning && !$photoRunning ? true : ($rescrapeRunning && !$photoProgress ? true : false);
 
         return response()->json([
             'total'          => $total,
@@ -309,7 +327,7 @@ class ScraperController extends Controller
             'no_pt'          => $noPt,
             'pending'        => $total - $scraped,
             'pct'            => $total > 0 ? round($scraped / $total * 100, 1) : 0,
-            'running'        => $running,
+            'running'        => $ptRunning,
             'photo_progress' => $photoProgress,
         ]);
     }
