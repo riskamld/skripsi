@@ -486,7 +486,7 @@ async function disableAll() {
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menghentikan…';
   try {
-    const r = await fetch('{{ route("scraper-schedule.disable-all") }}', {
+    const r = await fetch(`${SCHED_BASE}/disable-all`, {
       method: 'POST',
       headers: {'X-CSRF-TOKEN': CSRF},
     }).then(r => r.json());
@@ -505,7 +505,7 @@ async function enableAll() {
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengaktifkan…';
   try {
-    const r = await fetch('{{ route("scraper-schedule.enable-all") }}', {
+    const r = await fetch(`${SCHED_BASE}/enable-all`, {
       method: 'POST',
       headers: {'X-CSRF-TOKEN': CSRF},
     }).then(r => r.json());
