@@ -133,31 +133,41 @@ class PlaceController extends Controller
 
     public function needsRescrape(Request $request)
     {
-        $limit = min((int) $request->get('limit', 30), 500);
+        $limit = min((int) $request->get('limit', 30), 2000);
+        $mode  = $request->get('mode', '');
 
-        $places = Place::whereNotNull('maps_url')
-            ->where('maps_url', '!=', '')
-            ->where(function ($q) {
-                // Missing popular_times → rescrape regardless of last_scraped_at
-                $q->whereNull('popular_times')
-                  // Missing basic info AND not recently scraped
-                  ->orWhere(function ($inner) {
-                      $inner->where(function ($d) {
-                          $d->whereNull('opening_hours')
-                            ->orWhere('opening_hours', '')
-                            ->orWhereNull('review_count')
-                            ->orWhere('review_count', 0);
-                      })->where(function ($d) {
-                          $d->whereNull('last_scraped_at')
-                            ->orWhere('last_scraped_at', '<', now()->subHours(24));
+        if ($mode === 'photos') {
+            // Mode update foto — return semua tempat, urut dari paling lama di-update
+            $places = Place::whereNotNull('maps_url')
+                ->where('maps_url', '!=', '')
+                ->orderBy('last_scraped_at')
+                ->limit($limit)
+                ->get(['id', 'name', 'maps_url', 'place_id', 'opening_hours', 'review_count', 'popular_times']);
+        } else {
+            $places = Place::whereNotNull('maps_url')
+                ->where('maps_url', '!=', '')
+                ->where(function ($q) {
+                    // Missing popular_times → rescrape regardless of last_scraped_at
+                    $q->whereNull('popular_times')
+                      // Missing basic info AND not recently scraped
+                      ->orWhere(function ($inner) {
+                          $inner->where(function ($d) {
+                              $d->whereNull('opening_hours')
+                                ->orWhere('opening_hours', '')
+                                ->orWhereNull('review_count')
+                                ->orWhere('review_count', 0);
+                          })->where(function ($d) {
+                              $d->whereNull('last_scraped_at')
+                                ->orWhere('last_scraped_at', '<', now()->subHours(24));
+                          });
                       });
-                  });
-            })
-            ->orderByRaw('CASE WHEN popular_times IS NULL THEN 0 ELSE 1 END')
-            ->orderByRaw('CASE WHEN opening_hours IS NULL OR opening_hours = "" THEN 0 ELSE 1 END')
-            ->orderByRaw('CASE WHEN review_count IS NULL OR review_count = 0 THEN 0 ELSE 1 END')
-            ->limit($limit)
-            ->get(['id', 'name', 'maps_url', 'place_id', 'opening_hours', 'review_count', 'popular_times']);
+                })
+                ->orderByRaw('CASE WHEN popular_times IS NULL THEN 0 ELSE 1 END')
+                ->orderByRaw('CASE WHEN opening_hours IS NULL OR opening_hours = "" THEN 0 ELSE 1 END')
+                ->orderByRaw('CASE WHEN review_count IS NULL OR review_count = 0 THEN 0 ELSE 1 END')
+                ->limit($limit)
+                ->get(['id', 'name', 'maps_url', 'place_id', 'opening_hours', 'review_count', 'popular_times']);
+        }
 
         return response()->json([
             'status' => 'success',

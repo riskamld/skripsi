@@ -220,10 +220,19 @@ async function extractFromPage(page) {
 
   // Images (up to 4)
   try {
-    const imgs = await page.$$eval(
+    const allImgs = await page.$$eval(
       'img[src*="googleusercontent"], img[src*="lh3.google"], img[src*="lh4.google"]',
-      els => els.map(e => e.src).filter(s => s && !s.includes('logo') && s.length > 50).slice(0, 4)
+      els => els.map(e => e.src).filter(s => s && !s.includes('logo') && s.length > 50)
     );
+    const seenHashes = new Set();
+    const imgs = [];
+    for (const src of allImgs) {
+      if (imgs.length >= 4) break;
+      const hash = src.split('=')[0];
+      if (seenHashes.has(hash)) continue;
+      seenHashes.add(hash);
+      imgs.push(src);
+    }
     ['image_1','image_2','image_3','image_4'].forEach((f, i) => { if (imgs[i]) result[f] = imgs[i]; });
   } catch {}
 
