@@ -15,7 +15,7 @@ Schedule::command('places:normalize-categories')
 // Jadwal scraping otomatis — cek setiap menit
 Schedule::command('scraper:run-scheduled')
     ->everyMinute()
-    ->withoutOverlapping()
+    ->withoutOverlapping(60) // mutex otomatis kedaluwarsa 60 menit
     ->runInBackground();
 
 // Ringkasan harian Telegram — cek setiap jam
