@@ -420,13 +420,12 @@ document.getElementById('deselAll').addEventListener('click', function(){
 // ── Image hover preview ──────────────────────────────────────────────────────
 (function(){
   const preview = document.createElement('div');
-  preview.id = 'img-preview-popup';
-  preview.style.cssText = 'display:none;position:fixed;z-index:9999;pointer-events:none;'
+  preview.style.cssText = 'display:none;position:fixed;z-index:9999;pointer-events:auto;'
     + 'background:#fff;border:1px solid var(--bdr);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.18);'
-    + 'padding:6px;max-width:300px';
+    + 'padding:6px;max-width:300px;user-select:none';
   document.body.appendChild(preview);
 
-  let currentImgs = [], currentIdx = 0, hideTimer;
+  let currentImgs = [], currentIdx = 0, hideTimer, isOver = false;
 
   function showPreview(el, e) {
     const imgs = (el.dataset.imgs || '').split('|').filter(Boolean).map(function(u){
@@ -440,29 +439,49 @@ document.getElementById('deselAll').addEventListener('click', function(){
   }
 
   function renderPreview() {
+    const nav = currentImgs.length > 1
+      ? '<div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:5px">'
+        + '<span style="cursor:pointer;font-size:14px;color:var(--tx2);padding:0 4px" id="pp-prev">‹</span>'
+        + '<span style="font-size:10px;color:var(--tx3)">'+(currentIdx+1)+' / '+currentImgs.length+'</span>'
+        + '<span style="cursor:pointer;font-size:14px;color:var(--tx2);padding:0 4px" id="pp-next">›</span>'
+        + '</div>' : '';
     const dots = currentImgs.length > 1
-      ? '<div style="display:flex;gap:4px;justify-content:center;margin-top:5px">'
+      ? '<div style="display:flex;gap:4px;justify-content:center;margin-top:4px">'
         + currentImgs.map(function(_, i){
             return '<span style="width:6px;height:6px;border-radius:50%;background:'+(i===currentIdx?'var(--ac)':'#cbd5e1')+'"></span>';
           }).join('') + '</div>'
       : '';
     preview.innerHTML = '<img src="' + currentImgs[currentIdx] + '" style="width:280px;height:200px;object-fit:cover;border-radius:5px;display:block">'
-      + (currentImgs.length > 1 ? '<div style="font-size:10px;color:var(--tx3);text-align:center;margin-top:4px">'+(currentIdx+1)+'/'+currentImgs.length+' • gulir untuk berikutnya</div>' : '')
-      + dots;
+      + nav + dots;
+    var prev = document.getElementById('pp-prev');
+    var next = document.getElementById('pp-next');
+    if (prev) prev.addEventListener('click', function(){ step(-1); });
+    if (next) next.addEventListener('click', function(){ step(1); });
+  }
+
+  function step(dir) {
+    currentIdx = (currentIdx + dir + currentImgs.length) % currentImgs.length;
+    renderPreview();
   }
 
   function positionPreview(e) {
     const pad = 14;
     let x = e.clientX + pad, y = e.clientY + pad;
     if (x + 310 > window.innerWidth)  x = e.clientX - 310 - pad;
-    if (y + 230 > window.innerHeight) y = e.clientY - 230 - pad;
+    if (y + 240 > window.innerHeight) y = e.clientY - 240 - pad;
     preview.style.left = x + 'px';
     preview.style.top  = y + 'px';
   }
 
+  function scheduleHide() {
+    hideTimer = setTimeout(function(){ if (!isOver) preview.style.display='none'; }, 200);
+  }
+
+  // Thumbnail events
   document.addEventListener('mouseover', function(e){
     const el = e.target.closest('.img-thumb-wrap');
     if (!el) return;
+    isOver = true;
     clearTimeout(hideTimer);
     showPreview(el, e);
   });
@@ -472,14 +491,23 @@ document.getElementById('deselAll').addEventListener('click', function(){
   });
   document.addEventListener('mouseout', function(e){
     if (!e.target.closest('.img-thumb-wrap')) return;
-    hideTimer = setTimeout(function(){ preview.style.display='none'; }, 120);
+    isOver = false;
+    scheduleHide();
   });
-  document.addEventListener('wheel', function(e){
+
+  // Popup events — mouse masuk popup, tahan tampil
+  preview.addEventListener('mouseenter', function(){ isOver = true; clearTimeout(hideTimer); });
+  preview.addEventListener('mouseleave', function(){ isOver = false; scheduleHide(); });
+
+  // Scroll di thumbnail atau popup untuk ganti foto
+  function handleWheel(e) {
     if (preview.style.display === 'none' || currentImgs.length < 2) return;
-    if (!e.target.closest('.img-thumb-wrap')) return;
     e.preventDefault();
-    currentIdx = (currentIdx + (e.deltaY > 0 ? 1 : -1) + currentImgs.length) % currentImgs.length;
-    renderPreview();
+    step(e.deltaY > 0 ? 1 : -1);
+  }
+  document.addEventListener('wheel', function(e){
+    if (!e.target.closest('.img-thumb-wrap') && e.target !== preview && !preview.contains(e.target)) return;
+    handleWheel(e);
   }, {passive: false});
 })();
 
