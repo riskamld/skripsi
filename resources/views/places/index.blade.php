@@ -157,8 +157,31 @@
                         <input type="checkbox" class="row-cb" name="ids[]" value="{{ $place->id }}">
                     </td>
                     <td>
-                        <div class="fw-600" style="font-size:13px">{{ Str::limit($place->name, 32) }}</div>
-                        <div class="text-muted text-xs mt-4">{{ $place->category ? Str::limit($place->category, 26) : '—' }}</div>
+                        <div style="display:flex;align-items:center;gap:7px">
+                            @if($place->image_1)
+                            @php
+                                $imgThumb = preg_replace('/=w\d+-h\d+[^"]*$/', '=w48-h48-k-no', $place->image_1);
+                                $imgBig   = preg_replace('/=w\d+-h\d+[^"]*$/', '=w400-h300-k-no', $place->image_1);
+                                $imgCount = collect([$place->image_1,$place->image_2,$place->image_3,$place->image_4])->filter()->count();
+                            @endphp
+                            <div class="img-thumb-wrap" data-img="{{ $imgBig }}"
+                                 data-imgs="{{ implode('|', array_filter([$place->image_1,$place->image_2,$place->image_3,$place->image_4])) }}"
+                                 style="position:relative;flex-shrink:0;cursor:zoom-in">
+                                <img src="{{ $imgThumb }}" loading="lazy"
+                                     style="width:36px;height:36px;border-radius:5px;object-fit:cover;border:1px solid var(--bdr);display:block">
+                                @if($imgCount > 1)
+                                <span style="position:absolute;bottom:-3px;right:-3px;background:#334155;color:#fff;
+                                      font-size:9px;font-weight:700;border-radius:3px;padding:1px 3px;line-height:1">
+                                    {{ $imgCount }}
+                                </span>
+                                @endif
+                            </div>
+                            @endif
+                            <div>
+                                <div class="fw-600" style="font-size:13px">{{ Str::limit($place->name, 30) }}</div>
+                                <div class="text-muted text-xs mt-4">{{ $place->category ? Str::limit($place->category, 24) : '—' }}</div>
+                            </div>
+                        </div>
                     </td>
                     <td class="hide-mobile text-muted text-sm">{{ $place->address ? Str::limit($place->address, 28) : '—' }}</td>
                     <td>
@@ -392,6 +415,72 @@ document.getElementById('deselAll').addEventListener('click', function(){
     document.querySelectorAll('.row-cb').forEach(function(cb){ cb.checked=false; });
     updateBulk();
 });
+})();
+
+// ── Image hover preview ──────────────────────────────────────────────────────
+(function(){
+  const preview = document.createElement('div');
+  preview.id = 'img-preview-popup';
+  preview.style.cssText = 'display:none;position:fixed;z-index:9999;pointer-events:none;'
+    + 'background:#fff;border:1px solid var(--bdr);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.18);'
+    + 'padding:6px;max-width:300px';
+  document.body.appendChild(preview);
+
+  let currentImgs = [], currentIdx = 0, hideTimer;
+
+  function showPreview(el, e) {
+    const imgs = (el.dataset.imgs || '').split('|').filter(Boolean).map(function(u){
+      return u.replace(/=w\d+-h\d+[^"]*$/, '=w400-h300-k-no');
+    });
+    if (!imgs.length) return;
+    currentImgs = imgs; currentIdx = 0;
+    renderPreview();
+    positionPreview(e);
+    preview.style.display = 'block';
+  }
+
+  function renderPreview() {
+    const dots = currentImgs.length > 1
+      ? '<div style="display:flex;gap:4px;justify-content:center;margin-top:5px">'
+        + currentImgs.map(function(_, i){
+            return '<span style="width:6px;height:6px;border-radius:50%;background:'+(i===currentIdx?'var(--ac)':'#cbd5e1')+'"></span>';
+          }).join('') + '</div>'
+      : '';
+    preview.innerHTML = '<img src="' + currentImgs[currentIdx] + '" style="width:280px;height:200px;object-fit:cover;border-radius:5px;display:block">'
+      + (currentImgs.length > 1 ? '<div style="font-size:10px;color:var(--tx3);text-align:center;margin-top:4px">'+(currentIdx+1)+'/'+currentImgs.length+' • gulir untuk berikutnya</div>' : '')
+      + dots;
+  }
+
+  function positionPreview(e) {
+    const pad = 14;
+    let x = e.clientX + pad, y = e.clientY + pad;
+    if (x + 310 > window.innerWidth)  x = e.clientX - 310 - pad;
+    if (y + 230 > window.innerHeight) y = e.clientY - 230 - pad;
+    preview.style.left = x + 'px';
+    preview.style.top  = y + 'px';
+  }
+
+  document.addEventListener('mouseover', function(e){
+    const el = e.target.closest('.img-thumb-wrap');
+    if (!el) return;
+    clearTimeout(hideTimer);
+    showPreview(el, e);
+  });
+  document.addEventListener('mousemove', function(e){
+    if (preview.style.display === 'none') return;
+    if (e.target.closest('.img-thumb-wrap')) positionPreview(e);
+  });
+  document.addEventListener('mouseout', function(e){
+    if (!e.target.closest('.img-thumb-wrap')) return;
+    hideTimer = setTimeout(function(){ preview.style.display='none'; }, 120);
+  });
+  document.addEventListener('wheel', function(e){
+    if (preview.style.display === 'none' || currentImgs.length < 2) return;
+    if (!e.target.closest('.img-thumb-wrap')) return;
+    e.preventDefault();
+    currentIdx = (currentIdx + (e.deltaY > 0 ? 1 : -1) + currentImgs.length) % currentImgs.length;
+    renderPreview();
+  }, {passive: false});
 })();
 
 // ── Popular Times hover heatmap ───────────────────────────────────────────────
