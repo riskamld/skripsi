@@ -438,22 +438,31 @@
             <div class="guide-body">
                 <div class="guide-title">Jadwal Scraping Otomatis</div>
                 <div class="guide-desc">
-                    Buka menu <strong>Jadwal Scraping</strong> di sidebar untuk mengatur scraping berjalan sendiri tanpa perlu buka aplikasi.
+                    Buka menu <strong>Jadwal Scraping</strong> di sidebar. Sistem sudah memiliki <strong>410 jadwal pre-konfigurasi</strong> yang berjalan tanpa perlu pengaturan tambahan:
                     <ul>
-                        <li><strong>Tambah Jadwal</strong> — isi nama, kata kunci, area, limit, dan frekuensi</li>
-                        <li><strong>Frekuensi tersedia:</strong> Setiap hari (jam tertentu) / Setiap N jam / Setiap minggu</li>
-                        <li>Toggle aktif/nonaktif per jadwal tanpa perlu hapus</li>
-                        <li>Hasil terakhir (berapa tempat diproses, sukses/gagal) tampil di tabel</li>
+                        <li><strong>56 jadwal Kota</strong> — zoom 13, radius 40km, 8 kata kunci, mencakup 7 kota Jawa Timur (Jember, Lumajang, Bondowoso, Probolinggo, Pasuruan, Sidoarjo, Malang)</li>
+                        <li><strong>354 jadwal Kecamatan</strong> — zoom 15, radius 5km, 3 kata kunci inti, per kecamatan → coverage ~85% wilayah</li>
                     </ul>
-                    <strong>Syarat wajib:</strong> Tambahkan satu baris ke crontab server. Instruksinya tersedia di bagian bawah halaman Jadwal Scraping — cukup salin dan jalankan sekali.
+                    <strong>Kolom Metode</strong> di tabel menampilkan badge <em>Kota</em> atau <em>Kecamatan</em> beserta zoom, radius, dan koordinat pusat pencarian.<br><br>
+                    <strong>Status jadwal (5 warna):</strong>
                     <ul>
-                        <li>Jika scraping manual sedang berjalan saat jadwal tiba → jadwal otomatis dilewati, tidak ada konflik</li>
-                        <li>Jika jadwal sedang berjalan dan user mencoba scraping manual dari FE → sistem menolak dengan pesan peringatan</li>
-                        <li>Tombol <strong style="color:var(--rd)">■ Stop</strong> tersedia di FE untuk menghentikan proses kapan saja</li>
+                        <li><span style="color:#16a34a;font-weight:600">● Selesai</span> — berhasil, ada tempat baru ditemukan</li>
+                        <li><span style="color:#d97706;font-weight:600">● Kosong</span> — selesai tapi 0 tempat baru (area mungkin sudah penuh)</li>
+                        <li><span style="color:#b91c1c;font-weight:600">● Selector Rusak</span> — struktur HTML Google Maps berubah, perlu tindakan</li>
+                        <li><span style="color:var(--rd);font-weight:600">● Error</span> — gagal karena alasan lain</li>
+                        <li><span style="color:var(--tx3);font-weight:600">● Menunggu</span> — belum pernah dijalankan</li>
+                    </ul>
+                    <strong>Perilaku otomatis:</strong>
+                    <ul>
+                        <li>Sistem skip tempat yang sudah ada di DB — tidak ada duplikat hasil</li>
+                        <li>Jadwal <strong>dinonaktifkan otomatis</strong> setelah 3× berturut-turut tidak ada tempat baru — bisa diaktifkan kembali manual via toggle</li>
+                        <li>Jika Google Maps ganti tampilan dan selector rusak → semua jadwal berikutnya dihentikan + alert Telegram dikirim</li>
+                        <li>Klik ikon log di kolom Aksi untuk melihat output scraping secara langsung (live log)</li>
+                        <li>Konflik scraping manual vs jadwal otomatis ditangani otomatis — tidak bisa jalan bersamaan</li>
                     </ul>
                 </div>
                 <div class="tip-box">
-                    <strong>Contoh penggunaan:</strong> Buat jadwal "Toko Buah Surabaya" dengan query <em>toko buah</em>, area <em>Surabaya</em>, limit 30, frekuensi setiap hari jam 06:00 — data baru masuk setiap pagi sebelum Anda mulai kerja.
+                    <strong>Tidak perlu setup tambahan.</strong> Jadwal sudah berjalan otomatis setiap menit via cron. Pantau status di halaman Jadwal Scraping — jika ada baris berwarna merah tua "Selector Rusak", berarti Google Maps berubah dan perlu perhatian teknis.
                 </div>
             </div>
         </div>
@@ -485,16 +494,19 @@
             <div class="guide-body">
                 <div class="guide-title">Notifikasi Telegram</div>
                 <div class="guide-desc">
-                    Buka menu <strong>Telegram</strong> di sidebar. Setelah setup bot, aplikasi mengirim notifikasi otomatis ke HP Anda untuk 9 jenis kejadian:
+                    Buka menu <strong>Telegram</strong> di sidebar. Setelah setup bot, aplikasi mengirim notifikasi otomatis ke HP Anda untuk 12 jenis kejadian:
                     <ul>
                         <li>✅ Scraping selesai — berapa tempat ditemukan</li>
+                        <li>⏰ Jadwal dimulai — jadwal otomatis mulai berjalan</li>
+                        <li>⚠️ Hasil kosong (1/3, 2/3) — peringatan bertahap sebelum auto-disable</li>
+                        <li>🔕 Jadwal dinonaktifkan otomatis — area sudah terjaring penuh, 3× berturut kosong</li>
+                        <li>🚨 Selector rusak — Google Maps ganti struktur, scraping dihentikan</li>
                         <li>❌ Scraper error — peringatan jika proses gagal</li>
                         <li>📱 Cek WA selesai — hasil batch pengecekan</li>
                         <li>📤 Pesan WA terkirim — konfirmasi outreach + sisa limit hari ini</li>
                         <li>⚠️ Limit harian tercapai — 50 pesan/hari sudah habis</li>
                         <li>🎯 Ada yang tertarik — notif instan saat prospek berminat</li>
                         <li>🛒 Order baru masuk — saat order dicatat di detail tempat</li>
-                        <li>🔍 Duplikat terdeteksi — saat cek duplikat menemukan nomor ganda</li>
                         <li>📊 Ringkasan harian — laporan statistik otomatis tiap pagi</li>
                     </ul>
                     Setiap notif bisa diaktifkan/nonaktifkan secara terpisah. Tombol <strong>Uji Kirim</strong> tersedia untuk test koneksi sebelum digunakan.

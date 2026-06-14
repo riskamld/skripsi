@@ -5,12 +5,17 @@ Sistem scraping Google Maps otomatis untuk akuisisi data bisnis lokal. Mengumpul
 ## Fitur Utama
 
 - **Scraping Google Maps** — kumpulkan data bisnis berdasarkan keyword & lokasi
+- **Jadwal otomatis** — 410 jadwal pre-konfigurasi (56 kota + 354 kecamatan, 7 kota Jawa Timur), berjalan tanpa campur tangan manual
+- **Grid kecamatan** — zoom 15 (radius 5km) per kecamatan untuk coverage ~85% wilayah
+- **Deduplication** — skip tempat yang sudah ada di DB secara otomatis sebelum scraping
+- **Selector health check** — deteksi otomatis jika struktur DOM Google Maps berubah (SELECTOR_BROKEN), hentikan jadwal & kirim alert
+- **Auto-disable jadwal** — jadwal dinonaktifkan otomatis setelah 3× berturut-turut tidak ada tempat baru
 - **Rescraper** — perbarui data tempat yang sudah ada (rating, jam buka, kontak terbaru)
 - **Peta interaktif** — visualisasi semua tempat hasil scrape dengan marker kategori
 - **Filter & pencarian** — filter berdasarkan kategori, rating, kota
 - **Market analysis** — analisis distribusi bisnis per kategori dan area
 - **API token** — akses data via REST API dengan autentikasi token
-- **Log scraping** — riwayat setiap sesi scraping dengan status dan jumlah data
+- **Log scraping** — riwayat setiap sesi scraping dengan status dan jumlah data; log live bisa dibuka dari halaman jadwal
 
 ## Tech Stack
 
