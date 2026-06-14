@@ -265,22 +265,33 @@ class ScraperController extends Controller
         $logFile = storage_path('logs/photo-update-all.log');
         if (file_exists($logFile)) {
             $lines = file($logFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [];
-            $processed = 0; $photoTotal = 0; $startTime = null;
+            $batchDone   = 0; // total selesai di batch-batch sebelumnya
+            $photoTotal  = 0;
+            $batchCurrent = 0; // progress dalam batch aktif saat ini
+            $batchSize   = 50;
+
             foreach ($lines as $line) {
+                // "total diproses: N/2000" → muncul di awal tiap batch baru
                 if (preg_match('/total diproses:\s*(\d+)\/(\d+)/u', $line, $m)) {
-                    $processed  = (int) $m[1];
+                    $batchDone  = (int) $m[1];
                     $photoTotal = (int) $m[2];
+                    $batchCurrent = 0; // reset counter batch baru
                 }
-                if ($startTime === null && preg_match('/Mulai rescraping/', $line)) {
-                    $startTime = filemtime($logFile) - (count($lines) * 0); // fallback
+                // "[X/50]" → progress item dalam batch aktif
+                if (preg_match('/^\[(\d+)\/(\d+)\]/', $line, $m)) {
+                    $batchCurrent = (int) $m[1];
+                    $batchSize    = (int) $m[2];
                 }
             }
-            // estimasi dari mtime log awal
+
+            $processed = $batchDone + $batchCurrent;
             $startTime = filectime($logFile);
             $elapsed   = max(1, time() - $startTime);
-            $speed     = $processed > 0 ? $elapsed / $processed : 0;
-            $remaining = $photoTotal > $processed ? round($speed * ($photoTotal - $processed) / 60) : 0;
-            $pct       = $photoTotal > 0 ? round($processed / $photoTotal * 100, 1) : 0;
+            $speed     = $processed > 0 ? $elapsed / $processed : 0; // detik/item
+            $remaining = ($photoTotal > $processed && $speed > 0)
+                ? round($speed * ($photoTotal - $processed) / 60)
+                : 0;
+            $pct = $photoTotal > 0 ? round($processed / $photoTotal * 100, 1) : 0;
 
             $photoProgress = [
                 'processed'   => $processed,
@@ -288,7 +299,6 @@ class ScraperController extends Controller
                 'pct'         => $pct,
                 'eta_minutes' => $remaining,
                 'running'     => $running,
-                'log_size'    => filesize($logFile),
             ];
         }
 

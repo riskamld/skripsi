@@ -17,7 +17,7 @@
 <div class="card" style="margin-bottom:16px">
   <div class="card-header">
     <span><i class="fas fa-clock"></i> Jadwal Aktif</span>
-    <span style="font-size:11.5px;color:var(--tx2)">Auto-refresh setiap 20 detik &bull; <span id="next-refresh">20</span>d</span>
+    <span style="font-size:11.5px;color:var(--tx2)">Auto-refresh setiap 20 detik &bull; <span id="next-refresh">20</span> dtk</span>
   </div>
 
   @if($schedules->isEmpty())
