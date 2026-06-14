@@ -15,6 +15,7 @@ const API_BASE    = 'https://fezora.net/mafaza/public/api';
 const API_TOKEN   = process.env.MAFAZA_API_TOKEN || '';
 const HEADLESS    = process.env.HEADLESS !== 'false';
 const TOTAL       = parseInt(process.env.LIMIT || '20');
+const MODE        = process.env.RESCRAPE_MODE || '';
 const BATCH       = 50;
 const DELAY_MIN   = 1200;
 const DELAY_MAX   = 2800;
@@ -53,7 +54,8 @@ function apiRequest(method, path, body = null) {
 }
 
 async function fetchBatch(limit) {
-  const res = await apiRequest('GET', `/places/needs-rescrape?limit=${limit}`);
+  const modeParam = MODE ? `&mode=${MODE}` : '';
+  const res = await apiRequest('GET', `/places/needs-rescrape?limit=${limit}${modeParam}`);
   if (res.status !== 200 || !res.body?.data) throw new Error(`API ${res.status}`);
   return res.body.data;
 }
