@@ -61,4 +61,27 @@ class ScraperScheduleController extends Controller
         $scrapeSchedule->update(['enabled' => !$scrapeSchedule->enabled]);
         return response()->json(['status' => 'ok', 'enabled' => $scrapeSchedule->enabled]);
     }
+
+    public function log(ScrapeSchedule $scrapeSchedule)
+    {
+        $file = $scrapeSchedule->current_log_file;
+        if (!$file || !file_exists($file)) {
+            return response()->json(['content' => '', 'running' => $scrapeSchedule->is_running]);
+        }
+        $lines = file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [];
+        return response()->json([
+            'content' => implode("\n", array_slice($lines, -300)),
+            'running' => $scrapeSchedule->is_running,
+            'processed' => collect($lines)->reduce(function ($carry, $line) {
+                preg_match('/^\[(\d+)\/\d+\]/', $line, $m);
+                return $m ? (int) $m[1] : $carry;
+            }, 0),
+        ]);
+    }
+
+    public function status()
+    {
+        $rows = ScrapeSchedule::select('id', 'name', 'is_running', 'last_run_at', 'last_result')->get();
+        return response()->json($rows);
+    }
 }

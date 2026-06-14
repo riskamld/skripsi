@@ -39,6 +39,8 @@ Route::post('/jadwal-scraping', [ScraperScheduleController::class, 'store'])->na
 Route::put('/jadwal-scraping/{scrapeSchedule}', [ScraperScheduleController::class, 'update'])->name('scraper-schedule.update');
 Route::delete('/jadwal-scraping/{scrapeSchedule}', [ScraperScheduleController::class, 'destroy'])->name('scraper-schedule.destroy');
 Route::post('/jadwal-scraping/{scrapeSchedule}/toggle', [ScraperScheduleController::class, 'toggle'])->name('scraper-schedule.toggle');
+Route::get('/jadwal-scraping/status', [ScraperScheduleController::class, 'status'])->name('scraper-schedule.status');
+Route::get('/jadwal-scraping/{scrapeSchedule}/log', [ScraperScheduleController::class, 'log'])->name('scraper-schedule.log');
 
 // Telegram
 Route::get('/telegram', [TelegramController::class, 'index'])->name('telegram.index');

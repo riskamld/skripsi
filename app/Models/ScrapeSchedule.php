@@ -9,11 +9,13 @@ class ScrapeSchedule extends Model
     protected $fillable = [
         'name', 'query', 'area', 'limit', 'frequency',
         'interval_hours', 'run_hour', 'day_of_week',
-        'enabled', 'last_run_at', 'last_result',
+        'enabled', 'is_running', 'current_log_file',
+        'last_run_at', 'last_result',
     ];
 
     protected $casts = [
         'enabled'     => 'boolean',
+        'is_running'  => 'boolean',
         'last_run_at' => 'datetime',
         'last_result' => 'array',
         'limit'       => 'integer',

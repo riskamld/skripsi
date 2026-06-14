@@ -58,7 +58,7 @@ class RunScheduledScraper extends Command
                  . " && echo '__DONE_OK__' >> " . escapeshellarg($logFile)
                  . " || echo '__DONE_ERROR__' >> " . escapeshellarg($logFile);
 
-            $schedule->update(['last_run_at' => now()]);
+            $schedule->update(['last_run_at' => now(), 'is_running' => true, 'current_log_file' => $logFile]);
             $telegram->notifyScheduledStart($schedule->name, $schedule->query);
 
             // Jalankan sinkron — command menunggu hingga selesai
@@ -75,7 +75,7 @@ class RunScheduledScraper extends Command
             $success = str_contains($logContent, '__DONE_OK__');
             $result  = ['status' => $success ? 'success' : 'error', 'processed' => $processed, 'job_id' => $jobId];
 
-            $schedule->update(['last_result' => $result]);
+            $schedule->update(['last_result' => $result, 'is_running' => false]);
 
             if ($success) {
                 $totalDb = Place::count();
