@@ -16,6 +16,9 @@ Route::delete('/places/delete-today', [PlaceController::class, 'deleteScrapedTod
 Route::get('/places/needs-rescrape', [PlaceController::class, 'needsRescrape'])
     ->middleware(\App\Http\Middleware\ApiTokenAuth::class);
 
+Route::get('/places/existing-ids', [PlaceController::class, 'existingIds'])
+    ->middleware(\App\Http\Middleware\ApiTokenAuth::class);
+
 Route::patch('/places/{id}', [PlaceController::class, 'update'])
     ->middleware(\App\Http\Middleware\ApiTokenAuth::class);
 

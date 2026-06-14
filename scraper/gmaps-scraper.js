@@ -22,6 +22,9 @@ const CONFIG = {
   slowMo: parseInt(process.env.SLOW_MO || "0"),
 };
 
+// URL endpoint existing-ids (sama base dengan apiUrl)
+CONFIG.existingIdsUrl = CONFIG.apiUrl.replace(/\/places$/, '/places/existing-ids');
+
 // ── CLI Args ─────────────────────────────────────────────────────────────────
 const args = process.argv.slice(2);
 const query = args[0] || "toko buah";
@@ -96,6 +99,33 @@ function cleanText(str) {
     .replace(/[​-‍﻿]/g, "") // Zero-width chars
     .replace(/\s{2,}/g, " ")            // Spasi ganda jadi satu
     .trim();
+}
+
+// Ambil place_id yang sudah ada di DB untuk area ini
+async function fetchExistingIds(area) {
+  return new Promise((resolve) => {
+    if (!area || !CONFIG.apiToken) return resolve(new Set());
+    const url = new URL(CONFIG.existingIdsUrl + '?area=' + encodeURIComponent(area));
+    const isHttps = url.protocol === 'https:';
+    const lib = isHttps ? https : http;
+    const options = {
+      hostname: url.hostname,
+      port: url.port || (isHttps ? 443 : 80),
+      path: url.pathname + url.search,
+      method: 'GET',
+      headers: { 'X-API-Token': CONFIG.apiToken },
+    };
+    const req = lib.request(options, (res) => {
+      let body = '';
+      res.on('data', (c) => (body += c));
+      res.on('end', () => {
+        try { resolve(new Set(JSON.parse(body).place_ids || [])); }
+        catch { resolve(new Set()); }
+      });
+    });
+    req.on('error', () => resolve(new Set()));
+    req.end();
+  });
 }
 
 async function postToApi(place) {
@@ -493,10 +523,20 @@ async function scrape() {
 
     console.log(`✅ Ditemukan ${placeLinks.length} link tempat\n`);
 
-    // Buka tiap tempat
-    for (let i = 0; i < placeLinks.length; i++) {
-      const url = placeLinks[i];
-      console.log(`[${i + 1}/${placeLinks.length}] Buka detail...`);
+    // Filter: lewati place_id yang sudah ada di DB
+    let existingIds = new Set();
+    if (!isDryRun && area) {
+      existingIds = await fetchExistingIds(area);
+      console.log(`📂 DB sudah punya ${existingIds.size} tempat di area "${area}"`);
+    }
+    const newLinks    = placeLinks.filter(u => !existingIds.has(extractPlaceIdFromUrl(u)));
+    const skippedCount = placeLinks.length - newLinks.length;
+    if (skippedCount > 0) console.log(`⏭  Skip ${skippedCount} tempat (sudah di DB) → proses ${newLinks.length} tempat baru\n`);
+
+    // Buka tiap tempat baru
+    for (let i = 0; i < newLinks.length; i++) {
+      const url = newLinks[i];
+      console.log(`[${i + 1}/${newLinks.length}] Buka detail...`);
 
       try {
         await page.goto(url, { waitUntil: "domcontentloaded", timeout: 20000 });

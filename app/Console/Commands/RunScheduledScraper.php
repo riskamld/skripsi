@@ -7,6 +7,7 @@ use App\Models\Place;
 use App\Models\ScrapeSchedule;
 use App\Services\TelegramService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class RunScheduledScraper extends Command
 {
@@ -20,6 +21,9 @@ class RunScheduledScraper extends Command
             $this->warn('Scraper sedang berjalan, jadwal dilewati.');
             return;
         }
+
+        // Reset is_running stale dari crash sebelumnya
+        ScrapeSchedule::where('is_running', true)->update(['is_running' => false]);
 
         $schedules = ScrapeSchedule::where('enabled', true)->get();
 
@@ -65,8 +69,11 @@ class RunScheduledScraper extends Command
             $schedule->update(['last_run_at' => now(), 'is_running' => true, 'current_log_file' => $logFile]);
             $telegram->notifyScheduledStart($schedule->name, $schedule->query);
 
-            // Jalankan sinkron — command menunggu hingga selesai
+            // Jalankan sinkron — command menunggu hingga selesai (~20-30 menit)
             exec($cmd, $out, $exitCode);
+
+            // Reconnect MySQL — koneksi bisa timeout selama exec() panjang
+            try { DB::statement('SELECT 1'); } catch (\Exception $e) { DB::reconnect(); }
 
             $logContent = file_exists($logFile) ? file_get_contents($logFile) : '';
             $processed  = 0;

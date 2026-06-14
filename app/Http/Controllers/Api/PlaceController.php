@@ -238,4 +238,16 @@ class PlaceController extends Controller
             ], 500);
         }
     }
+
+    // Kembalikan daftar place_id yang sudah ada di DB untuk area tertentu
+    // Dipakai scraper untuk skip tempat yang sudah pernah discrape
+    public function existingIds(Request $request)
+    {
+        $area = trim($request->query('area', ''));
+        $query = Place::query()->select('place_id')->whereNotNull('place_id');
+        if ($area !== '') {
+            $query->where('address', 'like', "%{$area}%");
+        }
+        return response()->json(['place_ids' => $query->pluck('place_id')]);
+    }
 }

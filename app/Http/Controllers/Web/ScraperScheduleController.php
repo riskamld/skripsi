@@ -81,7 +81,26 @@ class ScraperScheduleController extends Controller
 
     public function status()
     {
-        $rows = ScrapeSchedule::select('id', 'name', 'is_running', 'last_run_at', 'last_result')->get();
-        return response()->json($rows);
+        $rows = ScrapeSchedule::select('id', 'name', 'query', 'area', 'is_running', 'last_run_at', 'last_result')->get();
+
+        // Deteksi dari OS — lebih andal daripada is_running di DB
+        // Format sh -c: '...gmaps-scraper.js' 'query words' 'area' limit >>
+        $runningId = null;
+        $pgrep = trim(shell_exec('pgrep -af "[g]maps-scraper.js" 2>/dev/null') ?? '');
+        if ($pgrep && preg_match("/'([^']+)'\s+'([^']+)'\s+\d+\s*>>/", $pgrep, $m)) {
+            $rq = mb_strtolower(trim($m[1]));
+            $ra = mb_strtolower(trim($m[2]));
+            $match = $rows->first(fn($r) =>
+                mb_strtolower($r->query ?? '') === $rq &&
+                mb_strtolower($r->area  ?? '') === $ra
+            );
+            if ($match) $runningId = $match->id;
+        }
+
+        return response()->json($rows->map(function ($r) use ($runningId) {
+            $arr = $r->toArray();
+            $arr['is_running'] = $r->id === $runningId;
+            return $arr;
+        })->values());
     }
 }
