@@ -296,8 +296,8 @@ async function pollStatus() {
         statusCell.innerHTML = '<span style="color:var(--tx3);font-size:12px"><i class="fas fa-clock"></i> Menunggu</span>';
       }
 
-      // hasil cell (col 5)
-      const hasilCell = row.cells[5];
+      // hasil cell (col 6 — setelah tambah kolom Metode)
+      const hasilCell = row.cells[6];
       if (isRunning) {
         hasilCell.innerHTML = '<span style="color:var(--ac);font-size:12px">sedang berjalan...</span>';
       } else if (r.last_result) {
@@ -309,9 +309,9 @@ async function pollStatus() {
         hasilCell.innerHTML = '<span style="color:var(--tx3)">—</span>';
       }
 
-      // terakhir jalan cell (col 4)
+      // terakhir jalan cell (col 5)
       if (r.last_run_at) {
-        row.cells[4].innerHTML = `<span style="font-size:12px;color:var(--tx2)">${timeAgo(r.last_run_at)}</span>`;
+        row.cells[5].innerHTML = `<span style="font-size:12px;color:var(--tx2)">${timeAgo(r.last_run_at)}</span>`;
       }
     });
 
