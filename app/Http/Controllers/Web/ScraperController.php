@@ -259,14 +259,48 @@ class ScraperController extends Controller
         $hasPt    = \DB::selectOne('SELECT COUNT(*) as c FROM places WHERE popular_times IS NOT NULL AND popular_times != JSON_ARRAY()')->c;
         $noPt     = $scraped - $hasPt;
         $running  = !empty(trim(shell_exec('pgrep -f "[g]maps-rescraper" 2>/dev/null') ?? ''));
+
+        // Photo update progress — baca log file
+        $photoProgress = null;
+        $logFile = storage_path('logs/photo-update-all.log');
+        if (file_exists($logFile)) {
+            $lines = file($logFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [];
+            $processed = 0; $photoTotal = 0; $startTime = null;
+            foreach ($lines as $line) {
+                if (preg_match('/total diproses:\s*(\d+)\/(\d+)/u', $line, $m)) {
+                    $processed  = (int) $m[1];
+                    $photoTotal = (int) $m[2];
+                }
+                if ($startTime === null && preg_match('/Mulai rescraping/', $line)) {
+                    $startTime = filemtime($logFile) - (count($lines) * 0); // fallback
+                }
+            }
+            // estimasi dari mtime log awal
+            $startTime = filectime($logFile);
+            $elapsed   = max(1, time() - $startTime);
+            $speed     = $processed > 0 ? $elapsed / $processed : 0;
+            $remaining = $photoTotal > $processed ? round($speed * ($photoTotal - $processed) / 60) : 0;
+            $pct       = $photoTotal > 0 ? round($processed / $photoTotal * 100, 1) : 0;
+
+            $photoProgress = [
+                'processed'   => $processed,
+                'total'       => $photoTotal,
+                'pct'         => $pct,
+                'eta_minutes' => $remaining,
+                'running'     => $running,
+                'log_size'    => filesize($logFile),
+            ];
+        }
+
         return response()->json([
-            'total'   => $total,
-            'scraped' => $scraped,
-            'has_pt'  => $hasPt,
-            'no_pt'   => $noPt,
-            'pending' => $total - $scraped,
-            'pct'     => $total > 0 ? round($scraped / $total * 100, 1) : 0,
-            'running' => $running,
+            'total'          => $total,
+            'scraped'        => $scraped,
+            'has_pt'         => $hasPt,
+            'no_pt'          => $noPt,
+            'pending'        => $total - $scraped,
+            'pct'            => $total > 0 ? round($scraped / $total * 100, 1) : 0,
+            'running'        => $running,
+            'photo_progress' => $photoProgress,
         ]);
     }
 

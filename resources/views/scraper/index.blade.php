@@ -295,6 +295,32 @@
     </div>
 </div>
 
+{{-- Photo update progress --}}
+<div class="card" style="margin-top:16px" id="photo-update-card" style="display:none">
+    <div class="card-header d-flex align-center justify-between">
+        <span style="font-weight:600;font-size:13px">
+            <i class="fas fa-images" style="color:#7c3aed;margin-right:6px"></i>Update Foto Massal
+            <span id="pu-dot" style="display:none;margin-left:6px;width:8px;height:8px;border-radius:50%;background:#d29922;animation:pulse 1s infinite;display:inline-block;vertical-align:middle"></span>
+        </span>
+        <span id="pu-badge" class="text-xs text-muted"></span>
+    </div>
+    <div class="card-body" style="padding:12px 16px">
+        <div style="display:flex;gap:20px;margin-bottom:10px;flex-wrap:wrap">
+            <div><div class="text-xs text-muted">Diproses</div><div class="fw-700 text-ac" id="pu-done">—</div></div>
+            <div><div class="text-xs text-muted">Total</div><div class="fw-700" id="pu-total">—</div></div>
+            <div><div class="text-xs text-muted">Sisa</div><div class="fw-700" style="color:var(--or)" id="pu-remain">—</div></div>
+            <div><div class="text-xs text-muted">Estimasi Selesai</div><div class="fw-700" style="color:var(--tx2)" id="pu-eta">—</div></div>
+        </div>
+        <div style="background:var(--bdr);border-radius:4px;height:8px;overflow:hidden">
+            <div id="pu-bar" style="height:100%;background:#7c3aed;border-radius:4px;width:0%;transition:width .4s"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:11px;color:var(--tx3)">
+            <span id="pu-pct">0%</span>
+            <span id="pu-speed"></span>
+        </div>
+    </div>
+</div>
+
 {{-- Rescrape incomplete data --}}
 <div class="card" style="margin-top:16px" id="rescrape-card">
     <div class="card-header d-flex align-center justify-between">
@@ -944,6 +970,36 @@ async function loadPtProgress() {
 }
 loadPtProgress();
 ptPollTimer = setInterval(loadPtProgress, 30000);
+
+// ── Photo update progress ─────────────────────────────────────────────────────
+async function loadPhotoProgress() {
+    try {
+        const d = await fetch('{{ route("scraper.rescrape-progress") }}').then(r => r.json());
+        const pp = d.photo_progress;
+        const card = document.getElementById('photo-update-card');
+        if (!pp || pp.total === 0) { card.style.display = 'none'; return; }
+        card.style.display = 'block';
+        $('pu-done').textContent   = pp.processed.toLocaleString();
+        $('pu-total').textContent  = pp.total.toLocaleString();
+        $('pu-remain').textContent = (pp.total - pp.processed).toLocaleString();
+        $('pu-bar').style.width    = pp.pct + '%';
+        $('pu-pct').textContent    = pp.pct + '%';
+        const etaH = Math.floor(pp.eta_minutes / 60);
+        const etaM = pp.eta_minutes % 60;
+        $('pu-eta').textContent = pp.eta_minutes > 0
+            ? (etaH > 0 ? `~${etaH}j ${etaM}m` : `~${etaM} menit`)
+            : (pp.processed >= pp.total ? 'Selesai' : '—');
+        $('pu-dot').style.display = pp.running ? 'inline-block' : 'none';
+        $('pu-badge').innerHTML = pp.running
+            ? '<span style="color:#d29922"><i class="fas fa-circle-notch fa-spin"></i> Sedang berjalan…</span>'
+            : (pp.processed >= pp.total
+                ? '<span style="color:#22c55e"><i class="fas fa-check-circle"></i> Selesai</span>'
+                : '<span style="color:var(--tx3)">Dijeda / Tidak berjalan</span>');
+        const secs = pp.processed > 0 ? Math.round(pp.log_size / pp.processed) : 0;
+    } catch(e) {}
+}
+loadPhotoProgress();
+setInterval(loadPhotoProgress, 15000);
 
 // ── Heatmap (Fitur 7) ────────────────────────────────────────────────────────
 let heatLayer = null, heatActive = false;
