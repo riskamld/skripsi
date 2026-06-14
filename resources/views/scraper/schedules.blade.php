@@ -270,7 +270,7 @@ function startRefreshCountdown() {
   refreshTimer = setInterval(() => {
     refreshCountdown--;
     const el = document.getElementById('next-refresh');
-    if (el) el.textContent = refreshCountdown + 'd';
+    if (el) el.textContent = refreshCountdown;
     if (refreshCountdown <= 0) {
       refreshCountdown = 20;
       pollStatus();
