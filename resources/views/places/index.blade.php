@@ -162,7 +162,9 @@
                             @php
                                 $imgThumb = preg_replace('/=w\d+-h\d+[^"]*$/', '=w48-h48-k-no', $place->image_1);
                                 $imgBig   = preg_replace('/=w\d+-h\d+[^"]*$/', '=w400-h300-k-no', $place->image_1);
-                                $imgCount = collect([$place->image_1,$place->image_2,$place->image_3,$place->image_4])->filter()->count();
+                                // dedup by hash (sebelum =w) agar badge tidak hitung foto duplikat
+                                $imgCount = collect([$place->image_1,$place->image_2,$place->image_3,$place->image_4])
+                                    ->filter()->unique(fn($u) => explode('=', $u)[0])->count();
                             @endphp
                             <div class="img-thumb-wrap" data-img="{{ $imgBig }}"
                                  data-imgs="{{ implode('|', array_filter([$place->image_1,$place->image_2,$place->image_3,$place->image_4])) }}"
@@ -428,9 +430,12 @@ document.getElementById('deselAll').addEventListener('click', function(){
   let currentImgs = [], currentIdx = 0, hideTimer, isOver = false;
 
   function showPreview(el, e) {
-    const imgs = (el.dataset.imgs || '').split('|').filter(Boolean).map(function(u){
-      return u.replace(/=w\d+-h\d+[^"]*$/, '=w400-h300-k-no');
-    });
+    const seen = new Set();
+    const imgs = (el.dataset.imgs || '').split('|').filter(Boolean).reduce(function(acc, u){
+      const hash = u.split('=')[0];
+      if (!seen.has(hash)) { seen.add(hash); acc.push(u.replace(/=w\d+-h\d+[^"]*$/, '=w400-h300-k-no')); }
+      return acc;
+    }, []);
     if (!imgs.length) return;
     currentImgs = imgs; currentIdx = 0;
     renderPreview();
