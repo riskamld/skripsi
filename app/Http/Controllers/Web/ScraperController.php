@@ -260,29 +260,27 @@ class ScraperController extends Controller
         $noPt     = $scraped - $hasPt;
         $rescrapeRunning = !empty(trim(shell_exec('pgrep -f "[g]maps-rescraper" 2>/dev/null') ?? ''));
 
-        // Photo update progress — baca log file
+        // Photo update progress — baca log file aktif (retry dulu, fallback ke all)
         $photoProgress  = null;
         $photoRunning   = false;
-        $logFile = storage_path('logs/photo-update-all.log');
+        $logFile = file_exists(storage_path('logs/photo-update-retry.log')) &&
+                   filesize(storage_path('logs/photo-update-retry.log')) > 100
+                   ? storage_path('logs/photo-update-retry.log')
+                   : storage_path('logs/photo-update-all.log');
         if (file_exists($logFile)) {
             $lines = file($logFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [];
-            $batchDone    = 0;
-            $batchCurrent = 0;
-            $batchSize    = 50;
+            $processed   = 0;
+            $limitTotal  = 0;
 
             foreach ($lines as $line) {
-                if (preg_match('/total diproses:\s*(\d+)\/\d+/u', $line, $m)) {
-                    $batchDone    = (int) $m[1];
-                    $batchCurrent = 0;
-                }
+                // [X/Y] — X adalah posisi absolut, langsung pakai
                 if (preg_match('/^\[(\d+)\/(\d+)\]/', $line, $m)) {
-                    $batchCurrent = (int) $m[1];
-                    $batchSize    = (int) $m[2];
+                    $processed  = (int) $m[1];
+                    $limitTotal = (int) $m[2];
                 }
             }
 
-            $photoTotal = Place::count(); // pakai count DB, bukan LIMIT
-            $processed  = $batchDone + $batchCurrent;
+            $photoTotal = $limitTotal ?: Place::count();
             $photoRunning = $rescrapeRunning;
 
             // Elapsed dari start time proses rescraper — parse format "Sun Jun 14 13:23:54 2026"
