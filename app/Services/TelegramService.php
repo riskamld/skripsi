@@ -117,6 +117,19 @@ class TelegramService
         $this->send("⏰ <b>Jadwal Scraping Dimulai</b>\n📌 Jadwal: <b>{$name}</b>\n🔍 Query: {$query}");
     }
 
+    public function notifySelectorBroken(string $name, string $query): void
+    {
+        if (!$this->isEnabled('notif_scraper_error')) return;
+        $this->send("🚨 <b>SELECTOR RUSAK!</b>\n📌 Jadwal: <b>{$name}</b>\n🔍 Query: {$query}\n\nGoogle Maps kemungkinan ganti struktur DOM-nya.\nScraping otomatis dihentikan sampai scraper diperbaiki.");
+    }
+
+    public function notifyEmptyResult(string $name, string $query, string $area): void
+    {
+        if (!$this->isEnabled('notif_scraper_error')) return;
+        $area = $area ? " — {$area}" : '';
+        $this->send("⚠️ <b>Hasil Scraping Kosong</b>\n📌 Jadwal: <b>{$name}</b>\n🔍 {$query}{$area}\n\n0 tempat baru ditemukan. Mungkin area sudah terjaring semua atau query terlalu spesifik.");
+    }
+
     public function sendDailySummary(): void
     {
         if (!$this->isEnabled('notif_daily_summary')) return;

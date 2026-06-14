@@ -45,7 +45,9 @@
         @foreach($schedules as $s)
         @php
           $res      = $s->last_result;
-          $resOk    = $res && ($res['status'] ?? '') === 'success';
+          $resStatus = $res['status'] ?? '';
+          $resOk    = $resStatus === 'success';
+          $resBroken = $resStatus === 'selector_broken';
           $isKec    = $s->isKecamatanLevel();
           $radiusKm = $s->radiusKm();
         @endphp
@@ -53,8 +55,12 @@
           <td style="padding:10px 14px;white-space:nowrap">
             @if($s->is_running)
               <span class="badge-running"><span class="pulse-dot"></span> Running</span>
+            @elseif($resBroken)
+              <span style="color:#b91c1c;font-size:12px" title="Selector HTML Google Maps berubah — scraper perlu diperbaiki"><i class="fas fa-exclamation-triangle"></i> Selector Rusak</span>
             @elseif($res)
-              @if($resOk)
+              @if($resOk && ($res['processed'] ?? 0) === 0)
+                <span style="color:#d97706;font-size:12px" title="Scraper jalan tapi tidak ada tempat baru ditemukan"><i class="fas fa-exclamation-circle"></i> Kosong</span>
+              @elseif($resOk)
                 <span style="color:var(--gn);font-size:12px"><i class="fas fa-check-circle"></i> Selesai</span>
               @else
                 <span style="color:var(--rd);font-size:12px"><i class="fas fa-times-circle"></i> Error</span>
@@ -92,8 +98,12 @@
           <td style="padding:10px 14px;font-size:12px">
             @if($s->is_running)
               <span style="color:var(--ac);font-size:12px">sedang berjalan...</span>
+            @elseif($resBroken)
+              <span style="color:#b91c1c;font-size:11px">DOM berubah</span>
             @elseif($res)
-              @if($resOk)
+              @if($resOk && ($res['processed'] ?? 0) === 0)
+                <span style="color:#d97706">0 tempat baru</span>
+              @elseif($resOk)
                 <span style="color:var(--gn)">{{ $res['processed'] ?? 0 }} tempat</span>
               @else
                 <span style="color:var(--rd)">Gagal</span>
@@ -285,13 +295,17 @@ async function pollStatus() {
 
       // status cell (col 0)
       const statusCell = row.cells[0];
+      const st = r.last_result?.status ?? '';
       if (isRunning) {
         statusCell.innerHTML = '<span class="badge-running"><span class="pulse-dot"></span> Running</span>';
-      } else if (r.last_result) {
-        const ok = r.last_result.status === 'success';
-        statusCell.innerHTML = ok
-          ? '<span style="color:var(--gn);font-size:12px"><i class="fas fa-check-circle"></i> Selesai</span>'
-          : '<span style="color:var(--rd);font-size:12px"><i class="fas fa-times-circle"></i> Error</span>';
+      } else if (st === 'selector_broken') {
+        statusCell.innerHTML = '<span style="color:#b91c1c;font-size:12px" title="Selector HTML Google Maps berubah"><i class="fas fa-exclamation-triangle"></i> Selector Rusak</span>';
+      } else if (st === 'success' && (r.last_result?.processed ?? 0) === 0) {
+        statusCell.innerHTML = '<span style="color:#d97706;font-size:12px" title="Tidak ada tempat baru ditemukan"><i class="fas fa-exclamation-circle"></i> Kosong</span>';
+      } else if (st === 'success') {
+        statusCell.innerHTML = '<span style="color:var(--gn);font-size:12px"><i class="fas fa-check-circle"></i> Selesai</span>';
+      } else if (st === 'error') {
+        statusCell.innerHTML = '<span style="color:var(--rd);font-size:12px"><i class="fas fa-times-circle"></i> Error</span>';
       } else {
         statusCell.innerHTML = '<span style="color:var(--tx3);font-size:12px"><i class="fas fa-clock"></i> Menunggu</span>';
       }
@@ -300,11 +314,14 @@ async function pollStatus() {
       const hasilCell = row.cells[6];
       if (isRunning) {
         hasilCell.innerHTML = '<span style="color:var(--ac);font-size:12px">sedang berjalan...</span>';
-      } else if (r.last_result) {
-        const ok = r.last_result.status === 'success';
-        hasilCell.innerHTML = ok
-          ? `<span style="color:var(--gn)">${r.last_result.processed ?? 0} tempat</span>`
-          : '<span style="color:var(--rd)">Gagal</span>';
+      } else if (st === 'selector_broken') {
+        hasilCell.innerHTML = '<span style="color:#b91c1c;font-size:11px">DOM berubah</span>';
+      } else if (st === 'success' && (r.last_result?.processed ?? 0) === 0) {
+        hasilCell.innerHTML = '<span style="color:#d97706">0 tempat baru</span>';
+      } else if (st === 'success') {
+        hasilCell.innerHTML = `<span style="color:var(--gn)">${r.last_result.processed ?? 0} tempat</span>`;
+      } else if (st === 'error') {
+        hasilCell.innerHTML = '<span style="color:var(--rd)">Gagal</span>';
       } else {
         hasilCell.innerHTML = '<span style="color:var(--tx3)">—</span>';
       }

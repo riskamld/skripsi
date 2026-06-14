@@ -83,15 +83,27 @@ class RunScheduledScraper extends Command
                 }
             }
 
-            $success = str_contains($logContent, '__DONE_OK__');
-            $result  = ['status' => $success ? 'success' : 'error', 'processed' => $processed, 'job_id' => $jobId];
+            $selectorBroken = str_contains($logContent, 'SELECTOR_BROKEN');
+            $success        = !$selectorBroken && str_contains($logContent, '__DONE_OK__');
+            $status         = $selectorBroken ? 'selector_broken' : ($success ? 'success' : 'error');
+            $result         = ['status' => $status, 'processed' => $processed, 'job_id' => $jobId];
 
             $schedule->update(['last_result' => $result, 'is_running' => false]);
 
-            if ($success) {
-                $totalDb = Place::count();
-                $telegram->notifyScrapeDone($schedule->query, $schedule->area ?? '', $processed, $totalDb);
-                $this->info("Selesai: {$processed} tempat diproses.");
+            if ($selectorBroken) {
+                $telegram->notifySelectorBroken($schedule->name, $schedule->query);
+                $this->error("SELECTOR RUSAK: {$schedule->name} — scraping dihentikan.");
+                // Hentikan semua jadwal berikutnya — semua akan gagal dengan masalah yang sama
+                break;
+            } elseif ($success) {
+                if ($processed === 0) {
+                    $telegram->notifyEmptyResult($schedule->name, $schedule->query, $schedule->area ?? '');
+                    $this->warn("Selesai tapi 0 tempat: {$schedule->name}");
+                } else {
+                    $totalDb = Place::count();
+                    $telegram->notifyScrapeDone($schedule->query, $schedule->area ?? '', $processed, $totalDb);
+                    $this->info("Selesai: {$processed} tempat diproses.");
+                }
             } else {
                 $telegram->notifyScraperError($schedule->query, 'Scraper exit non-zero');
                 $this->error("Gagal: {$schedule->name}");

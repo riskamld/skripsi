@@ -534,6 +534,7 @@ async function scrape() {
     if (skippedCount > 0) console.log(`⏭  Skip ${skippedCount} tempat (sudah di DB) → proses ${newLinks.length} tempat baru\n`);
 
     // Buka tiap tempat baru
+    let selectorChecked = false;
     for (let i = 0; i < newLinks.length; i++) {
       const url = newLinks[i];
       console.log(`[${i + 1}/${newLinks.length}] Buka detail...`);
@@ -543,6 +544,16 @@ async function scrape() {
         await randomDelay(2000, 3500);
 
         const detail = await extractPlaceDetail(page, url);
+
+        // Opsi 3: cek field utama di tempat pertama saja
+        if (!selectorChecked) {
+          selectorChecked = true;
+          if (!detail.name) {
+            console.error(`\n⚠️ SELECTOR_BROKEN: field 'name' kosong di tempat pertama`);
+            console.error(`   Kemungkinan struktur DOM Google Maps berubah — scraping dihentikan.\n`);
+            process.exit(2);
+          }
+        }
 
         // Perbarui koordinat dari URL setelah redirect
         const finalCoords = extractCoordinatesFromUrl(page.url());
