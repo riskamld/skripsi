@@ -54,10 +54,26 @@ class ScrapeSchedule extends Model
     {
         $days = ['', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
         return match ($this->frequency) {
-            'daily'       => "Setiap hari jam {$this->run_hour}:00",
+            'daily'         => "Setiap hari jam {$this->run_hour}:00",
             'every_n_hours' => "Setiap {$this->interval_hours} jam",
-            'weekly'      => "Setiap " . ($days[$this->day_of_week] ?? '?') . " jam {$this->run_hour}:00",
-            default       => $this->frequency,
+            'weekly'        => "Setiap " . ($days[$this->day_of_week] ?? '?') . " jam {$this->run_hour}:00",
+            default         => $this->frequency,
         };
+    }
+
+    public function isKecamatanLevel(): bool
+    {
+        return ($this->zoom ?? 13) >= 15;
+    }
+
+    public function radiusKm(): int
+    {
+        $map = [17 => 2, 16 => 3, 15 => 5, 14 => 15, 13 => 40, 12 => 60, 11 => 80, 10 => 150];
+        return $map[$this->zoom ?? 13] ?? 40;
+    }
+
+    public function methodBadge(): string
+    {
+        return $this->isKecamatanLevel() ? 'Kecamatan' : 'Kota';
     }
 }

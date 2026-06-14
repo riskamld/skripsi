@@ -32,6 +32,7 @@
         <tr style="background:var(--bg)">
           <th style="padding:9px 14px;text-align:left;font-weight:600;border-bottom:1px solid var(--bdr)">Status</th>
           <th style="padding:9px 14px;text-align:left;font-weight:600;border-bottom:1px solid var(--bdr)">Nama</th>
+          <th style="padding:9px 14px;text-align:left;font-weight:600;border-bottom:1px solid var(--bdr)">Metode</th>
           <th style="padding:9px 14px;text-align:left;font-weight:600;border-bottom:1px solid var(--bdr)">Query / Area</th>
           <th style="padding:9px 14px;text-align:center;font-weight:600;border-bottom:1px solid var(--bdr)">Limit</th>
           <th style="padding:9px 14px;text-align:left;font-weight:600;border-bottom:1px solid var(--bdr)">Terakhir Jalan</th>
@@ -43,8 +44,10 @@
       <tbody id="schedule-tbody">
         @foreach($schedules as $s)
         @php
-          $res    = $s->last_result;
-          $resOk  = $res && ($res['status'] ?? '') === 'success';
+          $res      = $s->last_result;
+          $resOk    = $res && ($res['status'] ?? '') === 'success';
+          $isKec    = $s->isKecamatanLevel();
+          $radiusKm = $s->radiusKm();
         @endphp
         <tr id="row-{{ $s->id }}" class="sched-row{{ $s->is_running ? ' row-running' : '' }}" style="border-bottom:1px solid var(--bdr){{ $s->is_running ? ';background:var(--acl,#eff6ff)' : '' }}" data-id="{{ $s->id }}" data-running="{{ $s->is_running ? 'true' : 'false' }}">
           <td style="padding:10px 14px;white-space:nowrap">
@@ -61,6 +64,23 @@
             @endif
           </td>
           <td style="padding:10px 14px;font-weight:600">{{ $s->name }}</td>
+          <td style="padding:10px 14px;font-size:12px;min-width:130px">
+            @if($isKec)
+              <span class="badge-kec"><i class="fas fa-map-pin"></i> Kecamatan</span>
+              <div style="margin-top:4px;color:var(--tx2);font-size:11px;line-height:1.6">
+                zoom&nbsp;<b>{{ $s->zoom }}</b> &bull; r&nbsp;<b>{{ $radiusKm }}km</b><br>
+                <span class="coord-text" title="{{ number_format($s->lat,6) }}, {{ number_format($s->lng,6) }}">
+                  {{ number_format($s->lat,4) }},&nbsp;{{ number_format($s->lng,4) }}
+                </span>
+              </div>
+            @else
+              <span class="badge-kota"><i class="fas fa-city"></i> Kota</span>
+              <div style="margin-top:4px;color:var(--tx2);font-size:11px;line-height:1.6">
+                zoom&nbsp;<b>{{ $s->zoom ?? 13 }}</b> &bull; r&nbsp;<b>{{ $radiusKm }}km</b><br>
+                <span style="color:var(--tx3)">otomatis Google</span>
+              </div>
+            @endif
+          </td>
           <td style="padding:10px 14px">
             <div>{{ $s->query }}</div>
             @if($s->area)<div style="font-size:11px;color:var(--tx2)">{{ $s->area }}</div>@endif
@@ -214,6 +234,9 @@
 .toggle-wrap input:checked+.toggle-slider{background:var(--ac)}
 .toggle-wrap input:checked+.toggle-slider:before{transform:translateX(17px)}
 .badge-running{display:inline-flex;align-items:center;gap:5px;background:#dcfce7;color:#15803d;font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:20px;border:1px solid #bbf7d0}
+.badge-kec{display:inline-flex;align-items:center;gap:4px;background:#f0fdf4;color:#16a34a;font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;border:1px solid #bbf7d0}
+.badge-kota{display:inline-flex;align-items:center;gap:4px;background:#f1f5f9;color:#475569;font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;border:1px solid #cbd5e1}
+.coord-text{font-family:monospace;font-size:10.5px;color:#64748b;cursor:default}
 .pulse-dot{width:7px;height:7px;background:#22c55e;border-radius:50%;display:inline-block;animation:pulse 1.2s ease-in-out infinite}
 .row-running td{font-weight:500}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
