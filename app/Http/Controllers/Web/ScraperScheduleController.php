@@ -83,6 +83,8 @@ class ScraperScheduleController extends Controller
     public function enableAll()
     {
         ScrapeSchedule::query()->update(['enabled' => true]);
+        // Hapus mutex agar cron bisa spawn artisan di menit berikutnya
+        DB::table('cache_locks')->where('key', 'like', '%schedule%')->delete();
         return response()->json(['status' => 'ok', 'message' => 'Semua jadwal diaktifkan.']);
     }
 
@@ -90,19 +92,19 @@ class ScraperScheduleController extends Controller
     {
         ScrapeSchedule::query()->update(['enabled' => false]);
 
-        // Kill artisan dulu agar tidak spawn baru
+        // Kill artisan dulu agar tidak spawn scraper baru
         $artisanPids = array_filter(array_map('trim', explode("\n", shell_exec('pgrep -f "[s]craper:run-scheduled" 2>/dev/null') ?? '')));
         foreach ($artisanPids as $pid) {
             if (is_numeric($pid)) shell_exec("kill -KILL {$pid} 2>/dev/null");
         }
 
-        // Kill gmaps-scraper
-        $pids = array_filter(array_map('trim', explode("\n", shell_exec('pgrep -f "[g]maps-scraper.js" 2>/dev/null') ?? '')));
-        foreach ($pids as $pid) {
-            if (is_numeric($pid)) shell_exec("kill -KILL {$pid} 2>/dev/null");
-        }
+        // Kill semua gmaps-scraper yang sedang berjalan (termasuk yang sudah jadi orphan)
+        shell_exec('pkill -KILL -f "[g]maps-scraper.js" 2>/dev/null');
+        sleep(1);
+        // Kill ulang yang mungkin baru spawn dari artisan yang belum terkill
+        shell_exec('pkill -KILL -f "[g]maps-scraper.js" 2>/dev/null');
 
-        DB::table('cache_locks')->where('key', 'like', '%schedule%')->delete();
+        // Biarkan mutex tetap ada agar cron tidak restart artisan
         ScrapeSchedule::where('is_running', true)->update(['is_running' => false]);
 
         return response()->json(['status' => 'ok', 'message' => 'Semua jadwal dinonaktifkan dan proses dihentikan.']);
