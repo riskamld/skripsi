@@ -499,14 +499,16 @@ async function disableAll() {
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menghentikan…';
   try {
-    const r = await fetch(`${SCHED_BASE}/disable-all`, {
+    const resp = await fetch(`${SCHED_BASE}/disable-all`, {
       method: 'POST',
       headers: {'X-CSRF-TOKEN': CSRF},
-    }).then(r => r.json());
+    });
+    const r = await resp.json();
     showToast(r.message || 'Semua jadwal dinonaktifkan.', true);
     setTimeout(() => location.reload(), 800);
   } catch(e) {
-    showToast('Gagal menghentikan.', false);
+    console.error('disableAll error:', e);
+    showToast('Gagal menghentikan: ' + e.message, false);
     btn.disabled = false;
     btn.innerHTML = '<i class="fas fa-stop-circle"></i> Hentikan Semua';
     btn.style.opacity = '1';

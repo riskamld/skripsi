@@ -98,11 +98,10 @@ class ScraperScheduleController extends Controller
             if (is_numeric($pid)) shell_exec("kill -KILL {$pid} 2>/dev/null");
         }
 
-        // Kill semua gmaps-scraper yang sedang berjalan (termasuk yang sudah jadi orphan)
+        // Kill semua gmaps-scraper termasuk orphan
         shell_exec('pkill -KILL -f "[g]maps-scraper.js" 2>/dev/null');
-        sleep(1);
-        // Kill ulang yang mungkin baru spawn dari artisan yang belum terkill
-        shell_exec('pkill -KILL -f "[g]maps-scraper.js" 2>/dev/null');
+        // Kill sh wrapper yang mungkin masih ada
+        shell_exec('pkill -KILL -f "gmaps-scraper.js" 2>/dev/null');
 
         // Biarkan mutex tetap ada agar cron tidak restart artisan
         ScrapeSchedule::where('is_running', true)->update(['is_running' => false]);
