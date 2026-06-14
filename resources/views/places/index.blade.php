@@ -183,7 +183,7 @@
                             </div>
                         </div>
                     </td>
-                    <td class="hide-mobile text-muted text-sm">{{ $place->address ? Str::limit($place->address, 28) : '—' }}</td>
+                    <td class="hide-mobile text-muted text-sm" title="{{ $place->address }}">{{ $place->address ? Str::limit($place->address, 45) : '—' }}</td>
                     <td>
                         @if($place->phone)
                         <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $place->phone) }}"
