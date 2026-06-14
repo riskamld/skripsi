@@ -3,6 +3,7 @@
 @section('page-title', 'Jadwal Scraping')
 
 @push('topbar-actions')
+<button id="btn-stop-sched" onclick="stopScheduled()" class="btn btn-sm" style="display:none;background:#b91c1c;color:#fff;border-color:#b91c1c"><i class="fas fa-stop-circle"></i> Hentikan</button>
 <button onclick="openAddModal()" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Tambah Jadwal</button>
 @endpush
 
@@ -332,15 +333,18 @@ async function pollStatus() {
       }
     });
 
-    // status bar
+    // status bar + tombol stop
     const bar = document.getElementById('status-bar');
+    const btnStop = document.getElementById('btn-stop-sched');
     if (anyRunning) {
       const running = rows.filter(r => r.is_running);
       bar.style.display = 'flex';
       document.getElementById('status-bar-text').textContent =
         `Scraper sedang berjalan: ${running.map(r => r.name).join(', ')}`;
+      if (btnStop) btnStop.style.display = 'inline-block';
     } else {
       bar.style.display = 'none';
+      if (btnStop) btnStop.style.display = 'none';
     }
   } catch(e) {}
 }
@@ -476,6 +480,25 @@ async function deleteSchedule(id, name) {
     headers: {'X-CSRF-TOKEN': CSRF},
   }).then(r => r.json());
   if (r.status === 'ok') { document.getElementById(`row-${id}`)?.remove(); showToast('Jadwal dihapus.', true); }
+}
+
+async function stopScheduled() {
+  if (!confirm('Hentikan proses scraping jadwal yang sedang berjalan?')) return;
+  const btn = document.getElementById('btn-stop-sched');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menghentikan…';
+  try {
+    const r = await fetch('{{ route("scraper-schedule.stop-running") }}', {
+      method: 'POST',
+      headers: {'X-CSRF-TOKEN': CSRF},
+    }).then(r => r.json());
+    showToast(r.message || 'Dihentikan.', true);
+    setTimeout(pollStatus, 800);
+  } catch(e) {
+    showToast('Gagal menghentikan.', false);
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fas fa-stop-circle"></i> Hentikan';
 }
 
 async function toggleSchedule(id, cb) {

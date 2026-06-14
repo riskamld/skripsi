@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\ScrapeSchedule;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ScraperScheduleController extends Controller
 {
@@ -76,6 +77,35 @@ class ScraperScheduleController extends Controller
                 preg_match('/^\[(\d+)\/\d+\]/', $line, $m);
                 return $m ? (int) $m[1] : $carry;
             }, 0),
+        ]);
+    }
+
+    public function stopRunning()
+    {
+        $killed = 0;
+
+        // Kill gmaps-scraper.js
+        $pids = array_filter(array_map('trim', explode("\n", shell_exec('pgrep -f "[g]maps-scraper.js" 2>/dev/null') ?? '')));
+        foreach ($pids as $pid) {
+            if (is_numeric($pid)) { shell_exec("kill -KILL {$pid} 2>/dev/null"); $killed++; }
+        }
+
+        // Kill artisan scraper:run-scheduled
+        $artisanPids = array_filter(array_map('trim', explode("\n", shell_exec('pgrep -f "[s]craper:run-scheduled" 2>/dev/null') ?? '')));
+        foreach ($artisanPids as $pid) {
+            if (is_numeric($pid)) shell_exec("kill -KILL {$pid} 2>/dev/null");
+        }
+
+        // Hapus mutex agar scheduler bisa jalan kembali
+        DB::table('cache_locks')->where('key', 'like', '%schedule%')->delete();
+
+        // Reset is_running di DB
+        ScrapeSchedule::where('is_running', true)->update(['is_running' => false]);
+
+        return response()->json([
+            'status'  => 'ok',
+            'killed'  => $killed,
+            'message' => $killed > 0 ? "Menghentikan {$killed} proses scraper." : 'Tidak ada proses yang berjalan.',
         ]);
     }
 
