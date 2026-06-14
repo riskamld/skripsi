@@ -83,10 +83,12 @@ class RunScheduledScraper extends Command
                 }
             }
 
-            $selectorBroken = str_contains($logContent, 'SELECTOR_BROKEN');
-            $success        = !$selectorBroken && str_contains($logContent, '__DONE_OK__');
-            $status         = $selectorBroken ? 'selector_broken' : ($success ? 'success' : 'error');
-            $result         = ['status' => $status, 'processed' => $processed, 'job_id' => $jobId];
+            $selectorBroken   = str_contains($logContent, 'SELECTOR_BROKEN');
+            $success          = !$selectorBroken && str_contains($logContent, '__DONE_OK__');
+            $status           = $selectorBroken ? 'selector_broken' : ($success ? 'success' : 'error');
+            $prevEmpty        = (int) ($schedule->last_result['consecutive_empty'] ?? 0);
+            $consecutiveEmpty = ($success && $processed === 0) ? $prevEmpty + 1 : 0;
+            $result           = ['status' => $status, 'processed' => $processed, 'consecutive_empty' => $consecutiveEmpty, 'job_id' => $jobId];
 
             $schedule->update(['last_result' => $result, 'is_running' => false]);
 
@@ -97,8 +99,14 @@ class RunScheduledScraper extends Command
                 break;
             } elseif ($success) {
                 if ($processed === 0) {
-                    $telegram->notifyEmptyResult($schedule->name, $schedule->query, $schedule->area ?? '');
-                    $this->warn("Selesai tapi 0 tempat: {$schedule->name}");
+                    if ($consecutiveEmpty >= 3) {
+                        $schedule->update(['enabled' => false]);
+                        $telegram->notifyScheduleAutoDisabled($schedule->name, $schedule->query, $schedule->area ?? '', $consecutiveEmpty);
+                        $this->warn("Auto-dinonaktifkan ({$consecutiveEmpty}× kosong berturut): {$schedule->name}");
+                    } else {
+                        $telegram->notifyEmptyResult($schedule->name, $schedule->query, $schedule->area ?? '', $consecutiveEmpty);
+                        $this->warn("Selesai tapi 0 tempat ({$consecutiveEmpty}/3): {$schedule->name}");
+                    }
                 } else {
                     $totalDb = Place::count();
                     $telegram->notifyScrapeDone($schedule->query, $schedule->area ?? '', $processed, $totalDb);

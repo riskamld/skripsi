@@ -123,11 +123,18 @@ class TelegramService
         $this->send("🚨 <b>SELECTOR RUSAK!</b>\n📌 Jadwal: <b>{$name}</b>\n🔍 Query: {$query}\n\nGoogle Maps kemungkinan ganti struktur DOM-nya.\nScraping otomatis dihentikan sampai scraper diperbaiki.");
     }
 
-    public function notifyEmptyResult(string $name, string $query, string $area): void
+    public function notifyEmptyResult(string $name, string $query, string $area, int $consecutiveEmpty = 1): void
     {
         if (!$this->isEnabled('notif_scraper_error')) return;
-        $area = $area ? " — {$area}" : '';
-        $this->send("⚠️ <b>Hasil Scraping Kosong</b>\n📌 Jadwal: <b>{$name}</b>\n🔍 {$query}{$area}\n\n0 tempat baru ditemukan. Mungkin area sudah terjaring semua atau query terlalu spesifik.");
+        $areaStr = $area ? " — {$area}" : '';
+        $this->send("⚠️ <b>Hasil Scraping Kosong ({$consecutiveEmpty}/3)</b>\n📌 Jadwal: <b>{$name}</b>\n🔍 {$query}{$areaStr}\n\n0 tempat baru ditemukan. Jika 3× berturut kosong, jadwal akan dinonaktifkan otomatis.");
+    }
+
+    public function notifyScheduleAutoDisabled(string $name, string $query, string $area, int $count): void
+    {
+        if (!$this->isEnabled('notif_scraper_error')) return;
+        $areaStr = $area ? " — {$area}" : '';
+        $this->send("🔕 <b>Jadwal Dinonaktifkan Otomatis</b>\n📌 Jadwal: <b>{$name}</b>\n🔍 {$query}{$areaStr}\n\n{$count}× berturut-turut tidak ada tempat baru.\nArea kemungkinan sudah terjaring semua.\n\nAktifkan lagi manual jika diperlukan.");
     }
 
     public function sendDailySummary(): void
