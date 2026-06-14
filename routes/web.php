@@ -40,6 +40,8 @@ Route::put('/jadwal-scraping/{scrapeSchedule}', [ScraperScheduleController::clas
 Route::delete('/jadwal-scraping/{scrapeSchedule}', [ScraperScheduleController::class, 'destroy'])->name('scraper-schedule.destroy');
 Route::post('/jadwal-scraping/{scrapeSchedule}/toggle', [ScraperScheduleController::class, 'toggle'])->name('scraper-schedule.toggle');
 Route::post('/jadwal-scraping/stop-running', [ScraperScheduleController::class, 'stopRunning'])->name('scraper-schedule.stop-running');
+Route::post('/jadwal-scraping/enable-all', [ScraperScheduleController::class, 'enableAll'])->name('scraper-schedule.enable-all');
+Route::post('/jadwal-scraping/disable-all', [ScraperScheduleController::class, 'disableAll'])->name('scraper-schedule.disable-all');
 Route::get('/jadwal-scraping/status', [ScraperScheduleController::class, 'status'])->name('scraper-schedule.status');
 Route::get('/jadwal-scraping/{scrapeSchedule}/log', [ScraperScheduleController::class, 'log'])->name('scraper-schedule.log');
 

@@ -3,7 +3,8 @@
 @section('page-title', 'Jadwal Scraping')
 
 @push('topbar-actions')
-<button id="btn-stop-sched" onclick="stopScheduled()" class="btn btn-sm" style="display:none;background:#b91c1c;color:#fff;border-color:#b91c1c"><i class="fas fa-stop-circle"></i> Hentikan</button>
+<button id="btn-disable-all" onclick="disableAll()" class="btn btn-sm" style="background:#b91c1c;color:#fff;border-color:#b91c1c"><i class="fas fa-stop-circle"></i> Hentikan Semua</button>
+<button id="btn-enable-all" onclick="enableAll()" class="btn btn-sm" style="background:#16a34a;color:#fff;border-color:#16a34a"><i class="fas fa-play-circle"></i> Nyalakan Semua</button>
 <button onclick="openAddModal()" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Tambah Jadwal</button>
 @endpush
 
@@ -333,18 +334,15 @@ async function pollStatus() {
       }
     });
 
-    // status bar + tombol stop
+    // status bar
     const bar = document.getElementById('status-bar');
-    const btnStop = document.getElementById('btn-stop-sched');
     if (anyRunning) {
       const running = rows.filter(r => r.is_running);
       bar.style.display = 'flex';
       document.getElementById('status-bar-text').textContent =
         `Scraper sedang berjalan: ${running.map(r => r.name).join(', ')}`;
-      if (btnStop) btnStop.style.display = 'inline-block';
     } else {
       bar.style.display = 'none';
-      if (btnStop) btnStop.style.display = 'none';
     }
   } catch(e) {}
 }
@@ -482,23 +480,42 @@ async function deleteSchedule(id, name) {
   if (r.status === 'ok') { document.getElementById(`row-${id}`)?.remove(); showToast('Jadwal dihapus.', true); }
 }
 
-async function stopScheduled() {
-  if (!confirm('Hentikan proses scraping jadwal yang sedang berjalan?')) return;
-  const btn = document.getElementById('btn-stop-sched');
+async function disableAll() {
+  if (!confirm('Hentikan semua jadwal dan proses scraping yang berjalan?')) return;
+  const btn = document.getElementById('btn-disable-all');
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menghentikan…';
   try {
-    const r = await fetch('{{ route("scraper-schedule.stop-running") }}', {
+    const r = await fetch('{{ route("scraper-schedule.disable-all") }}', {
       method: 'POST',
       headers: {'X-CSRF-TOKEN': CSRF},
     }).then(r => r.json());
-    showToast(r.message || 'Dihentikan.', true);
-    setTimeout(pollStatus, 800);
+    showToast(r.message || 'Semua jadwal dinonaktifkan.', true);
+    setTimeout(() => location.reload(), 800);
   } catch(e) {
     showToast('Gagal menghentikan.', false);
   }
   btn.disabled = false;
-  btn.innerHTML = '<i class="fas fa-stop-circle"></i> Hentikan';
+  btn.innerHTML = '<i class="fas fa-stop-circle"></i> Hentikan Semua';
+}
+
+async function enableAll() {
+  if (!confirm('Aktifkan semua jadwal?')) return;
+  const btn = document.getElementById('btn-enable-all');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengaktifkan…';
+  try {
+    const r = await fetch('{{ route("scraper-schedule.enable-all") }}', {
+      method: 'POST',
+      headers: {'X-CSRF-TOKEN': CSRF},
+    }).then(r => r.json());
+    showToast(r.message || 'Semua jadwal diaktifkan.', true);
+    setTimeout(() => location.reload(), 800);
+  } catch(e) {
+    showToast('Gagal mengaktifkan.', false);
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fas fa-play-circle"></i> Nyalakan Semua';
 }
 
 async function toggleSchedule(id, cb) {

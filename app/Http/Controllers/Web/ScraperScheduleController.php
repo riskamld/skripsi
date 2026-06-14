@@ -80,6 +80,34 @@ class ScraperScheduleController extends Controller
         ]);
     }
 
+    public function enableAll()
+    {
+        ScrapeSchedule::query()->update(['enabled' => true]);
+        return response()->json(['status' => 'ok', 'message' => 'Semua jadwal diaktifkan.']);
+    }
+
+    public function disableAll()
+    {
+        ScrapeSchedule::query()->update(['enabled' => false]);
+
+        // Kill artisan dulu agar tidak spawn baru
+        $artisanPids = array_filter(array_map('trim', explode("\n", shell_exec('pgrep -f "[s]craper:run-scheduled" 2>/dev/null') ?? '')));
+        foreach ($artisanPids as $pid) {
+            if (is_numeric($pid)) shell_exec("kill -KILL {$pid} 2>/dev/null");
+        }
+
+        // Kill gmaps-scraper
+        $pids = array_filter(array_map('trim', explode("\n", shell_exec('pgrep -f "[g]maps-scraper.js" 2>/dev/null') ?? '')));
+        foreach ($pids as $pid) {
+            if (is_numeric($pid)) shell_exec("kill -KILL {$pid} 2>/dev/null");
+        }
+
+        DB::table('cache_locks')->where('key', 'like', '%schedule%')->delete();
+        ScrapeSchedule::where('is_running', true)->update(['is_running' => false]);
+
+        return response()->json(['status' => 'ok', 'message' => 'Semua jadwal dinonaktifkan dan proses dihentikan.']);
+    }
+
     public function stopRunning()
     {
         $killed = 0;
