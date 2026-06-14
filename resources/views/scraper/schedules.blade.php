@@ -507,8 +507,7 @@ async function disableAll() {
     showToast(r.message || 'Semua jadwal dinonaktifkan.', true);
     setTimeout(() => location.reload(), 800);
   } catch(e) {
-    console.error('disableAll error:', e);
-    showToast('Gagal menghentikan: ' + e.message, false);
+    showToast('Gagal menghentikan.', false);
     btn.disabled = false;
     btn.innerHTML = '<i class="fas fa-stop-circle"></i> Hentikan Semua';
     btn.style.opacity = '1';
