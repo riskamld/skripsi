@@ -1,293 +1,206 @@
 @extends('layouts.app')
+@section('title', 'Harga Produk — Mafaza Fortuna')
+@section('page-title', 'Harga Produk')
 
-@section('page-title', 'Product Prices')
-@section('page-subtitle', 'Manage product price data for AI predictions')
+@push('topbar-actions')
+<a href="{{ route('product-prices.create') }}" class="btn btn-primary btn-sm">
+    <i class="fas fa-plus"></i> Tambah
+</a>
+<form method="POST" action="{{ route('product-prices.clear-all') }}" id="clearAllForm" style="display:none">@csrf</form>
+<button class="btn btn-danger btn-sm"
+    onclick="if(confirm('Hapus semua data harga? Tidak dapat dibatalkan.')) document.getElementById('clearAllForm').submit()">
+    <i class="fas fa-trash"></i> Hapus Semua
+</button>
+@endpush
 
 @section('content')
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="fas fa-coins mr-2"></i>
-                    Product Prices Management
-                </h3>
-                <div class="card-tools">
-                    <a href="{{ route('product-prices.create') }}" class="btn btn-primary btn-sm">
-                        <i class="fas fa-plus mr-1"></i>
-                        Add Price
-                    </a>
-                    <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#clearAllModal">
-                        <i class="fas fa-trash-alt mr-1"></i>
-                        Clear All
-                    </button>
-                </div>
-            </div>
 
-            <!-- Search and Filter Form -->
-            <div class="card-header border-0">
-                <form method="GET" action="{{ route('product-prices.index') }}" class="form-inline">
-                    <div class="form-group mr-3">
-                        <input type="text" name="search" class="form-control form-control-sm" placeholder="Search products, places..." value="{{ request('search') }}">
-                    </div>
+{{-- Toolbar --}}
+<form method="GET" action="{{ route('product-prices.index') }}" id="filterForm">
+<div class="d-flex align-center gap-8 mb-12 flex-wrap">
+    <div class="input-group" style="max-width:240px;flex:1;min-width:150px">
+        <input type="text" name="search" class="form-control"
+            placeholder="Cari produk, tempat…" value="{{ request('search') }}">
+    </div>
 
-                    <div class="form-group mr-3">
-                        <select name="product_name" class="form-control form-control-sm">
-                            <option value="">All Products</option>
-                            @foreach($productNames as $product)
-                            <option value="{{ $product }}" {{ request('product_name') === $product ? 'selected' : '' }}>
-                                {{ $product }}
-                            </option>
-                            @endforeach
-                        </select>
-                    </div>
+    <select name="product_name" class="form-control" style="width:auto;font-size:12.5px;padding:5px 28px 5px 10px"
+        onchange="document.getElementById('filterForm').submit()">
+        <option value="">Semua Produk</option>
+        @foreach($productNames as $product)
+        <option value="{{ $product }}" {{ request('product_name') === $product ? 'selected' : '' }}>
+            {{ $product }}
+        </option>
+        @endforeach
+    </select>
 
-                    <div class="form-group mr-3">
-                        <select name="place_id" class="form-control form-control-sm">
-                            <option value="">All Places</option>
-                            @foreach($places as $place)
-                            <option value="{{ $place->id }}" {{ request('place_id') == $place->id ? 'selected' : '' }}>
-                                {{ $place->name }}
-                            </option>
-                            @endforeach
-                        </select>
-                    </div>
+    <select name="source" class="form-control" style="width:auto;font-size:12.5px;padding:5px 28px 5px 10px"
+        onchange="document.getElementById('filterForm').submit()">
+        <option value="">Semua Sumber</option>
+        @foreach($sources as $src)
+        <option value="{{ $src }}" {{ request('source') === $src ? 'selected' : '' }}>
+            {{ $src === 'manual' ? 'Manual' : ($src === 'scraped' ? 'Scraping' : ucfirst($src)) }}
+        </option>
+        @endforeach
+    </select>
 
-                    <div class="form-group mr-3">
-                        <select name="source" class="form-control form-control-sm">
-                            <option value="">All Sources</option>
-                            @foreach($sources as $sourceOption)
-                            <option value="{{ $sourceOption }}" {{ request('source') === $sourceOption ? 'selected' : '' }}>
-                                {{ ucfirst($sourceOption) }}
-                            </option>
-                            @endforeach
-                        </select>
-                    </div>
+    <div class="d-flex align-center gap-4">
+        <input type="date" name="date_from" class="form-control" style="font-size:12.5px;padding:5px 8px"
+            value="{{ request('date_from') }}" title="Dari tanggal">
+        <span class="text-muted text-xs">—</span>
+        <input type="date" name="date_to" class="form-control" style="font-size:12.5px;padding:5px 8px"
+            value="{{ request('date_to') }}" title="Sampai tanggal">
+    </div>
 
-                    <div class="form-group mr-3">
-                        <input type="date" name="date_from" class="form-control form-control-sm" value="{{ request('date_from') }}" placeholder="From Date">
-                    </div>
+    <button type="submit" class="btn btn-secondary btn-sm"><i class="fas fa-search"></i></button>
 
-                    <div class="form-group mr-3">
-                        <input type="date" name="date_to" class="form-control form-control-sm" value="{{ request('date_to') }}" placeholder="To Date">
-                    </div>
+    @if(request('search') || request('product_name') || request('source') || request('date_from') || request('date_to'))
+    <a href="{{ route('product-prices.index') }}" class="btn btn-ghost btn-sm">
+        <i class="fas fa-times"></i> Reset
+    </a>
+    @endif
+</div>
+</form>
 
-                    <button type="submit" class="btn btn-outline-primary btn-sm mr-2">
-                        <i class="fas fa-search"></i> Filter
-                    </button>
+{{-- Bulk form --}}
+<form id="bulkForm" method="POST" action="{{ route('product-prices.bulk-delete') }}">@csrf</form>
 
-                    <a href="{{ route('product-prices.index') }}" class="btn btn-outline-secondary btn-sm">
-                        <i class="fas fa-times"></i> Clear
-                    </a>
-                </form>
-            </div>
+{{-- Stats + bulk action bar --}}
+<div class="d-flex align-center gap-12 mb-12 text-sm text-muted flex-wrap">
+    <span><strong>{{ $prices->total() }}</strong> data harga</span>
+    <span class="ml-auto d-flex align-center gap-8" id="bulkBar" style="display:none!important">
+        <span id="selectedCount" class="text-xs">0 dipilih</span>
+        <button type="button" class="btn btn-danger btn-xs" id="bulkDeleteBtn"
+            onclick="if(confirm('Hapus yang dipilih?')) document.getElementById('bulkForm').submit()">
+            <i class="fas fa-trash"></i> Hapus Dipilih
+        </button>
+    </span>
+</div>
 
-            <!-- Bulk Actions -->
-            <div class="card-header border-0">
-                <form id="bulkActionForm" method="POST" action="{{ route('product-prices.bulk-delete') }}">
-                    @csrf
-                    <div class="form-inline">
-                        <div class="form-check mr-3">
-                            <input type="checkbox" class="form-check-input" id="selectAll">
-                            <label class="form-check-label" for="selectAll">Select All</label>
+{{-- Tabel --}}
+<div class="card">
+    <div style="overflow-x:auto">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width:32px;text-align:center">
+                        <input type="checkbox" id="cbAll">
+                    </th>
+                    <th>
+                        <a href="{{ route('product-prices.index', array_merge(request()->query(), ['sort'=>'product_name','direction'=>request('sort')==='product_name'&&request('direction')==='asc'?'desc':'asc'])) }}">
+                            Nama Produk @if(request('sort')==='product_name')<i class="fas fa-sort-{{ request('direction')==='asc'?'up':'down' }}"></i>@endif
+                        </a>
+                    </th>
+                    <th class="hide-mobile">Kategori</th>
+                    <th>
+                        <a href="{{ route('product-prices.index', array_merge(request()->query(), ['sort'=>'price','direction'=>request('sort')==='price'&&request('direction')==='asc'?'desc':'asc'])) }}">
+                            Harga @if(request('sort')==='price')<i class="fas fa-sort-{{ request('direction')==='asc'?'up':'down' }}"></i>@endif
+                        </a>
+                    </th>
+                    <th class="hide-mobile">Satuan</th>
+                    <th class="hide-mobile">Tempat</th>
+                    <th class="hide-mobile">Sumber</th>
+                    <th class="hide-mobile">
+                        <a href="{{ route('product-prices.index', array_merge(request()->query(), ['sort'=>'recorded_at','direction'=>request('sort')==='recorded_at'&&request('direction')==='asc'?'desc':'asc'])) }}">
+                            Tanggal @if(request('sort')==='recorded_at')<i class="fas fa-sort-{{ request('direction')==='asc'?'up':'down' }}"></i>@endif
+                        </a>
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($prices as $price)
+                <tr>
+                    <td style="text-align:center">
+                        <input type="checkbox" class="row-cb" name="ids[]" value="{{ $price->id }}" form="bulkForm">
+                    </td>
+                    <td>
+                        <div class="fw-600 text-sm">{{ $price->product_name }}</div>
+                    </td>
+                    <td class="hide-mobile">
+                        <span class="badge badge-gray">{{ $price->product_category ?: '—' }}</span>
+                    </td>
+                    <td>
+                        <span class="fw-600" style="color:var(--ac)">Rp {{ number_format($price->price, 0, ',', '.') }}</span>
+                        @if($price->original_price)
+                        <div class="text-xs text-muted"><s>Rp {{ number_format($price->original_price, 0, ',', '.') }}</s></div>
+                        @endif
+                    </td>
+                    <td class="hide-mobile text-sm">{{ $price->unit }}</td>
+                    <td class="hide-mobile text-sm text-muted">{{ Str::limit($price->place->name ?? '—', 25) }}</td>
+                    <td class="hide-mobile">
+                        @if($price->source === 'manual')
+                            <span class="badge badge-blue">Manual</span>
+                        @elseif($price->source === 'scraped')
+                            <span class="badge badge-green">Scraping</span>
+                        @else
+                            <span class="badge badge-gray">{{ ucfirst($price->source) }}</span>
+                        @endif
+                    </td>
+                    <td class="hide-mobile text-xs text-muted">{{ $price->recorded_at->format('d/m/Y') }}</td>
+                    <td>
+                        <div class="d-flex gap-4 justify-content:flex-end" style="justify-content:flex-end">
+                            <a href="{{ route('product-prices.show', $price) }}" class="btn btn-ghost btn-xs" title="Lihat">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{{ route('product-prices.edit', $price) }}" class="btn btn-ghost btn-xs" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form method="POST" action="{{ route('product-prices.destroy', $price) }}">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="btn btn-ghost btn-xs" style="color:var(--rd)"
+                                    onclick="return confirm('Hapus data harga ini?')" title="Hapus">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
                         </div>
-
-                        <button type="submit" class="btn btn-outline-danger btn-sm" id="bulkDeleteBtn" disabled onclick="return confirm('Apakah Anda yakin ingin menghapus harga produk yang dipilih?')">
-                            <i class="fas fa-trash mr-1"></i>
-                            Delete Selected (0)
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <div class="card-body table-responsive p-0">
-                @if($prices->count() > 0)
-                <table class="table table-hover text-nowrap">
-                    <thead>
-                        <tr>
-                            <th width="40">
-                                <input type="checkbox" id="selectAllTop">
-                            </th>
-                            <th>
-                                <a href="{{ route('product-prices.index', array_merge(request()->query(), ['sort' => 'product_name', 'direction' => request('sort') === 'product_name' && request('direction') === 'asc' ? 'desc' : 'asc'])) }}">
-                                    Product Name
-                                    @if(request('sort') === 'product_name')
-                                        <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ml-1"></i>
-                                    @endif
-                                </a>
-                            </th>
-                            <th>Category</th>
-                            <th>
-                                <a href="{{ route('product-prices.index', array_merge(request()->query(), ['sort' => 'price', 'direction' => request('sort') === 'price' && request('direction') === 'asc' ? 'desc' : 'asc'])) }}">
-                                    Price
-                                    @if(request('sort') === 'price')
-                                        <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ml-1"></i>
-                                    @endif
-                                </a>
-                            </th>
-                            <th>Unit</th>
-                            <th>Place</th>
-                            <th>
-                                <a href="{{ route('product-prices.index', array_merge(request()->query(), ['sort' => 'source', 'direction' => request('sort') === 'source' && request('direction') === 'asc' ? 'desc' : 'asc'])) }}">
-                                    Source
-                                    @if(request('sort') === 'source')
-                                        <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ml-1"></i>
-                                    @endif
-                                </a>
-                            </th>
-                            <th>
-                                <a href="{{ route('product-prices.index', array_merge(request()->query(), ['sort' => 'recorded_at', 'direction' => request('sort') === 'recorded_at' && request('direction') === 'asc' ? 'desc' : 'asc'])) }}">
-                                    Recorded At
-                                    @if(request('sort') === 'recorded_at')
-                                        <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }} ml-1"></i>
-                                    @endif
-                                </a>
-                            </th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($prices as $price)
-                        <tr>
-                            <td>
-                                <input type="checkbox" class="row-checkbox" name="ids[]" value="{{ $price->id }}" form="bulkActionForm">
-                            </td>
-                            <td>
-                                <strong>{{ $price->product_name }}</strong>
-                            </td>
-                            <td>
-                                <span class="badge badge-secondary">{{ $price->product_category ?: 'N/A' }}</span>
-                            </td>
-                            <td>
-                                <strong class="text-primary">Rp {{ number_format($price->price, 0, ',', '.') }}</strong>
-                                @if($price->original_price)
-                                    <br><small class="text-muted"><s>Rp {{ number_format($price->original_price, 0, ',', '.') }}</s></small>
-                                @endif
-                            </td>
-                            <td>{{ $price->unit }}</td>
-                            <td>
-                                <small>{{ $price->place->name ?? 'N/A' }}</small>
-                            </td>
-                            <td>
-                                <span class="badge badge-{{ $price->source === 'manual' ? 'primary' : ($price->source === 'scraped' ? 'success' : 'info') }}">
-                                    {{ ucfirst($price->source) }}
-                                </span>
-                            </td>
-                            <td>
-                                <small>{{ $price->recorded_at->format('d/m/Y H:i') }}</small>
-                            </td>
-                            <td>
-                                <div class="btn-group btn-group-sm">
-                                    <a href="{{ route('product-prices.show', $price) }}" class="btn btn-outline-info btn-sm" title="View">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <a href="{{ route('product-prices.edit', $price) }}" class="btn btn-outline-warning btn-sm" title="Edit">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <form method="POST" action="{{ route('product-prices.destroy', $price) }}" style="display: inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-outline-danger btn-sm" title="Delete"
-                                                onclick="return confirm('Are you sure you want to delete this price record?')">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-                @else
-                <div class="text-center py-5">
-                    <div class="mb-4">
-                        <i class="fas fa-coins fa-4x text-muted"></i>
-                    </div>
-                    <h4 class="text-muted">No Product Prices Found</h4>
-                    <p class="text-muted mb-4">
-                        Start by adding product price data to enable AI forecasting and analysis.
-                    </p>
-                    <a href="{{ route('product-prices.create') }}" class="btn btn-primary">
-                        <i class="fas fa-plus mr-2"></i>
-                        Add First Price
-                    </a>
-                </div>
-                @endif
-            </div>
-
-            @if($prices->hasPages())
-            <div class="card-footer">
-                {{ $prices->appends(request()->query())->links() }}
-            </div>
-            @endif
-        </div>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="9" style="text-align:center;padding:48px;color:var(--tx3)">
+                        <i class="fas fa-coins" style="font-size:28px;margin-bottom:8px;display:block"></i>
+                        Belum ada data harga produk.<br>
+                        <a href="{{ route('product-prices.create') }}" class="btn btn-primary btn-sm mt-8">
+                            <i class="fas fa-plus"></i> Tambah Data
+                        </a>
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 </div>
 
-<!-- Clear All Modal -->
-<div class="modal fade" id="clearAllModal" tabindex="-1" role="dialog" aria-labelledby="clearAllModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="clearAllModalLabel">
-                    <i class="fas fa-exclamation-triangle text-warning mr-2"></i>
-                    Clear All Product Prices
-                </h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete all product price records? This action cannot be undone.</p>
-                <div class="alert alert-danger">
-                    <strong>Warning:</strong> This will permanently delete {{ $prices->total() }} product price records and affect AI predictions.
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <form method="POST" action="{{ route('product-prices.clear-all') }}" style="display: inline;">
-                    @csrf
-                    <button type="submit" class="btn btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus semua harga produk? Tindakan ini tidak dapat dibatalkan dan akan mempengaruhi prediksi AI.')">
-                        <i class="fas fa-trash-alt mr-2"></i>
-                        Yes, Clear All
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+@if($prices->hasPages())
+<div class="mt-16">{{ $prices->appends(request()->query())->links() }}</div>
+@endif
 
+@push('scripts')
 <script>
-$(document).ready(function() {
-    // Select All functionality
-    $('#selectAll, #selectAllTop').on('change', function() {
-        $('.row-checkbox').prop('checked', $(this).prop('checked'));
-        updateBulkDeleteButton();
-    });
+(function(){
+    var cbAll = document.getElementById('cbAll');
+    var bulkBar = document.getElementById('bulkBar');
+    var selCount = document.getElementById('selectedCount');
 
-    $('.row-checkbox').on('change', function() {
-        var allChecked = $('.row-checkbox:checked').length === $('.row-checkbox').length;
-        $('#selectAll, #selectAllTop').prop('checked', allChecked);
-        updateBulkDeleteButton();
-    });
-
-    function updateBulkDeleteButton() {
-        var selectedCount = $('.row-checkbox:checked').length;
-        var button = $('#bulkDeleteBtn');
-        button.prop('disabled', selectedCount === 0);
-        button.html('<i class="fas fa-trash mr-1"></i> Delete Selected (' + selectedCount + ')');
+    function updateBulk() {
+        var n = document.querySelectorAll('.row-cb:checked').length;
+        if (n > 0) {
+            bulkBar.style.display = 'flex';
+            selCount.textContent = n + ' dipilih';
+        } else {
+            bulkBar.style.display = 'none';
+        }
     }
 
-    // Show success/error messages
-    @if(session('success'))
-        toastr.success('{{ session('success') }}');
-    @endif
+    cbAll.addEventListener('change', function() {
+        document.querySelectorAll('.row-cb').forEach(function(cb) { cb.checked = cbAll.checked; });
+        updateBulk();
+    });
 
-    @if($errors->any())
-        @foreach($errors->all() as $error)
-            toastr.error('{{ $error }}');
-        @endforeach
-    @endif
-});
+    document.querySelectorAll('.row-cb').forEach(function(cb) {
+        cb.addEventListener('change', updateBulk);
+    });
+})();
 </script>
+@endpush
 @endsection

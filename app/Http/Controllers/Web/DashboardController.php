@@ -12,14 +12,6 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
-    // Kategori relevan untuk bisnis buah
-    private const RELEVANT = [
-        'Toko Buah dan Sayur', 'Grosir Buah dan Sayur', 'Toko Buah Kering',
-        'Restoran', 'Warung Makan', 'Restoran Ayam', 'Restoran Cepat Saji',
-        'Toko Bahan Makanan', 'Minimarket', 'Kedai Jus', 'Toko Es Krim',
-        'Restoran Bakso', 'Restoran Mie', 'Restoran Nasi Goreng',
-        'Restoran Sate', 'Restoran Seafood', 'Kedai Hidangan Penutup', 'Pasar',
-    ];
 
     public function index()
     {
@@ -40,7 +32,8 @@ class DashboardController extends Controller
                                     ->where('outreach_sent_at', '<', now()->subDays(3))
                                     ->count(),
             'total_order_value' => DB::table('place_orders')->sum('total_rp'),
-            'relevant'       => Place::whereIn('category', self::RELEVANT)->count(),
+            'relevant'       => Place::where(fn($q) => $q->whereNull('is_valid')->orWhere('is_valid', true))->count(),
+            'irrelevant'     => Place::where('is_valid', false)->count(),
             'top_categories' => Place::selectRaw('category, COUNT(*) as count')
                 ->whereNotNull('category')
                 ->groupBy('category')

@@ -102,7 +102,7 @@ class WhatsAppController extends Controller
         $request->validate([
             'device_id'       => 'required|string',
             'template_id'     => 'required',
-            'limit'           => 'integer|min:1|max:50',
+            'limit'           => 'integer|min:1|max:100',
             'category_filter' => 'nullable|string',
             'place_ids'       => 'nullable|array',
             'place_ids.*'     => 'integer',
@@ -110,7 +110,7 @@ class WhatsAppController extends Controller
 
         $deviceId      = $request->device_id;
         $templateId    = $request->template_id;
-        $limit         = (int) $request->get('limit', 5);
+        $limit         = (int) $request->get('limit', 10);
         $categoryFilter= $request->get('category_filter', 'relevant');
         $placeIds      = $request->input('place_ids', []);
         $isRandom      = ($templateId == 0);
@@ -140,6 +140,7 @@ class WhatsAppController extends Controller
                 ->where('has_whatsapp', true)
                 ->whereNotNull('phone')
                 ->where('phone', '!=', '')
+                ->where(fn($q) => $q->whereNull('is_valid')->orWhere('is_valid', true))
                 ->get(['id', 'name', 'phone', 'category', 'address']);
         } else {
             // Ambil phone yang sudah pernah dikirim untuk dedup
@@ -149,7 +150,8 @@ class WhatsAppController extends Controller
             $q = Place::where('has_whatsapp', true)
                 ->whereNull('outreach_status')
                 ->whereNotNull('phone')
-                ->where('phone', '!=', '');
+                ->where('phone', '!=', '')
+                ->where(fn($q) => $q->whereNull('is_valid')->orWhere('is_valid', true));
 
             if ($categoryFilter === 'relevant') {
                 $q->whereIn('category', self::RELEVANT_CATEGORIES);
@@ -301,12 +303,12 @@ class WhatsAppController extends Controller
     public function previewTargets(Request $request)
     {
         $request->validate([
-            'limit'           => 'integer|min:1|max:50',
+            'limit'           => 'integer|min:1|max:100',
             'category_filter' => 'nullable|string',
             'template_id'     => 'nullable|integer',
         ]);
 
-        $limit          = (int) $request->get('limit', 5);
+        $limit          = (int) $request->get('limit', 10);
         $categoryFilter = $request->get('category_filter', 'relevant');
         $templateId     = (int) $request->get('template_id', 0);
 
@@ -321,7 +323,8 @@ class WhatsAppController extends Controller
         $q = Place::where('has_whatsapp', true)
             ->whereNull('outreach_status')
             ->whereNotNull('phone')
-            ->where('phone', '!=', '');
+            ->where('phone', '!=', '')
+            ->where(fn($q) => $q->whereNull('is_valid')->orWhere('is_valid', true));
 
         if ($categoryFilter === 'relevant') {
             $q->whereIn('category', self::RELEVANT_CATEGORIES);

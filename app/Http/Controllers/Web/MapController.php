@@ -11,11 +11,12 @@ class MapController extends Controller
 {
     public function index()
     {
-        // Fetch all places with valid coordinates
+        // Fetch places dengan koordinat valid, exclude yang tidak relevan
         $places = Place::whereNotNull('lat')
             ->whereNotNull('lng')
             ->where('lat', '!=', 0)
             ->where('lng', '!=', 0)
+            ->where(fn($q) => $q->whereNull('is_valid')->orWhere('is_valid', true))
             ->orderBy('created_at', 'desc')
             ->get(['id', 'place_id', 'name', 'lat', 'lng', 'category', 'rating', 'review_count',
                    'phone', 'address', 'maps_url', 'has_whatsapp', 'outreach_status', 'busyness_score']);
