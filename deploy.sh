@@ -33,8 +33,11 @@ fi
 
 echo "⚡ Caching configuration..."
 php artisan config:cache
-php artisan route:cache
 php artisan view:cache
+# route:cache intentionally skipped — compiled route cache (routes-v7.php) was
+# found to corrupt route method matching on this app, causing every request
+# to "/" to fail with MethodNotAllowedHttpException. Routes are fast enough
+# uncached for this app's size.
 
 echo "🔒 Setting proper permissions..."
 chmod -R 755 storage/
