@@ -26,6 +26,11 @@ class ApiTokenController extends Controller
         return view('api-tokens.index', compact('tokens'));
     }
 
+    public function create()
+    {
+        return view('api-tokens.create');
+    }
+
     public function store(Request $request)
     {
         $request->validate([
