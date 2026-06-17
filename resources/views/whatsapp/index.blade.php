@@ -590,7 +590,7 @@ $_o   = $stats['ordered'];
 
 {{-- Modal: Preview Kirim --}}
 <div id="preview-modal" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.5);align-items:flex-start;justify-content:center;padding:20px 12px;overflow-y:auto">
-    <div class="card" style="width:min(620px,98vw);margin:auto">
+    <div class="card" style="width:min(820px,98vw);margin:auto">
         <div class="card-header" style="justify-content:space-between">
             <span><i class="fas fa-eye" style="color:var(--ac);margin-right:6px"></i>Preview Target Outreach</span>
             <button class="btn btn-ghost btn-xs" onclick="closePreviewModal()"><i class="fas fa-times"></i></button>
@@ -614,7 +614,7 @@ $_o   = $stats['ordered'];
                         <button type="button" class="btn btn-xs btn-ghost" onclick="checkAll(false)">Batalkan</button>
                     </div>
                 </div>
-                <div id="preview-list" style="border:1px solid var(--bdr);border-radius:6px;overflow:hidden;max-height:300px;overflow-y:auto"></div>
+                <div id="preview-list" style="border:1px solid var(--bdr);border-radius:6px;overflow:hidden;max-height:60vh;overflow-y:auto"></div>
             </div>
             <div style="display:flex;justify-content:flex-end;gap:8px">
                 <button class="btn btn-secondary btn-sm" onclick="closePreviewModal()">Batal</button>
@@ -984,7 +984,7 @@ function renderPreviewList() {
     areaNames.forEach(function(area) {
         var c = areaColor(area);
         var items = groups[area];
-        html += `<div style="background:${c}12;border-bottom:2px solid ${c}40;padding:5px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;position:sticky;top:0;z-index:2">
+        html += `<div style="background:var(--sur);border-bottom:2px solid ${c};border-left:4px solid ${c};padding:6px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;position:sticky;top:0;z-index:2;box-shadow:0 1px 3px rgba(0,0,0,.08)">
             <div style="display:flex;align-items:center;gap:6px">
                 <span style="width:8px;height:8px;border-radius:50%;background:${c};flex-shrink:0;display:inline-block"></span>
                 <span style="font-size:11px;font-weight:700;color:${c}">${escHtml(area)}</span>
@@ -1000,7 +1000,7 @@ function renderPreviewList() {
 
         items.forEach(function(p, i) {
             var border = (i < items.length - 1) ? 'border-bottom:1px solid var(--bdr)' : '';
-            html += `<div id="prow-${p.id}" style="display:flex;align-items:center;gap:10px;padding:6px 10px;${border};transition:.1s"
+            html += `<div id="prow-${p.id}" style="display:flex;align-items:center;gap:10px;padding:6px 10px;background:var(--sur);${border};transition:.1s"
                 onmouseover="this.style.background='var(--bg2)'" onmouseout="this.style.background=''">
                 <input type="checkbox" id="pchk-${p.id}" data-area="${escHtml(area)}" checked onchange="updateSelectedCount()" style="width:14px;height:14px;flex-shrink:0;cursor:pointer">
                 ${p.thumb
