@@ -469,6 +469,20 @@ $_o   = $stats['ordered'];
                     </div>
                     <input type="hidden" id="category-filter" value="relevant">
 
+                    {{-- Mode pemilihan target --}}
+                    <div>
+                        <label style="font-size:10px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Mode Pemilihan:</label>
+                        <div style="display:flex;gap:5px;flex-wrap:wrap" id="area-mode-btns">
+                            <button class="btn btn-sm btn-primary area-mode-btn" data-mode="score" onclick="setAreaMode(this)" title="Pilih target dengan skor bisnis tertinggi se-Jawa Timur, tanpa mempertimbangkan lokasi">
+                                <i class="fas fa-trophy"></i> Skor Tertinggi
+                            </button>
+                            <button class="btn btn-sm btn-ghost area-mode-btn" data-mode="dense" onclick="setAreaMode(this)" title="Prioritaskan area yang punya banyak kandidat target, supaya hasilnya nge-cluster — lebih efisien untuk 1 jalur pengiriman">
+                                <i class="fas fa-map-marker-alt"></i> Area Padat
+                            </button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="area-mode" value="score">
+
                     {{-- Kirim button row --}}
                     <div class="d-flex align-center gap-8 flex-wrap">
                         <label class="text-xs text-muted">Kirim:</label>
@@ -854,6 +868,14 @@ function setCatFilter(btn) {
     document.getElementById('category-filter').value = btn.dataset.cat;
 }
 
+function setAreaMode(btn) {
+    document.querySelectorAll('.area-mode-btn').forEach(b => {
+        b.classList.remove('btn-primary'); b.classList.add('btn-ghost');
+    });
+    btn.classList.add('btn-primary'); btn.classList.remove('btn-ghost');
+    document.getElementById('area-mode').value = btn.dataset.mode;
+}
+
 function updateDailyBar(sentToday, dailyLimit) {
     const pct = Math.min(100, Math.round(sentToday / dailyLimit * 100));
     const bar = document.getElementById('daily-bar');
@@ -888,10 +910,11 @@ async function openSendPreview() {
 
     try {
         const limit = parseInt(document.getElementById('send-limit').value);
+        const areaMode = document.getElementById('area-mode').value;
         const resp  = await fetch('{{ route("whatsapp.preview-targets") }}', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-            body: JSON.stringify({ limit, category_filter: catFilter, template_id: selectedTemplateId })
+            body: JSON.stringify({ limit, category_filter: catFilter, template_id: selectedTemplateId, area_mode: areaMode })
         });
         const d = await resp.json();
         if (!d.data || d.data.length === 0) {

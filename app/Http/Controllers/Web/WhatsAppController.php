@@ -475,11 +475,13 @@ class WhatsAppController extends Controller
             'limit'           => 'integer|min:1|max:100',
             'category_filter' => 'nullable|string',
             'template_id'     => 'nullable|integer',
+            'area_mode'       => 'nullable|in:score,dense',
         ]);
 
         $limit          = (int) $request->get('limit', 10);
         $categoryFilter = $request->get('category_filter', 'relevant');
         $templateId     = (int) $request->get('template_id', 0);
+        $areaMode       = $request->get('area_mode', 'score');
 
         $activeTemplates = WaTemplate::active()->get();
         $sampleTemplate  = ($templateId && $templateId !== 0)
@@ -502,12 +504,33 @@ class WhatsAppController extends Controller
         }
         $this->applyChainExclusion($q);
 
+        // Mode "dense" perlu pool kandidat lebih besar agar cukup variasi
+        // untuk menemukan area yang padat kandidatnya.
+        $poolMultiplier = $areaMode === 'dense' ? 10 : 3;
+
         $places = $q->orderByRaw('(' . $this->priorityScoreExpr() . ') DESC')
-            ->limit($limit * 3)
+            ->limit($limit * $poolMultiplier)
             ->get(['id', 'name', 'phone', 'category', 'address', 'rating', 'review_count', 'image_1', 'image_2', 'image_3', 'image_4'])
-            ->filter(fn($p) => !isset($sentPhones[$p->phone]))
-            ->take($limit)
-            ->values();
+            ->filter(fn($p) => !isset($sentPhones[$p->phone]));
+
+        if ($areaMode === 'dense') {
+            // Urutkan area dari yang paling banyak kandidatnya, lalu ambil
+            // per area (skor tertinggi dulu, karena $places sudah terurut
+            // dari query di atas) sampai limit terpenuhi — supaya hasil akhir
+            // nge-cluster ke beberapa area saja, lebih efisien untuk 1 jalur
+            // pengiriman, dibanding tersebar ke banyak area beda kabupaten.
+            $byArea = $places->groupBy(fn($p) => $p->area())
+                ->sortByDesc(fn($group) => $group->count());
+
+            $picked = collect();
+            foreach ($byArea as $group) {
+                if ($picked->count() >= $limit) break;
+                $picked = $picked->merge($group->take($limit - $picked->count()));
+            }
+            $places = $picked->take($limit)->values();
+        } else {
+            $places = $places->take($limit)->values();
+        }
 
         $data = $places->map(fn($p) => [
             'id'           => $p->id,
