@@ -761,20 +761,7 @@ async function openSendPreview() {
         document.getElementById('preview-count').textContent = d.count;
         document.getElementById('preview-message-box').textContent = d.sample_message || '(tidak ada template aktif)';
 
-        const listEl = document.getElementById('preview-list');
-        listEl.innerHTML = previewData.map((p, i) => `
-            <label style="display:flex;align-items:center;gap:10px;padding:8px 12px;cursor:pointer;
-                          ${i < previewData.length-1 ? 'border-bottom:1px solid var(--bdr)' : ''};
-                          transition:.1s" onmouseover="this.style.background='var(--bg2)'" onmouseout="this.style.background=''">
-                <input type="checkbox" id="pchk-${p.id}" checked onchange="updateSelectedCount()" style="width:14px;height:14px;flex-shrink:0;cursor:pointer">
-                <div style="flex:1;min-width:0">
-                    <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(p.name)}</div>
-                    <div style="font-size:10px;color:var(--tx3)">${escHtml(p.category || '—')} · ${p.phone}</div>
-                </div>
-                <div style="font-size:10px;color:var(--tx3);text-align:right;flex-shrink:0;white-space:nowrap">
-                    ${p.rating ? '★' + p.rating : ''}${p.review_count ? ' · ' + p.review_count + ' ulasan' : ''}
-                </div>
-            </label>`).join('');
+        renderPreviewList();
 
         updateSelectedCount();
         document.getElementById('preview-modal').style.display = 'flex';
@@ -796,6 +783,60 @@ function checkAll(checked) {
         if (el) el.checked = checked;
     });
     updateSelectedCount();
+}
+
+function renderPreviewList() {
+    const listEl = document.getElementById('preview-list');
+    listEl.innerHTML = previewData.map((p, i) => `
+        <div id="prow-${p.id}" style="display:flex;align-items:center;gap:10px;padding:8px 12px;
+                      ${i < previewData.length-1 ? 'border-bottom:1px solid var(--bdr)' : ''};
+                      transition:.1s" onmouseover="this.style.background='var(--bg2)'" onmouseout="this.style.background=''">
+            <input type="checkbox" id="pchk-${p.id}" checked onchange="updateSelectedCount()" style="width:14px;height:14px;flex-shrink:0;cursor:pointer">
+            <div style="flex:1;min-width:0;cursor:pointer" onclick="document.getElementById('pchk-${p.id}').click()">
+                <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(p.name)}</div>
+                <div style="font-size:10px;color:var(--tx3)">${escHtml(p.category || '—')} · ${p.phone}</div>
+            </div>
+            <div style="font-size:10px;color:var(--tx3);text-align:right;flex-shrink:0;white-space:nowrap;margin-right:4px">
+                ${p.rating ? '★' + p.rating : ''}${p.review_count ? ' · ' + p.review_count + ' ulasan' : ''}
+            </div>
+            <button type="button" title="Tandai tidak relevan — hapus dari daftar target selamanya"
+                style="flex-shrink:0;border:none;background:transparent;cursor:pointer;color:var(--tx3);padding:2px 4px;border-radius:4px;font-size:11px;line-height:1"
+                onmouseover="this.style.color='var(--rd)'" onmouseout="this.style.color='var(--tx3)'"
+                onclick="markIrrelevantFromPreview(${p.id}, this)">
+                <i class="fas fa-ban"></i>
+            </button>
+        </div>`).join('');
+    updateSelectedCount();
+}
+
+async function markIrrelevantFromPreview(placeId, btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    try {
+        const resp = await fetch(`/places/${placeId}/toggle-relevance`, {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, 'Accept': 'application/json' }
+        });
+        const data = await resp.json();
+        if (resp.ok && data.is_valid === false) {
+            const row = document.getElementById('prow-' + placeId);
+            row.style.transition = 'opacity .25s';
+            row.style.opacity = '0';
+            setTimeout(() => {
+                previewData = previewData.filter(p => p.id !== placeId);
+                renderPreviewList();
+                document.getElementById('preview-count').textContent = previewData.length;
+            }, 260);
+        } else {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-ban"></i>';
+            alert('Gagal menandai tidak relevan.');
+        }
+    } catch(e) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-ban"></i>';
+        alert('Error: ' + e.message);
+    }
 }
 
 function updateSelectedCount() {
