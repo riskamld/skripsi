@@ -394,7 +394,7 @@ async function saveGResp() {
   btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
   try {
     var id = document.getElementById('g-resp-place-id').value;
-    var resp = await fetch('/whatsapp/mark-status/' + id, {
+    var resp = await fetch('{{ url('/whatsapp/mark-status') }}/' + id, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content },
       body: JSON.stringify({
@@ -446,7 +446,7 @@ function gSearchDebounce() {
 
 async function gDoSearch(q) {
   try {
-    var resp = await fetch('/places/quick-search?q=' + encodeURIComponent(q), {
+    var resp = await fetch('{{ route('places.quick-search') }}?q=' + encodeURIComponent(q), {
       headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content }
     });
     var data = await resp.json();

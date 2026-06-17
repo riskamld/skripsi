@@ -59,11 +59,14 @@ Route::prefix('api/map')->group(function () {
 // Language switching removed - using Indonesian by default
 
 // Places CRUD routes
+// quick-search harus didaftarkan SEBELUM Route::resource — resource mendaftarkan
+// GET /places/{place} yang akan mencocokkan "quick-search" sebagai ID place
+// (lalu gagal model binding -> 404) kalau urutannya kebalik.
+Route::get('/places/quick-search', [PlaceController::class, 'quickSearch'])->name('places.quick-search');
 Route::resource('places', PlaceController::class);
 Route::post('/places/clear-all', [PlaceController::class, 'clearAll'])->name('places.clear-all');
 Route::post('/places/bulk-delete', [PlaceController::class, 'bulkDelete'])->name('places.bulk-delete');
 Route::post('/places/{place}/toggle-relevance', [PlaceController::class, 'toggleRelevance'])->name('places.toggle-relevance');
-Route::get('/places/quick-search', [PlaceController::class, 'quickSearch'])->name('places.quick-search');
 
 // Scrape Logs routes
 Route::post('/scrape-logs/clear-all', [ScrapeLogController::class, 'clearAll'])->name('scrape-logs.clear-all');
