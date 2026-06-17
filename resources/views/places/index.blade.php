@@ -59,29 +59,48 @@
     </div>
 </div>
 
-{{-- Quick filter chips --}}
-@php $qf = request('qf',''); @endphp
-<div class="d-flex align-center gap-6 mb-12 flex-wrap" style="font-size:12.5px;">
-    <span class="text-muted" style="font-size:11px;font-weight:600;letter-spacing:.4px;white-space:nowrap;">FILTER CEPAT</span>
-    @foreach([
-        ['' ,          'Semua',                                                        'btn-secondary'],
-        ['unchecked',  '<i class="fas fa-question-circle"></i> Belum Cek WA',          'btn-secondary'],
-        ['wa',         '<i class="fab fa-whatsapp"></i> Punya WA',                     'btn-success'],
-        ['no_wa',      '<i class="fas fa-times-circle"></i> Tidak Ada WA',             'btn-danger'],
-        ['has_pt',     '<i class="fas fa-chart-bar"></i> Ada Jam Ramai',               'btn-primary'],
-        ['target',     '<i class="fas fa-bullseye"></i> Target',                       'btn-primary'],
-        ['unsent',     '<i class="fas fa-paper-plane"></i> Belum Kirim',               'btn-info'],
-        ['sent',       '<i class="fas fa-check"></i> Sudah Kirim',                     'btn-warning'],
-        ['replied',    '<i class="fas fa-reply"></i> Ada Respon',                      'btn-orange'],
-        ['interested', '<i class="fas fa-thumbs-up"></i> Berminat',                    'btn-success'],
-        ['not_interested','<i class="fas fa-thumbs-down"></i> Tidak Berminat',         'btn-danger'],
-        ['ordered',    '<i class="fas fa-shopping-cart"></i> Sudah Order',             'btn-primary'],
-        ['irrelevant', '<i class="fas fa-ban"></i> Tidak Relevan',                     'btn-danger'],
-    ] as [$val, $label, $cls])
-    @php $active = ($qf === $val); @endphp
-    <a href="{{ route('places.index', array_merge(request()->except(['qf','page']), $val ? ['qf'=>$val] : [])) }}"
-       class="btn btn-sm {{ $active ? $cls : 'btn-outline' }}">{!! $label !!}</a>
-    @endforeach
+{{-- Quick filter groups --}}
+@php
+$qf = request('qf','');
+$fc = $filterCounts;
+function filterChip($val, $label, $cls, $count, $qf) {
+    $active = ($qf === $val);
+    $url = route('places.index', array_merge(request()->except(['qf','page']), $val ? ['qf'=>$val] : []));
+    $badge = $count > 0 ? '<span style="background:rgba(255,255,255,.25);border-radius:8px;padding:0 5px;font-size:10px;margin-left:3px;font-weight:700">'
+        . number_format($count) . '</span>' : '';
+    return '<a href="'.$url.'" class="btn btn-sm '.($active ? $cls : 'btn-outline').'" style="white-space:nowrap">'.$label.$badge.'</a>';
+}
+@endphp
+<div style="font-size:12.5px;margin-bottom:14px;display:flex;flex-direction:column;gap:7px;">
+
+    {{-- Baris 1: Umum --}}
+    <div class="d-flex align-center gap-6 flex-wrap">
+        <span style="font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.5px;min-width:80px;white-space:nowrap">DATA</span>
+        {!! filterChip('',         'Semua',                                             'btn-secondary', $fc->total,     $qf) !!}
+        {!! filterChip('target',   '<i class="fas fa-bullseye"></i> Target',            'btn-primary',   $fc->target,    $qf) !!}
+        {!! filterChip('has_pt',   '<i class="fas fa-chart-bar"></i> Jam Ramai',        'btn-primary',   0,              $qf) !!}
+        {!! filterChip('irrelevant','<i class="fas fa-ban"></i> Tidak Relevan',         'btn-danger',    $fc->irrelevant,$qf) !!}
+    </div>
+
+    {{-- Baris 2: WhatsApp --}}
+    <div class="d-flex align-center gap-6 flex-wrap">
+        <span style="font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.5px;min-width:80px;white-space:nowrap">WHATSAPP</span>
+        {!! filterChip('unchecked','<i class="fas fa-question-circle"></i> Belum Cek',  'btn-secondary', $fc->unchecked, $qf) !!}
+        {!! filterChip('wa',       '<i class="fab fa-whatsapp"></i> Punya WA',          'btn-success',   $fc->wa,        $qf) !!}
+        {!! filterChip('no_wa',    '<i class="fas fa-times-circle"></i> Tidak Ada WA',  'btn-danger',    $fc->no_wa,     $qf) !!}
+    </div>
+
+    {{-- Baris 3: Outreach --}}
+    <div class="d-flex align-center gap-6 flex-wrap">
+        <span style="font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.5px;min-width:80px;white-space:nowrap">OUTREACH</span>
+        {!! filterChip('unsent',        '<i class="fas fa-paper-plane"></i> Belum Kirim',   'btn-secondary', $fc->unsent,        $qf) !!}
+        {!! filterChip('sent',          '<i class="fas fa-check"></i> Sudah Kirim',         'btn-warning',   $fc->sent,          $qf) !!}
+        {!! filterChip('replied',       '<i class="fas fa-reply"></i> Ada Respon',          'btn-orange',    $fc->replied,       $qf) !!}
+        {!! filterChip('interested',    '<i class="fas fa-thumbs-up"></i> Berminat',        'btn-success',   $fc->interested,    $qf) !!}
+        {!! filterChip('not_interested','<i class="fas fa-thumbs-down"></i> Tidak Berminat','btn-danger',    $fc->not_interested,$qf) !!}
+        {!! filterChip('ordered',       '<i class="fas fa-shopping-cart"></i> Sudah Order', 'btn-primary',   $fc->ordered,       $qf) !!}
+    </div>
+
 </div>
 
 {{-- Category filter panel --}}

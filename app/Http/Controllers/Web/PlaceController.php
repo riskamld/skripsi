@@ -84,6 +84,24 @@ class PlaceController extends Controller
 
         $places = $query->paginate(50)->onEachSide(2);
 
+        // Hitung badge count untuk tiap filter
+        $filterCounts = \Illuminate\Support\Facades\DB::selectOne("
+            SELECT
+                COUNT(*) as total,
+                SUM(CASE WHEN is_valid = 0 THEN 1 ELSE 0 END) as irrelevant,
+                SUM(CASE WHEN (is_valid IS NULL OR is_valid = 1) AND has_whatsapp IS NULL THEN 1 ELSE 0 END) as unchecked,
+                SUM(CASE WHEN (is_valid IS NULL OR is_valid = 1) AND has_whatsapp = 1 THEN 1 ELSE 0 END) as wa,
+                SUM(CASE WHEN (is_valid IS NULL OR is_valid = 1) AND has_whatsapp = 0 THEN 1 ELSE 0 END) as no_wa,
+                SUM(CASE WHEN (is_valid IS NULL OR is_valid = 1) AND is_target = 1 THEN 1 ELSE 0 END) as target,
+                SUM(CASE WHEN (is_valid IS NULL OR is_valid = 1) AND has_whatsapp = 1 AND (outreach_status IS NULL OR outreach_status = 'none') THEN 1 ELSE 0 END) as unsent,
+                SUM(CASE WHEN outreach_status = 'sent' THEN 1 ELSE 0 END) as sent,
+                SUM(CASE WHEN outreach_status = 'replied' THEN 1 ELSE 0 END) as replied,
+                SUM(CASE WHEN outreach_status = 'interested' THEN 1 ELSE 0 END) as interested,
+                SUM(CASE WHEN outreach_status = 'not_interested' THEN 1 ELSE 0 END) as not_interested,
+                SUM(CASE WHEN outreach_status = 'ordered' THEN 1 ELSE 0 END) as ordered
+            FROM places
+        ");
+
         $categories = Place::whereNotNull('category')
             ->where('category', '!=', '')
             ->where('category', 'not regexp', '^[[:space:]]*$')
@@ -94,7 +112,7 @@ class PlaceController extends Controller
             ->get()
             ->map(fn($item) => ['name' => $item->category, 'count' => $item->count]);
 
-        return view('places.index', compact('places', 'categories'));
+        return view('places.index', compact('places', 'categories', 'filterCounts'));
     }
 
     public function create()
