@@ -229,12 +229,32 @@ class WhatsAppController extends Controller
 
     public function markStatus(Request $request, $id)
     {
-        $request->validate(['status' => 'required|in:none,sent,replied,interested,not_interested,ordered']);
+        $request->validate([
+            'status'         => 'required|in:none,sent,replied,interested,not_interested,ordered',
+            'customer_name'  => 'nullable|string|max:100',
+            'notes'          => 'nullable|string|max:2000',
+            'response_admin' => 'nullable|string|max:80',
+        ]);
         $place = Place::findOrFail($id);
         $old = $place->outreach_status;
-        $place->update(['outreach_status' => $request->status]);
+
+        $fields = ['outreach_status' => $request->status];
+        if ($request->filled('customer_name')) $fields['customer_name'] = $request->customer_name;
+        if ($request->filled('notes'))         $fields['notes'] = $request->notes;
+        if ($request->filled('response_admin')) $fields['response_admin'] = $request->response_admin;
+        if ($request->filled('customer_name') || $request->filled('notes')) {
+            $fields['notes_updated_at'] = now();
+        }
+
+        $place->update($fields);
+
         if ($old !== $request->status) {
-            OutreachLog::create(['place_id' => $place->id, 'action' => 'status_changed', 'status' => $request->status]);
+            OutreachLog::create([
+                'place_id' => $place->id,
+                'action'   => 'status_changed',
+                'status'   => $request->status,
+                'note'     => $request->notes,
+            ]);
             if ($request->status === 'interested') {
                 app(TelegramService::class)->notifyInterested($place->name, $place->phone ?? '');
             }
@@ -335,7 +355,7 @@ class WhatsAppController extends Controller
 
         $places = $q->orderByRaw('(' . $this->priorityScoreExpr() . ') DESC')
             ->limit($limit * 3)
-            ->get(['id', 'name', 'phone', 'category', 'address', 'rating', 'review_count', 'image_1'])
+            ->get(['id', 'name', 'phone', 'category', 'address', 'rating', 'review_count', 'image_1', 'image_2', 'image_3', 'image_4'])
             ->filter(fn($p) => !isset($sentPhones[$p->phone]))
             ->take($limit)
             ->values();
@@ -349,6 +369,10 @@ class WhatsAppController extends Controller
             'rating'       => $p->rating,
             'review_count' => $p->review_count,
             'thumb'        => $p->image_1 ? preg_replace('/=w\d+-h\d+[^"]*$/', '=w48-h48-k-no', $p->image_1) : null,
+            'images'       => array_values(array_filter(array_map(
+                fn($img) => $img ? preg_replace('/=w\d+-h\d+[^"]*$/', '=w400-h300-k-no', $img) : null,
+                [$p->image_1, $p->image_2, $p->image_3, $p->image_4]
+            ))),
         ]);
 
         $sampleMessage = '';

@@ -45,6 +45,8 @@ class Place extends Model
         'outreach_device_id',
         'notes',
         'notes_updated_at',
+        'customer_name',
+        'response_admin',
     ];
 
     protected $casts = [
