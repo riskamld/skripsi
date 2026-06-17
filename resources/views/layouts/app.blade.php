@@ -214,6 +214,7 @@ code{font-size:11.5px;background:var(--bg);padding:1px 5px;border-radius:3px;bor
       <span class="brand-dot"></span> Mafaza Fortuna
     </div>
     <nav class="sidebar-nav">
+      <div class="nav-lbl">Operasional</div>
       <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
         <i class="fas fa-home nav-icon"></i> Dasbor
       </a>
@@ -222,6 +223,9 @@ code{font-size:11.5px;background:var(--bg);padding:1px 5px;border-radius:3px;bor
       </a>
       <a href="{{ route('scraper-schedule.index') }}" class="nav-link {{ request()->routeIs('scraper-schedule.*') ? 'active' : '' }}" style="padding-left:24px">
         <i class="fas fa-calendar-alt nav-icon"></i> Jadwal Scraping
+      </a>
+      <a href="{{ route('scrape-logs.index') }}" class="nav-link {{ request()->routeIs('scrape-logs.*') ? 'active' : '' }}" style="padding-left:24px">
+        <i class="fas fa-history nav-icon"></i> Log Scraping
       </a>
       <a href="{{ route('whatsapp.index') }}" class="nav-link {{ request()->routeIs('whatsapp.*') ? 'active' : '' }}" style="display:flex;align-items:center;justify-content:space-between">
         <span><i class="fab fa-whatsapp nav-icon"></i> WhatsApp</span>
@@ -238,7 +242,11 @@ code{font-size:11.5px;background:var(--bg);padding:1px 5px;border-radius:3px;bor
       <a href="{{ route('map.index') }}" class="nav-link {{ request()->routeIs('map.*') ? 'active' : '' }}">
         <i class="fas fa-map nav-icon"></i> Peta
       </a>
-      <hr class="divider nav-sep">
+
+      <div class="nav-lbl">Sistem</div>
+      <a href="{{ route('database.index') }}" class="nav-link {{ request()->routeIs('database.*') ? 'active' : '' }}">
+        <i class="fas fa-database nav-icon"></i> Database
+      </a>
       <a href="{{ route('panduan.index') }}" class="nav-link {{ request()->routeIs('panduan.*') ? 'active' : '' }}">
         <i class="fas fa-book-open nav-icon"></i> Panduan
       </a>
