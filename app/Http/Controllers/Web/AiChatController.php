@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\Place;
-use App\Models\ProductPrice;
 use App\Models\ApiToken;
 use App\Models\ScrapeLog;
 use App\Services\AiQueryBuilder;
@@ -21,7 +20,6 @@ class AiChatController extends Controller
             return [
                 'summary' => [
                     'total_places' => Place::count(),
-                    'total_prices' => ProductPrice::count(),
                     'total_categories' => Place::distinct('category')->count('category'),
                     'total_scrapes' => ScrapeLog::count(),
                     'total_api_tokens' => ApiToken::count(),
@@ -35,16 +33,14 @@ class AiChatController extends Controller
                                           ->groupBy('category')
                                           ->orderBy('count', 'desc')
                                           ->get(),
-                'prices_recent' => ProductPrice::select('product_name', 'price', 'recorded_at', 'place_id')
-                                              ->where('recorded_at', '>=', now()->subDays(30))
-                                              ->orderBy('recorded_at', 'desc')
-                                              ->limit(100)
-                                              ->get(),
+                // Fitur pelacakan harga produk sudah dihapus — nilai default kosong
+                // dipertahankan agar handler query harga di bawah tidak error.
+                'prices_recent' => collect(),
                 'price_stats' => [
-                    'avg_price' => ProductPrice::avg('price'),
-                    'min_price' => ProductPrice::min('price'),
-                    'max_price' => ProductPrice::max('price'),
-                    'unique_products' => ProductPrice::distinct('product_name')->count('product_name'),
+                    'avg_price' => 0,
+                    'min_price' => 0,
+                    'max_price' => 0,
+                    'unique_products' => 0,
                 ],
             ];
         });

@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\PlaceController;
-use App\Http\Controllers\Api\ProductPriceController;
 
 Route::get('/places', [PlaceController::class, 'index'])
     ->middleware(\App\Http\Middleware\ApiTokenAuth::class);
