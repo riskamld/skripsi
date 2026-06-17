@@ -348,11 +348,12 @@
                 <div class="d-flex align-center gap-8 mb-12 flex-wrap">
                     <label class="text-xs text-muted">Kirim:</label>
                     <select id="send-limit" class="form-control" style="width:80px;font-size:13px">
-                        <option value="3">3</option>
-                        <option value="5" selected>5</option>
-                        <option value="10">10</option>
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
                         <option value="20">20</option>
+                        <option value="30">30</option>
                         <option value="50">50</option>
+                        <option value="100">100</option>
                     </select>
                     <label class="text-xs text-muted">pesan</label>
                     <button id="btn-send" class="btn btn-sm" style="background:var(--ac);color:#fff;border-color:var(--ac)"
