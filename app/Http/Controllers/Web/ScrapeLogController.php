@@ -56,16 +56,22 @@ class ScrapeLogController extends Controller
             ]);
         }
 
-        $logs = $query->paginate(20)->onEachSide(2);
+        $logs = $query->paginate(20)->onEachSide(2)->appends($request->query());
 
         // Get status counts for summary
         $statusCounts = [
             'success' => ScrapeLog::where('status', 'success')->count(),
-            'failed' => ScrapeLog::where('status', 'failed')->count(),
+            'failed'  => ScrapeLog::where('status', 'failed')->count(),
             'skipped' => ScrapeLog::where('status', 'skipped')->count(),
         ];
+        $statusCounts['total'] = array_sum($statusCounts);
+        $statusCounts['success_rate'] = $statusCounts['total'] > 0
+            ? round($statusCounts['success'] / $statusCounts['total'] * 100, 1)
+            : 0;
 
-        return view('scrape-logs.index', compact('logs', 'statusCounts'));
+        $lastLog = ScrapeLog::latest('created_at')->first();
+
+        return view('scrape-logs.index', compact('logs', 'statusCounts', 'lastLog'));
     }
 
     public function show(ScrapeLog $scrapeLog)

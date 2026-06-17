@@ -12,6 +12,53 @@
 
 @section('content')
 
+{{-- Stats strip --}}
+<div class="grid grid-4 mb-16">
+    <div class="metric">
+        <div class="metric-icon mi-blue"><i class="fas fa-history"></i></div>
+        <div class="metric-label">Total Log</div>
+        <div class="metric-value">{{ number_format($statusCounts['total']) }}</div>
+    </div>
+    <div class="metric">
+        <div class="metric-icon mi-green"><i class="fas fa-check"></i></div>
+        <div class="metric-label">Berhasil</div>
+        <div class="metric-value" style="color:#16a34a">{{ number_format($statusCounts['success']) }}</div>
+    </div>
+    <div class="metric">
+        <div class="metric-icon mi-red"><i class="fas fa-times"></i></div>
+        <div class="metric-label">Gagal</div>
+        <div class="metric-value" style="color:#dc2626">{{ number_format($statusCounts['failed']) }}</div>
+    </div>
+    <div class="metric">
+        <div class="metric-icon" style="background:#f3f4f6;color:#6b7280"><i class="fas fa-forward"></i></div>
+        <div class="metric-label">Dilewati</div>
+        <div class="metric-value" style="color:#6b7280">{{ number_format($statusCounts['skipped']) }}</div>
+    </div>
+</div>
+
+{{-- Success rate + last activity --}}
+<div class="card mb-16">
+    <div class="card-body" style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:14px 18px">
+        <div style="flex-shrink:0">
+            <div class="text-xs text-muted fw-600" style="text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Tingkat Keberhasilan</div>
+            <div class="d-flex align-center gap-8">
+                <div style="width:120px;height:8px;background:var(--bdr);border-radius:4px;overflow:hidden">
+                    <div style="height:100%;border-radius:4px;background:{{ $statusCounts['success_rate'] >= 80 ? '#16a34a' : ($statusCounts['success_rate'] >= 50 ? '#d97706' : '#dc2626') }};width:{{ $statusCounts['success_rate'] }}%"></div>
+                </div>
+                <span class="fw-700" style="font-size:15px">{{ $statusCounts['success_rate'] }}%</span>
+            </div>
+        </div>
+        <div style="border-left:1px solid var(--bdr);padding-left:20px;flex-shrink:0">
+            <div class="text-xs text-muted fw-600" style="text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Aktivitas Terakhir</div>
+            @if($lastLog)
+            <div class="text-sm fw-600" title="{{ $lastLog->created_at->format('d/m/Y H:i:s') }}">{{ $lastLog->created_at->diffForHumans() }}</div>
+            @else
+            <div class="text-sm text-muted">Belum ada aktivitas</div>
+            @endif
+        </div>
+    </div>
+</div>
+
 {{-- Toolbar --}}
 <div class="d-flex align-center gap-8 mb-12 flex-wrap">
     <div class="input-group" style="max-width:280px;flex:1;min-width:180px;">
@@ -30,8 +77,19 @@
         <option value="skipped" {{ request('status')==='skipped' ? 'selected' : '' }}>Dilewati</option>
     </select>
 
+    <div class="d-flex align-center gap-4" id="dateRangeWrap"
+        style="{{ request('date_from') || request('date_to') ? '' : 'display:none!important' }}">
+        <input type="date" id="dateFrom" class="form-control" style="font-size:12px;padding:4px 7px;width:130px" value="{{ request('date_from') }}" title="Dari tanggal">
+        <span class="text-xs text-muted">—</span>
+        <input type="date" id="dateTo" class="form-control" style="font-size:12px;padding:4px 7px;width:130px" value="{{ request('date_to') }}" title="Sampai tanggal">
+    </div>
+    <button type="button" class="btn btn-ghost btn-sm" id="dateRangeToggle" title="Filter tanggal"
+        style="{{ request('date_from') || request('date_to') ? 'color:var(--ac)' : 'color:var(--tx3)' }}">
+        <i class="fas fa-calendar-alt"></i>
+    </button>
+
     <div class="ml-auto d-flex align-center gap-8">
-        @if(request('search') || request('status'))
+        @if(request('search') || request('status') || request('date_from') || request('date_to'))
         <a href="{{ route('scrape-logs.index') }}" class="btn btn-ghost btn-sm">
             <i class="fas fa-times"></i> Reset
         </a>
@@ -39,12 +97,13 @@
     </div>
 </div>
 
-{{-- Stats --}}
-<div class="d-flex align-center gap-12 mb-12 text-sm" style="flex-wrap:wrap">
-    <span class="badge badge-green"><i class="fas fa-check"></i> Berhasil: {{ number_format($statusCounts['success']) }}</span>
-    <span class="badge badge-red"><i class="fas fa-times"></i> Gagal: {{ number_format($statusCounts['failed']) }}</span>
-    <span class="badge badge-gray"><i class="fas fa-forward"></i> Dilewati: {{ number_format($statusCounts['skipped']) }}</span>
-    <span class="ml-auto text-xs text-muted">Hal {{ $logs->currentPage() }} / {{ $logs->lastPage() }}</span>
+{{-- Ringkasan hasil --}}
+<div class="text-xs text-muted mb-8">
+    @if($logs->total() > 0)
+    Menampilkan <strong>{{ $logs->firstItem() }}–{{ $logs->lastItem() }}</strong> dari <strong>{{ number_format($logs->total()) }}</strong> log
+    @else
+    Tidak ada log yang cocok dengan filter ini
+    @endif
 </div>
 
 {{-- Tabel --}}
@@ -107,19 +166,42 @@
             </tbody>
         </table>
     </div>
-</div>
 
-{{-- Pagination --}}
-@if($logs->hasPages())
-<div class="mt-16">{{ $logs->appends(request()->query())->links() }}</div>
-@endif
+    {{-- Pagination --}}
+    @if($logs->lastPage() > 1)
+    <div class="card-footer d-flex align-center justify-between flex-wrap gap-8">
+        <span class="text-xs text-muted">{{ $logs->firstItem() }}–{{ $logs->lastItem() }} dari {{ number_format($logs->total()) }}</span>
+        <div class="pagination">
+            @if($logs->onFirstPage())
+                <span class="page-link disabled">‹</span>
+            @else
+                <a class="page-link" href="{{ $logs->previousPageUrl() }}">‹</a>
+            @endif
+
+            @foreach($logs->getUrlRange(max(1, $logs->currentPage()-2), min($logs->lastPage(), $logs->currentPage()+2)) as $page => $url)
+                <a class="page-link {{ $page == $logs->currentPage() ? 'active' : '' }}" href="{{ $url }}">{{ $page }}</a>
+            @endforeach
+
+            @if($logs->hasMorePages())
+                <a class="page-link" href="{{ $logs->nextPageUrl() }}">›</a>
+            @else
+                <span class="page-link disabled">›</span>
+            @endif
+        </div>
+    </div>
+    @endif
+</div>
 
 @push('scripts')
 <script>
 (function(){
-    var searchInput = document.getElementById('searchInput');
-    var clearBtn    = document.getElementById('clearSearch');
-    var statusSel   = document.getElementById('statusFilter');
+    var searchInput   = document.getElementById('searchInput');
+    var clearBtn      = document.getElementById('clearSearch');
+    var statusSel     = document.getElementById('statusFilter');
+    var dateWrap      = document.getElementById('dateRangeWrap');
+    var dateToggle     = document.getElementById('dateRangeToggle');
+    var dateFromEl    = document.getElementById('dateFrom');
+    var dateToEl      = document.getElementById('dateTo');
     var searchTimer;
 
     function buildUrl(params) {
@@ -147,6 +229,18 @@
     statusSel.addEventListener('change', function() {
         window.location.href = buildUrl({ status: this.value || null });
     });
+
+    dateToggle.addEventListener('click', function() {
+        var visible = dateWrap.style.display !== 'none';
+        dateWrap.style.display = visible ? 'none' : 'flex';
+        if (!visible) setTimeout(function(){ dateFromEl.focus(); }, 60);
+    });
+
+    function applyDateRange() {
+        window.location.href = buildUrl({ date_from: dateFromEl.value || null, date_to: dateToEl.value || null });
+    }
+    dateFromEl.addEventListener('change', applyDateRange);
+    dateToEl.addEventListener('change', applyDateRange);
 })();
 </script>
 @endpush
