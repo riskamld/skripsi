@@ -515,6 +515,60 @@ $sl = $statusLabels[$currentStatus] ?? null;
     </div>
 </div>
 
+{{-- Timeline Riwayat Respon --}}
+@if($responseTimeline->count() > 0)
+<div class="card mb-16">
+    <div class="card-header" style="justify-content:space-between">
+        <span><i class="fas fa-comments" style="color:var(--ac);margin-right:6px"></i>Riwayat Respon</span>
+        <span class="badge badge-gray">{{ $responseTimeline->count() }} catatan</span>
+    </div>
+    <div class="card-body p-0">
+        @php
+        $statusLabel = ['sent'=>'Terkirim','replied'=>'Sudah Respon','interested'=>'Berminat','not_interested'=>'Tidak Berminat','ordered'=>'Sudah Order','none'=>'Di-reset'];
+        $statusColor = ['replied'=>'#06b6d4','interested'=>'#f97316','not_interested'=>'#9ca3af','ordered'=>'#10b981','sent'=>'#3b82f6'];
+        @endphp
+        @foreach($responseTimeline as $i => $resp)
+        @php $color = $statusColor[$resp->outreach_status] ?? '#6b7280'; @endphp
+        <div style="display:flex;gap:12px;padding:12px 16px;{{ !$loop->last ? 'border-bottom:1px solid var(--bdr)' : '' }}">
+            {{-- Timeline dot + line --}}
+            <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0">
+                <div style="width:10px;height:10px;border-radius:50%;background:{{ $color }};margin-top:3px;flex-shrink:0"></div>
+                @if(!$loop->last)
+                <div style="width:2px;flex:1;background:var(--bdr);margin-top:4px;min-height:24px"></div>
+                @endif
+            </div>
+            {{-- Konten --}}
+            <div style="flex:1;min-width:0">
+                <div style="display:flex;align-items:center;gap-8px;gap:8px;flex-wrap:wrap;margin-bottom:4px">
+                    @if($resp->outreach_status && isset($statusLabel[$resp->outreach_status]))
+                    <span style="font-size:11px;font-weight:700;color:{{ $color }}">
+                        {{ $statusLabel[$resp->outreach_status] }}
+                    </span>
+                    @endif
+                    @if($resp->customer_name)
+                    <span style="font-size:11px;color:var(--tx2)">
+                        <i class="fas fa-user" style="font-size:9px;color:var(--tx3)"></i> {{ $resp->customer_name }}
+                    </span>
+                    @endif
+                    <span style="font-size:10px;color:var(--tx3);margin-left:auto;white-space:nowrap">
+                        {{ $resp->responded_at ? $resp->responded_at->format('d/m/Y H:i') : $resp->created_at->format('d/m/Y H:i') }}
+                        @if($resp->response_admin)
+                        · <strong>{{ $resp->response_admin }}</strong>
+                        @endif
+                    </span>
+                </div>
+                @if($resp->notes)
+                <div style="font-size:12px;color:var(--tx2);background:var(--bg2);border-radius:6px;padding:7px 10px;border-left:3px solid {{ $color }}40">
+                    {{ $resp->notes }}
+                </div>
+                @endif
+            </div>
+        </div>
+        @endforeach
+    </div>
+</div>
+@endif
+
 {{-- Riwayat Outreach --}}
 @if($outreachLogs->count() > 0)
 <div class="card mb-16">

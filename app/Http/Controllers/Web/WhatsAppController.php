@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\OutreachLog;
 use App\Models\Place;
 use App\Models\PlaceOrder;
+use App\Models\PlaceResponse;
 use App\Models\WaIncomingMessage;
 use App\Models\WaTemplate;
 use App\Services\TelegramService;
@@ -249,6 +250,18 @@ class WhatsAppController extends Controller
         }
 
         $place->update($fields);
+
+        // Simpan ke timeline riwayat respon (selalu, bukan hanya saat status berubah)
+        if ($request->filled('customer_name') || $request->filled('notes') || $request->filled('response_admin')) {
+            PlaceResponse::create([
+                'place_id'        => $place->id,
+                'outreach_status' => $request->status,
+                'customer_name'   => $request->customer_name,
+                'notes'           => $request->notes,
+                'response_admin'  => $request->response_admin,
+                'responded_at'    => $request->filled('responded_at') ? $request->responded_at : now(),
+            ]);
+        }
 
         if ($old !== $request->status) {
             OutreachLog::create([

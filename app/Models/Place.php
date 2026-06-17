@@ -77,6 +77,11 @@ class Place extends Model
         return $query->whereNotNull('phone')->where('phone', '!=', '');
     }
 
+    public function responses()
+    {
+        return $this->hasMany(PlaceResponse::class)->orderByDesc('responded_at');
+    }
+
     public function scrapeLogs()
     {
         return $this->hasMany(ScrapeLog::class, 'place_id', 'place_id');

@@ -153,7 +153,9 @@ class PlaceController extends Controller
         $place->load(['scrapeLogs', 'orders']);
         $outreachLogs = \App\Models\OutreachLog::where('place_id', $place->id)
             ->orderByDesc('created_at')->limit(20)->get();
-        return view('places.show', compact('place', 'outreachLogs'));
+        $responseTimeline = \App\Models\PlaceResponse::where('place_id', $place->id)
+            ->orderByDesc('responded_at')->get();
+        return view('places.show', compact('place', 'outreachLogs', 'responseTimeline'));
     }
 
     public function edit(Place $place)
