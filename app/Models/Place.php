@@ -117,4 +117,39 @@ class Place extends Model
         }
         return $best;
     }
+
+    // Kecamatan diparsing dari kolom address, mis. "Kec. Tanggul" → "Tanggul".
+    // Ambil kemunculan TERAKHIR — alamat Google Maps kadang mengandung teks
+    // landmark/nama tempat yang menyisipkan "Kec. X" duplikat di tengah,
+    // sementara penanda yang valid selalu paling dekat ke nama provinsi di akhir.
+    public function kecamatan(): ?string
+    {
+        if ($this->address && preg_match_all('/Kec(?:amatan)?\.\s*([^,]+)/iu', $this->address, $m)) {
+            return trim(end($m[1]));
+        }
+        return null;
+    }
+
+    // Kabupaten/Kota diparsing dari kolom address, mis. "Kabupaten Jember" → "Kabupaten Jember"
+    public function kabupaten(): ?string
+    {
+        if ($this->address && preg_match_all('/Kabupaten\s+([^,]+)/iu', $this->address, $m)) {
+            return 'Kabupaten ' . trim(end($m[1]));
+        }
+        if ($this->address && preg_match_all('/Kota\s+([^,]+)/iu', $this->address, $m)) {
+            return 'Kota ' . trim(end($m[1]));
+        }
+        return null;
+    }
+
+    // Gabungan "Kecamatan — Kabupaten" untuk grouping/tampilan ringkas
+    public function area(): string
+    {
+        $kec = $this->kecamatan();
+        $kab = $this->kabupaten();
+        if ($kec && $kab) return $kec . ' — ' . $kab;
+        if ($kec) return $kec;
+        if ($kab) return $kab;
+        return 'Area tidak diketahui';
+    }
 }
