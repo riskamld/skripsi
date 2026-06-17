@@ -142,7 +142,7 @@ class WhatsAppController extends Controller
                 ->whereNotNull('phone')
                 ->where('phone', '!=', '')
                 ->where(fn($q) => $q->whereNull('is_valid')->orWhere('is_valid', true))
-                ->get(['id', 'name', 'phone', 'category', 'address']);
+                ->get(['id', 'name', 'phone', 'category', 'address', 'wa_checked_at']);
         } else {
             // Ambil phone yang sudah pernah dikirim untuk dedup
             $sentPhones = Place::where('outreach_status', 'sent')
@@ -163,14 +163,54 @@ class WhatsAppController extends Controller
 
             $places = $q->orderByRaw($this->priorityScoreExpr() . ' DESC')
                 ->limit($canSend * 3)
-                ->get(['id', 'name', 'phone', 'category', 'address'])
+                ->get(['id', 'name', 'phone', 'category', 'address', 'wa_checked_at'])
                 ->filter(fn($p) => !isset($sentPhones[$p->phone]))
                 ->take($canSend);
         }
 
-        $results = ['sent' => 0, 'failed' => 0];
+        // ── Pre-flight: re-verify nomor WA yang datanya sudah basi ──────────
+        $staleThresholdDays = (int) env('WA_STALE_DAYS', 7);
+        $staleCutoff = now()->subDays($staleThresholdDays);
+        $stalePlaces = $places->filter(
+            fn($p) => !$p->wa_checked_at || $p->wa_checked_at->lt($staleCutoff)
+        );
+        $skippedStale = 0;
 
-        foreach ($places as $place) {
+        if ($stalePlaces->isNotEmpty()) {
+            try {
+                $staleNumbers = $stalePlaces->pluck('phone')->toArray();
+                $checkResp = Http::timeout(45)
+                    ->withHeaders(['X-API-Key' => env('WA_API_KEY', '')])
+                    ->post("{$this->waApiUrl}/check-wa-batch?deviceId={$deviceId}", [
+                        'numbers' => $staleNumbers,
+                    ]);
+                if ($checkResp->successful() && $checkResp->json('status')) {
+                    $waMap = collect($checkResp->json('results'))->keyBy('number');
+                    $invalidatedIds = [];
+                    foreach ($stalePlaces as $p) {
+                        $hasWa = (bool) ($waMap->get($p->phone)['exists'] ?? false);
+                        $p->update(['has_whatsapp' => $hasWa, 'wa_checked_at' => now()]);
+                        if (!$hasWa) {
+                            $invalidatedIds[] = $p->id;
+                            Log::info("sendOutreach: nomor basi tidak aktif WA, dilewati — place #{$p->id} {$p->phone}");
+                        }
+                    }
+                    if (!empty($invalidatedIds)) {
+                        $places = $places->reject(fn($p) => in_array($p->id, $invalidatedIds));
+                        $skippedStale = count($invalidatedIds);
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::warning("sendOutreach stale re-check error: " . $e->getMessage());
+                // Lanjut kirim meski re-check gagal — lebih baik coba daripada batal
+            }
+        }
+
+        $results = ['sent' => 0, 'failed' => 0, 'skipped_stale' => $skippedStale];
+        $placeList = collect($places);
+        $totalToSend = $placeList->count();
+
+        foreach ($placeList as $idx => $place) {
             $template = $isRandom ? $activeTemplates->random() : $single;
             $message  = $this->renderTemplate($template->body, $place);
 
@@ -195,15 +235,18 @@ class WhatsAppController extends Controller
                     ]);
                     $results['sent']++;
                 } else {
+                    Log::warning("sendOutreach gagal kirim place #{$place->id} {$place->phone}: " . $resp->body());
                     $results['failed']++;
                 }
             } catch (\Exception $e) {
-                Log::warning("sendOutreach error for place {$place->id}: " . $e->getMessage());
+                Log::warning("sendOutreach exception place #{$place->id}: " . $e->getMessage());
                 $results['failed']++;
             }
 
-            // Delay random 3-7 detik antar pesan
-            usleep(rand(3000000, 7000000));
+            // Delay acak 3–8 detik antar pesan (skip delay setelah pesan terakhir)
+            if ($idx < $totalToSend - 1) {
+                usleep(rand(3_000_000, 8_000_000));
+            }
         }
 
         $remaining = Place::where('has_whatsapp', true)->whereNull('outreach_status')
@@ -327,7 +370,7 @@ class WhatsAppController extends Controller
         }
 
         $places = $q->limit(200)->get()
-            ->map(fn($p) => array_merge($p->toArray(), ['area' => $this->extractArea($p->address)]));
+            ->map(fn($p) => array_merge($p->toArray(), ['area' => $p->area()]));
 
         return response()->json([
             'status' => 'ok',
@@ -389,7 +432,7 @@ class WhatsAppController extends Controller
                 fn($img) => $img ? preg_replace('/=w\d+-h\d+[^"]*$/', '=w400-h300-k-no', $img) : null,
                 [$p->image_1, $p->image_2, $p->image_3, $p->image_4]
             ))),
-            'area'         => $this->extractArea($p->address),
+            'area'         => $p->area(),
         ])
         ->sortBy('area')->values();
 
@@ -874,24 +917,6 @@ class WhatsAppController extends Controller
             ->get();
 
         return response()->json(['status' => 'ok', 'data' => $messages]);
-    }
-
-    private function extractArea(?string $address): string
-    {
-        if (!$address) return 'Area tidak diketahui';
-        $kec = $kab = '';
-        if (preg_match('/Kec(?:amatan)?\.\s*([^,]+)/iu', $address, $m)) {
-            $kec = trim($m[1]);
-        }
-        if (preg_match('/Kabupaten\s+([^,]+)/iu', $address, $m)) {
-            $kab = trim($m[1]);
-        } elseif (preg_match('/Kota\s+([^,]+)/iu', $address, $m)) {
-            $kab = 'Kota ' . trim($m[1]);
-        }
-        if ($kec && $kab) return $kec . ' — ' . $kab;
-        if ($kec) return $kec;
-        if ($kab) return $kab;
-        return 'Area tidak diketahui';
     }
 
     private function renderTemplate(string $body, Place $place): string

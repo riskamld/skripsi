@@ -4,151 +4,305 @@
 
 @push('styles')
 <style>
-.wa-stat { background:var(--sur); border:1px solid var(--bdr); border-radius:8px; padding:14px 18px; }
-.wa-stat .lbl { font-size:11px; color:var(--tx2); font-weight:600; text-transform:uppercase; letter-spacing:.05em; margin-bottom:2px; }
-.wa-stat .val { font-size:22px; font-weight:700; color:var(--tx); line-height:1; }
-.device-card { background:var(--sur); border:1px solid var(--bdr); border-radius:8px; padding:14px 16px; display:flex; align-items:center; gap:12px; }
-.device-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
-.dot-ready { background:#16a34a; box-shadow:0 0 0 3px #dcfce7; }
-.dot-off   { background:#9ca3af; }
-.device-info { flex:1; min-width:0; }
-.device-name { font-weight:600; font-size:14px; color:var(--tx); }
-.device-num  { font-size:12px; color:var(--tx2); }
-.device-badge { font-size:11px; padding:2px 8px; border-radius:12px; font-weight:600; }
-.badge-ready { background:#dcfce7; color:#16a34a; }
-.badge-off   { background:#f3f4f6; color:#6b7280; }
-.template-card { border:2px solid var(--bdr); border-radius:8px; padding:12px 14px; cursor:pointer; transition:.15s; }
-.template-card:hover,.template-card.active { border-color:var(--ac); background:#eff6ff; }
-.template-card.active .template-name { color:var(--ac); }
-.template-body { font-size:12px; color:var(--tx2); white-space:pre-wrap; margin-top:6px; line-height:1.5; }
-.log-box { background:#0d1117; border-radius:6px; padding:12px 14px; font-family:monospace; font-size:12px; color:#c9d1d9; min-height:80px; max-height:220px; overflow-y:auto; white-space:pre-wrap; }
-.progress-bar-wrap { background:#e5e7eb; border-radius:4px; height:6px; overflow:hidden; margin:8px 0; }
-.progress-bar-fill { background:var(--gn); height:100%; transition:width .4s; border-radius:4px; }
+/* ── Stats strip ────────────────────────────────────────────────── */
+.wa-stats-strip {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 6px;
+    margin-bottom: 8px;
+}
+.wa-stat {
+    background: var(--sur);
+    border: 1px solid var(--bdr);
+    border-radius: 8px;
+    padding: 9px 10px;
+    text-align: center;
+    border-top: 3px solid transparent;
+}
+.wa-stat .lbl {
+    font-size: 9.5px;
+    color: var(--tx3);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: 2px;
+    white-space: nowrap;
+}
+.wa-stat .val {
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1.1;
+}
+/* ── Funnel strip ───────────────────────────────────────────────── */
+.funnel-strip {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 8px 14px;
+    background: linear-gradient(135deg,#f0f9ff,#eff6ff);
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    overflow-x: auto;
+}
+.funnel-step { text-align: center; padding: 0 12px; flex-shrink: 0; }
+.funnel-val  { font-size: 17px; font-weight: 800; line-height: 1.1; }
+.funnel-lbl  { font-size: 9px; text-transform: uppercase; letter-spacing: .06em; color: var(--tx3); }
+.funnel-pct  { font-size: 10px; font-weight: 700; margin-top: 1px; }
+.funnel-arrow { color: #93c5fd; padding: 0 2px; font-size: 14px; flex-shrink: 0; }
+/* ── Device strip ───────────────────────────────────────────────── */
+.dev-strip {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--sur);
+    border: 1px solid var(--bdr);
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+.dev-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 11px;
+    border-radius: 20px;
+    border: 1.5px solid var(--bdr);
+    cursor: pointer;
+    transition: .15s;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--tx);
+    background: var(--bg);
+}
+.dev-pill:hover        { border-color: var(--ac); color: var(--ac); }
+.dev-pill.dev-selected { border-color: var(--ac); background: var(--acl); color: var(--ac); }
+.dev-dot  { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.dot-ready { background: #16a34a; box-shadow: 0 0 0 2px #dcfce7; }
+.dot-off   { background: #9ca3af; }
+.dev-badge { font-size: 10px; padding: 1px 6px; border-radius: 10px; font-weight: 600; }
+.badge-ready { background: #dcfce7; color: #16a34a; }
+.badge-off   { background: #f3f4f6; color: #6b7280; }
+/* ── Tabs ───────────────────────────────────────────────────────── */
+.wa-tabs-nav { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 12px; }
+.tab-btn {
+    padding: 6px 16px;
+    border: 1.5px solid var(--bdr);
+    background: var(--sur);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--tx2);
+    border-radius: 20px;
+    transition: .15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+}
+.tab-btn:hover  { border-color: var(--ac); color: var(--ac); }
+.tab-btn.active { background: var(--ac); border-color: var(--ac); color: #fff; }
+.tab-badge { background: #ef4444; color: #fff; border-radius: 10px; font-size: 9.5px; padding: 1px 6px; }
+.tab-btn.active .tab-badge { background: rgba(255,255,255,.3); }
+/* ── Misc ───────────────────────────────────────────────────────── */
+.log-box {
+    background: #0d1117;
+    border-radius: 6px;
+    padding: 9px 11px;
+    font-family: monospace;
+    font-size: 11.5px;
+    color: #c9d1d9;
+    min-height: 56px;
+    max-height: 180px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+}
+.progress-bar-wrap { background: #e5e7eb; border-radius: 4px; height: 5px; overflow: hidden; margin: 5px 0; }
+.progress-bar-fill { background: var(--gn); height: 100%; transition: width .4s; border-radius: 4px; }
+.template-card {
+    border: 1.5px solid var(--bdr);
+    border-radius: 8px;
+    padding: 9px 11px;
+    cursor: pointer;
+    transition: .15s;
+}
+.template-card:hover,.template-card.active { border-color: var(--ac); background: #eff6ff; }
+.template-card.active .template-name { color: var(--ac); }
+.template-body { font-size: 11.5px; color: var(--tx2); white-space: pre-wrap; margin-top: 4px; line-height: 1.5; }
+/* ── Card header gradients ──────────────────────────────────────── */
+.ch-green  { background: linear-gradient(135deg,#f0fdf4,#dcfce7); }
+.ch-blue   { background: linear-gradient(135deg,#eff6ff,#dbeafe); }
+.ch-amber  { background: linear-gradient(135deg,#fffbeb,#fef3c7); }
+.ch-orange { background: linear-gradient(135deg,#fff7ed,#ffedd5); }
+.ch-slate  { background: linear-gradient(135deg,#f8fafc,#f1f5f9); }
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media(max-width:900px) { .wa-stats-strip { grid-template-columns:repeat(4,1fr); } }
+@media(max-width:600px) { .wa-stats-strip { grid-template-columns:repeat(2,1fr); } }
+@media(max-width:768px) { .two-col { grid-template-columns:1fr!important; } }
 </style>
 @endpush
 
 @section('content')
 
-{{-- Stats --}}
-<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px">
-    <div class="wa-stat">
-        <div class="lbl">Ada WA</div>
-        <div class="val" style="color:var(--gn)" id="stat-has-wa">{{ $stats['has_wa'] }}</div>
+{{-- ── 1. Stats strip ──────────────────────────────────────────────────── --}}
+<div class="wa-stats-strip">
+    <div class="wa-stat" style="border-top-color:#22c55e">
+        <div class="lbl"><i class="fab fa-whatsapp" style="color:#22c55e"></i> Ada WA</div>
+        <div class="val" style="color:#16a34a" id="stat-has-wa">{{ $stats['has_wa'] }}</div>
     </div>
-    <div class="wa-stat">
-        <div class="lbl">Tidak Ada WA</div>
-        <div class="val" style="color:var(--rd)" id="stat-no-wa">{{ $stats['no_wa'] }}</div>
+    <div class="wa-stat" style="border-top-color:#f59e0b">
+        <div class="lbl"><i class="fas fa-question" style="color:#f59e0b"></i> Belum Cek</div>
+        <div class="val" style="color:#d97706" id="stat-unchecked">{{ $stats['unchecked'] }}</div>
     </div>
-    <div class="wa-stat">
-        <div class="lbl">Belum Dicek</div>
-        <div class="val" style="color:var(--or)" id="stat-unchecked">{{ $stats['unchecked'] }}</div>
+    <div class="wa-stat" style="border-top-color:#94a3b8">
+        <div class="lbl">Tidak WA</div>
+        <div class="val" style="color:#94a3b8" id="stat-no-wa">{{ $stats['no_wa'] }}</div>
     </div>
-    <div class="wa-stat">
-        <div class="lbl">Terkirim</div>
-        <div class="val" style="color:var(--ac)" id="stat-sent">{{ $stats['outreach_sent'] }}</div>
+    <div class="wa-stat" style="border-top-color:#3b82f6">
+        <div class="lbl"><i class="fas fa-paper-plane" style="color:#3b82f6"></i> Terkirim</div>
+        <div class="val" style="color:#3b82f6" id="stat-sent">{{ $stats['outreach_sent'] }}</div>
     </div>
-</div>
-<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px">
-    <div class="wa-stat">
-        <div class="lbl"><i class="fas fa-reply" style="color:var(--ac)"></i> Ada Respon</div>
-        <div class="val" style="color:var(--ac)" id="stat-replied">{{ $stats['replied'] }}</div>
+    <div class="wa-stat" style="border-top-color:#06b6d4">
+        <div class="lbl"><i class="fas fa-reply" style="color:#06b6d4"></i> Respon</div>
+        <div class="val" style="color:#06b6d4" id="stat-replied">{{ $stats['replied'] }}</div>
     </div>
-    <div class="wa-stat">
-        <div class="lbl"><i class="fas fa-thumbs-up" style="color:var(--or)"></i> Berminat</div>
-        <div class="val" style="color:var(--or)" id="stat-interested">{{ $stats['interested'] }}</div>
+    <div class="wa-stat" style="border-top-color:#f97316">
+        <div class="lbl"><i class="fas fa-thumbs-up" style="color:#f97316"></i> Berminat</div>
+        <div class="val" style="color:#f97316" id="stat-interested">{{ $stats['interested'] }}</div>
     </div>
-    <div class="wa-stat">
-        <div class="lbl"><i class="fas fa-thumbs-down" style="color:var(--rd)"></i> Tidak Berminat</div>
-        <div class="val" style="color:var(--rd)" id="stat-not-interested">{{ $stats['not_interested'] }}</div>
+    <div class="wa-stat" style="border-top-color:#9ca3af">
+        <div class="lbl"><i class="fas fa-thumbs-down" style="color:#9ca3af"></i> Tidak Minat</div>
+        <div class="val" style="color:#9ca3af" id="stat-not-interested">{{ $stats['not_interested'] }}</div>
     </div>
-    <div class="wa-stat">
-        <div class="lbl"><i class="fas fa-shopping-cart" style="color:var(--gn)"></i> Sudah Order</div>
-        <div class="val" style="color:var(--gn)" id="stat-ordered">{{ $stats['ordered'] }}</div>
+    <div class="wa-stat" style="border-top-color:#10b981">
+        <div class="lbl"><i class="fas fa-shopping-cart" style="color:#10b981"></i> Order</div>
+        <div class="val" style="color:#10b981" id="stat-ordered">{{ $stats['ordered'] }}</div>
     </div>
 </div>
 
-<div style="display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:start">
-
-{{-- Kolom kiri: Devices --}}
-<div style="display:flex;flex-direction:column;gap:12px">
-    <div class="card">
-        <div class="card-header" style="justify-content:space-between">
-            <span><i class="fas fa-mobile-alt" style="color:var(--ac);margin-right:6px"></i>Device WA</span>
-            <button class="btn btn-xs btn-secondary" onclick="refreshDevices()"><i class="fas fa-sync-alt"></i></button>
-        </div>
-        <div class="card-body" style="display:flex;flex-direction:column;gap:8px" id="device-list">
-            @forelse($devices as $d)
-            <div class="device-card {{ request('device') === $d['id'] ? 'active' : '' }}"
-                 onclick="selectDevice('{{ $d['id'] }}','{{ $d['name'] }}')"
-                 id="dev-{{ $d['id'] }}"
-                 style="cursor:pointer;{{ ($d['status'] ?? '') !== 'ready' ? 'opacity:.5' : '' }}">
-                <div class="device-dot {{ ($d['status'] ?? '') === 'ready' ? 'dot-ready' : 'dot-off' }}"></div>
-                <div class="device-info">
-                    <div class="device-name">{{ $d['name'] }}</div>
-                    <div class="device-num">{{ $d['number'] ?? '—' }}</div>
-                </div>
-                <span class="device-badge {{ ($d['status'] ?? '') === 'ready' ? 'badge-ready' : 'badge-off' }}">
-                    {{ ($d['status'] ?? '') === 'ready' ? 'Online' : 'Offline' }}
-                </span>
-            </div>
-            @empty
-            <p class="text-muted text-sm">Tidak ada device. Pastikan wa-api berjalan.</p>
-            @endforelse
-        </div>
+{{-- ── 2. Funnel + Daily quota ─────────────────────────────────────────── --}}
+@php
+$_hw  = max(1, $stats['has_wa']);
+$_s   = $stats['outreach_sent'];
+$_r   = $stats['replied'];
+$_i   = $stats['interested'];
+$_o   = $stats['ordered'];
+@endphp
+<div class="funnel-strip">
+    <div class="funnel-step">
+        <div class="funnel-val" style="color:#22c55e">{{ $stats['has_wa'] }}</div>
+        <div class="funnel-lbl">Ada WA</div>
+    </div>
+    <span class="funnel-arrow">→</span>
+    <div class="funnel-step">
+        <div class="funnel-val" style="color:#3b82f6">{{ $_s }}</div>
+        <div class="funnel-lbl">Terkirim</div>
+        <div class="funnel-pct" style="color:#3b82f6">{{ round($_s/$_hw*100) }}%</div>
+    </div>
+    <span class="funnel-arrow">→</span>
+    <div class="funnel-step">
+        <div class="funnel-val" style="color:#06b6d4">{{ $_r }}</div>
+        <div class="funnel-lbl">Respon</div>
+        <div class="funnel-pct" style="color:#06b6d4">{{ $_s>0 ? round($_r/$_s*100) : 0 }}%</div>
+    </div>
+    <span class="funnel-arrow">→</span>
+    <div class="funnel-step">
+        <div class="funnel-val" style="color:#f97316">{{ $_i }}</div>
+        <div class="funnel-lbl">Berminat</div>
+        <div class="funnel-pct" style="color:#f97316">{{ $_r>0 ? round($_i/$_r*100) : 0 }}%</div>
+    </div>
+    <span class="funnel-arrow">→</span>
+    <div class="funnel-step">
+        <div class="funnel-val" style="color:#10b981">{{ $_o }}</div>
+        <div class="funnel-lbl">Order</div>
+        <div class="funnel-pct" style="color:#10b981">{{ $_i>0 ? round($_o/$_i*100) : 0 }}%</div>
     </div>
 
-    {{-- Device terpilih --}}
-    <div class="card">
-        <div class="card-body">
-            <div class="text-xs text-muted mb-4">Device aktif untuk outreach</div>
-            <div id="selected-device-name" style="font-weight:600;font-size:14px;color:var(--ac)">— pilih device di atas —</div>
-            <input type="hidden" id="selected-device-id" value="">
+    {{-- Daily quota --}}
+    <div style="margin-left:auto;padding-left:16px;border-left:1px solid #bfdbfe;display:flex;align-items:center;gap:8px;flex-shrink:0">
+        <span style="font-size:10px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.05em">Kuota Hari Ini</span>
+        <div style="width:90px;height:7px;background:#dbeafe;border-radius:4px;overflow:hidden">
+            <div id="daily-bar" style="height:100%;border-radius:4px;background:var(--ac);transition:width .3s;width:{{ min(100, round($stats['sent_today']/$stats['daily_limit']*100)) }}%"></div>
         </div>
+        <span style="font-size:12px;font-weight:700;color:var(--tx)"><span id="sent-today">{{ $stats['sent_today'] }}</span><span style="color:var(--tx3)"> / </span><span id="daily-limit">{{ $stats['daily_limit'] }}</span></span>
+        <span id="daily-warn" style="font-size:11px;color:var(--rd);display:none" title="Limit hampir habis!"><i class="fas fa-exclamation-triangle"></i></span>
     </div>
 </div>
 
-{{-- Kolom kanan: Tabs --}}
-<div>
-    {{-- Tab nav --}}
-    <div style="display:flex;gap:0;border-bottom:2px solid var(--bdr);margin-bottom:16px;flex-wrap:wrap">
-        <button class="tab-btn active" onclick="switchTab('cek-wa')">
-            <i class="fas fa-search"></i> Cek WA
-        </button>
-        <button class="tab-btn" onclick="switchTab('outreach')">
-            <i class="fas fa-paper-plane"></i> Kirim Pesan
-        </button>
-        <button class="tab-btn" onclick="switchTab('list')">
-            <i class="fas fa-list"></i> Daftar Target
-        </button>
-        <button class="tab-btn" onclick="switchTab('followup')">
-            <i class="fas fa-bell"></i> Follow Up
-            @if($stats['replied'] + $stats['interested'] > 0)
-            <span style="background:var(--rd);color:#fff;border-radius:10px;font-size:10px;padding:1px 5px;margin-left:3px">{{ $stats['replied'] + $stats['interested'] }}</span>
-            @endif
-        </button>
+{{-- ── 3. Device selector strip ────────────────────────────────────────── --}}
+<div class="dev-strip">
+    <span style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.07em;flex-shrink:0;margin-right:2px">
+        <i class="fas fa-mobile-alt" style="color:var(--ac)"></i> Device
+    </span>
+    <div id="device-list" style="display:contents">
+        @forelse($devices as $d)
+        <div class="dev-pill {{ ($d['status'] ?? '') !== 'ready' ? '' : '' }}"
+             onclick="selectDevice('{{ $d['id'] }}','{{ $d['name'] }}')"
+             id="dev-{{ $d['id'] }}"
+             style="{{ ($d['status'] ?? '') !== 'ready' ? 'opacity:.5' : '' }}">
+            <span class="dev-dot {{ ($d['status'] ?? '') === 'ready' ? 'dot-ready' : 'dot-off' }}"></span>
+            <span>{{ $d['name'] }}</span>
+            @if(!empty($d['number']))<span style="font-size:10px;color:var(--tx3)">{{ $d['number'] }}</span>@endif
+            <span class="dev-badge {{ ($d['status'] ?? '') === 'ready' ? 'badge-ready' : 'badge-off' }}">{{ ($d['status'] ?? '') === 'ready' ? 'Online' : 'Off' }}</span>
+        </div>
+        @empty
+        <span style="font-size:12px;color:var(--tx3)">Tidak ada device. Pastikan wa-api berjalan.</span>
+        @endforelse
     </div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:6px;flex-shrink:0">
+        <span style="font-size:11px;color:var(--tx2)">Aktif:</span>
+        <span id="selected-device-name" style="font-size:12px;font-weight:700;color:var(--ac)">— pilih —</span>
+        <input type="hidden" id="selected-device-id" value="">
+        <button class="btn btn-xs btn-secondary" onclick="refreshDevices()" title="Refresh devices"><i class="fas fa-sync-alt"></i></button>
+    </div>
+</div>
 
-    {{-- Tab: Cek WA --}}
-    <div id="tab-cek-wa" class="tab-panel">
+{{-- ── 4. Tabs nav ─────────────────────────────────────────────────────── --}}
+<div class="wa-tabs-nav">
+    <button class="tab-btn active" onclick="switchTab('cek-wa')">
+        <i class="fas fa-search"></i> Cek WA
+    </button>
+    <button class="tab-btn" onclick="switchTab('outreach')">
+        <i class="fas fa-paper-plane"></i> Kirim Pesan
+    </button>
+    <button class="tab-btn" onclick="switchTab('list')">
+        <i class="fas fa-list"></i> Daftar Target
+    </button>
+    <button class="tab-btn" onclick="switchTab('followup')">
+        <i class="fas fa-bell"></i> Follow Up
+        @if($stats['replied'] + $stats['interested'] > 0)
+        <span class="tab-badge">{{ $stats['replied'] + $stats['interested'] }}</span>
+        @endif
+    </button>
+</div>
+
+{{-- ════════════════════════════════════════════════════════════════════════ --}}
+{{-- Tab: Cek WA                                                             --}}
+{{-- ════════════════════════════════════════════════════════════════════════ --}}
+<div id="tab-cek-wa" class="tab-panel">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start" class="two-col">
+
+        {{-- Cek baru --}}
         <div class="card">
-            <div class="card-header">
-                <span><i class="fas fa-search" style="color:var(--ac);margin-right:6px"></i>Cek Nomor WhatsApp</span>
+            <div class="card-header ch-green">
+                <span><i class="fas fa-search" style="color:#16a34a;margin-right:6px"></i>Cek Nomor WhatsApp</span>
             </div>
-            <div class="card-body">
-                <p class="text-sm text-muted mb-12">
-                    Cek mana nomor di database yang terdaftar di WhatsApp.
-                    Sisa belum dicek: <strong id="unchecked-count">{{ $stats['unchecked'] }}</strong> nomor.
-                </p>
-                <div class="d-flex align-center gap-8 mb-12">
+            <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+                <div style="display:flex;align-items:center;gap:8px;font-size:12px">
+                    <span style="color:var(--tx2)">Belum dicek:</span>
+                    <strong style="font-size:16px;color:var(--or)" id="unchecked-count">{{ $stats['unchecked'] }}</strong>
+                    <span style="color:var(--tx3)">nomor</span>
+                </div>
+                <div class="d-flex align-center gap-8 flex-wrap">
                     <label class="text-xs text-muted">Per batch:</label>
-                    <select id="check-limit" class="form-control" style="width:80px;font-size:13px">
+                    <select id="check-limit" class="form-control" style="width:70px;font-size:12px">
                         <option value="10">10</option>
                         <option value="30" selected>30</option>
                         <option value="50">50</option>
                         <option value="100">100</option>
                     </select>
-                    <button id="btn-check-wa" class="btn btn-sm" style="background:var(--gn);color:#fff;border-color:var(--gn)"
-                            onclick="runCheckWA()">
+                    <button id="btn-check-wa" class="btn btn-sm" style="background:#16a34a;color:#fff;border-color:#16a34a" onclick="runCheckWA()">
                         <i class="fas fa-play"></i> Mulai Cek
                     </button>
                     <button class="btn btn-sm btn-secondary" onclick="runCheckWAAll()">
@@ -159,77 +313,89 @@
                     <div class="progress-bar-fill" id="check-progress-bar" style="width:0%"></div>
                 </div>
                 <div class="log-box" id="check-log" style="display:none"></div>
-
-                <div style="border-top:1px solid var(--bdr);margin-top:16px;padding-top:16px">
-                    <div class="text-sm fw-600 mb-8">Re-Cek Nomor Lama</div>
-                    <p class="text-xs text-muted mb-8">
-                        Nomor yang sebelumnya dicek "tidak punya WA" mungkin sudah daftar.
-                        Sisa untuk re-cek: <strong id="recheck-count">...</strong> nomor.
-                    </p>
-                    <button class="btn btn-sm btn-secondary" onclick="runReCheckWA()">
-                        <i class="fas fa-redo"></i> Re-Cek Sekarang
-                    </button>
-                    <div class="log-box" id="recheck-log" style="display:none;margin-top:8px"></div>
-                </div>
-
-                <div style="border-top:1px solid var(--bdr);margin-top:16px;padding-top:16px">
-                    <div class="text-sm fw-600 mb-6"><i class="fas fa-plug" style="color:var(--ac)"></i> Webhook Pesan Masuk</div>
-                    <p class="text-xs text-muted mb-10">
-                        Saat aktif, setiap pesan WA yang masuk dari prospek akan otomatis mengupdate status dan mengirim notifikasi Telegram.
-                    </p>
-                    <div id="webhook-status-wrap" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-                        <span id="webhook-badge" style="font-size:12px;padding:3px 10px;border-radius:10px;font-weight:600">Mengecek...</span>
-                        <button id="btn-webhook-reg" onclick="registerWebhook()" class="btn btn-sm" style="background:var(--gn);color:#fff;border-color:var(--gn);display:none">
-                            <i class="fas fa-link"></i> Daftarkan Webhook
-                        </button>
-                        <button id="btn-webhook-unreg" onclick="unregisterWebhook()" class="btn btn-sm btn-danger" style="display:none">
-                            <i class="fas fa-unlink"></i> Cabut
-                        </button>
-                        <code id="webhook-url" style="font-size:10.5px;color:var(--tx3);background:var(--bg);padding:2px 6px;border-radius:4px"></code>
-                    </div>
-                </div>
             </div>
         </div>
 
-        {{-- Pesan Masuk dari Prospek --}}
-        <div class="card" style="margin-top:14px">
-            <div class="card-header">
-                <span><i class="fas fa-envelope-open" style="color:var(--or)"></i> Pesan Masuk dari Prospek</span>
-                <button class="btn btn-sm btn-secondary" onclick="loadIncoming()"><i class="fas fa-sync"></i> Refresh</button>
+        {{-- Re-cek nomor lama --}}
+        <div class="card">
+            <div class="card-header ch-amber">
+                <span><i class="fas fa-redo" style="color:#d97706;margin-right:6px"></i>Re-Cek Nomor Lama</span>
             </div>
-            <div id="incoming-list">
-                <div style="padding:28px;text-align:center;color:var(--tx3);font-size:13px">Klik Refresh untuk memuat pesan masuk.</div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+                <div style="font-size:12px;color:var(--tx2)">
+                    Nomor yang sebelumnya dicek "tidak punya WA" mungkin sudah daftar. Sisa: <strong id="recheck-count" style="color:var(--or)">...</strong> nomor.
+                </div>
+                <button class="btn btn-sm btn-secondary" onclick="runReCheckWA()">
+                    <i class="fas fa-redo"></i> Re-Cek 30 Nomor
+                </button>
+                <div class="log-box" id="recheck-log" style="display:none"></div>
             </div>
         </div>
+
     </div>
 
-    {{-- Tab: Outreach --}}
-    <div id="tab-outreach" class="tab-panel" style="display:none">
-        <div class="card mb-16">
-            <div class="card-header" style="justify-content:space-between">
-                <span><i class="fas fa-comment-alt" style="color:var(--ac);margin-right:6px"></i>Template Pesan</span>
-                <button class="btn btn-primary btn-xs" onclick="openAddTemplate()">
-                    <i class="fas fa-plus"></i> Tambah
-                </button>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;align-items:start" class="two-col">
+
+        {{-- Webhook --}}
+        <div class="card">
+            <div class="card-header ch-blue">
+                <span><i class="fas fa-plug" style="color:#3b82f6;margin-right:6px"></i>Webhook Pesan Masuk</span>
             </div>
-            <div class="card-body" style="display:flex;flex-direction:column;gap:8px" id="template-list">
-                {{-- Opsi Acak --}}
+            <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+                <p class="text-xs text-muted">Saat aktif, setiap pesan WA yang masuk dari prospek akan otomatis mengupdate status dan mengirim notifikasi Telegram.</p>
+                <div id="webhook-status-wrap" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                    <span id="webhook-badge" style="font-size:12px;padding:3px 10px;border-radius:10px;font-weight:600">Mengecek...</span>
+                    <button id="btn-webhook-reg" onclick="registerWebhook()" class="btn btn-sm" style="background:#16a34a;color:#fff;border-color:#16a34a;display:none">
+                        <i class="fas fa-link"></i> Daftarkan
+                    </button>
+                    <button id="btn-webhook-unreg" onclick="unregisterWebhook()" class="btn btn-sm btn-danger" style="display:none">
+                        <i class="fas fa-unlink"></i> Cabut
+                    </button>
+                </div>
+                <code id="webhook-url" style="font-size:10.5px;color:var(--tx3);background:var(--bg);padding:3px 8px;border-radius:4px;word-break:break-all;display:block"></code>
+            </div>
+        </div>
+
+        {{-- Pesan masuk --}}
+        <div class="card">
+            <div class="card-header ch-orange" style="justify-content:space-between">
+                <span><i class="fas fa-envelope-open" style="color:#f97316;margin-right:6px"></i>Pesan Masuk Prospek</span>
+                <button class="btn btn-sm btn-secondary" onclick="loadIncoming()"><i class="fas fa-sync"></i></button>
+            </div>
+            <div id="incoming-list" style="max-height:260px;overflow-y:auto">
+                <div style="padding:24px;text-align:center;color:var(--tx3);font-size:13px">Klik Refresh untuk memuat.</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{{-- ════════════════════════════════════════════════════════════════════════ --}}
+{{-- Tab: Outreach                                                            --}}
+{{-- ════════════════════════════════════════════════════════════════════════ --}}
+<div id="tab-outreach" class="tab-panel" style="display:none">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start" class="two-col">
+
+        {{-- Templates --}}
+        <div class="card">
+            <div class="card-header ch-blue" style="justify-content:space-between">
+                <span><i class="fas fa-comment-alt" style="color:var(--ac);margin-right:6px"></i>Template Pesan</span>
+                <button class="btn btn-primary btn-xs" onclick="openAddTemplate()"><i class="fas fa-plus"></i> Tambah</button>
+            </div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:7px" id="template-list">
                 <div class="template-card active" onclick="selectTemplate(0)" id="tpl-0" style="border-color:var(--ac);background:#eff6ff">
                     <div style="display:flex;align-items:center;gap:6px">
                         <i class="fas fa-random" style="color:var(--ac)"></i>
-                        <span style="font-weight:700;font-size:13px;color:var(--ac)">Acak (bergantian)</span>
+                        <span class="template-name" style="font-weight:700;font-size:12px">Acak (bergantian)</span>
                     </div>
                     <div class="template-body" style="color:var(--tx3)">Tiap penerima mendapat template berbeda secara acak — lebih aman dari deteksi spam.</div>
                 </div>
-
                 @foreach($templates as $tpl)
-                <div class="template-card {{ !$tpl->is_active ? 'opacity-50' : '' }}"
-                     onclick="selectTemplate({{ $tpl->id }})"
-                     id="tpl-{{ $tpl->id }}"
+                <div class="template-card" onclick="selectTemplate({{ $tpl->id }})" id="tpl-{{ $tpl->id }}"
                      style="{{ !$tpl->is_active ? 'opacity:.45;pointer-events:none' : '' }}">
                     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
-                        <div class="template-name" style="font-weight:600;font-size:13px">{{ $tpl->name }}</div>
-                        <div style="display:flex;gap:4px;flex-shrink:0" onclick="event.stopPropagation()">
+                        <div class="template-name" style="font-weight:600;font-size:12px">{{ $tpl->name }}</div>
+                        <div style="display:flex;gap:3px;flex-shrink:0" onclick="event.stopPropagation()">
                             <button class="btn btn-xs btn-secondary" title="{{ $tpl->is_active ? 'Nonaktifkan' : 'Aktifkan' }}"
                                 onclick="toggleTemplate({{ $tpl->id }}, this)">
                                 <i class="fas fa-{{ $tpl->is_active ? 'eye' : 'eye-slash' }}"></i>
@@ -250,190 +416,152 @@
                 <input type="hidden" id="selected-template" value="0">
             </div>
             {{-- Template stats --}}
-            <div id="template-stats-wrap" style="margin-top:12px;display:none">
-                <div style="font-size:12px;font-weight:600;color:var(--tx2);margin-bottom:6px">
+            <div id="template-stats-wrap" style="margin:0 12px 12px;display:none">
+                <div style="font-size:10px;font-weight:700;color:var(--tx2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em">
                     <i class="fas fa-chart-bar" style="color:var(--ac)"></i> Statistik Template
                 </div>
                 <div style="overflow-x:auto">
-                <table style="width:100%;border-collapse:collapse;font-size:12px">
-                    <thead><tr style="background:var(--bg2);border-bottom:1px solid var(--bdr)">
-                        <th style="padding:6px 10px;text-align:left;font-weight:600;color:var(--tx2)">Template</th>
-                        <th style="padding:6px 10px;text-align:center;font-weight:600;color:var(--tx2)">Terkirim</th>
-                        <th style="padding:6px 10px;text-align:center;font-weight:600;color:var(--tx2)">Respon</th>
-                        <th style="padding:6px 10px;text-align:center;font-weight:600;color:var(--tx2)">Berminat</th>
-                        <th style="padding:6px 10px;text-align:center;font-weight:600;color:var(--tx2)">Order</th>
-                        <th style="padding:6px 10px;text-align:center;font-weight:600;color:var(--tx2)">Konversi%</th>
-                    </tr></thead>
-                    <tbody id="template-stats-body"></tbody>
-                </table>
+                    <table style="width:100%;border-collapse:collapse;font-size:11px">
+                        <thead><tr style="background:var(--bg2);border-bottom:1px solid var(--bdr)">
+                            <th style="padding:4px 8px;text-align:left;font-weight:600;color:var(--tx2)">Template</th>
+                            <th style="padding:4px 8px;text-align:center;color:#3b82f6">Kirim</th>
+                            <th style="padding:4px 8px;text-align:center;color:#06b6d4">Respon</th>
+                            <th style="padding:4px 8px;text-align:center;color:#f97316">Minat</th>
+                            <th style="padding:4px 8px;text-align:center;color:#10b981">Order</th>
+                            <th style="padding:4px 8px;text-align:center;color:var(--tx2)">%</th>
+                        </tr></thead>
+                        <tbody id="template-stats-body"></tbody>
+                    </table>
                 </div>
             </div>
         </div>
 
-        {{-- Modal tambah/edit template --}}
-        <div id="tpl-modal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.45);align-items:center;justify-content:center">
-            <div class="card" style="width:min(520px,95vw);max-height:90vh;overflow-y:auto">
-                <div class="card-header" style="justify-content:space-between">
-                    <span id="tpl-modal-title">Tambah Template</span>
-                    <button class="btn btn-ghost btn-xs" onclick="closeTplModal()"><i class="fas fa-times"></i></button>
+        {{-- Kirim panel --}}
+        <div style="display:flex;flex-direction:column;gap:12px">
+            <div class="card">
+                <div class="card-header ch-green">
+                    <span><i class="fas fa-paper-plane" style="color:#16a34a;margin-right:6px"></i>Kirim Outreach</span>
                 </div>
-                <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
-                    <input type="hidden" id="tpl-edit-id" value="">
+                <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+                    {{-- Sisa target mini cards --}}
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                        <div style="background:#eff6ff;border-radius:7px;padding:8px 10px;text-align:center">
+                            <div style="font-size:9.5px;color:#3b82f6;font-weight:700;text-transform:uppercase;letter-spacing:.04em">Relevan Belum Kirim</div>
+                            <div style="font-size:22px;font-weight:800;color:#3b82f6;line-height:1.1" id="remaining-relevant">{{ $stats['remaining_relevant'] }}</div>
+                        </div>
+                        <div style="background:#f0fdf4;border-radius:7px;padding:8px 10px;text-align:center">
+                            <div style="font-size:9.5px;color:#16a34a;font-weight:700;text-transform:uppercase;letter-spacing:.04em">Semua Belum Kirim</div>
+                            <div style="font-size:22px;font-weight:800;color:#16a34a;line-height:1.1" id="remaining-count">{{ $stats['remaining'] }}</div>
+                        </div>
+                    </div>
+
+                    {{-- Filter kategori --}}
                     <div>
-                        <label class="form-label">Nama Template</label>
-                        <input type="text" id="tpl-name-input" class="form-control" placeholder="contoh: Perkenalan Singkat">
-                    </div>
-                    <div>
-                        <label class="form-label">Isi Pesan</label>
-                        <div style="font-size:11px;color:var(--tx3);margin-bottom:4px">
-                            Variabel: <code>{nama}</code> = nama tempat &nbsp; <code>{kategori}</code> = kategori &nbsp; <code>{alamat}</code> = alamat
-                        </div>
-                        <textarea id="tpl-body-input" class="form-control" rows="8"
-                            style="font-family:monospace;font-size:12px;resize:vertical"
-                            placeholder="Halo {nama} 👋..."></textarea>
-                        <div style="font-size:11px;color:var(--tx3);margin-top:4px;text-align:right">
-                            <span id="tpl-char-count">0</span> karakter
+                        <label style="font-size:10px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Target Kategori:</label>
+                        <div style="display:flex;gap:5px;flex-wrap:wrap" id="cat-filter-btns">
+                            <button class="btn btn-sm btn-primary cat-filter-btn" data-cat="relevant" onclick="setCatFilter(this)">
+                                <i class="fas fa-star"></i> Relevan
+                            </button>
+                            <button class="btn btn-sm btn-ghost cat-filter-btn" data-cat="" onclick="setCatFilter(this)">
+                                Semua
+                            </button>
                         </div>
                     </div>
-                    <div class="d-flex gap-8 justify-end">
-                        <button class="btn btn-secondary btn-sm" onclick="closeTplModal()">Batal</button>
-                        <button class="btn btn-primary btn-sm" onclick="saveTplModal()">
-                            <i class="fas fa-save"></i> Simpan
+                    <input type="hidden" id="category-filter" value="relevant">
+
+                    {{-- Kirim button row --}}
+                    <div class="d-flex align-center gap-8 flex-wrap">
+                        <label class="text-xs text-muted">Kirim:</label>
+                        <select id="send-limit" class="form-control" style="width:70px;font-size:12px">
+                            <option value="5">5</option>
+                            <option value="10" selected>10</option>
+                            <option value="20">20</option>
+                            <option value="30">30</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <label class="text-xs text-muted">pesan</label>
+                        <button id="btn-send" class="btn btn-sm" style="background:#16a34a;color:#fff;border-color:#16a34a" onclick="openSendPreview()">
+                            <i class="fas fa-eye"></i> Preview & Kirim
                         </button>
+                        <span id="daily-warn-2" style="font-size:11px;color:var(--rd);display:none">
+                            <i class="fas fa-exclamation-triangle"></i> Limit hampir!
+                        </span>
+                    </div>
+                    <div class="progress-bar-wrap" id="send-progress-wrap" style="display:none">
+                        <div class="progress-bar-fill" id="send-progress-bar" style="width:0%"></div>
+                    </div>
+                    <div class="log-box" id="send-log" style="display:none"></div>
+                    <div style="font-size:10.5px;color:var(--tx3);display:flex;align-items:flex-start;gap:5px">
+                        <i class="fas fa-shield-alt" style="color:var(--gn);margin-top:2px"></i>
+                        <span>Delay acak 3–8 dtk · re-verifikasi nomor basi &gt;7 hari · skip duplikat · hanya filter relevan</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-header" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
-                <span><i class="fas fa-paper-plane" style="color:var(--ac);margin-right:6px"></i>Kirim Outreach</span>
-                {{-- Limit harian --}}
-                <div style="display:flex;align-items:center;gap:8px">
-                    <span class="text-xs text-muted">Limit hari ini:</span>
-                    <div style="display:flex;align-items:center;gap:6px">
-                        <div style="width:100px;height:6px;background:var(--bdr);border-radius:3px;overflow:hidden">
-                            <div id="daily-bar" style="height:100%;border-radius:3px;background:var(--ac);transition:width .3s;width:{{ min(100, round($stats['sent_today']/$stats['daily_limit']*100)) }}%"></div>
-                        </div>
-                        <span class="text-xs"><span id="sent-today">{{ $stats['sent_today'] }}</span>/<span id="daily-limit">{{ $stats['daily_limit'] }}</span></span>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body">
-                {{-- Sisa target --}}
-                <div style="display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap">
-                    <div class="text-sm text-muted">
-                        Kategori relevan belum kirim: <strong id="remaining-relevant">{{ $stats['remaining_relevant'] }}</strong>
-                    </div>
-                    <div class="text-sm text-muted">
-                        Semua punya WA belum kirim: <strong id="remaining-count">{{ $stats['remaining'] }}</strong>
-                    </div>
-                </div>
-
-                {{-- Filter kategori --}}
-                <div style="margin-bottom:12px">
-                    <label class="text-xs text-muted fw-600" style="display:block;margin-bottom:4px">Target Kategori:</label>
-                    <div style="display:flex;gap:6px;flex-wrap:wrap" id="cat-filter-btns">
-                        <button class="btn btn-sm btn-primary cat-filter-btn" data-cat="relevant" onclick="setCatFilter(this)">
-                            <i class="fas fa-star"></i> Kategori Relevan ({{ $stats['remaining_relevant'] }})
-                        </button>
-                        <button class="btn btn-sm btn-ghost cat-filter-btn" data-cat="" onclick="setCatFilter(this)">
-                            Semua ({{ $stats['remaining'] }})
-                        </button>
-                    </div>
-                </div>
-                <input type="hidden" id="category-filter" value="relevant">
-
-                {{-- Kirim --}}
-                <div class="d-flex align-center gap-8 mb-12 flex-wrap">
-                    <label class="text-xs text-muted">Kirim:</label>
-                    <select id="send-limit" class="form-control" style="width:80px;font-size:13px">
-                        <option value="5">5</option>
-                        <option value="10" selected>10</option>
-                        <option value="20">20</option>
-                        <option value="30">30</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
-                    </select>
-                    <label class="text-xs text-muted">pesan</label>
-                    <button id="btn-send" class="btn btn-sm" style="background:var(--ac);color:#fff;border-color:var(--ac)"
-                            onclick="openSendPreview()">
-                        <i class="fas fa-eye"></i> Preview & Kirim
-                    </button>
-                    <span id="daily-warn" style="font-size:11px;color:var(--rd);display:none">
-                        <i class="fas fa-exclamation-triangle"></i> Limit harian hampir tercapai!
-                    </span>
-                </div>
-                <div class="progress-bar-wrap" id="send-progress-wrap" style="display:none">
-                    <div class="progress-bar-fill" id="send-progress-bar" style="width:0%"></div>
-                </div>
-                <div class="log-box" id="send-log" style="display:none"></div>
-                <p class="text-xs text-muted mt-8">
-                    <i class="fas fa-info-circle"></i> Delay random 3–7 detik · prioritas: kategori relevan + ramai + banyak ulasan · skip duplikat nomor.
-                </p>
-            </div>
-        </div>
     </div>
+</div>
 
-    {{-- Tab: Daftar Target --}}
-    <div id="tab-list" class="tab-panel" style="display:none">
-        <div class="card">
-            <div class="card-header" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
-                <span><i class="fas fa-list" style="color:var(--ac);margin-right:6px"></i>Target Outreach</span>
-                <div class="d-flex gap-8 flex-wrap">
-                    <button class="btn btn-sm btn-secondary" onclick="checkDuplicates()" title="Cek duplikat nomor telepon">
-                        <i class="fas fa-copy"></i> Cek Duplikat
-                    </button>
-                    <select id="list-category" class="form-control" style="width:auto;font-size:12px"
-                            onchange="loadTargetList()">
-                        <option value="relevant">Kategori Relevan</option>
-                        <option value="">Semua Kategori</option>
-                    </select>
-                    <select id="list-filter" class="form-control" style="width:auto;font-size:12px"
-                            onchange="loadTargetList()">
-                        <option value="pending">Belum dikirim — prioritas tertinggi</option>
-                        <option value="sent">Sudah dikirim</option>
-                        <option value="responded">Sudah respon</option>
-                        <option value="interested">Berminat</option>
-                        <option value="ordered">Sudah order</option>
-                    </select>
-                </div>
-            </div>
-            {{-- Bulk action bar --}}
-            <div id="bulk-action-bar" style="display:none;padding:8px 12px;background:var(--acl);border-bottom:1px solid var(--bdr);align-items:center;gap:8px;flex-wrap:wrap">
-                <span class="text-xs fw-600" id="bulk-count-label">0 dipilih</span>
-                <select id="bulk-status-select" class="form-control" style="width:auto;font-size:12px">
-                    <option value="">— pilih status —</option>
-                    <option value="none">Belum</option>
-                    <option value="sent">Terkirim</option>
-                    <option value="replied">Sudah Respon</option>
-                    <option value="interested">Berminat</option>
-                    <option value="not_interested">Tidak Berminat</option>
-                    <option value="ordered">Sudah Order</option>
+{{-- ════════════════════════════════════════════════════════════════════════ --}}
+{{-- Tab: Daftar Target                                                       --}}
+{{-- ════════════════════════════════════════════════════════════════════════ --}}
+<div id="tab-list" class="tab-panel" style="display:none">
+    <div class="card">
+        <div class="card-header ch-slate" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
+            <span><i class="fas fa-list" style="color:var(--ac);margin-right:6px"></i>Target Outreach</span>
+            <div class="d-flex gap-6 flex-wrap align-center">
+                <button class="btn btn-sm btn-secondary" onclick="checkDuplicates()">
+                    <i class="fas fa-copy"></i> Duplikat
+                </button>
+                <select id="list-category" class="form-control" style="width:auto;font-size:12px" onchange="loadTargetList()">
+                    <option value="relevant">Kategori Relevan</option>
+                    <option value="">Semua Kategori</option>
                 </select>
-                <button class="btn btn-sm btn-primary" onclick="applyBulkStatus()">Terapkan</button>
-                <button class="btn btn-sm btn-ghost" onclick="clearBulkSelection()">Batalkan Pilihan</button>
-            </div>
-            <div class="card-body p-0">
-                <div id="target-list-wrap">
-                    <p class="text-sm text-muted" style="padding:16px">Memuat...</p>
-                </div>
+                <select id="list-filter" class="form-control" style="width:auto;font-size:12px" onchange="loadTargetList()">
+                    <option value="pending">Belum dikirim</option>
+                    <option value="sent">Sudah dikirim</option>
+                    <option value="responded">Sudah respon</option>
+                    <option value="interested">Berminat</option>
+                    <option value="ordered">Sudah order</option>
+                </select>
             </div>
         </div>
-    </div>
-
-    {{-- Tab: Follow Up --}}
-    <div id="tab-followup" class="tab-panel" style="display:none">
-        <div id="followup-wrap">
-            <p class="text-sm text-muted" style="padding:16px"><i class="fas fa-spinner fa-spin"></i> Memuat data follow up...</p>
+        <div id="bulk-action-bar" style="display:none;padding:7px 12px;background:var(--acl);border-bottom:1px solid var(--bdr);align-items:center;gap:8px;flex-wrap:wrap">
+            <span class="text-xs fw-600" id="bulk-count-label">0 dipilih</span>
+            <select id="bulk-status-select" class="form-control" style="width:auto;font-size:12px">
+                <option value="">— pilih status —</option>
+                <option value="none">Belum</option>
+                <option value="sent">Terkirim</option>
+                <option value="replied">Sudah Respon</option>
+                <option value="interested">Berminat</option>
+                <option value="not_interested">Tidak Berminat</option>
+                <option value="ordered">Sudah Order</option>
+            </select>
+            <button class="btn btn-sm btn-primary" onclick="applyBulkStatus()">Terapkan</button>
+            <button class="btn btn-sm btn-ghost" onclick="clearBulkSelection()">Batalkan</button>
+        </div>
+        <div class="card-body p-0">
+            <div id="target-list-wrap">
+                <p class="text-sm text-muted" style="padding:16px"><i class="fas fa-spinner fa-spin"></i> Memuat...</p>
+            </div>
         </div>
     </div>
 </div>
 
-{{-- Modal Duplikat --}}
-{{-- Foto hover popup (preview list & target list) --}}
+{{-- ════════════════════════════════════════════════════════════════════════ --}}
+{{-- Tab: Follow Up                                                           --}}
+{{-- ════════════════════════════════════════════════════════════════════════ --}}
+<div id="tab-followup" class="tab-panel" style="display:none">
+    <div id="followup-wrap">
+        <p class="text-sm text-muted" style="padding:16px"><i class="fas fa-spinner fa-spin"></i> Memuat...</p>
+    </div>
+</div>
+
+{{-- ── Globals ─────────────────────────────────────────────────────────── --}}
 <div id="ph-popup" style="display:none;position:fixed;z-index:9999;pointer-events:auto;background:#fff;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,.25);overflow:hidden;width:280px"></div>
 
+{{-- Modal: Duplikat --}}
 <div id="dup-modal" style="display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.5);align-items:flex-start;justify-content:center;padding:20px 12px;overflow-y:auto">
     <div class="card" style="width:min(640px,98vw);margin:auto">
         <div class="card-header" style="justify-content:space-between">
@@ -441,72 +569,85 @@
             <button class="btn btn-ghost btn-xs" onclick="document.getElementById('dup-modal').style.display='none'"><i class="fas fa-times"></i></button>
         </div>
         <div class="card-body p-0">
-            <div id="dup-modal-content" style="padding:16px">
-                <p class="text-sm text-muted"><i class="fas fa-spinner fa-spin"></i> Memuat...</p>
-            </div>
+            <div id="dup-modal-content" style="padding:16px"></div>
         </div>
     </div>
 </div>
 
-</div>
-{{-- Modal Preview Kirim --}}
+{{-- Modal: Preview Kirim --}}
 <div id="preview-modal" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.5);align-items:flex-start;justify-content:center;padding:20px 12px;overflow-y:auto">
     <div class="card" style="width:min(620px,98vw);margin:auto">
         <div class="card-header" style="justify-content:space-between">
             <span><i class="fas fa-eye" style="color:var(--ac);margin-right:6px"></i>Preview Target Outreach</span>
             <button class="btn btn-ghost btn-xs" onclick="closePreviewModal()"><i class="fas fa-times"></i></button>
         </div>
-        <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
-            {{-- Warning jam --}}
+        <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
             <div id="preview-time-warn" style="display:none;background:#fef3c7;border:1px solid #fde68a;border-radius:6px;padding:8px 12px;font-size:12px;color:#92400e">
                 <i class="fas fa-clock"></i> <strong>Perhatian:</strong> Sekarang di luar jam kerja (07:00–21:00). Pesan mungkin tidak langsung dibaca.
             </div>
-            {{-- Preview pesan --}}
             <div>
-                <div style="font-size:11px;color:var(--tx2);font-weight:600;margin-bottom:4px">Preview pesan (contoh untuk target pertama):</div>
-                <div id="preview-message-box" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px;font-size:12px;white-space:pre-wrap;line-height:1.6;max-height:140px;overflow-y:auto;color:#064e3b"></div>
+                <div style="font-size:11px;color:var(--tx2);font-weight:600;margin-bottom:4px">Preview pesan (contoh target pertama):</div>
+                <div id="preview-message-box" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 12px;font-size:12px;white-space:pre-wrap;line-height:1.6;max-height:130px;overflow-y:auto;color:#064e3b"></div>
             </div>
-            {{-- Area filter chips --}}
-            <div id="area-chips" style="display:flex;flex-wrap:wrap;gap:5px;min-height:20px"></div>
-
-            {{-- Daftar target --}}
+            <div id="area-chips" style="display:flex;flex-wrap:wrap;gap:5px;min-height:16px"></div>
             <div>
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
                     <div style="font-size:11px;color:var(--tx2);font-weight:600">
-                        <span id="preview-count">0</span> target
-                        <span style="color:var(--tx3);font-weight:400"> — dikelompokkan per area</span>
+                        <span id="preview-count">0</span> target <span style="color:var(--tx3);font-weight:400">— dikelompokkan per area</span>
                     </div>
                     <div style="display:flex;gap:4px">
                         <button type="button" class="btn btn-xs btn-secondary" onclick="checkAll(true)">Pilih Semua</button>
-                        <button type="button" class="btn btn-xs btn-ghost" onclick="checkAll(false)">Batalkan Semua</button>
+                        <button type="button" class="btn btn-xs btn-ghost" onclick="checkAll(false)">Batalkan</button>
                     </div>
                 </div>
-                <div id="preview-list" style="border:1px solid var(--bdr);border-radius:6px;overflow:hidden;max-height:320px;overflow-y:auto"></div>
+                <div id="preview-list" style="border:1px solid var(--bdr);border-radius:6px;overflow:hidden;max-height:300px;overflow-y:auto"></div>
             </div>
-            {{-- Tombol aksi --}}
-            <div style="display:flex;justify-content:flex-end;gap:8px;padding-top:4px">
+            <div style="display:flex;justify-content:flex-end;gap:8px">
                 <button class="btn btn-secondary btn-sm" onclick="closePreviewModal()">Batal</button>
-                <button id="btn-confirm-send" class="btn btn-sm" style="background:var(--ac);color:#fff;border-color:var(--ac)" onclick="confirmSend()">
+                <button id="btn-confirm-send" class="btn btn-sm" style="background:#16a34a;color:#fff;border-color:#16a34a" onclick="confirmSend()">
                     <i class="fas fa-paper-plane"></i> Konfirmasi Kirim (<span id="preview-selected-count">0</span>)
                 </button>
             </div>
         </div>
     </div>
 </div>
-@endsection
 
-@push('styles')
-<style>
-.tab-btn { padding:8px 16px; border:none; background:none; cursor:pointer; font-size:13px; font-weight:500;
-           color:var(--tx2); border-bottom:2px solid transparent; margin-bottom:-2px; transition:.15s; }
-.tab-btn.active { color:var(--ac); border-bottom-color:var(--ac); }
-.tab-btn:hover { color:var(--tx); }
-@media(max-width:768px){
-    [style*="grid-template-columns:300px"]{grid-template-columns:1fr!important}
-    [style*="repeat(4,1fr)"]{grid-template-columns:repeat(2,1fr)!important}
-}
-</style>
-@endpush
+{{-- Modal: Template --}}
+<div id="tpl-modal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.45);align-items:center;justify-content:center">
+    <div class="card" style="width:min(520px,95vw);max-height:90vh;overflow-y:auto">
+        <div class="card-header" style="justify-content:space-between">
+            <span id="tpl-modal-title">Tambah Template</span>
+            <button class="btn btn-ghost btn-xs" onclick="closeTplModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
+            <input type="hidden" id="tpl-edit-id" value="">
+            <div>
+                <label class="form-label">Nama Template</label>
+                <input type="text" id="tpl-name-input" class="form-control" placeholder="contoh: Perkenalan Singkat">
+            </div>
+            <div>
+                <label class="form-label">Isi Pesan</label>
+                <div style="font-size:11px;color:var(--tx3);margin-bottom:4px">
+                    Variabel: <code>{nama}</code> = nama tempat &nbsp; <code>{kategori}</code> = kategori &nbsp; <code>{alamat}</code> = alamat
+                </div>
+                <textarea id="tpl-body-input" class="form-control" rows="8"
+                    style="font-family:monospace;font-size:12px;resize:vertical"
+                    placeholder="Halo {nama} 👋..."></textarea>
+                <div style="font-size:11px;color:var(--tx3);margin-top:4px;text-align:right">
+                    <span id="tpl-char-count">0</span> karakter
+                </div>
+            </div>
+            <div class="d-flex gap-8 justify-end">
+                <button class="btn btn-secondary btn-sm" onclick="closeTplModal()">Batal</button>
+                <button class="btn btn-primary btn-sm" onclick="saveTplModal()">
+                    <i class="fas fa-save"></i> Simpan
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@endsection
 
 @push('scripts')
 <script>
@@ -514,14 +655,14 @@ var selectedDeviceId   = '';
 var selectedTemplateId = 0;
 var checkAllRunning    = false;
 
-// ── device ───────────────────────────────────────────────────────────────────
+// ── device ────────────────────────────────────────────────────────────────────
 function selectDevice(id, name) {
     selectedDeviceId = id;
     document.getElementById('selected-device-id').value = id;
     document.getElementById('selected-device-name').textContent = name;
-    document.querySelectorAll('.device-card').forEach(el => el.style.outline = 'none');
+    document.querySelectorAll('.dev-pill').forEach(el => el.classList.remove('dev-selected'));
     const el = document.getElementById('dev-' + id);
-    if (el) el.style.outline = '2px solid var(--ac)';
+    if (el) el.classList.add('dev-selected');
 }
 
 function refreshDevices() {
@@ -530,33 +671,35 @@ function refreshDevices() {
         .then(d => {
             const list = document.getElementById('device-list');
             list.innerHTML = d.devices.map(dev => `
-                <div class="device-card" onclick="selectDevice('${dev.id}','${dev.name}')"
-                     id="dev-${dev.id}" style="cursor:pointer;${dev.status !== 'ready' ? 'opacity:.5' : ''}">
-                    <div class="device-dot ${dev.status === 'ready' ? 'dot-ready' : 'dot-off'}"></div>
-                    <div class="device-info">
-                        <div class="device-name">${dev.name}</div>
-                        <div class="device-num">${dev.number || '—'}</div>
-                    </div>
-                    <span class="device-badge ${dev.status === 'ready' ? 'badge-ready' : 'badge-off'}">
-                        ${dev.status === 'ready' ? 'Online' : 'Offline'}
-                    </span>
+                <div class="dev-pill${dev.status === 'ready' ? '' : ''}"
+                     onclick="selectDevice('${dev.id}','${dev.name}')"
+                     id="dev-${dev.id}"
+                     style="${dev.status !== 'ready' ? 'opacity:.5' : ''}">
+                    <span class="dev-dot ${dev.status === 'ready' ? 'dot-ready' : 'dot-off'}"></span>
+                    <span>${dev.name}</span>
+                    ${dev.number ? `<span style="font-size:10px;color:var(--tx3)">${dev.number}</span>` : ''}
+                    <span class="dev-badge ${dev.status === 'ready' ? 'badge-ready' : 'badge-off'}">${dev.status === 'ready' ? 'Online' : 'Off'}</span>
                 </div>
             `).join('');
+            if (selectedDeviceId) {
+                const el = document.getElementById('dev-' + selectedDeviceId);
+                if (el) el.classList.add('dev-selected');
+            }
         });
 }
 
-// ── tab ──────────────────────────────────────────────────────────────────────
+// ── tabs ──────────────────────────────────────────────────────────────────────
 function switchTab(name) {
     document.querySelectorAll('.tab-panel').forEach(el => el.style.display = 'none');
     document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
     document.getElementById('tab-' + name).style.display = 'block';
     event.target.closest('.tab-btn').classList.add('active');
-    if (name === 'list') loadTargetList();
+    if (name === 'list')     loadTargetList();
     if (name === 'followup') loadFollowup();
     if (name === 'outreach') loadTemplateStats();
 }
 
-// ── template ─────────────────────────────────────────────────────────────────
+// ── templates ─────────────────────────────────────────────────────────────────
 function selectTemplate(id) {
     selectedTemplateId = id;
     document.getElementById('selected-template').value = id;
@@ -583,9 +726,7 @@ function editTemplate(id, name, body) {
     document.getElementById('tpl-modal').style.display = 'flex';
 }
 
-function closeTplModal() {
-    document.getElementById('tpl-modal').style.display = 'none';
-}
+function closeTplModal() { document.getElementById('tpl-modal').style.display = 'none'; }
 
 document.getElementById('tpl-body-input')?.addEventListener('input', function() {
     document.getElementById('tpl-char-count').textContent = this.value.length;
@@ -596,7 +737,6 @@ async function saveTplModal() {
     const name = document.getElementById('tpl-name-input').value.trim();
     const body = document.getElementById('tpl-body-input').value.trim();
     if (!name || !body) { alert('Nama dan isi pesan wajib diisi'); return; }
-
     const url    = id ? `/mafaza/public/whatsapp/templates/${id}` : '/mafaza/public/whatsapp/templates';
     const method = id ? 'PUT' : 'POST';
     const resp   = await fetch(url, {
@@ -625,7 +765,7 @@ async function toggleTemplate(id, btn) {
     if (d.status === 'ok') location.reload();
 }
 
-// ── cek WA ───────────────────────────────────────────────────────────────────
+// ── cek WA ────────────────────────────────────────────────────────────────────
 function logCheck(msg) {
     const box = document.getElementById('check-log');
     box.style.display = 'block';
@@ -659,8 +799,8 @@ async function runCheckWA(loopAll = false) {
         const d = await resp.json();
         if (d.status === 'ok') {
             totalChecked += d.results.checked;
-            logCheck(`✓ Batch selesai: ${d.results.has_wa} punya WA, ${d.results.no_wa} tidak, ${d.results.error} error`);
-            logCheck(`  Sisa belum dicek: ${d.remaining}`);
+            logCheck(`✓ Batch: ${d.results.has_wa} punya WA, ${d.results.no_wa} tidak, ${d.results.error} error`);
+            logCheck(`  Sisa: ${d.remaining}`);
             document.getElementById('unchecked-count').textContent = d.remaining;
             document.getElementById('stat-unchecked').textContent = d.remaining;
             updateCheckProgress(uncheckedTotal - d.remaining, uncheckedTotal);
@@ -716,19 +856,19 @@ function setCatFilter(btn) {
 
 function updateDailyBar(sentToday, dailyLimit) {
     const pct = Math.min(100, Math.round(sentToday / dailyLimit * 100));
-    document.getElementById('daily-bar').style.width = pct + '%';
-    document.getElementById('daily-bar').style.background = pct >= 90 ? '#ef4444' : pct >= 70 ? '#f97316' : 'var(--ac)';
+    const bar = document.getElementById('daily-bar');
+    bar.style.width    = pct + '%';
+    bar.style.background = pct >= 90 ? '#ef4444' : pct >= 70 ? '#f97316' : 'var(--ac)';
     document.getElementById('sent-today').textContent = sentToday;
     const warn = document.getElementById('daily-warn');
-    warn.style.display = pct >= 80 ? 'inline' : 'none';
+    if (warn) warn.style.display = pct >= 80 ? 'inline' : 'none';
 }
 
-// ── Preview Modal ──────────────────────────────────────────────────────────────
+// ── Preview Modal ─────────────────────────────────────────────────────────────
 let previewData = [];
 
 async function openSendPreview() {
     if (!selectedDeviceId) { alert('Pilih device terlebih dahulu'); return; }
-
     const sentToday  = parseInt(document.getElementById('sent-today').textContent) || 0;
     const dailyLimit = parseInt(document.getElementById('daily-limit').textContent) || 50;
     if (sentToday >= dailyLimit) { alert(`Limit harian ${dailyLimit} pesan sudah tercapai. Coba lagi besok.`); return; }
@@ -743,7 +883,6 @@ async function openSendPreview() {
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memuat...';
 
-    // Peringatan jam
     const h = new Date().getHours();
     document.getElementById('preview-time-warn').style.display = (h < 7 || h >= 21) ? 'block' : 'none';
 
@@ -755,20 +894,16 @@ async function openSendPreview() {
             body: JSON.stringify({ limit, category_filter: catFilter, template_id: selectedTemplateId })
         });
         const d = await resp.json();
-
         if (!d.data || d.data.length === 0) {
             alert('Tidak ada target valid. Semua sudah dikirim, atau masuk daftar chain besar yang dilewati.');
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-eye"></i> Preview & Kirim';
             return;
         }
-
         previewData = d.data;
         document.getElementById('preview-count').textContent = d.count;
         document.getElementById('preview-message-box').textContent = d.sample_message || '(tidak ada template aktif)';
-
         renderPreviewList();
-
         updateSelectedCount();
         document.getElementById('preview-modal').style.display = 'flex';
     } catch(e) {
@@ -779,9 +914,7 @@ async function openSendPreview() {
     btn.innerHTML = '<i class="fas fa-eye"></i> Preview & Kirim';
 }
 
-function closePreviewModal() {
-    document.getElementById('preview-modal').style.display = 'none';
-}
+function closePreviewModal() { document.getElementById('preview-modal').style.display = 'none'; }
 
 function checkAll(checked) {
     previewData.forEach(p => {
@@ -791,8 +924,7 @@ function checkAll(checked) {
     updateSelectedCount();
 }
 
-// Warna area: putar dari palet
-var areaColors = ['#6366f1','#0ea5e9','#10b981','#f59e0b','#ec4899','#8b5cf6','#ef4444','#14b8a6'];
+var areaColors  = ['#6366f1','#0ea5e9','#10b981','#f59e0b','#ec4899','#8b5cf6','#ef4444','#14b8a6'];
 var areaColorMap = {};
 var areaColorIdx  = 0;
 function areaColor(area) {
@@ -805,36 +937,31 @@ function areaColor(area) {
 
 function renderPreviewList() {
     areaColorMap = {}; areaColorIdx = 0;
-
-    // Kelompokkan per area
     var groups = {};
     previewData.forEach(function(p) {
         var a = p.area || 'Area tidak diketahui';
         if (!groups[a]) groups[a] = [];
         groups[a].push(p);
     });
-
     var areaNames = Object.keys(groups).sort();
 
-    // Render area chips
     var chipsEl = document.getElementById('area-chips');
     chipsEl.innerHTML = areaNames.map(function(a) {
         var c = areaColor(a);
         return `<button type="button" onclick="checkArea('${a.replace(/'/g,"\\'")}', true)"
-            style="font-size:10px;padding:3px 8px;border-radius:20px;border:1.5px solid ${c};background:${c}18;color:${c};cursor:pointer;font-weight:600;white-space:nowrap"
+            style="font-size:10px;padding:3px 9px;border-radius:20px;border:1.5px solid ${c};background:${c}18;color:${c};cursor:pointer;font-weight:600;white-space:nowrap"
             title="Pilih semua di area ini">
             <i class="fas fa-map-marker-alt" style="font-size:9px"></i>
             ${escHtml(a)} <span style="opacity:.7">(${groups[a].length})</span>
         </button>`;
     }).join('');
 
-    // Render list per area
     var listEl = document.getElementById('preview-list');
     var html = '';
     areaNames.forEach(function(area) {
         var c = areaColor(area);
         var items = groups[area];
-        html += `<div style="background:${c}12;border-bottom:2px solid ${c}40;padding:6px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;position:sticky;top:0;z-index:2">
+        html += `<div style="background:${c}12;border-bottom:2px solid ${c}40;padding:5px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;position:sticky;top:0;z-index:2">
             <div style="display:flex;align-items:center;gap:6px">
                 <span style="width:8px;height:8px;border-radius:50%;background:${c};flex-shrink:0;display:inline-block"></span>
                 <span style="font-size:11px;font-weight:700;color:${c}">${escHtml(area)}</span>
@@ -850,15 +977,15 @@ function renderPreviewList() {
 
         items.forEach(function(p, i) {
             var border = (i < items.length - 1) ? 'border-bottom:1px solid var(--bdr)' : '';
-            html += `<div id="prow-${p.id}" style="display:flex;align-items:center;gap:10px;padding:7px 10px;${border};transition:.1s"
+            html += `<div id="prow-${p.id}" style="display:flex;align-items:center;gap:10px;padding:6px 10px;${border};transition:.1s"
                 onmouseover="this.style.background='var(--bg2)'" onmouseout="this.style.background=''">
                 <input type="checkbox" id="pchk-${p.id}" data-area="${escHtml(area)}" checked onchange="updateSelectedCount()" style="width:14px;height:14px;flex-shrink:0;cursor:pointer">
                 ${p.thumb
-                    ? `<div class="ph-wrap" data-imgs="${escHtml((p.images||[]).join('|'))}" style="width:34px;height:34px;border-radius:5px;flex-shrink:0;cursor:zoom-in">
-                           <img src="${escHtml(p.thumb)}" loading="lazy" style="width:34px;height:34px;border-radius:5px;object-fit:cover;border:1px solid var(--bdr);display:block"
-                               onerror="this.closest('.ph-wrap').outerHTML='<div style=\\'width:34px;height:34px;border-radius:5px;background:var(--bg2);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--tx3);font-size:13px\\'><i class=\\'fas fa-store\\'></i></div>'">
+                    ? `<div class="ph-wrap" data-imgs="${escHtml((p.images||[]).join('|'))}" style="width:32px;height:32px;border-radius:5px;flex-shrink:0;cursor:zoom-in">
+                           <img src="${escHtml(p.thumb)}" loading="lazy" style="width:32px;height:32px;border-radius:5px;object-fit:cover;border:1px solid var(--bdr);display:block"
+                               onerror="this.closest('.ph-wrap').outerHTML='<div style=\\'width:32px;height:32px;border-radius:5px;background:var(--bg2);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--tx3);font-size:12px\\'><i class=\\'fas fa-store\\'></i></div>'">
                        </div>`
-                    : `<div style="width:34px;height:34px;border-radius:5px;background:var(--bg2);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--tx3);font-size:13px"><i class="fas fa-store"></i></div>`
+                    : `<div style="width:32px;height:32px;border-radius:5px;background:var(--bg2);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--tx3);font-size:12px"><i class="fas fa-store"></i></div>`
                 }
                 <div style="flex:1;min-width:0;cursor:pointer" onclick="document.getElementById('pchk-${p.id}').click()">
                     <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(p.name)}</div>
@@ -941,7 +1068,7 @@ async function executeSend(placeIds) {
     document.getElementById('send-progress-bar').style.width = '10%';
 
     try {
-        logSend(`Mengirim ke ${placeIds.length} target... (delay 3–7 detik per pesan)`);
+        logSend(`Mengirim ke ${placeIds.length} target... (delay 3–8 detik per pesan)`);
         const resp = await fetch('{{ route("whatsapp.send-outreach") }}', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
@@ -955,7 +1082,8 @@ async function executeSend(placeIds) {
         const d = await resp.json();
         if (d.status === 'ok') {
             document.getElementById('send-progress-bar').style.width = '100%';
-            logSend(`✓ Terkirim: ${d.results.sent} | Gagal: ${d.results.failed}`);
+            const skipNote = d.results.skipped_stale > 0 ? ` | Dilewati (basi): ${d.results.skipped_stale}` : '';
+            logSend(`✓ Terkirim: ${d.results.sent} | Gagal: ${d.results.failed}${skipNote}`);
             logSend(`Sisa target: ${d.remaining}`);
             document.getElementById('remaining-count').textContent = d.remaining;
             updateDailyBar(d.sent_today, d.daily_limit);
@@ -972,102 +1100,6 @@ async function executeSend(placeIds) {
 }
 
 // ── target list ───────────────────────────────────────────────────────────────
-function loadTargetList() {
-    const filter   = document.getElementById('list-filter').value;
-    const category = document.getElementById('list-category').value;
-    const wrap     = document.getElementById('target-list-wrap');
-    wrap.innerHTML = '<p class="text-sm text-muted" style="padding:16px"><i class="fas fa-spinner fa-spin"></i> Memuat...</p>';
-
-    fetch(`{{ route('whatsapp.target-list') }}?filter=${filter}&category=${encodeURIComponent(category)}`)
-        .then(r => r.json())
-        .then(d => {
-            if (!d.data || d.data.length === 0) {
-                wrap.innerHTML = '<p class="text-sm text-muted" style="padding:16px">Tidak ada data untuk filter ini.</p>';
-                return;
-            }
-            const statusBadge = {
-                sent:           '<span style="color:#3b82f6;font-weight:600;font-size:11px">Terkirim</span>',
-                replied:        '<span style="color:#06b6d4;font-weight:600;font-size:11px">Respon</span>',
-                responded:      '<span style="color:#06b6d4;font-weight:600;font-size:11px">Respon</span>',
-                interested:     '<span style="color:#f97316;font-weight:600;font-size:11px">Berminat</span>',
-                not_interested: '<span style="color:#9ca3af;font-weight:600;font-size:11px">Tidak Berminat</span>',
-                ordered:        '<span style="color:#10b981;font-weight:600;font-size:11px">Order ✓</span>',
-            };
-            const scoreColor = s => s >= 50 ? '#10b981' : s >= 30 ? '#f97316' : '#9ca3af';
-            const rows = d.data.map(p => {
-                const score = p.priority_score || 0;
-                const waLink = p.phone ? `<a href="https://wa.me/${p.phone.replace(/\D/g,'')}" target="_blank" class="btn btn-xs" style="background:#22c55e;color:#fff;border-color:#22c55e" title="Buka WA"><i class="fab fa-whatsapp"></i></a>` : '';
-                const detailLink = `<a href="/mafaza/public/places/${p.id}" target="_blank" class="btn btn-xs btn-ghost" title="Detail"><i class="fas fa-eye"></i></a>`;
-                const actionBtn = p.outreach_status === 'sent'
-                    ? `<button class="btn btn-xs btn-secondary" onclick="markStatus(${p.id},'replied',this)">↩ Respon</button>`
-                    : p.outreach_status === 'replied' || p.outreach_status === 'responded'
-                    ? `<button class="btn btn-xs" style="background:#f97316;color:#fff;border-color:#f97316" onclick="markStatus(${p.id},'interested',this)">👍</button>`
-                    : '';
-                const areaHtml = p.area
-                    ? `<div style="font-size:9px;color:#6366f1;font-weight:600;margin-top:2px"><i class="fas fa-map-marker-alt" style="font-size:8px"></i> ${escHtml(p.area)}</div>`
-                    : '';
-                return `<tr>
-                    <td style="padding:7px 12px">
-                        <div class="fw-600" style="font-size:12px">${escHtml(p.name)}</div>
-                        <div style="font-size:10px;color:var(--tx3)">${escHtml(p.category || '—')}</div>
-                        ${areaHtml}
-                    </td>
-                    <td style="padding:7px 12px;font-size:11px;color:var(--tx2)">${escHtml(p.phone || '—')}</td>
-                    <td style="padding:7px 12px;text-align:center">
-                        <span style="font-size:11px;font-weight:700;color:${scoreColor(score)}">${score}</span>
-                    </td>
-                    <td style="padding:7px 12px">${statusBadge[p.outreach_status] || '<span style="color:var(--tx3);font-size:11px">Belum</span>'}</td>
-                    <td style="padding:7px 12px;font-size:10px;color:var(--tx3)">${p.outreach_sent_at ? p.outreach_sent_at.replace('T',' ').slice(0,10) : '—'}</td>
-                    <td style="padding:7px 12px"><div style="display:flex;gap:4px">${waLink}${detailLink}${actionBtn}</div></td>
-                </tr>`;
-            }).join('');
-            wrap.innerHTML = `
-                <div style="font-size:12px;color:var(--tx2);padding:6px 12px;border-bottom:1px solid var(--bdr)">${d.count} tempat</div>
-                <div style="overflow-x:auto">
-                <table style="width:100%;border-collapse:collapse">
-                    <thead><tr style="border-bottom:1px solid var(--bdr);background:var(--bg2)">
-                        <th style="padding:7px 12px;text-align:left;font-size:11px;font-weight:600">Nama / Kategori / Area</th>
-                        <th style="padding:7px 12px;text-align:left;font-size:11px;font-weight:600">Telepon</th>
-                        <th style="padding:7px 12px;text-align:center;font-size:11px;font-weight:600">Score</th>
-                        <th style="padding:7px 12px;text-align:left;font-size:11px;font-weight:600">Status</th>
-                        <th style="padding:7px 12px;text-align:left;font-size:11px;font-weight:600">Kirim</th>
-                        <th style="padding:7px 12px"></th>
-                    </tr></thead>
-                    <tbody>${rows}</tbody>
-                </table>
-                </div>`;
-        })
-        .catch(() => { wrap.innerHTML = '<p style="padding:16px;color:var(--rd)">Gagal memuat.</p>'; });
-}
-
-function escHtml(s) {
-    if (!s) return '';
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function markStatus(id, status, btn) {
-    openGRespModal(id, status, null, function() { loadTargetList(); });
-}
-
-// ── stats refresh ─────────────────────────────────────────────────────────────
-function refreshStats() {
-    fetch('{{ route("whatsapp.stats") }}')
-        .then(r => r.json())
-        .then(d => {
-            document.getElementById('stat-has-wa').textContent    = d.has_wa;
-            document.getElementById('stat-no-wa').textContent     = d.no_wa;
-            document.getElementById('stat-unchecked').textContent = d.unchecked;
-            document.getElementById('stat-sent').textContent      = d.outreach_sent;
-            document.getElementById('stat-replied').textContent = d.replied;
-            document.getElementById('unchecked-count').textContent = d.unchecked;
-            document.getElementById('remaining-count').textContent = d.remaining;
-        });
-}
-
-// Auto-refresh stats setiap 30 detik
-setInterval(refreshStats, 30000);
-
-// ── target list (bulk selection) ──────────────────────────────────────────────
 let selectedIds = new Set();
 
 function updateBulkBar() {
@@ -1075,7 +1107,6 @@ function updateBulkBar() {
     const lbl = document.getElementById('bulk-count-label');
     if (selectedIds.size > 0) {
         bar.style.display = 'flex';
-        bar.style.flexWrap = 'wrap';
         lbl.textContent = selectedIds.size + ' dipilih';
     } else {
         bar.style.display = 'none';
@@ -1095,7 +1126,6 @@ async function applyBulkStatus() {
     if (!status) { alert('Pilih status terlebih dahulu'); return; }
     if (!selectedIds.size) { alert('Tidak ada yang dipilih'); return; }
     if (!confirm(`Terapkan status "${status}" ke ${selectedIds.size} tempat?`)) return;
-
     const resp = await fetch('{{ route("whatsapp.bulk-status") }}', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
@@ -1112,7 +1142,6 @@ async function applyBulkStatus() {
     }
 }
 
-// Override loadTargetList to add checkboxes
 function loadTargetList() {
     const filter   = document.getElementById('list-filter').value;
     const category = document.getElementById('list-category').value;
@@ -1129,12 +1158,12 @@ function loadTargetList() {
                 return;
             }
             const statusBadge = {
-                sent:           '<span style="color:#3b82f6;font-weight:600;font-size:11px">Terkirim</span>',
-                replied:        '<span style="color:#06b6d4;font-weight:600;font-size:11px">Respon</span>',
-                responded:      '<span style="color:#06b6d4;font-weight:600;font-size:11px">Respon</span>',
-                interested:     '<span style="color:#f97316;font-weight:600;font-size:11px">Berminat</span>',
-                not_interested: '<span style="color:#9ca3af;font-weight:600;font-size:11px">Tidak Berminat</span>',
-                ordered:        '<span style="color:#10b981;font-weight:600;font-size:11px">Order ✓</span>',
+                sent:           '<span style="background:#dbeafe;color:#1d4ed8;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px">Terkirim</span>',
+                replied:        '<span style="background:#cffafe;color:#0e7490;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px">Respon</span>',
+                responded:      '<span style="background:#cffafe;color:#0e7490;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px">Respon</span>',
+                interested:     '<span style="background:#ffedd5;color:#c2410c;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px">Berminat</span>',
+                not_interested: '<span style="background:#f3f4f6;color:#6b7280;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px">Tidak Minat</span>',
+                ordered:        '<span style="background:#dcfce7;color:#15803d;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px">Order ✓</span>',
             };
             const scoreColor = s => s >= 50 ? '#10b981' : s >= 30 ? '#f97316' : '#9ca3af';
             const rows = d.data.map(p => {
@@ -1143,39 +1172,42 @@ function loadTargetList() {
                 const detailLink = `<a href="/mafaza/public/places/${p.id}" target="_blank" class="btn btn-xs btn-ghost" title="Detail"><i class="fas fa-eye"></i></a>`;
                 const actionBtn = p.outreach_status === 'sent'
                     ? `<button class="btn btn-xs btn-secondary" onclick="markStatus(${p.id},'replied',this)">↩ Respon</button>`
-                    : p.outreach_status === 'replied' || p.outreach_status === 'responded'
+                    : (p.outreach_status === 'replied' || p.outreach_status === 'responded')
                     ? `<button class="btn btn-xs" style="background:#f97316;color:#fff;border-color:#f97316" onclick="markStatus(${p.id},'interested',this)">👍</button>`
                     : '';
-                return `<tr>
-                    <td style="padding:7px 8px;text-align:center">
-                        <input type="checkbox" class="bulk-chk" data-id="${p.id}" onchange="onBulkChkChange(this)"
-                               style="width:14px;height:14px;cursor:pointer">
+                const areaHtml = p.area
+                    ? `<div style="font-size:9px;color:#6366f1;font-weight:600;margin-top:1px"><i class="fas fa-map-marker-alt" style="font-size:8px"></i> ${escHtml(p.area)}</div>`
+                    : '';
+                return `<tr style="border-bottom:1px solid var(--bdr)">
+                    <td style="padding:6px 8px;text-align:center">
+                        <input type="checkbox" class="bulk-chk" data-id="${p.id}" onchange="onBulkChkChange(this)" style="width:13px;height:13px;cursor:pointer">
                     </td>
-                    <td style="padding:7px 12px">
-                        <div class="fw-600" style="font-size:12px">${escHtml(p.name)}</div>
+                    <td style="padding:6px 10px">
+                        <div style="font-size:12px;font-weight:600">${escHtml(p.name)}</div>
                         <div style="font-size:10px;color:var(--tx3)">${escHtml(p.category || '—')}</div>
+                        ${areaHtml}
                     </td>
-                    <td style="padding:7px 12px;font-size:11px;color:var(--tx2)">${escHtml(p.phone || '—')}</td>
-                    <td style="padding:7px 12px;text-align:center">
-                        <span style="font-size:11px;font-weight:700;color:${scoreColor(score)}">${score}</span>
+                    <td style="padding:6px 10px;font-size:11px;color:var(--tx2)">${escHtml(p.phone || '—')}</td>
+                    <td style="padding:6px 10px;text-align:center">
+                        <span style="font-size:12px;font-weight:700;color:${scoreColor(score)}">${score}</span>
                     </td>
-                    <td style="padding:7px 12px">${statusBadge[p.outreach_status] || '<span style="color:var(--tx3);font-size:11px">Belum</span>'}</td>
-                    <td style="padding:7px 12px;font-size:10px;color:var(--tx3)">${p.outreach_sent_at ? p.outreach_sent_at.replace('T',' ').slice(0,10) : '—'}</td>
-                    <td style="padding:7px 12px"><div style="display:flex;gap:4px">${waLink}${detailLink}${actionBtn}</div></td>
+                    <td style="padding:6px 10px">${statusBadge[p.outreach_status] || '<span style="color:var(--tx3);font-size:10px">Belum</span>'}</td>
+                    <td style="padding:6px 10px;font-size:10px;color:var(--tx3)">${p.outreach_sent_at ? p.outreach_sent_at.replace('T',' ').slice(0,10) : '—'}</td>
+                    <td style="padding:6px 10px"><div style="display:flex;gap:3px">${waLink}${detailLink}${actionBtn}</div></td>
                 </tr>`;
             }).join('');
             wrap.innerHTML = `
-                <div style="font-size:12px;color:var(--tx2);padding:6px 12px;border-bottom:1px solid var(--bdr)">${d.count} tempat</div>
+                <div style="font-size:11px;color:var(--tx2);padding:5px 12px;border-bottom:1px solid var(--bdr);background:var(--bg2)">${d.count} tempat</div>
                 <div style="overflow-x:auto">
                 <table style="width:100%;border-collapse:collapse">
-                    <thead><tr style="border-bottom:1px solid var(--bdr);background:var(--bg2)">
-                        <th style="padding:7px 8px;text-align:center"><input type="checkbox" id="select-all-chk" onchange="selectAllBulk(this)" style="width:14px;height:14px;cursor:pointer"></th>
-                        <th style="padding:7px 12px;text-align:left;font-size:11px;font-weight:600">Nama / Kategori</th>
-                        <th style="padding:7px 12px;text-align:left;font-size:11px;font-weight:600">Telepon</th>
-                        <th style="padding:7px 12px;text-align:center;font-size:11px;font-weight:600">Score</th>
-                        <th style="padding:7px 12px;text-align:left;font-size:11px;font-weight:600">Status</th>
-                        <th style="padding:7px 12px;text-align:left;font-size:11px;font-weight:600">Kirim</th>
-                        <th style="padding:7px 12px"></th>
+                    <thead><tr style="border-bottom:2px solid var(--bdr);background:var(--bg2)">
+                        <th style="padding:6px 8px;text-align:center"><input type="checkbox" id="select-all-chk" onchange="selectAllBulk(this)" style="width:13px;height:13px;cursor:pointer"></th>
+                        <th style="padding:6px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--tx2)">Nama / Kategori / Area</th>
+                        <th style="padding:6px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--tx2)">Telepon</th>
+                        <th style="padding:6px 10px;text-align:center;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--tx2)">Score</th>
+                        <th style="padding:6px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--tx2)">Status</th>
+                        <th style="padding:6px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--tx2)">Kirim</th>
+                        <th style="padding:6px 10px"></th>
                     </tr></thead>
                     <tbody>${rows}</tbody>
                 </table>
@@ -1201,7 +1233,37 @@ function selectAllBulk(chk) {
     updateBulkBar();
 }
 
-// ── FITUR 1: Follow Up ───────────────────────────────────────────────────────
+function escHtml(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function markStatus(id, status, btn) {
+    openGRespModal(id, status, null, function() { loadTargetList(); });
+}
+
+// ── stats refresh ─────────────────────────────────────────────────────────────
+function refreshStats() {
+    fetch('{{ route("whatsapp.stats") }}')
+        .then(r => r.json())
+        .then(d => {
+            document.getElementById('stat-has-wa').textContent        = d.has_wa;
+            document.getElementById('stat-no-wa').textContent         = d.no_wa;
+            document.getElementById('stat-unchecked').textContent     = d.unchecked;
+            document.getElementById('stat-sent').textContent          = d.outreach_sent;
+            document.getElementById('stat-replied').textContent       = d.replied;
+            document.getElementById('stat-interested').textContent    = d.interested;
+            document.getElementById('stat-not-interested').textContent= d.not_interested ?? 0;
+            document.getElementById('stat-ordered').textContent       = d.ordered ?? 0;
+            document.getElementById('unchecked-count').textContent    = d.unchecked;
+            document.getElementById('remaining-count').textContent    = d.remaining;
+            if (d.remaining_relevant !== undefined)
+                document.getElementById('remaining-relevant').textContent = d.remaining_relevant;
+        });
+}
+setInterval(refreshStats, 30000);
+
+// ── follow up ─────────────────────────────────────────────────────────────────
 function loadFollowup() {
     const wrap = document.getElementById('followup-wrap');
     wrap.innerHTML = '<p class="text-sm text-muted" style="padding:16px"><i class="fas fa-spinner fa-spin"></i> Memuat...</p>';
@@ -1211,16 +1273,16 @@ function loadFollowup() {
         .then(d => {
             const daysBadge = days => {
                 if (!days && days !== 0) return '<span style="font-size:10px;color:var(--tx3)">—</span>';
-                const col = days > 7 ? 'var(--rd)' : days > 3 ? '#f97316' : 'var(--tx3)';
-                return `<span style="background:${col};color:#fff;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:600">${days} hari lalu</span>`;
+                const col = days > 7 ? '#ef4444' : days > 3 ? '#f97316' : '#94a3b8';
+                return `<span style="background:${col};color:#fff;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700">${days} hari lalu</span>`;
             };
             const buildTable = (items, emptyMsg) => {
-                if (!items || items.length === 0) return `<p class="text-sm text-muted" style="padding:8px 0">${emptyMsg}</p>`;
+                if (!items || items.length === 0) return `<p class="text-sm text-muted" style="padding:12px 14px">${emptyMsg}</p>`;
                 const rows = items.map(p => {
                     const waLink = p.phone ? `<a href="https://wa.me/${p.phone.replace(/\D/g,'')}" target="_blank" class="btn btn-xs" style="background:#22c55e;color:#fff;border-color:#22c55e"><i class="fab fa-whatsapp"></i></a>` : '';
-                    return `<tr>
+                    return `<tr style="border-bottom:1px solid var(--bdr)">
                         <td style="padding:7px 12px">
-                            <div class="fw-600" style="font-size:12px">${escHtml(p.name)}</div>
+                            <div style="font-size:12px;font-weight:600">${escHtml(p.name)}</div>
                             <div style="font-size:10px;color:var(--tx3)">${escHtml(p.category || '—')}</div>
                         </td>
                         <td style="padding:7px 12px">${daysBadge(p.days_since)}</td>
@@ -1236,33 +1298,36 @@ function loadFollowup() {
                     </tr>`;
                 }).join('');
                 return `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">
-                    <thead><tr style="background:var(--bg2);border-bottom:1px solid var(--bdr)">
-                        <th style="padding:7px 12px;text-align:left;font-size:11px;font-weight:600">Nama / Kategori</th>
-                        <th style="padding:7px 12px;text-align:left;font-size:11px;font-weight:600">Dikirim</th>
-                        <th style="padding:7px 12px;text-align:left;font-size:11px;font-weight:600">Aksi</th>
+                    <thead><tr style="background:var(--bg2);border-bottom:2px solid var(--bdr)">
+                        <th style="padding:6px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--tx2)">Nama / Kategori</th>
+                        <th style="padding:6px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--tx2)">Dikirim</th>
+                        <th style="padding:6px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--tx2)">Aksi</th>
                     </tr></thead><tbody>${rows}</tbody></table></div>`;
             };
 
             wrap.innerHTML = `
                 <div class="card mb-12">
-                    <div class="card-header" style="background:linear-gradient(to right,#fee2e2,#fff1f2)">
-                        <span><i class="fas fa-exclamation-circle" style="color:var(--rd);margin-right:6px"></i>
-                        Perlu Di-Follow Up <span style="background:var(--rd);color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px">${d.followup.length}</span></span>
-                        <span class="text-xs text-muted">Dikirim >3 hari lalu, belum ada respon</span>
+                    <div class="card-header" style="background:linear-gradient(135deg,#fee2e2,#fff1f2)">
+                        <span><i class="fas fa-exclamation-circle" style="color:#ef4444;margin-right:6px"></i>
+                        Perlu Di-Follow Up</span>
+                        <span style="background:#ef4444;color:#fff;border-radius:10px;padding:1px 8px;font-size:11px;margin-left:6px">${d.followup.length}</span>
+                        <span class="text-xs text-muted" style="margin-left:auto">Dikirim &gt;3 hari lalu, belum respon</span>
                     </div>
                     <div class="card-body p-0">${buildTable(d.followup, 'Tidak ada yang perlu di-follow up.')}</div>
                 </div>
                 <div class="card mb-12">
-                    <div class="card-header" style="background:linear-gradient(to right,#fff7ed,#fff)">
+                    <div class="card-header" style="background:linear-gradient(135deg,#fff7ed,#fff)">
                         <span><i class="fas fa-thumbs-up" style="color:#f97316;margin-right:6px"></i>
-                        Berminat – Belum Order <span style="background:#f97316;color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px">${d.interested.length}</span></span>
+                        Berminat – Belum Order</span>
+                        <span style="background:#f97316;color:#fff;border-radius:10px;padding:1px 8px;font-size:11px;margin-left:6px">${d.interested.length}</span>
                     </div>
                     <div class="card-body p-0">${buildTable(d.interested, 'Tidak ada yang berminat saat ini.')}</div>
                 </div>
                 <div class="card">
-                    <div class="card-header" style="background:linear-gradient(to right,#eff6ff,#fff)">
+                    <div class="card-header" style="background:linear-gradient(135deg,#eff6ff,#fff)">
                         <span><i class="fas fa-reply" style="color:var(--ac);margin-right:6px"></i>
-                        Sudah Respon – Belum Berminat <span style="background:var(--ac);color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px">${d.replied.length}</span></span>
+                        Sudah Respon – Belum Berminat</span>
+                        <span style="background:var(--ac);color:#fff;border-radius:10px;padding:1px 8px;font-size:11px;margin-left:6px">${d.replied.length}</span>
                     </div>
                     <div class="card-body p-0">${buildTable(d.replied, 'Tidak ada yang sudah respon saat ini.')}</div>
                 </div>`;
@@ -1277,14 +1342,11 @@ function markStatusInline(id, status, btn) {
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
         body: JSON.stringify({ status })
     }).then(r => r.json()).then(d => {
-        if (d.status === 'ok') {
-            loadFollowup();
-            refreshStats();
-        }
+        if (d.status === 'ok') { loadFollowup(); refreshStats(); }
     }).catch(() => { btn.disabled = false; });
 }
 
-// ── FITUR 2: Template stats ───────────────────────────────────────────────────
+// ── template stats ────────────────────────────────────────────────────────────
 function loadTemplateStats() {
     fetch('{{ route("whatsapp.template-stats") }}')
         .then(r => r.json())
@@ -1294,25 +1356,23 @@ function loadTemplateStats() {
             const rows = d.data.map(t => {
                 const conv = t.sent > 0 ? (t.ordered / t.sent * 100).toFixed(1) : '0';
                 return `<tr style="border-bottom:1px solid var(--bdr)">
-                    <td style="padding:6px 10px;font-size:12px;font-weight:500">${escHtml(t.template_name)}</td>
-                    <td style="padding:6px 10px;text-align:center;font-size:12px">${t.sent}</td>
-                    <td style="padding:6px 10px;text-align:center;font-size:12px;color:#06b6d4">${t.replied}</td>
-                    <td style="padding:6px 10px;text-align:center;font-size:12px;color:#f97316">${t.interested}</td>
-                    <td style="padding:6px 10px;text-align:center;font-size:12px;color:#10b981">${t.ordered}</td>
-                    <td style="padding:6px 10px;text-align:center;font-size:12px;font-weight:600;color:${parseFloat(conv)>=5?'#10b981':'#6b7280'}">${conv}%</td>
+                    <td style="padding:5px 8px;font-size:11.5px;font-weight:500">${escHtml(t.template_name)}</td>
+                    <td style="padding:5px 8px;text-align:center;font-size:11.5px">${t.sent}</td>
+                    <td style="padding:5px 8px;text-align:center;font-size:11.5px;color:#06b6d4">${t.replied}</td>
+                    <td style="padding:5px 8px;text-align:center;font-size:11.5px;color:#f97316">${t.interested}</td>
+                    <td style="padding:5px 8px;text-align:center;font-size:11.5px;color:#10b981">${t.ordered}</td>
+                    <td style="padding:5px 8px;text-align:center;font-size:11.5px;font-weight:700;color:${parseFloat(conv)>=5?'#10b981':'#6b7280'}">${conv}%</td>
                 </tr>`;
             }).join('');
             document.getElementById('template-stats-body').innerHTML = rows;
         });
 }
 
-// ── FITUR 5: Re-Check WA ─────────────────────────────────────────────────────
+// ── re-check WA ───────────────────────────────────────────────────────────────
 function loadRecheckCount() {
     fetch('{{ route("whatsapp.recheck-count") }}')
         .then(r => r.json())
-        .then(d => {
-            document.getElementById('recheck-count').textContent = d.count;
-        });
+        .then(d => { document.getElementById('recheck-count').textContent = d.count; });
 }
 
 async function runReCheckWA() {
@@ -1320,7 +1380,6 @@ async function runReCheckWA() {
     const box = document.getElementById('recheck-log');
     box.style.display = 'block';
     box.textContent = 'Memulai re-cek...\n';
-
     try {
         const resp = await fetch('{{ route("whatsapp.recheck-wa") }}', {
             method: 'POST',
@@ -1329,28 +1388,23 @@ async function runReCheckWA() {
         });
         const d = await resp.json();
         if (d.status === 'ok') {
-            box.textContent += `✓ Selesai: ${d.results.has_wa} sekarang punya WA, ${d.results.no_wa} masih tidak, ${d.results.error} error\n`;
-            box.textContent += `Sisa untuk re-cek: ${d.remaining}\n`;
+            box.textContent += `✓ Selesai: ${d.results.has_wa} punya WA, ${d.results.no_wa} tidak, ${d.results.error} error\n`;
+            box.textContent += `Sisa: ${d.remaining}\n`;
             document.getElementById('recheck-count').textContent = d.remaining;
             refreshStats();
-        } else {
-            box.textContent += '✗ Error\n';
-        }
-    } catch(e) {
-        box.textContent += '✗ Error: ' + e.message + '\n';
-    }
+        } else { box.textContent += '✗ Error\n'; }
+    } catch(e) { box.textContent += '✗ Error: ' + e.message + '\n'; }
 }
 
-// ── FITUR 6: Duplikat ─────────────────────────────────────────────────────────
+// ── duplicates ────────────────────────────────────────────────────────────────
 function checkDuplicates() {
     document.getElementById('dup-modal').style.display = 'flex';
     document.getElementById('dup-modal-content').innerHTML = '<p class="text-sm text-muted"><i class="fas fa-spinner fa-spin"></i> Memuat...</p>';
-
     fetch('{{ route("whatsapp.duplicates") }}')
         .then(r => r.json())
         .then(d => {
             if (d.count === 0) {
-                document.getElementById('dup-modal-content').innerHTML = '<p class="text-sm text-muted">Tidak ditemukan nomor duplikat. Bagus!</p>';
+                document.getElementById('dup-modal-content').innerHTML = '<p class="text-sm text-muted" style="padding:8px 0">Tidak ditemukan nomor duplikat.</p>';
                 return;
             }
             const rows = d.data.map(dup => {
@@ -1373,7 +1427,7 @@ function checkDuplicates() {
             }).join('');
             document.getElementById('dup-modal-content').innerHTML = `
                 <div style="font-size:12px;color:var(--tx2);margin-bottom:12px">
-                    Ditemukan <strong>${d.count}</strong> nomor telepon duplikat. Hapus entri ganda (pertahankan yang pertama).
+                    <strong>${d.count}</strong> nomor duplikat. Hapus entri ganda (pertahankan yang pertama).
                 </div>
                 <div style="max-height:60vh;overflow-y:auto">${rows}</div>`;
         })
@@ -1390,38 +1444,31 @@ async function deletePlace(id, btn) {
         headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
     });
     if (resp.ok || resp.status === 302 || resp.redirected) {
-        btn.closest('[style*="border:1px solid var(--bdr)"]')?.remove() || btn.closest('div[style]')?.remove();
-        checkDuplicates(); // reload
+        checkDuplicates();
     } else {
         btn.disabled = false;
         alert('Gagal menghapus.');
     }
 }
 
-// Load recheck count on page load
-loadRecheckCount();
-// Load template stats on page load when outreach tab
-
-// ── Webhook ──────────────────────────────────────────────────────────────────
+// ── webhook ───────────────────────────────────────────────────────────────────
 async function checkWebhookStatus() {
     try {
         const d = await fetch('{{ route("whatsapp.webhook-status") }}').then(r => r.json());
-        const badge  = document.getElementById('webhook-badge');
-        const btnReg = document.getElementById('btn-webhook-reg');
+        const badge    = document.getElementById('webhook-badge');
+        const btnReg   = document.getElementById('btn-webhook-reg');
         const btnUnreg = document.getElementById('btn-webhook-unreg');
-        const urlEl  = document.getElementById('webhook-url');
+        const urlEl    = document.getElementById('webhook-url');
         if (urlEl) urlEl.textContent = d.webhook_url;
         if (d.registered) {
             badge.textContent = '✅ Webhook Terdaftar';
-            badge.style.background = '#dcfce7';
-            badge.style.color = '#16a34a';
-            if (btnReg) btnReg.style.display = 'none';
+            badge.style.background = '#dcfce7'; badge.style.color = '#16a34a';
+            if (btnReg)   btnReg.style.display   = 'none';
             if (btnUnreg) btnUnreg.style.display = 'inline-flex';
         } else {
             badge.textContent = '⚠️ Belum Terdaftar';
-            badge.style.background = '#fef3c7';
-            badge.style.color = '#92400e';
-            if (btnReg) btnReg.style.display = 'inline-flex';
+            badge.style.background = '#fef3c7'; badge.style.color = '#92400e';
+            if (btnReg)   btnReg.style.display   = 'inline-flex';
             if (btnUnreg) btnUnreg.style.display = 'none';
         }
     } catch(e) {
@@ -1453,32 +1500,30 @@ async function loadIncoming() {
     el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--tx3)">Memuat...</div>';
     const d = await fetch('{{ route("whatsapp.incoming-messages") }}').then(r => r.json()).catch(() => ({data:[]}));
     if (!d.data.length) {
-        el.innerHTML = '<div style="padding:28px;text-align:center;color:var(--tx3);font-size:13px">Belum ada pesan masuk dari prospek.</div>';
+        el.innerHTML = '<div style="padding:24px;text-align:center;color:var(--tx3);font-size:13px">Belum ada pesan masuk dari prospek.</div>';
         return;
     }
-    const statusLabel = {sent:'Terkirim',replied:'Respon',interested:'Berminat',ordered:'Order',not_interested:'Tdk Minat'};
     const statusColor = {sent:'var(--or)',replied:'#06b6d4',interested:'#16a34a',ordered:'#7c3aed',not_interested:'var(--rd)'};
+    const statusLabel = {sent:'Terkirim',replied:'Respon',interested:'Berminat',ordered:'Order',not_interested:'Tdk Minat'};
     el.innerHTML = d.data.map(m => `
-        <div style="padding:10px 14px;border-bottom:1px solid var(--bdr);display:flex;gap:10px;align-items:flex-start">
-            <div style="width:34px;height:34px;border-radius:50%;background:var(--acl);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:700;color:var(--ac)">
+        <div style="padding:9px 12px;border-bottom:1px solid var(--bdr);display:flex;gap:9px;align-items:flex-start">
+            <div style="width:32px;height:32px;border-radius:50%;background:var(--acl);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:700;color:var(--ac)">
                 ${(m.place?.name || m.from_number).charAt(0).toUpperCase()}
             </div>
             <div style="flex:1;min-width:0">
-                <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
-                    <span style="font-size:13px;font-weight:600">${m.place?.name || m.from_number}</span>
-                    ${m.place?.outreach_status ? `<span style="font-size:10px;font-weight:600;color:${statusColor[m.place.outreach_status]||'var(--tx3)'};">${statusLabel[m.place.outreach_status]||m.place.outreach_status}</span>` : ''}
-                    ${m.action_taken==='status_updated'?'<span style="font-size:10px;background:#dcfce7;color:#16a34a;padding:1px 5px;border-radius:4px">auto-updated</span>':''}
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;flex-wrap:wrap">
+                    <span style="font-size:12px;font-weight:600">${m.place?.name || m.from_number}</span>
+                    ${m.place?.outreach_status ? `<span style="font-size:10px;font-weight:700;color:${statusColor[m.place.outreach_status]||'var(--tx3)'};">${statusLabel[m.place.outreach_status]||m.place.outreach_status}</span>` : ''}
+                    ${m.action_taken==='status_updated'?'<span style="font-size:9px;background:#dcfce7;color:#16a34a;padding:1px 5px;border-radius:4px">auto-updated</span>':''}
                 </div>
-                <div style="font-size:12px;color:var(--tx2)">${m.message||'(pesan media)'}</div>
+                <div style="font-size:11.5px;color:var(--tx2)">${m.message||'(pesan media)'}</div>
             </div>
-            <div style="font-size:11px;color:var(--tx3);white-space:nowrap;flex-shrink:0">${new Date(m.received_at).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
+            <div style="font-size:10px;color:var(--tx3);white-space:nowrap;flex-shrink:0">${new Date(m.received_at).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
         </div>
     `).join('');
 }
 
-checkWebhookStatus();
-
-// ── Foto hover popup (ph-wrap) ────────────────────────────────────────────────
+// ── foto hover popup ──────────────────────────────────────────────────────────
 (function(){
     var popup = document.getElementById('ph-popup');
     var phImgs = [], phIdx = 0, phTimer, phOver = false;
@@ -1486,7 +1531,7 @@ checkWebhookStatus();
     function phRender() {
         if (!phImgs.length) return;
         var nav = phImgs.length > 1
-            ? '<div style="display:flex;align-items:center;justify-content:center;gap:8px;padding:5px 0 0">'
+            ? '<div style="display:flex;align-items:center;justify-content:center;gap:8px;padding:4px 0">'
               + '<span id="ph-prev" style="cursor:pointer;font-size:16px;color:var(--tx2);padding:0 6px">‹</span>'
               + '<span style="font-size:10px;color:var(--tx3)">'+(phIdx+1)+' / '+phImgs.length+'</span>'
               + '<span id="ph-next" style="cursor:pointer;font-size:16px;color:var(--tx2);padding:0 6px">›</span>'
@@ -1524,8 +1569,7 @@ checkWebhookStatus();
         if (!imgs.length) return;
         phOver = true; clearTimeout(phTimer);
         phImgs = imgs; phIdx = 0;
-        phRender();
-        phPos(e);
+        phRender(); phPos(e);
         popup.style.display = 'block';
     });
     document.addEventListener('mousemove', function(e) {
@@ -1544,5 +1588,9 @@ checkWebhookStatus();
         e.preventDefault(); phStep(e.deltaY > 0 ? 1 : -1);
     }, {passive: false});
 })();
+
+// ── init ──────────────────────────────────────────────────────────────────────
+loadRecheckCount();
+checkWebhookStatus();
 </script>
 @endpush
