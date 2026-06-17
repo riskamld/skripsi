@@ -395,7 +395,7 @@ $_o   = $stats['ordered'];
                      style="{{ !$tpl->is_active ? 'opacity:.45;pointer-events:none' : '' }}">
                     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
                         <div class="template-name" style="font-weight:600;font-size:12px">{{ $tpl->name }}</div>
-                        <div style="display:flex;gap:3px;flex-shrink:0" onclick="event.stopPropagation()">
+                        <div style="display:flex;gap:3px;flex-shrink:0;pointer-events:auto" onclick="event.stopPropagation()">
                             <button class="btn btn-xs btn-secondary" title="{{ $tpl->is_active ? 'Nonaktifkan' : 'Aktifkan' }}"
                                 onclick="toggleTemplate({{ $tpl->id }}, this)">
                                 <i class="fas fa-{{ $tpl->is_active ? 'eye' : 'eye-slash' }}"></i>
@@ -772,7 +772,7 @@ async function deleteTemplate(id, name) {
 }
 
 async function toggleTemplate(id, btn) {
-    const resp = await fetch(`/mafaza/public/whatsapp/templates/${id}/toggle`, {
+    const resp = await fetch(`{{ url('/whatsapp/templates') }}/${id}/toggle`, {
         method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
     });
     const d = await resp.json();
