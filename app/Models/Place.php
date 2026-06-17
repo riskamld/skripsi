@@ -122,22 +122,36 @@ class Place extends Model
     // Ambil kemunculan TERAKHIR — alamat Google Maps kadang mengandung teks
     // landmark/nama tempat yang menyisipkan "Kec. X" duplikat di tengah,
     // sementara penanda yang valid selalu paling dekat ke nama provinsi di akhir.
+    // Beberapa alamat memakai locale Inggris ("X Sub-District") — didukung sebagai fallback.
     public function kecamatan(): ?string
     {
-        if ($this->address && preg_match_all('/Kec(?:amatan)?\.\s*([^,]+)/iu', $this->address, $m)) {
+        if (!$this->address) return null;
+        if (preg_match_all('/Kec(?:amatan)?\.\s*([^,]+)/iu', $this->address, $m)) {
+            return trim(end($m[1]));
+        }
+        if (preg_match_all('/([^,]+?)\s+Sub-District/iu', $this->address, $m)) {
             return trim(end($m[1]));
         }
         return null;
     }
 
-    // Kabupaten/Kota diparsing dari kolom address, mis. "Kabupaten Jember" → "Kabupaten Jember"
+    // Kabupaten/Kota diparsing dari kolom address, mis. "Kabupaten Jember" → "Kabupaten Jember".
+    // Beberapa alamat memakai locale Inggris ("X Regency" / "X City") — didukung sebagai fallback,
+    // "City" dianker ke nama provinsi supaya tidak salah tangkap nama bisnis (mis. "Tanrise City").
     public function kabupaten(): ?string
     {
-        if ($this->address && preg_match_all('/Kabupaten\s+([^,]+)/iu', $this->address, $m)) {
+        if (!$this->address) return null;
+        if (preg_match_all('/Kabupaten\s+([^,]+)/iu', $this->address, $m)) {
             return 'Kabupaten ' . trim(end($m[1]));
         }
-        if ($this->address && preg_match_all('/Kota\s+([^,]+)/iu', $this->address, $m)) {
+        if (preg_match_all('/Kota\s+([^,]+)/iu', $this->address, $m)) {
             return 'Kota ' . trim(end($m[1]));
+        }
+        if (preg_match_all('/([^,]+?)\s+Regency/iu', $this->address, $m)) {
+            return 'Kabupaten ' . trim(end($m[1]));
+        }
+        if (preg_match('/([^,]+?)\s+City,\s*(?:East Java|Jawa Timur)/iu', $this->address, $m)) {
+            return 'Kota ' . trim($m[1]);
         }
         return null;
     }
