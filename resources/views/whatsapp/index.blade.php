@@ -600,22 +600,30 @@ $_o   = $stats['ordered'];
                 <i class="fas fa-clock"></i> <strong>Perhatian:</strong> Sekarang di luar jam kerja (07:00–21:00). Pesan mungkin tidak langsung dibaca.
             </div>
             <div>
-                <div style="font-size:11px;color:var(--tx2);font-weight:600;margin-bottom:4px">Preview pesan (contoh target pertama):</div>
-                <div id="preview-message-box" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 12px;font-size:12px;white-space:pre-wrap;line-height:1.6;max-height:130px;overflow-y:auto;color:#064e3b"></div>
+                <button type="button" onclick="togglePreviewMessage()" id="preview-msg-toggle"
+                    style="display:flex;justify-content:space-between;align-items:center;width:100%;background:var(--bg);border:1px solid var(--bdr);border-radius:6px;padding:7px 10px;cursor:pointer;font-family:inherit">
+                    <span style="font-size:11px;color:var(--tx2);font-weight:600"><i class="fas fa-comment-dots"></i> Preview pesan (contoh target pertama)</span>
+                    <i class="fas fa-chevron-down" id="preview-msg-chevron" style="font-size:10px;color:var(--tx3)"></i>
+                </button>
+                <div id="preview-message-box" style="display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-top:none;border-radius:0 0 8px 8px;padding:10px 12px;font-size:12px;white-space:pre-wrap;line-height:1.6;max-height:130px;overflow-y:auto;color:#064e3b"></div>
             </div>
-            <div id="area-chips" style="display:flex;flex-wrap:wrap;gap:5px;min-height:16px"></div>
-            <div>
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+
+            {{-- Bar aksi: ringkasan + pilih semua/batalkan + chip area padat --}}
+            <div style="border:1px solid var(--bdr);border-radius:8px;padding:8px 10px;background:var(--bg)">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
                     <div style="font-size:11px;color:var(--tx2);font-weight:600">
-                        <span id="preview-count">0</span> target <span style="color:var(--tx3);font-weight:400">— dikelompokkan per area</span>
+                        <span id="preview-count">0</span> target · <span id="preview-area-count">0</span> area
                     </div>
                     <div style="display:flex;gap:4px">
                         <button type="button" class="btn btn-xs btn-secondary" onclick="checkAll(true)">Pilih Semua</button>
                         <button type="button" class="btn btn-xs btn-ghost" onclick="checkAll(false)">Batalkan</button>
                     </div>
                 </div>
-                <div id="preview-list" style="border:1px solid var(--bdr);border-radius:6px;overflow:hidden;max-height:60vh;overflow-y:auto"></div>
+                <div id="area-chips" style="display:flex;flex-wrap:wrap;gap:5px;max-height:60px;overflow-y:auto;margin-top:6px"></div>
+                <div id="area-chips-note" style="font-size:10px;color:var(--tx3);margin-top:4px;display:none"></div>
             </div>
+
+            <div id="preview-list" style="border:1px solid var(--bdr);border-radius:6px;overflow:hidden;max-height:55vh;overflow-y:auto"></div>
             <div style="display:flex;justify-content:flex-end;gap:8px">
                 <button class="btn btn-secondary btn-sm" onclick="closePreviewModal()">Batal</button>
                 <button id="btn-confirm-send" class="btn btn-sm" style="background:#16a34a;color:#fff;border-color:#16a34a" onclick="confirmSend()">
@@ -926,6 +934,8 @@ async function openSendPreview() {
         previewData = d.data;
         document.getElementById('preview-count').textContent = d.count;
         document.getElementById('preview-message-box').textContent = d.sample_message || '(tidak ada template aktif)';
+        document.getElementById('preview-message-box').style.display = 'none';
+        document.getElementById('preview-msg-chevron').className = 'fas fa-chevron-down';
         renderPreviewList();
         updateSelectedCount();
         document.getElementById('preview-modal').style.display = 'flex';
@@ -938,6 +948,14 @@ async function openSendPreview() {
 }
 
 function closePreviewModal() { document.getElementById('preview-modal').style.display = 'none'; }
+
+function togglePreviewMessage() {
+    var box = document.getElementById('preview-message-box');
+    var chevron = document.getElementById('preview-msg-chevron');
+    var hidden = box.style.display === 'none';
+    box.style.display = hidden ? 'block' : 'none';
+    chevron.className = hidden ? 'fas fa-chevron-up' : 'fas fa-chevron-down';
+}
 
 function checkAll(checked) {
     previewData.forEach(p => {
@@ -967,9 +985,17 @@ function renderPreviewList() {
         groups[a].push(p);
     });
     var areaNames = Object.keys(groups).sort();
+    document.getElementById('preview-area-count').textContent = areaNames.length;
+
+    // Chip cuma ditampilkan utk area dgn 2+ tempat — chip area bertarget 1
+    // tidak ada gunanya (toh tinggal centang baris itu langsung), dan kalau
+    // ditampilkan semua jadi penuh sesak saat banyak area tersebar.
+    var denseAreas = areaNames.filter(function(a) { return groups[a].length >= 2; })
+        .sort(function(a, b) { return groups[b].length - groups[a].length; });
+    var singleCount = areaNames.length - denseAreas.length;
 
     var chipsEl = document.getElementById('area-chips');
-    chipsEl.innerHTML = areaNames.map(function(a) {
+    chipsEl.innerHTML = denseAreas.map(function(a) {
         var c = areaColor(a);
         return `<button type="button" onclick="checkArea('${a.replace(/'/g,"\\'")}', true)"
             style="font-size:10px;padding:3px 9px;border-radius:20px;border:1.5px solid ${c};background:${c}18;color:${c};cursor:pointer;font-weight:600;white-space:nowrap"
@@ -978,6 +1004,16 @@ function renderPreviewList() {
             ${escHtml(a)} <span style="opacity:.7">(${groups[a].length})</span>
         </button>`;
     }).join('');
+
+    var noteEl = document.getElementById('area-chips-note');
+    if (singleCount > 0) {
+        noteEl.style.display = 'block';
+        noteEl.textContent = denseAreas.length > 0
+            ? `+ ${singleCount} area dengan 1 tempat (lihat di daftar bawah)`
+            : `Semua ${singleCount} area cuma punya 1 tempat — lihat daftar di bawah`;
+    } else {
+        noteEl.style.display = 'none';
+    }
 
     var listEl = document.getElementById('preview-list');
     var html = '';
