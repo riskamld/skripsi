@@ -19,8 +19,8 @@
 @if($stats['wa_unchecked'] > 0)
 <div class="alert alert-warning mb-16" style="display:flex;align-items:center;gap:10px">
     <i class="fas fa-exclamation-triangle"></i>
-    <span><strong>{{ number_format($stats['wa_unchecked']) }} nomor</strong> belum dicek WA.
-    <a href="{{ route('whatsapp.index') }}" style="color:inherit;font-weight:600;text-decoration:underline">Cek sekarang →</a></span>
+    <span><strong>{{ number_format($stats['wa_unchecked']) }} nomor</strong> belum dicek WA.</span>
+    <a href="{{ route('whatsapp.index') }}" class="btn btn-sm btn-warning" style="margin-left:auto">Cek sekarang →</a>
 </div>
 @endif
 @if($stats['followup_due'] > 0)

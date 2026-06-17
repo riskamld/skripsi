@@ -139,7 +139,10 @@ table tr:hover td{background:#fafbfc}
   transition:border-color .1s,box-shadow .1s;line-height:1.5;
 }
 .form-control:focus{outline:none;border-color:var(--ac);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
-select.form-control{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%236b7280' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:28px}
+select.form-control:not([multiple]){appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%236b7280' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:28px}
+select.form-control[multiple]{padding:4px;background-image:none}
+select.form-control[multiple] option{padding:4px 8px;border-radius:4px}
+select.form-control[multiple] option:checked{background:var(--acl);color:var(--ac)}
 .form-label{font-size:11.5px;font-weight:600;color:var(--tx2);display:block;margin-bottom:4px}
 .form-group{margin-bottom:14px}
 .input-group{display:flex}
