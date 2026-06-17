@@ -466,19 +466,22 @@
                 <div style="font-size:11px;color:var(--tx2);font-weight:600;margin-bottom:4px">Preview pesan (contoh untuk target pertama):</div>
                 <div id="preview-message-box" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px;font-size:12px;white-space:pre-wrap;line-height:1.6;max-height:140px;overflow-y:auto;color:#064e3b"></div>
             </div>
+            {{-- Area filter chips --}}
+            <div id="area-chips" style="display:flex;flex-wrap:wrap;gap:5px;min-height:20px"></div>
+
             {{-- Daftar target --}}
             <div>
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
                     <div style="font-size:11px;color:var(--tx2);font-weight:600">
-                        <span id="preview-count">0</span> target akan dikirim
-                        <span style="color:var(--tx3);font-weight:400"> — centang/hapus yang tidak sesuai</span>
+                        <span id="preview-count">0</span> target
+                        <span style="color:var(--tx3);font-weight:400"> — dikelompokkan per area</span>
                     </div>
                     <div style="display:flex;gap:4px">
-                        <button class="btn btn-xs btn-secondary" onclick="checkAll(true)">Pilih Semua</button>
-                        <button class="btn btn-xs btn-ghost" onclick="checkAll(false)">Batalkan Semua</button>
+                        <button type="button" class="btn btn-xs btn-secondary" onclick="checkAll(true)">Pilih Semua</button>
+                        <button type="button" class="btn btn-xs btn-ghost" onclick="checkAll(false)">Batalkan Semua</button>
                     </div>
                 </div>
-                <div id="preview-list" style="border:1px solid var(--bdr);border-radius:6px;overflow:hidden;max-height:260px;overflow-y:auto"></div>
+                <div id="preview-list" style="border:1px solid var(--bdr);border-radius:6px;overflow:hidden;max-height:320px;overflow-y:auto"></div>
             </div>
             {{-- Tombol aksi --}}
             <div style="display:flex;justify-content:flex-end;gap:8px;padding-top:4px">
@@ -788,36 +791,100 @@ function checkAll(checked) {
     updateSelectedCount();
 }
 
+// Warna area: putar dari palet
+var areaColors = ['#6366f1','#0ea5e9','#10b981','#f59e0b','#ec4899','#8b5cf6','#ef4444','#14b8a6'];
+var areaColorMap = {};
+var areaColorIdx  = 0;
+function areaColor(area) {
+    if (!areaColorMap[area]) {
+        areaColorMap[area] = areaColors[areaColorIdx % areaColors.length];
+        areaColorIdx++;
+    }
+    return areaColorMap[area];
+}
+
 function renderPreviewList() {
-    const listEl = document.getElementById('preview-list');
-    listEl.innerHTML = previewData.map((p, i) => `
-        <div id="prow-${p.id}" style="display:flex;align-items:center;gap:10px;padding:8px 10px;
-                      ${i < previewData.length-1 ? 'border-bottom:1px solid var(--bdr)' : ''};
-                      transition:.1s" onmouseover="this.style.background='var(--bg2)'" onmouseout="this.style.background=''">
-            <input type="checkbox" id="pchk-${p.id}" checked onchange="updateSelectedCount()" style="width:14px;height:14px;flex-shrink:0;cursor:pointer">
-            ${p.thumb
-                ? `<div class="ph-wrap" data-imgs="${escHtml((p.images||[]).join('|'))}"
-                        style="width:36px;height:36px;border-radius:5px;flex-shrink:0;cursor:zoom-in">
-                       <img src="${escHtml(p.thumb)}" loading="lazy"
-                            style="width:36px;height:36px;border-radius:5px;object-fit:cover;border:1px solid var(--bdr);display:block"
-                            onerror="this.closest('.ph-wrap').outerHTML='<div style=\'width:36px;height:36px;border-radius:5px;background:var(--bg2);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--tx3);font-size:14px\'><i class=\'fas fa-store\'></i></div>'">
-                   </div>`
-                : `<div style="width:36px;height:36px;border-radius:5px;background:var(--bg2);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--tx3);font-size:14px"><i class="fas fa-store"></i></div>`
-            }
-            <div style="flex:1;min-width:0;cursor:pointer" onclick="document.getElementById('pchk-${p.id}').click()">
-                <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(p.name)}</div>
-                <div style="font-size:10px;color:var(--tx3)">${escHtml(p.category || '—')} · ${p.phone}</div>
+    areaColorMap = {}; areaColorIdx = 0;
+
+    // Kelompokkan per area
+    var groups = {};
+    previewData.forEach(function(p) {
+        var a = p.area || 'Area tidak diketahui';
+        if (!groups[a]) groups[a] = [];
+        groups[a].push(p);
+    });
+
+    var areaNames = Object.keys(groups).sort();
+
+    // Render area chips
+    var chipsEl = document.getElementById('area-chips');
+    chipsEl.innerHTML = areaNames.map(function(a) {
+        var c = areaColor(a);
+        return `<button type="button" onclick="checkArea('${a.replace(/'/g,"\\'")}', true)"
+            style="font-size:10px;padding:3px 8px;border-radius:20px;border:1.5px solid ${c};background:${c}18;color:${c};cursor:pointer;font-weight:600;white-space:nowrap"
+            title="Pilih semua di area ini">
+            <i class="fas fa-map-marker-alt" style="font-size:9px"></i>
+            ${escHtml(a)} <span style="opacity:.7">(${groups[a].length})</span>
+        </button>`;
+    }).join('');
+
+    // Render list per area
+    var listEl = document.getElementById('preview-list');
+    var html = '';
+    areaNames.forEach(function(area) {
+        var c = areaColor(area);
+        var items = groups[area];
+        html += `<div style="background:${c}12;border-bottom:2px solid ${c}40;padding:6px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;position:sticky;top:0;z-index:2">
+            <div style="display:flex;align-items:center;gap:6px">
+                <span style="width:8px;height:8px;border-radius:50%;background:${c};flex-shrink:0;display:inline-block"></span>
+                <span style="font-size:11px;font-weight:700;color:${c}">${escHtml(area)}</span>
+                <span style="font-size:10px;color:var(--tx3)">${items.length} tempat</span>
             </div>
-            <div style="font-size:10px;color:var(--tx3);text-align:right;flex-shrink:0;white-space:nowrap;margin-right:4px">
-                ${p.rating ? '★' + p.rating : ''}${p.review_count ? ' · ' + p.review_count + ' ulasan' : ''}
+            <div style="display:flex;gap:4px">
+                <button type="button" onclick="checkArea('${area.replace(/'/g,"\\'")}', true)"
+                    style="font-size:10px;padding:2px 7px;border-radius:4px;border:1px solid ${c};background:${c}20;color:${c};cursor:pointer">Pilih</button>
+                <button type="button" onclick="checkArea('${area.replace(/'/g,"\\'")}', false)"
+                    style="font-size:10px;padding:2px 7px;border-radius:4px;border:1px solid var(--bdr);background:transparent;color:var(--tx3);cursor:pointer">Hapus</button>
             </div>
-            <button type="button" title="Tandai tidak relevan — hapus dari daftar target selamanya"
-                style="flex-shrink:0;border:none;background:transparent;cursor:pointer;color:var(--tx3);padding:2px 4px;border-radius:4px;font-size:11px;line-height:1"
-                onmouseover="this.style.color='var(--rd)'" onmouseout="this.style.color='var(--tx3)'"
-                onclick="markIrrelevantFromPreview(${p.id}, this)">
-                <i class="fas fa-ban"></i>
-            </button>
-        </div>`).join('');
+        </div>`;
+
+        items.forEach(function(p, i) {
+            var border = (i < items.length - 1) ? 'border-bottom:1px solid var(--bdr)' : '';
+            html += `<div id="prow-${p.id}" style="display:flex;align-items:center;gap:10px;padding:7px 10px;${border};transition:.1s"
+                onmouseover="this.style.background='var(--bg2)'" onmouseout="this.style.background=''">
+                <input type="checkbox" id="pchk-${p.id}" data-area="${escHtml(area)}" checked onchange="updateSelectedCount()" style="width:14px;height:14px;flex-shrink:0;cursor:pointer">
+                ${p.thumb
+                    ? `<div class="ph-wrap" data-imgs="${escHtml((p.images||[]).join('|'))}" style="width:34px;height:34px;border-radius:5px;flex-shrink:0;cursor:zoom-in">
+                           <img src="${escHtml(p.thumb)}" loading="lazy" style="width:34px;height:34px;border-radius:5px;object-fit:cover;border:1px solid var(--bdr);display:block"
+                               onerror="this.closest('.ph-wrap').outerHTML='<div style=\\'width:34px;height:34px;border-radius:5px;background:var(--bg2);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--tx3);font-size:13px\\'><i class=\\'fas fa-store\\'></i></div>'">
+                       </div>`
+                    : `<div style="width:34px;height:34px;border-radius:5px;background:var(--bg2);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--tx3);font-size:13px"><i class="fas fa-store"></i></div>`
+                }
+                <div style="flex:1;min-width:0;cursor:pointer" onclick="document.getElementById('pchk-${p.id}').click()">
+                    <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(p.name)}</div>
+                    <div style="font-size:10px;color:var(--tx3)">${escHtml(p.category || '—')} · ${escHtml(p.phone)}</div>
+                </div>
+                <div style="font-size:10px;color:var(--tx3);flex-shrink:0;white-space:nowrap;text-align:right;margin-right:4px">
+                    ${p.rating ? '★' + p.rating : ''}${p.review_count ? '<br><span style="font-size:9px">' + p.review_count + ' ulasan</span>' : ''}
+                </div>
+                <button type="button" title="Tandai tidak relevan"
+                    style="flex-shrink:0;border:none;background:transparent;cursor:pointer;color:var(--tx3);padding:2px 4px;font-size:11px;line-height:1"
+                    onmouseover="this.style.color='var(--rd)'" onmouseout="this.style.color='var(--tx3)'"
+                    onclick="markIrrelevantFromPreview(${p.id}, this)">
+                    <i class="fas fa-ban"></i>
+                </button>
+            </div>`;
+        });
+    });
+
+    listEl.innerHTML = html;
+    updateSelectedCount();
+}
+
+function checkArea(area, checked) {
+    document.querySelectorAll('#preview-list input[type=checkbox][data-area]').forEach(function(cb) {
+        if (cb.dataset.area === area) cb.checked = checked;
+    });
     updateSelectedCount();
 }
 
@@ -936,10 +1003,14 @@ function loadTargetList() {
                     : p.outreach_status === 'replied' || p.outreach_status === 'responded'
                     ? `<button class="btn btn-xs" style="background:#f97316;color:#fff;border-color:#f97316" onclick="markStatus(${p.id},'interested',this)">👍</button>`
                     : '';
+                const areaHtml = p.area
+                    ? `<div style="font-size:9px;color:#6366f1;font-weight:600;margin-top:2px"><i class="fas fa-map-marker-alt" style="font-size:8px"></i> ${escHtml(p.area)}</div>`
+                    : '';
                 return `<tr>
                     <td style="padding:7px 12px">
                         <div class="fw-600" style="font-size:12px">${escHtml(p.name)}</div>
                         <div style="font-size:10px;color:var(--tx3)">${escHtml(p.category || '—')}</div>
+                        ${areaHtml}
                     </td>
                     <td style="padding:7px 12px;font-size:11px;color:var(--tx2)">${escHtml(p.phone || '—')}</td>
                     <td style="padding:7px 12px;text-align:center">
@@ -955,7 +1026,7 @@ function loadTargetList() {
                 <div style="overflow-x:auto">
                 <table style="width:100%;border-collapse:collapse">
                     <thead><tr style="border-bottom:1px solid var(--bdr);background:var(--bg2)">
-                        <th style="padding:7px 12px;text-align:left;font-size:11px;font-weight:600">Nama / Kategori</th>
+                        <th style="padding:7px 12px;text-align:left;font-size:11px;font-weight:600">Nama / Kategori / Area</th>
                         <th style="padding:7px 12px;text-align:left;font-size:11px;font-weight:600">Telepon</th>
                         <th style="padding:7px 12px;text-align:center;font-size:11px;font-weight:600">Score</th>
                         <th style="padding:7px 12px;text-align:left;font-size:11px;font-weight:600">Status</th>

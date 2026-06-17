@@ -311,7 +311,8 @@ class WhatsAppController extends Controller
             $q->orderByDesc('outreach_sent_at');
         }
 
-        $places = $q->limit(200)->get();
+        $places = $q->limit(200)->get()
+            ->map(fn($p) => array_merge($p->toArray(), ['area' => $this->extractArea($p->address)]));
 
         return response()->json([
             'status' => 'ok',
@@ -373,7 +374,9 @@ class WhatsAppController extends Controller
                 fn($img) => $img ? preg_replace('/=w\d+-h\d+[^"]*$/', '=w400-h300-k-no', $img) : null,
                 [$p->image_1, $p->image_2, $p->image_3, $p->image_4]
             ))),
-        ]);
+            'area'         => $this->extractArea($p->address),
+        ])
+        ->sortBy('area')->values();
 
         $sampleMessage = '';
         if ($sampleTemplate && $places->isNotEmpty()) {
@@ -856,6 +859,24 @@ class WhatsAppController extends Controller
             ->get();
 
         return response()->json(['status' => 'ok', 'data' => $messages]);
+    }
+
+    private function extractArea(?string $address): string
+    {
+        if (!$address) return 'Area tidak diketahui';
+        $kec = $kab = '';
+        if (preg_match('/Kec(?:amatan)?\.\s*([^,]+)/iu', $address, $m)) {
+            $kec = trim($m[1]);
+        }
+        if (preg_match('/Kabupaten\s+([^,]+)/iu', $address, $m)) {
+            $kab = trim($m[1]);
+        } elseif (preg_match('/Kota\s+([^,]+)/iu', $address, $m)) {
+            $kab = 'Kota ' . trim($m[1]);
+        }
+        if ($kec && $kab) return $kec . ' — ' . $kab;
+        if ($kec) return $kec;
+        if ($kab) return $kab;
+        return 'Area tidak diketahui';
     }
 
     private function renderTemplate(string $body, Place $place): string
