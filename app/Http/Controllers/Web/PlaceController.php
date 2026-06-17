@@ -19,7 +19,8 @@ class PlaceController extends Controller
             $query->where(function($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                   ->orWhere('category', 'like', "%{$search}%")
-                  ->orWhere('address', 'like', "%{$search}%");
+                  ->orWhere('address', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%");
             });
         }
 
@@ -34,13 +35,14 @@ class PlaceController extends Controller
         // Quick filters (tab-style)
         $quickFilter = $request->get('qf', '');
         match($quickFilter) {
-            'wa'        => $query->where('has_whatsapp', true),
-            'no_wa'     => $query->where('has_whatsapp', false),
-            'unchecked' => $query->whereNull('has_whatsapp'),
-            'has_pt'    => $query->whereNotNull('popular_times')->where('popular_times', '!=', '{}')->where('popular_times', '!=', '[]'),
-            'target'    => $query->where('is_target', true),
-            'prospect'  => $query->where('has_whatsapp', true)->where('is_target', true)
-                                 ->whereIn('outreach_status', ['none', null, ''])->whereNull('outreach_status'),
+            'wa'          => $query->where('has_whatsapp', true)->where(fn($q) => $q->whereNull('is_valid')->orWhere('is_valid', true)),
+            'no_wa'       => $query->where('has_whatsapp', false)->where(fn($q) => $q->whereNull('is_valid')->orWhere('is_valid', true)),
+            'unchecked'   => $query->whereNull('has_whatsapp')->where(fn($q) => $q->whereNull('is_valid')->orWhere('is_valid', true)),
+            'has_pt'      => $query->whereNotNull('popular_times')->where('popular_times', '!=', '{}')->where('popular_times', '!=', '[]')->where(fn($q) => $q->whereNull('is_valid')->orWhere('is_valid', true)),
+            'target'      => $query->where('is_target', true),
+            'irrelevant'  => $query->where('is_valid', false),
+            'prospect'    => $query->where('has_whatsapp', true)->where('is_target', true)
+                                   ->whereIn('outreach_status', ['none', null, ''])->whereNull('outreach_status'),
             'sent'           => $query->where('outreach_status', 'sent'),
             'replied'        => $query->where('outreach_status', 'replied'),
             'interested'     => $query->where('outreach_status', 'interested'),
@@ -48,7 +50,8 @@ class PlaceController extends Controller
             'ordered'        => $query->where('outreach_status', 'ordered'),
             'unsent'         => $query->where('has_whatsapp', true)
                                  ->where(fn($q) => $q->whereNull('outreach_status')->orWhere('outreach_status', 'none')),
-            default     => null,
+            // default: sembunyikan yang sudah ditandai tidak relevan
+            default => $query->where(fn($q) => $q->whereNull('is_valid')->orWhere('is_valid', true)),
         };
 
         // Sort
@@ -165,6 +168,20 @@ class PlaceController extends Controller
 
         return redirect()->route('places.index')
             ->with('success', 'All places cleared successfully');
+    }
+
+    public function toggleRelevance(Place $place)
+    {
+        $markIrrelevant = $place->is_valid !== false;
+        $place->update([
+            'is_valid'  => !$markIrrelevant,
+            'is_target' => $markIrrelevant ? $place->is_target : false,
+        ]);
+        return response()->json([
+            'status'   => 'ok',
+            'is_valid' => !$markIrrelevant,
+            'message'  => $markIrrelevant ? 'Ditandai tidak relevan.' : 'Diaktifkan kembali.',
+        ]);
     }
 
     public function bulkDelete(Request $request)

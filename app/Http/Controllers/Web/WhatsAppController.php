@@ -601,15 +601,18 @@ class WhatsAppController extends Controller
     ];
 
     const RELEVANT_CATEGORIES = [
-        'Restoran', 'Warung Makan', 'Restoran Ayam', 'Restoran Bakso',
-        'Restoran Cepat Saji', 'Restoran Seafood', 'Restoran Sate',
-        'Restoran Mie', 'Restoran Nasi Goreng', 'Restoran China',
-        'Restoran Indonesia', 'Restoran Padang',
-        'Toko Buah dan Sayur', 'Toko Buah dan Sayuran', 'Grosir Buah dan Sayur',
-        'Toko grosir buah dan sayur', 'Toko Buah Kering',
-        'Toko Bahan Makanan', 'Minimarket', 'Supermarket', 'Pasar',
-        'Kedai Jus', 'Kedai Hidangan Penutup', 'Toko Es Krim',
-        'Kedai Kopi', 'Pusat Perbelanjaan',
+        'Toko Buah dan Sayur',
+        'Toko Buah dan Sayuran',
+        'Grosir Buah dan Sayur',
+        'Toko grosir buah dan sayur',
+        'Toko Buah Kering',
+        'Toko Buah',
+        'Pedagang Buah',
+        'Distributor Buah',
+        'Agen Buah',
+        'Kios Buah',
+        'Pasar',
+        'Toko Bahan Makanan',
     ];
 
     // ── private ───────────────────────────────────────────────────────────────

@@ -76,6 +76,16 @@ class PlaceController extends Controller
         ]);
 
         try {
+            // Jika place sudah ditandai tidak relevan, skip update
+            $existing = Place::where('place_id', $request->place_id)->first();
+            if ($existing && $existing->is_valid === false) {
+                return response()->json([
+                    'status'  => 'skipped',
+                    'message' => 'Place ditandai tidak relevan, dilewati.',
+                    'data'    => $existing,
+                ], 200);
+            }
+
             // 2. Place::updateOrCreate()
             $place = Place::updateOrCreate(
                 ['place_id' => $request->place_id],

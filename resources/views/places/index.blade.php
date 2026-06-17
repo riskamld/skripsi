@@ -17,7 +17,7 @@
 <div class="d-flex align-center gap-8 mb-16 flex-wrap">
     {{-- Search --}}
     <div class="input-group" style="max-width:280px;flex:1;min-width:180px;">
-        <input type="text" id="searchInput" class="form-control" placeholder="Cari nama, kategori, alamat…" value="{{ request('search') }}">
+        <input type="text" id="searchInput" class="form-control" placeholder="Cari nama, kategori, alamat, nomor HP…" value="{{ request('search') }}">
         <button class="btn btn-secondary" id="clearSearch" style="display:{{ request('search') ? 'flex' : 'none' }}">
             <i class="fas fa-times"></i>
         </button>
@@ -64,18 +64,19 @@
 <div class="d-flex align-center gap-6 mb-12 flex-wrap" style="font-size:12.5px;">
     <span class="text-muted" style="font-size:11px;font-weight:600;letter-spacing:.4px;white-space:nowrap;">FILTER CEPAT</span>
     @foreach([
-        ['' ,          'Semua',                                              'btn-secondary'],
-        ['unchecked',  '<i class="fas fa-question-circle"></i> Belum Cek WA','btn-secondary'],
-        ['wa',         '<i class="fab fa-whatsapp"></i> Punya WA',           'btn-success'],
-        ['no_wa',      '<i class="fas fa-times-circle"></i> Tidak Ada WA',   'btn-danger'],
-        ['has_pt',     '<i class="fas fa-chart-bar"></i> Ada Jam Ramai',      'btn-primary'],
-        ['target',     '<i class="fas fa-bullseye"></i> Target',             'btn-primary'],
-        ['unsent',          '<i class="fas fa-paper-plane"></i> Belum Kirim',     'btn-info'],
-        ['sent',            '<i class="fas fa-check"></i> Sudah Kirim',           'btn-warning'],
-        ['replied',         '<i class="fas fa-reply"></i> Ada Respon',            'btn-orange'],
-        ['interested',      '<i class="fas fa-thumbs-up"></i> Berminat',          'btn-success'],
-        ['not_interested',  '<i class="fas fa-thumbs-down"></i> Tidak Berminat',  'btn-danger'],
-        ['ordered',         '<i class="fas fa-shopping-cart"></i> Sudah Order',   'btn-primary'],
+        ['' ,          'Semua',                                                        'btn-secondary'],
+        ['unchecked',  '<i class="fas fa-question-circle"></i> Belum Cek WA',          'btn-secondary'],
+        ['wa',         '<i class="fab fa-whatsapp"></i> Punya WA',                     'btn-success'],
+        ['no_wa',      '<i class="fas fa-times-circle"></i> Tidak Ada WA',             'btn-danger'],
+        ['has_pt',     '<i class="fas fa-chart-bar"></i> Ada Jam Ramai',               'btn-primary'],
+        ['target',     '<i class="fas fa-bullseye"></i> Target',                       'btn-primary'],
+        ['unsent',     '<i class="fas fa-paper-plane"></i> Belum Kirim',               'btn-info'],
+        ['sent',       '<i class="fas fa-check"></i> Sudah Kirim',                     'btn-warning'],
+        ['replied',    '<i class="fas fa-reply"></i> Ada Respon',                      'btn-orange'],
+        ['interested', '<i class="fas fa-thumbs-up"></i> Berminat',                    'btn-success'],
+        ['not_interested','<i class="fas fa-thumbs-down"></i> Tidak Berminat',         'btn-danger'],
+        ['ordered',    '<i class="fas fa-shopping-cart"></i> Sudah Order',             'btn-primary'],
+        ['irrelevant', '<i class="fas fa-ban"></i> Tidak Relevan',                     'btn-danger'],
     ] as [$val, $label, $cls])
     @php $active = ($qf === $val); @endphp
     <a href="{{ route('places.index', array_merge(request()->except(['qf','page']), $val ? ['qf'=>$val] : [])) }}"
@@ -152,7 +153,7 @@
             </thead>
             <tbody id="placesBody">
                 @forelse($places as $place)
-                <tr>
+                <tr style="{{ $place->is_valid === false ? 'opacity:0.5' : '' }}">
                     <td style="text-align:center">
                         <input type="checkbox" class="row-cb" name="ids[]" value="{{ $place->id }}">
                     </td>
@@ -276,6 +277,12 @@
                             <a href="{{ route('places.edit', $place) }}" class="btn btn-ghost btn-xs" title="Edit">
                                 <i class="fas fa-edit"></i>
                             </a>
+                            <button onclick="toggleRelevance({{ $place->id }}, {{ $place->is_valid === false ? 'true' : 'false' }}, this)"
+                                class="btn btn-ghost btn-xs"
+                                title="{{ $place->is_valid === false ? 'Aktifkan kembali' : 'Tandai tidak relevan' }}"
+                                style="color:{{ $place->is_valid === false ? '#16a34a' : '#9ca3af' }}">
+                                <i class="fas {{ $place->is_valid === false ? 'fa-undo' : 'fa-ban' }}"></i>
+                            </button>
                             <form method="POST" action="{{ route('places.destroy', $place) }}">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="btn btn-ghost btn-xs" style="color:var(--rd)"
@@ -634,6 +641,27 @@ document.querySelectorAll('.pt-cell[data-pt]').forEach(cell => {
     });
 });
 })();
+
+async function toggleRelevance(id, currentlyIrrelevant, btn) {
+    const tr = btn.closest('tr');
+    btn.disabled = true;
+    try {
+        const resp = await fetch(`{{ url('/places') }}/${id}/toggle-relevance`, {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
+        });
+        const r = await resp.json();
+        if (r.status === 'ok') {
+            const nowIrrelevant = !currentlyIrrelevant;
+            tr.style.opacity = nowIrrelevant ? '0.5' : '1';
+            btn.title = nowIrrelevant ? 'Aktifkan kembali' : 'Tandai tidak relevan';
+            btn.style.color = nowIrrelevant ? '#16a34a' : '#9ca3af';
+            btn.innerHTML = `<i class="fas ${nowIrrelevant ? 'fa-undo' : 'fa-ban'}"></i>`;
+            btn.onclick = function() { toggleRelevance(id, nowIrrelevant, btn); };
+        }
+    } catch(e) {}
+    btn.disabled = false;
+}
 </script>
 @endpush
 
