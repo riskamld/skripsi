@@ -298,9 +298,15 @@ code{font-size:11.5px;background:var(--bg);padding:1px 5px;border-radius:3px;bor
         <label style="font-size:11px;font-weight:600;color:var(--tx2);display:block;margin-bottom:4px">Keterangan</label>
         <textarea id="g-resp-notes" rows="3" maxlength="2000" style="width:100%;box-sizing:border-box;border:1px solid var(--bdr);border-radius:6px;padding:7px 10px;font-size:13px;background:var(--bg2);color:var(--tx);font-family:inherit;resize:vertical" placeholder="Isi percakapan, kebutuhan, atau catatan…"></textarea>
       </div>
-      <div>
-        <label style="font-size:11px;font-weight:600;color:var(--tx2);display:block;margin-bottom:4px">Admin yang mencatat</label>
-        <input type="text" id="g-resp-admin" style="width:100%;box-sizing:border-box;border:1px solid var(--bdr);border-radius:6px;padding:7px 10px;font-size:13px;background:var(--bg2);color:var(--tx);font-family:inherit" placeholder="Nama admin" maxlength="80">
+      <div style="display:flex;gap:10px">
+        <div style="flex:1">
+          <label style="font-size:11px;font-weight:600;color:var(--tx2);display:block;margin-bottom:4px">Admin yang mencatat</label>
+          <input type="text" id="g-resp-admin" style="width:100%;box-sizing:border-box;border:1px solid var(--bdr);border-radius:6px;padding:7px 10px;font-size:13px;background:var(--bg2);color:var(--tx);font-family:inherit" placeholder="Nama admin" maxlength="80">
+        </div>
+        <div style="flex:1">
+          <label style="font-size:11px;font-weight:600;color:var(--tx2);display:block;margin-bottom:4px">Tanggal Respon</label>
+          <input type="datetime-local" id="g-resp-date" style="width:100%;box-sizing:border-box;border:1px solid var(--bdr);border-radius:6px;padding:7px 10px;font-size:13px;background:var(--bg2);color:var(--tx);font-family:inherit">
+        </div>
       </div>
     </div>
     <div style="padding:12px 16px;border-top:1px solid var(--bdr);display:flex;justify-content:flex-end;gap:8px">
@@ -351,6 +357,11 @@ function openGRespModal(placeId, preselect, prefill, callback) {
   document.getElementById('g-resp-customer').value  = (prefill && prefill.customer_name)   || '';
   document.getElementById('g-resp-notes').value     = (prefill && prefill.notes)            || '';
   document.getElementById('g-resp-admin').value     = (prefill && prefill.response_admin)   || '';
+  // Default tanggal = sekarang (format datetime-local: YYYY-MM-DDTHH:mm)
+  var now = new Date(); now.setSeconds(0,0);
+  document.getElementById('g-resp-date').value = (prefill && prefill.responded_at)
+    ? prefill.responded_at.slice(0,16)
+    : now.toISOString().slice(0,16);
   document.querySelectorAll('.g-resp-opt').forEach(function(el) { gStyleOpt(el, el.dataset.val === preselect); });
   document.getElementById('g-resp-modal').style.display = 'flex';
   setTimeout(function(){ document.getElementById('g-resp-customer').focus(); }, 80);
@@ -383,6 +394,7 @@ async function saveGResp() {
         customer_name:  document.getElementById('g-resp-customer').value.trim(),
         notes:          document.getElementById('g-resp-notes').value.trim(),
         response_admin: document.getElementById('g-resp-admin').value.trim(),
+        responded_at:   document.getElementById('g-resp-date').value || null,
       })
     });
     var d = await resp.json();

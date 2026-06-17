@@ -24,6 +24,14 @@ class PlaceController extends Controller
             });
         }
 
+        // Filter tanggal respon
+        if ($request->filled('resp_from')) {
+            $query->whereDate('responded_at', '>=', $request->resp_from);
+        }
+        if ($request->filled('resp_to')) {
+            $query->whereDate('responded_at', '<=', $request->resp_to);
+        }
+
         // Category filter
         if ($request->filled('categories')) {
             $cats = is_array($request->categories) ? $request->categories : [$request->categories];

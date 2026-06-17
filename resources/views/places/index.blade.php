@@ -45,8 +45,24 @@
         <option value="priority|desc" {{ request('sort')=='priority'?'selected':'' }}>Prioritas Tertinggi</option>
     </select>
 
+    {{-- Filter tanggal respon --}}
+    <div class="d-flex align-center gap-4" id="respDateWrap"
+        style="{{ request('resp_from') || request('resp_to') ? '' : 'display:none!important' }}">
+        <span class="text-xs text-muted" style="white-space:nowrap"><i class="fas fa-calendar-check" style="color:var(--ac)"></i> Respon:</span>
+        <input type="date" id="respFrom" class="form-control" style="font-size:12px;padding:4px 7px;width:130px"
+            value="{{ request('resp_from') }}" title="Dari tanggal respon">
+        <span class="text-xs text-muted">—</span>
+        <input type="date" id="respTo" class="form-control" style="font-size:12px;padding:4px 7px;width:130px"
+            value="{{ request('resp_to') }}" title="Sampai tanggal respon">
+    </div>
+    <button type="button" class="btn btn-ghost btn-sm" id="respDateToggle"
+        title="Filter tanggal respon"
+        style="{{ request('resp_from') || request('resp_to') ? 'color:var(--ac)' : 'color:var(--tx3)' }}">
+        <i class="fas fa-calendar-alt"></i>
+    </button>
+
     <div class="ml-auto d-flex align-center gap-8">
-        @if(request('categories') || request('search') || request('qf'))
+        @if(request('categories') || request('search') || request('qf') || request('resp_from') || request('resp_to'))
         <a href="{{ route('places.index') }}" class="btn btn-ghost btn-sm">
             <i class="fas fa-times"></i> Reset
         </a>
@@ -290,9 +306,11 @@ function filterChip($val, $label, $cls, $count, $qf) {
                                 <i class="fab fa-whatsapp"></i>
                             </a>
                             @endif
-                            <button type="button" onclick="openGRespModal({{ $place->id }}, '{{ $place->outreach_status }}', {customer_name:'{{ addslashes($place->customer_name ?? '') }}', response_admin:'{{ addslashes($place->response_admin ?? '') }}'})"
-                                class="btn btn-ghost btn-xs" title="Catat Respon"
-                                style="color:{{ $place->customer_name ? 'var(--ac)' : 'var(--tx3)' }}">
+                            <button type="button"
+                                onclick="openGRespModal({{ $place->id }}, '{{ $place->outreach_status }}', {customer_name:'{{ addslashes($place->customer_name ?? '') }}', response_admin:'{{ addslashes($place->response_admin ?? '') }}', responded_at:'{{ $place->responded_at ? $place->responded_at->format('Y-m-d\TH:i') : '' }}'})"
+                                class="btn btn-ghost btn-xs"
+                                title="{{ $place->responded_at ? 'Respon: ' . $place->responded_at->format('d/m/Y H:i') . ($place->customer_name ? ' · ' . $place->customer_name : '') : 'Catat Respon' }}"
+                                style="color:{{ $place->responded_at ? 'var(--ac)' : 'var(--tx3)' }}">
                                 <i class="fas fa-comment-dots"></i>
                             </button>
                             <a href="{{ route('places.show', $place) }}" class="btn btn-ghost btn-xs" title="Lihat">
@@ -395,6 +413,24 @@ document.getElementById('sortSelect').addEventListener('change', function(){
     var parts = this.value.split('|');
     window.location.href = buildUrl({sort: parts[0], direction: parts[1]});
 });
+
+// Filter tanggal respon
+var respDateWrap   = document.getElementById('respDateWrap');
+var respDateToggle = document.getElementById('respDateToggle');
+var respFromEl     = document.getElementById('respFrom');
+var respToEl       = document.getElementById('respTo');
+
+respDateToggle.addEventListener('click', function() {
+    var visible = respDateWrap.style.display !== 'none';
+    respDateWrap.style.display = visible ? 'none' : 'flex';
+    if (!visible) setTimeout(function(){ respFromEl.focus(); }, 60);
+});
+
+function applyRespDate() {
+    window.location.href = buildUrl({ resp_from: respFromEl.value || null, resp_to: respToEl.value || null, page: null });
+}
+respFromEl.addEventListener('change', applyRespDate);
+respToEl.addEventListener('change', applyRespDate);
 
 // Category filter panel
 var filterPanel = document.getElementById('filterPanel');

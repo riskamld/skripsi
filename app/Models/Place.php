@@ -47,6 +47,7 @@ class Place extends Model
         'notes_updated_at',
         'customer_name',
         'response_admin',
+        'responded_at',
     ];
 
     protected $casts = [
@@ -57,6 +58,8 @@ class Place extends Model
         'last_scraped_at'   => 'datetime',
         'wa_checked_at'     => 'datetime',
         'notes_updated_at'  => 'datetime',
+        'responded_at'      => 'datetime',
+        'outreach_sent_at'  => 'datetime',
         'rating'            => 'float',
         'busyness_score'    => 'float',
         'lat'               => 'float',

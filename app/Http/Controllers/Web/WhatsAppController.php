@@ -234,14 +234,16 @@ class WhatsAppController extends Controller
             'customer_name'  => 'nullable|string|max:100',
             'notes'          => 'nullable|string|max:2000',
             'response_admin' => 'nullable|string|max:80',
+            'responded_at'   => 'nullable|date',
         ]);
         $place = Place::findOrFail($id);
         $old = $place->outreach_status;
 
         $fields = ['outreach_status' => $request->status];
-        if ($request->filled('customer_name')) $fields['customer_name'] = $request->customer_name;
-        if ($request->filled('notes'))         $fields['notes'] = $request->notes;
-        if ($request->filled('response_admin')) $fields['response_admin'] = $request->response_admin;
+        if ($request->filled('customer_name'))  $fields['customer_name']  = $request->customer_name;
+        if ($request->filled('notes'))          $fields['notes']           = $request->notes;
+        if ($request->filled('response_admin')) $fields['response_admin']  = $request->response_admin;
+        if ($request->filled('responded_at'))   $fields['responded_at']    = $request->responded_at;
         if ($request->filled('customer_name') || $request->filled('notes')) {
             $fields['notes_updated_at'] = now();
         }

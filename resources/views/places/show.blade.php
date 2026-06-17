@@ -407,10 +407,13 @@ $sl = $statusLabels[$currentStatus] ?? null;
         </div>
 
         {{-- Nama pelanggan & admin (jika sudah dicatat) --}}
-        @if($place->customer_name || $place->response_admin)
+        @if($place->customer_name || $place->response_admin || $place->responded_at)
         <div style="display:flex;gap:16px;flex-wrap:wrap;padding:10px 12px;background:var(--bg2);border-radius:6px;font-size:12px">
             @if($place->customer_name)
             <div><span class="text-muted">Nama Pelanggan:</span> <strong>{{ $place->customer_name }}</strong></div>
+            @endif
+            @if($place->responded_at)
+            <div><span class="text-muted">Tanggal Respon:</span> <strong>{{ $place->responded_at->format('d/m/Y H:i') }}</strong></div>
             @endif
             @if($place->response_admin)
             <div><span class="text-muted">Dicatat oleh:</span> <strong>{{ $place->response_admin }}</strong></div>
