@@ -11,17 +11,29 @@
             <div class="card-header">
                 <h3 class="card-title">Peta Lokasi Bisnis</h3>
                 <div class="card-tools">
-                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                        <i class="fas fa-minus"></i>
+                    <button type="button" class="btn btn-ghost btn-xs" id="mapCollapseBtn" title="Sembunyikan/tampilkan peta">
+                        <i class="fas fa-minus" id="mapCollapseIcon"></i>
                     </button>
                 </div>
             </div>
-            <div class="card-body">
+            <div class="card-body" id="mapCardBody">
                 <div id="map" style="height: 600px; width: 100%;"></div>
             </div>
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+document.getElementById('mapCollapseBtn').addEventListener('click', function() {
+    var body = document.getElementById('mapCardBody');
+    var icon = document.getElementById('mapCollapseIcon');
+    var collapsed = body.style.display === 'none';
+    body.style.display = collapsed ? '' : 'none';
+    icon.className = collapsed ? 'fas fa-minus' : 'fas fa-plus';
+});
+</script>
+@endpush
 @endsection
 
 @push('styles')
