@@ -1,368 +1,218 @@
 @extends('layouts.app')
-
-@section('page-title', 'Database Tools')
-@section('page-subtitle', 'Export and Import Database Operations')
+@section('title', 'Database — Mafaza Fortuna')
+@section('page-title', 'Database')
 
 @section('content')
-<div class="row">
-    <!-- Database Information -->
-    <div class="col-md-4">
+
+@if(session('success'))
+<div class="alert alert-success mb-16"><i class="fas fa-check-circle"></i> {{ session('success') }}</div>
+@endif
+@if(session('error'))
+<div class="alert alert-danger mb-16"><i class="fas fa-exclamation-circle"></i> {{ session('error') }}</div>
+@endif
+
+<div class="grid grid-3 mb-16">
+    <div class="metric">
+        <div class="metric-icon mi-blue"><i class="fas fa-server"></i></div>
+        <div class="metric-label">Nama Database</div>
+        <div class="metric-value" style="font-size:16px">{{ $databaseInfo['name'] }}</div>
+    </div>
+    <div class="metric">
+        <div class="metric-icon mi-green"><i class="fas fa-table"></i></div>
+        <div class="metric-label">Tabel</div>
+        <div class="metric-value">{{ number_format($databaseInfo['tables_count']) }}</div>
+    </div>
+    <div class="metric">
+        <div class="metric-icon mi-orange"><i class="fas fa-list"></i></div>
+        <div class="metric-label">Total Baris</div>
+        <div class="metric-value">{{ number_format($databaseInfo['total_records']) }}</div>
+    </div>
+</div>
+
+<div class="grid" style="grid-template-columns:1fr 2fr" id="grid-db">
+
+    <div style="display:flex;flex-direction:column;gap:14px">
         <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="fas fa-database mr-2"></i>
-                    Database Information
-                </h3>
-            </div>
+            <div class="card-header"><i class="fas fa-hdd" style="color:var(--ac);margin-right:6px"></i>Ukuran Database</div>
             <div class="card-body">
-                <div class="info-box bg-info">
-                    <span class="info-box-icon"><i class="fas fa-server"></i></span>
-                    <div class="info-box-content">
-                        <span class="info-box-text">Database Name</span>
-                        <span class="info-box-number">{{ $databaseInfo['name'] }}</span>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-6">
-                        <div class="small-box bg-primary">
-                            <div class="inner">
-                                <h4>{{ number_format($databaseInfo['tables_count']) }}</h4>
-                                <p>Tables</p>
-                            </div>
-                            <div class="icon">
-                                <i class="fas fa-table"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="small-box bg-success">
-                            <div class="inner">
-                                <h4>{{ number_format($databaseInfo['total_records']) }}</h4>
-                                <p>Records</p>
-                            </div>
-                            <div class="icon">
-                                <i class="fas fa-list"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <strong>Database Size:</strong>
-                    <div class="progress">
-                        <div class="progress-bar bg-warning" style="width: 100%">{{ $databaseInfo['size'] }} MB</div>
-                    </div>
-                </div>
+                <div class="fw-700" style="font-size:22px">{{ $databaseInfo['size'] }} <small class="text-muted" style="font-size:13px">MB</small></div>
             </div>
         </div>
 
-        <!-- Recent Export Files -->
         <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="fas fa-file-download mr-2"></i>
-                    Recent Exports
-                </h3>
-            </div>
+            <div class="card-header"><i class="fas fa-file-download" style="color:var(--ac);margin-right:6px"></i>Export Terbaru</div>
             <div class="card-body p-0">
                 @if(count($exportFiles) > 0)
-                <ul class="list-group list-group-flush">
+                <div style="display:flex;flex-direction:column">
                     @foreach($exportFiles as $file)
-                    <li class="list-group-item px-3 py-2">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <small class="text-truncate d-block" style="max-width: 150px;">
-                                    <i class="fas fa-file mr-1"></i>
-                                    {{ $file['name'] }}
-                                </small>
-                                <small class="text-muted">{{ $file['size_human'] }} • {{ \Carbon\Carbon::createFromTimestamp($file['date'])->diffForHumans() }}</small>
-                            </div>
-                            <div>
-                                <a href="{{ route('database.download', $file['name']) }}" class="btn btn-sm btn-outline-primary" title="Download">
-                                    <i class="fas fa-download"></i>
-                                </a>
-                                <form method="POST" action="{{ route('database.delete-file', $file['name']) }}" class="d-inline" onsubmit="return confirm('Delete this file?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
-                            </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 14px;{{ !$loop->last ? 'border-bottom:1px solid var(--bdr)' : '' }}">
+                        <div style="min-width:0">
+                            <div class="text-sm fw-600" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px"><i class="fas fa-file"></i> {{ $file['name'] }}</div>
+                            <div class="text-xs text-muted">{{ $file['size_human'] }} · {{ \Carbon\Carbon::createFromTimestamp($file['date'])->diffForHumans() }}</div>
                         </div>
-                    </li>
+                        <div class="d-flex gap-4" style="flex-shrink:0">
+                            <a href="{{ route('database.download', $file['name']) }}" class="btn btn-xs btn-secondary" title="Download"><i class="fas fa-download"></i></a>
+                            <form method="POST" action="{{ route('database.delete-file', $file['name']) }}" onsubmit="return confirm('Hapus file ini?')">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="btn btn-xs btn-ghost" style="color:var(--rd)" title="Hapus"><i class="fas fa-trash"></i></button>
+                            </form>
+                        </div>
+                    </div>
                     @endforeach
-                </ul>
-                @else
-                <div class="text-center py-4">
-                    <i class="fas fa-file-download fa-2x text-muted mb-2"></i>
-                    <p class="text-muted small">No export files yet</p>
                 </div>
+                @else
+                <div class="text-center text-muted text-sm" style="padding:24px"><i class="fas fa-file-download" style="font-size:22px;display:block;margin-bottom:6px"></i> Belum ada file export</div>
                 @endif
             </div>
         </div>
     </div>
 
-    <!-- Export Section -->
-    <div class="col-md-8">
+    <div style="display:flex;flex-direction:column;gap:14px">
+
         <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="fas fa-upload mr-2"></i>
-                    Export Database
-                </h3>
-                <div class="card-tools">
-                    <small class="text-muted">Choose format and options</small>
-                </div>
-            </div>
+            <div class="card-header"><i class="fas fa-upload" style="color:var(--ac);margin-right:6px"></i>Export Database</div>
             <div class="card-body">
-                <div class="row">
-                    <!-- SQL Export -->
-                    <div class="col-md-4">
-                        <div class="card border-primary">
-                            <div class="card-header bg-primary text-white">
-                                <h6 class="mb-0">
-                                    <i class="fas fa-code mr-2"></i>
-                                    SQL Export
-                                </h6>
-                            </div>
-                            <div class="card-body">
-                                <p class="small text-muted">Complete database dump with structure and data</p>
-                                <form method="POST" action="{{ route('database.export.sql') }}">
-                                    @csrf
-                                    <div class="form-group">
-                                        <label class="small">Tables to Export:</label>
-                                        <select name="tables[]" class="form-control form-control-sm" multiple size="3">
-                                            <option value="">All Tables</option>
-                                            @foreach($tables as $table)
-                                            <option value="{{ $table['name'] }}" selected>{{ $table['name'] }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" id="include_data" name="include_data" checked>
-                                        <label class="form-check-label small" for="include_data">Include data</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" id="compress_sql" name="compress">
-                                        <label class="form-check-label small" for="compress_sql">Compress (ZIP)</label>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary btn-sm btn-block">
-                                        <i class="fas fa-download mr-1"></i>
-                                        Export SQL
-                                    </button>
-                                </form>
-                            </div>
+                <div class="grid grid-3">
+                    <div class="card" style="border-color:var(--ac)">
+                        <div class="card-header" style="background:var(--ac);color:#fff"><i class="fas fa-code"></i> SQL</div>
+                        <div class="card-body">
+                            <div class="text-xs text-muted mb-8">Dump lengkap struktur + data</div>
+                            <form method="POST" action="{{ route('database.export.sql') }}">
+                                @csrf
+                                <div class="form-group">
+                                    <label class="form-label">Tabel:</label>
+                                    <select name="tables[]" class="form-control" multiple size="3">
+                                        <option value="">Semua Tabel</option>
+                                        @foreach($tables as $table)
+                                        <option value="{{ $table['name'] }}" selected>{{ $table['name'] }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <label class="text-xs d-flex align-center gap-4 mb-4"><input type="checkbox" name="include_data" checked> Sertakan data</label>
+                                <label class="text-xs d-flex align-center gap-4 mb-12"><input type="checkbox" name="compress"> Kompres (ZIP)</label>
+                                <button type="submit" class="btn btn-primary btn-sm w-100"><i class="fas fa-download"></i> Export SQL</button>
+                            </form>
                         </div>
                     </div>
 
-                    <!-- CSV Export -->
-                    <div class="col-md-4">
-                        <div class="card border-success">
-                            <div class="card-header bg-success text-white">
-                                <h6 class="mb-0">
-                                    <i class="fas fa-table mr-2"></i>
-                                    CSV Export
-                                </h6>
-                            </div>
-                            <div class="card-body">
-                                <p class="small text-muted">Spreadsheet compatible format</p>
-                                <form method="POST" action="{{ route('database.export.csv') }}">
-                                    @csrf
-                                    <div class="form-group">
-                                        <label class="small">Select Tables:</label>
-                                        <select name="tables[]" class="form-control form-control-sm" multiple size="3" required>
-                                            @foreach($tables as $table)
-                                            <option value="{{ $table['name'] }}">{{ $table['name'] }} ({{ number_format($table['records']) }} records)</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" id="compress_csv" name="compress">
-                                        <label class="form-check-label small" for="compress_csv">Compress (ZIP)</label>
-                                    </div>
-                                    <button type="submit" class="btn btn-success btn-sm btn-block">
-                                        <i class="fas fa-download mr-1"></i>
-                                        Export CSV
-                                    </button>
-                                </form>
-                            </div>
+                    <div class="card" style="border-color:var(--gn)">
+                        <div class="card-header" style="background:var(--gn);color:#fff"><i class="fas fa-table"></i> CSV</div>
+                        <div class="card-body">
+                            <div class="text-xs text-muted mb-8">Format kompatibel spreadsheet</div>
+                            <form method="POST" action="{{ route('database.export.csv') }}">
+                                @csrf
+                                <div class="form-group">
+                                    <label class="form-label">Pilih Tabel:</label>
+                                    <select name="tables[]" class="form-control" multiple size="3" required>
+                                        @foreach($tables as $table)
+                                        <option value="{{ $table['name'] }}">{{ $table['name'] }} ({{ number_format($table['records']) }})</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <label class="text-xs d-flex align-center gap-4 mb-12"><input type="checkbox" name="compress"> Kompres (ZIP)</label>
+                                <button type="submit" class="btn btn-success btn-sm w-100"><i class="fas fa-download"></i> Export CSV</button>
+                            </form>
                         </div>
                     </div>
 
-                    <!-- JSON Export -->
-                    <div class="col-md-4">
-                        <div class="card border-info">
-                            <div class="card-header bg-info text-white">
-                                <h6 class="mb-0">
-                                    <i class="fas fa-brackets-curly mr-2"></i>
-                                    JSON Export
-                                </h6>
-                            </div>
-                            <div class="card-body">
-                                <p class="small text-muted">API and web app format</p>
-                                <form method="POST" action="{{ route('database.export.json') }}">
-                                    @csrf
-                                    <div class="form-group">
-                                        <label class="small">Select Tables:</label>
-                                        <select name="tables[]" class="form-control form-control-sm" multiple size="3" required>
-                                            @foreach($tables as $table)
-                                            <option value="{{ $table['name'] }}">{{ $table['name'] }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <button type="submit" class="btn btn-info btn-sm btn-block">
-                                        <i class="fas fa-download mr-1"></i>
-                                        Export JSON
-                                    </button>
-                                </form>
-                            </div>
+                    <div class="card" style="border-color:#0891b2">
+                        <div class="card-header" style="background:#0891b2;color:#fff"><i class="fas fa-brackets-curly"></i> JSON</div>
+                        <div class="card-body">
+                            <div class="text-xs text-muted mb-8">Format API & aplikasi web</div>
+                            <form method="POST" action="{{ route('database.export.json') }}">
+                                @csrf
+                                <div class="form-group">
+                                    <label class="form-label">Pilih Tabel:</label>
+                                    <select name="tables[]" class="form-control" multiple size="3" required>
+                                        @foreach($tables as $table)
+                                        <option value="{{ $table['name'] }}">{{ $table['name'] }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-info btn-sm w-100" style="margin-top:36px"><i class="fas fa-download"></i> Export JSON</button>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Import Section -->
         <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="fas fa-download mr-2"></i>
-                    Import Database
-                </h3>
-                <div class="card-tools">
-                    <small class="text-muted">Upload and import data files</small>
-                </div>
-            </div>
+            <div class="card-header"><i class="fas fa-download" style="color:var(--ac);margin-right:6px"></i>Import Database</div>
             <div class="card-body">
-                <div class="row">
-                    <!-- SQL Import -->
-                    <div class="col-md-6">
-                        <div class="card border-danger">
-                            <div class="card-header bg-danger text-white">
-                                <h6 class="mb-0">
-                                    <i class="fas fa-code mr-2"></i>
-                                    SQL Import
-                                </h6>
-                            </div>
-                            <div class="card-body">
-                                <p class="small text-muted">Import from SQL dump files</p>
-                                <form method="POST" action="{{ route('database.import.sql') }}" enctype="multipart/form-data">
-                                    @csrf
-                                    <div class="form-group">
-                                        <label class="small">SQL File:</label>
-                                        <input type="file" name="sql_file" class="form-control form-control-sm" accept=".sql,.txt" required>
-                                        <small class="form-text text-muted">Max: 50MB</small>
-                                    </div>
-                                    <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" id="backup_sql" name="backup_first">
-                                        <label class="form-check-label small" for="backup_sql">Create backup first</label>
-                                    </div>
-                                    <button type="submit" class="btn btn-danger btn-sm btn-block">
-                                        <i class="fas fa-upload mr-1"></i>
-                                        Import SQL
-                                    </button>
-                                </form>
-                            </div>
+                <div class="grid grid-2">
+                    <div class="card" style="border-color:var(--rd)">
+                        <div class="card-header" style="background:var(--rd);color:#fff"><i class="fas fa-code"></i> Import SQL</div>
+                        <div class="card-body">
+                            <div class="text-xs text-muted mb-8">Import dari file dump SQL (maks 50MB)</div>
+                            <form method="POST" action="{{ route('database.import.sql') }}" enctype="multipart/form-data">
+                                @csrf
+                                <div class="form-group">
+                                    <input type="file" name="sql_file" class="form-control" accept=".sql,.txt" required>
+                                </div>
+                                <label class="text-xs d-flex align-center gap-4 mb-12"><input type="checkbox" name="backup_first"> Backup dulu sebelum import</label>
+                                <button type="submit" class="btn btn-danger btn-sm w-100"><i class="fas fa-upload"></i> Import SQL</button>
+                            </form>
                         </div>
                     </div>
 
-                    <!-- CSV Import -->
-                    <div class="col-md-6">
-                        <div class="card border-warning">
-                            <div class="card-header bg-warning text-white">
-                                <h6 class="mb-0">
-                                    <i class="fas fa-table mr-2"></i>
-                                    CSV Import
-                                </h6>
-                            </div>
-                            <div class="card-body">
-                                <p class="small text-muted">Import from CSV files</p>
-                                <form method="POST" action="{{ route('database.import.csv') }}" enctype="multipart/form-data">
-                                    @csrf
-                                    <div class="form-group">
-                                        <label class="small">Target Table:</label>
-                                        <select name="table" class="form-control form-control-sm" required>
-                                            @foreach($tables as $table)
-                                            <option value="{{ $table['name'] }}">{{ $table['name'] }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="small">CSV File:</label>
-                                        <input type="file" name="csv_file" class="form-control form-control-sm" accept=".csv,.txt" required>
-                                        <small class="form-text text-muted">Max: 50MB</small>
-                                    </div>
-                                    <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" id="has_headers" name="has_headers" checked>
-                                        <label class="form-check-label small" for="has_headers">First row is headers</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" id="clear_table" name="clear_table">
-                                        <label class="form-check-label small" for="clear_table">Clear table before import</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" id="backup_csv" name="backup_first">
-                                        <label class="form-check-label small" for="backup_csv">Create backup first</label>
-                                    </div>
-                                    <button type="submit" class="btn btn-warning btn-sm btn-block">
-                                        <i class="fas fa-upload mr-1"></i>
-                                        Import CSV
-                                    </button>
-                                </form>
-                            </div>
+                    <div class="card" style="border-color:#d97706">
+                        <div class="card-header" style="background:#d97706;color:#fff"><i class="fas fa-table"></i> Import CSV</div>
+                        <div class="card-body">
+                            <div class="text-xs text-muted mb-8">Import dari file CSV (maks 50MB)</div>
+                            <form method="POST" action="{{ route('database.import.csv') }}" enctype="multipart/form-data">
+                                @csrf
+                                <div class="form-group">
+                                    <label class="form-label">Tabel Tujuan:</label>
+                                    <select name="table" class="form-control" required>
+                                        @foreach($tables as $table)
+                                        <option value="{{ $table['name'] }}">{{ $table['name'] }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <input type="file" name="csv_file" class="form-control" accept=".csv,.txt" required>
+                                </div>
+                                <label class="text-xs d-flex align-center gap-4 mb-4"><input type="checkbox" name="has_headers" checked> Baris pertama adalah header</label>
+                                <label class="text-xs d-flex align-center gap-4 mb-4"><input type="checkbox" name="clear_table"> Kosongkan tabel sebelum import</label>
+                                <label class="text-xs d-flex align-center gap-4 mb-12"><input type="checkbox" name="backup_first"> Backup dulu sebelum import</label>
+                                <button type="submit" class="btn btn-warning btn-sm w-100"><i class="fas fa-upload"></i> Import CSV</button>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Available Tables -->
         <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="fas fa-table mr-2"></i>
-                    Available Tables
-                </h3>
-            </div>
-            <div class="card-body table-responsive p-0">
-                <table class="table table-hover">
+            <div class="card-header"><i class="fas fa-table" style="color:var(--ac);margin-right:6px"></i>Daftar Tabel</div>
+            <div class="table-wrap">
+                <table>
                     <thead>
                         <tr>
-                            <th>Table Name</th>
-                            <th>Records</th>
-                            <th>Size</th>
-                            <th>Actions</th>
+                            <th>Nama Tabel</th>
+                            <th>Baris</th>
+                            <th>Ukuran</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($tables as $table)
                         <tr>
+                            <td class="fw-600">{{ $table['name'] }}</td>
+                            <td><span class="badge badge-blue">{{ number_format($table['records']) }}</span></td>
+                            <td class="text-sm text-muted">{{ $table['size'] }} MB</td>
                             <td>
-                                <strong>{{ $table['name'] }}</strong>
-                            </td>
-                            <td>
-                                <span class="badge badge-info">{{ number_format($table['records']) }}</span>
-                            </td>
-                            <td>
-                                <small>{{ $table['size'] }} MB</small>
-                            </td>
-                            <td>
-                                <div class="btn-group btn-group-sm">
-                                    <form method="POST" action="{{ route('database.export.csv') }}" class="d-inline">
+                                <div class="d-flex gap-4">
+                                    <form method="POST" action="{{ route('database.export.csv') }}">
                                         @csrf
                                         <input type="hidden" name="tables[]" value="{{ $table['name'] }}">
-                                        <button type="submit" class="btn btn-outline-success" title="Export CSV">
-                                            <i class="fas fa-file-csv"></i>
-                                        </button>
+                                        <button type="submit" class="btn btn-xs btn-secondary" title="Export CSV"><i class="fas fa-file-csv"></i></button>
                                     </form>
-                                    <form method="POST" action="{{ route('database.export.json') }}" class="d-inline">
+                                    <form method="POST" action="{{ route('database.export.json') }}">
                                         @csrf
                                         <input type="hidden" name="tables[]" value="{{ $table['name'] }}">
-                                        <button type="submit" class="btn btn-outline-info" title="Export JSON">
-                                            <i class="fas fa-brackets-curly"></i>
-                                        </button>
+                                        <button type="submit" class="btn btn-xs btn-secondary" title="Export JSON"><i class="fas fa-brackets-curly"></i></button>
                                     </form>
                                 </div>
                             </td>
@@ -375,16 +225,10 @@
     </div>
 </div>
 
-<script>
-$(document).ready(function() {
-    // Show success/error messages
-    @if(session('success'))
-        toastr.success('{{ session('success') }}');
-    @endif
-
-    @if(session('error'))
-        toastr.error('{{ session('error') }}');
-    @endif
-});
-</script>
 @endsection
+
+@push('styles')
+<style>
+@media(max-width:1024px){ #grid-db{grid-template-columns:1fr!important} }
+</style>
+@endpush
