@@ -335,7 +335,7 @@ class WhatsAppController extends Controller
 
         $places = $q->orderByRaw('(' . $this->priorityScoreExpr() . ') DESC')
             ->limit($limit * 3)
-            ->get(['id', 'name', 'phone', 'category', 'address', 'rating', 'review_count'])
+            ->get(['id', 'name', 'phone', 'category', 'address', 'rating', 'review_count', 'image_1'])
             ->filter(fn($p) => !isset($sentPhones[$p->phone]))
             ->take($limit)
             ->values();
@@ -348,6 +348,7 @@ class WhatsAppController extends Controller
             'address'      => $p->address,
             'rating'       => $p->rating,
             'review_count' => $p->review_count,
+            'thumb'        => $p->image_1 ? preg_replace('/=w\d+-h\d+[^"]*$/', '=w48-h48-k-no', $p->image_1) : null,
         ]);
 
         $sampleMessage = '';

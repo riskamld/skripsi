@@ -788,10 +788,15 @@ function checkAll(checked) {
 function renderPreviewList() {
     const listEl = document.getElementById('preview-list');
     listEl.innerHTML = previewData.map((p, i) => `
-        <div id="prow-${p.id}" style="display:flex;align-items:center;gap:10px;padding:8px 12px;
+        <div id="prow-${p.id}" style="display:flex;align-items:center;gap:10px;padding:8px 10px;
                       ${i < previewData.length-1 ? 'border-bottom:1px solid var(--bdr)' : ''};
                       transition:.1s" onmouseover="this.style.background='var(--bg2)'" onmouseout="this.style.background=''">
             <input type="checkbox" id="pchk-${p.id}" checked onchange="updateSelectedCount()" style="width:14px;height:14px;flex-shrink:0;cursor:pointer">
+            ${p.thumb
+                ? `<img src="${escHtml(p.thumb)}" loading="lazy" style="width:36px;height:36px;border-radius:5px;object-fit:cover;flex-shrink:0;border:1px solid var(--bdr)"
+                       onerror="this.style.display='none'">`
+                : `<div style="width:36px;height:36px;border-radius:5px;background:var(--bg2);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--tx3);font-size:14px"><i class="fas fa-store"></i></div>`
+            }
             <div style="flex:1;min-width:0;cursor:pointer" onclick="document.getElementById('pchk-${p.id}').click()">
                 <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(p.name)}</div>
                 <div style="font-size:10px;color:var(--tx3)">${escHtml(p.category || '—')} · ${p.phone}</div>
