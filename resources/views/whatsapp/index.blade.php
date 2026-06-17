@@ -1243,7 +1243,8 @@ async function applyBulkStatus() {
     }
 }
 
-function loadTargetList() {
+function loadTargetList(page) {
+    page = page || 1;
     const filter   = document.getElementById('list-filter').value;
     const category = document.getElementById('list-category').value;
     const wrap     = document.getElementById('target-list-wrap');
@@ -1251,7 +1252,7 @@ function loadTargetList() {
     selectedIds.clear();
     updateBulkBar();
 
-    fetch(`{{ route('whatsapp.target-list') }}?filter=${filter}&category=${encodeURIComponent(category)}`)
+    fetch(`{{ route('whatsapp.target-list') }}?filter=${filter}&category=${encodeURIComponent(category)}&page=${page}`)
         .then(r => r.json())
         .then(d => {
             if (!d.data || d.data.length === 0) {
@@ -1297,8 +1298,28 @@ function loadTargetList() {
                     <td style="padding:6px 10px"><div style="display:flex;gap:3px">${waLink}${detailLink}${actionBtn}</div></td>
                 </tr>`;
             }).join('');
+
+            const pageStart = (d.current_page - 1) * d.per_page + 1;
+            const pageEnd   = pageStart + d.count - 1;
+            let paginationHtml = '';
+            if (d.last_page > 1) {
+                const pages = [];
+                const startP = Math.max(1, d.current_page - 2);
+                const endP   = Math.min(d.last_page, d.current_page + 2);
+                for (let p = startP; p <= endP; p++) pages.push(p);
+                paginationHtml = `
+                    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:8px 12px;border-top:1px solid var(--bdr)">
+                        <span class="text-xs text-muted">${pageStart}–${pageEnd} dari ${d.total}</span>
+                        <div class="pagination">
+                            ${d.current_page > 1 ? `<a class="page-link" href="javascript:void(0)" onclick="loadTargetList(${d.current_page - 1})">‹</a>` : `<span class="page-link disabled">‹</span>`}
+                            ${pages.map(p => `<a class="page-link ${p === d.current_page ? 'active' : ''}" href="javascript:void(0)" onclick="loadTargetList(${p})">${p}</a>`).join('')}
+                            ${d.current_page < d.last_page ? `<a class="page-link" href="javascript:void(0)" onclick="loadTargetList(${d.current_page + 1})">›</a>` : `<span class="page-link disabled">›</span>`}
+                        </div>
+                    </div>`;
+            }
+
             wrap.innerHTML = `
-                <div style="font-size:11px;color:var(--tx2);padding:5px 12px;border-bottom:1px solid var(--bdr);background:var(--bg2)">${d.count} tempat</div>
+                <div style="font-size:11px;color:var(--tx2);padding:5px 12px;border-bottom:1px solid var(--bdr);background:var(--bg2)">${d.total} tempat${d.last_page > 1 ? ` — halaman ${d.current_page}/${d.last_page}` : ''}</div>
                 <div style="overflow-x:auto">
                 <table style="width:100%;border-collapse:collapse">
                     <thead><tr style="border-bottom:2px solid var(--bdr);background:var(--bg2)">
@@ -1312,7 +1333,8 @@ function loadTargetList() {
                     </tr></thead>
                     <tbody>${rows}</tbody>
                 </table>
-                </div>`;
+                </div>
+                ${paginationHtml}`;
         })
         .catch(() => { wrap.innerHTML = '<p style="padding:16px;color:var(--rd)">Gagal memuat.</p>'; });
 }

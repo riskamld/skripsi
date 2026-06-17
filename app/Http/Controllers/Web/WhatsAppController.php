@@ -459,13 +459,19 @@ class WhatsAppController extends Controller
             $q->orderByDesc('outreach_sent_at');
         }
 
-        $places = $q->limit(200)->get()
+        $perPage    = 50;
+        $paginator  = $q->paginate($perPage)->appends($request->query());
+        $places     = collect($paginator->items())
             ->map(fn($p) => array_merge($p->toArray(), ['area' => $p->area()]));
 
         return response()->json([
-            'status' => 'ok',
-            'count'  => $places->count(),
-            'data'   => $places,
+            'status'       => 'ok',
+            'count'        => $places->count(),
+            'total'        => $paginator->total(),
+            'current_page' => $paginator->currentPage(),
+            'last_page'    => $paginator->lastPage(),
+            'per_page'     => $perPage,
+            'data'         => $places,
         ]);
     }
 
