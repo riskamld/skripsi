@@ -40,27 +40,68 @@ class PlaceController extends Controller
             $query->where('category', $request->category);
         }
 
-        // Quick filters (tab-style)
-        $quickFilter = $request->get('qf', '');
-        match($quickFilter) {
-            'wa'          => $query->where('has_whatsapp', true)->where(fn($q) => $q->whereNull('is_valid')->orWhere('is_valid', true)),
-            'no_wa'       => $query->where('has_whatsapp', false)->where(fn($q) => $q->whereNull('is_valid')->orWhere('is_valid', true)),
-            'unchecked'   => $query->whereNull('has_whatsapp')->where(fn($q) => $q->whereNull('is_valid')->orWhere('is_valid', true)),
-            'has_pt'      => $query->whereNotNull('popular_times')->where('popular_times', '!=', '{}')->where('popular_times', '!=', '[]')->where(fn($q) => $q->whereNull('is_valid')->orWhere('is_valid', true)),
-            'target'      => $query->where('is_target', true),
-            'irrelevant'  => $query->where('is_valid', false),
-            'prospect'    => $query->where('has_whatsapp', true)->where('is_target', true)
-                                   ->whereIn('outreach_status', ['none', null, ''])->whereNull('outreach_status'),
-            'sent'           => $query->where('outreach_status', 'sent'),
-            'replied'        => $query->where('outreach_status', 'replied'),
-            'interested'     => $query->where('outreach_status', 'interested'),
-            'not_interested' => $query->where('outreach_status', 'not_interested'),
-            'ordered'        => $query->where('outreach_status', 'ordered'),
-            'unsent'         => $query->where('has_whatsapp', true)
-                                 ->where(fn($q) => $q->whereNull('outreach_status')->orWhere('outreach_status', 'none')),
+        // Faceted quick filters — multi-select per grup (qf[]=target&qf[]=wa&qf[]=sent)
+        // Antar grup: AND. Di dalam satu grup: OR.
+        $qf = array_filter((array) $request->get('qf', []));
+
+        $dataKeys     = ['target', 'has_pt', 'irrelevant'];
+        $waKeys       = ['unchecked', 'wa', 'no_wa'];
+        $outreachKeys = ['unsent', 'sent', 'replied', 'interested', 'not_interested', 'ordered'];
+
+        $selData     = array_values(array_intersect($qf, $dataKeys));
+        $selWa       = array_values(array_intersect($qf, $waKeys));
+        $selOutreach = array_values(array_intersect($qf, $outreachKeys));
+
+        if (!empty($selData)) {
+            $query->where(function ($q) use ($selData) {
+                foreach ($selData as $key) {
+                    match ($key) {
+                        'target' => $q->orWhere('is_target', true),
+                        'has_pt' => $q->orWhere(fn($qq) => $qq->whereNotNull('popular_times')
+                            ->where('popular_times', '!=', '{}')->where('popular_times', '!=', '[]')
+                            ->where(fn($qqq) => $qqq->whereNull('is_valid')->orWhere('is_valid', true))),
+                        'irrelevant' => $q->orWhere('is_valid', false),
+                        default => null,
+                    };
+                }
+            });
+        } else {
             // default: sembunyikan yang sudah ditandai tidak relevan
-            default => $query->where(fn($q) => $q->whereNull('is_valid')->orWhere('is_valid', true)),
-        };
+            $query->where(fn($q) => $q->whereNull('is_valid')->orWhere('is_valid', true));
+        }
+
+        if (!empty($selWa)) {
+            $query->where(function ($q) use ($selWa) {
+                foreach ($selWa as $key) {
+                    match ($key) {
+                        'unchecked' => $q->orWhere(fn($qq) => $qq->whereNull('has_whatsapp')
+                            ->where(fn($qqq) => $qqq->whereNull('is_valid')->orWhere('is_valid', true))),
+                        'wa' => $q->orWhere(fn($qq) => $qq->where('has_whatsapp', true)
+                            ->where(fn($qqq) => $qqq->whereNull('is_valid')->orWhere('is_valid', true))),
+                        'no_wa' => $q->orWhere(fn($qq) => $qq->where('has_whatsapp', false)
+                            ->where(fn($qqq) => $qqq->whereNull('is_valid')->orWhere('is_valid', true))),
+                        default => null,
+                    };
+                }
+            });
+        }
+
+        if (!empty($selOutreach)) {
+            $query->where(function ($q) use ($selOutreach) {
+                foreach ($selOutreach as $key) {
+                    match ($key) {
+                        'unsent' => $q->orWhere(fn($qq) => $qq->where('has_whatsapp', true)
+                            ->where(fn($qqq) => $qqq->whereNull('outreach_status')->orWhere('outreach_status', 'none'))),
+                        'sent'           => $q->orWhere('outreach_status', 'sent'),
+                        'replied'        => $q->orWhere('outreach_status', 'replied'),
+                        'interested'     => $q->orWhere('outreach_status', 'interested'),
+                        'not_interested' => $q->orWhere('outreach_status', 'not_interested'),
+                        'ordered'        => $q->orWhere('outreach_status', 'ordered'),
+                        default          => null,
+                    };
+                }
+            });
+        }
 
         // Sort
         $sortBy  = $request->get('sort', 'created_at');
@@ -90,7 +131,7 @@ class PlaceController extends Controller
             }
         }
 
-        $places = $query->paginate(50)->onEachSide(2);
+        $places = $query->paginate(50)->onEachSide(2)->appends($request->query());
 
         // Hitung badge count untuk tiap filter
         $filterCounts = \Illuminate\Support\Facades\DB::selectOne("
@@ -101,6 +142,7 @@ class PlaceController extends Controller
                 SUM(CASE WHEN (is_valid IS NULL OR is_valid = 1) AND has_whatsapp = 1 THEN 1 ELSE 0 END) as wa,
                 SUM(CASE WHEN (is_valid IS NULL OR is_valid = 1) AND has_whatsapp = 0 THEN 1 ELSE 0 END) as no_wa,
                 SUM(CASE WHEN (is_valid IS NULL OR is_valid = 1) AND is_target = 1 THEN 1 ELSE 0 END) as target,
+                SUM(CASE WHEN (is_valid IS NULL OR is_valid = 1) AND popular_times IS NOT NULL AND popular_times NOT IN ('{}','[]') THEN 1 ELSE 0 END) as has_pt,
                 SUM(CASE WHEN (is_valid IS NULL OR is_valid = 1) AND has_whatsapp = 1 AND (outreach_status IS NULL OR outreach_status = 'none') THEN 1 ELSE 0 END) as unsent,
                 SUM(CASE WHEN outreach_status = 'sent' THEN 1 ELSE 0 END) as sent,
                 SUM(CASE WHEN outreach_status = 'replied' THEN 1 ELSE 0 END) as replied,

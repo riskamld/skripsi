@@ -75,40 +75,55 @@
     </div>
 </div>
 
-{{-- Quick filter groups --}}
+{{-- Quick filter groups — faceted multi-select (AND antar grup, OR di dalam grup) --}}
 @php
-$qf = request('qf','');
+$qf = array_values(array_filter((array) request('qf', [])));
 $fc = $filterCounts;
-function filterChip($val, $label, $cls, $count, $qf) {
-    $active = ($qf === $val);
-    $url = route('places.index', array_merge(request()->except(['qf','page']), $val ? ['qf'=>$val] : []));
-    $badge = $count > 0 ? '<span style="background:rgba(255,255,255,.25);border-radius:8px;padding:0 5px;font-size:10px;margin-left:3px;font-weight:700">'
-        . number_format($count) . '</span>' : '';
+
+function filterChip($val, $label, $cls, $count, array $qf) {
+    if ($val === '') {
+        // "Semua" = reset semua facet
+        $active = empty($qf);
+        $url = route('places.index', request()->except(['qf','page']));
+    } else {
+        $active = in_array($val, $qf, true);
+        $newQf  = $active ? array_values(array_diff($qf, [$val])) : array_merge($qf, [$val]);
+        $url = route('places.index', array_merge(request()->except(['qf','page']), $newQf ? ['qf'=>$newQf] : []));
+    }
+    $badge = '<span style="background:rgba(255,255,255,.28);border-radius:8px;padding:0 5px;font-size:10px;margin-left:3px;font-weight:700">'
+        . number_format($count) . '</span>';
     return '<a href="'.$url.'" class="btn btn-sm '.($active ? $cls : 'btn-outline').'" style="white-space:nowrap">'.$label.$badge.'</a>';
 }
 @endphp
-<div style="font-size:12.5px;margin-bottom:14px;display:flex;flex-direction:column;gap:7px;">
+<style>
+.qf-row { display:flex; align-items:center; gap:6px; flex-wrap:wrap; padding:7px 10px; border-radius:8px; border-left:3px solid transparent; }
+.qf-row.qf-data     { background:#eff6ff; border-left-color:#3b82f6; }
+.qf-row.qf-whatsapp { background:#f0fdf4; border-left-color:#16a34a; }
+.qf-row.qf-outreach { background:#fff7ed; border-left-color:#f97316; }
+.qf-label { font-size:10px; font-weight:700; letter-spacing:.05em; min-width:78px; white-space:nowrap; }
+</style>
+<div style="font-size:12.5px;margin-bottom:14px;display:flex;flex-direction:column;gap:6px;">
 
     {{-- Baris 1: Umum --}}
-    <div class="d-flex align-center gap-6 flex-wrap">
-        <span style="font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.5px;min-width:80px;white-space:nowrap">DATA</span>
+    <div class="qf-row qf-data">
+        <span class="qf-label" style="color:#3b82f6">DATA</span>
         {!! filterChip('',         'Semua',                                             'btn-secondary', $fc->total,     $qf) !!}
         {!! filterChip('target',   '<i class="fas fa-bullseye"></i> Target',            'btn-primary',   $fc->target,    $qf) !!}
-        {!! filterChip('has_pt',   '<i class="fas fa-chart-bar"></i> Jam Ramai',        'btn-primary',   0,              $qf) !!}
+        {!! filterChip('has_pt',   '<i class="fas fa-chart-bar"></i> Jam Ramai',        'btn-primary',   $fc->has_pt,    $qf) !!}
         {!! filterChip('irrelevant','<i class="fas fa-ban"></i> Tidak Relevan',         'btn-danger',    $fc->irrelevant,$qf) !!}
     </div>
 
     {{-- Baris 2: WhatsApp --}}
-    <div class="d-flex align-center gap-6 flex-wrap">
-        <span style="font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.5px;min-width:80px;white-space:nowrap">WHATSAPP</span>
+    <div class="qf-row qf-whatsapp">
+        <span class="qf-label" style="color:#16a34a">WHATSAPP</span>
         {!! filterChip('unchecked','<i class="fas fa-question-circle"></i> Belum Cek',  'btn-secondary', $fc->unchecked, $qf) !!}
         {!! filterChip('wa',       '<i class="fab fa-whatsapp"></i> Punya WA',          'btn-success',   $fc->wa,        $qf) !!}
         {!! filterChip('no_wa',    '<i class="fas fa-times-circle"></i> Tidak Ada WA',  'btn-danger',    $fc->no_wa,     $qf) !!}
     </div>
 
     {{-- Baris 3: Outreach --}}
-    <div class="d-flex align-center gap-6 flex-wrap">
-        <span style="font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.5px;min-width:80px;white-space:nowrap">OUTREACH</span>
+    <div class="qf-row qf-outreach">
+        <span class="qf-label" style="color:#f97316">OUTREACH</span>
         {!! filterChip('unsent',        '<i class="fas fa-paper-plane"></i> Belum Kirim',   'btn-secondary', $fc->unsent,        $qf) !!}
         {!! filterChip('sent',          '<i class="fas fa-check"></i> Sudah Kirim',         'btn-warning',   $fc->sent,          $qf) !!}
         {!! filterChip('replied',       '<i class="fas fa-reply"></i> Ada Respon',          'btn-orange',    $fc->replied,       $qf) !!}
@@ -176,13 +191,14 @@ function filterChip($val, $label, $cls, $count, $qf) {
                         <input type="checkbox" id="selectAll" style="cursor:pointer">
                     </th>
                     <th>Nama / Kategori</th>
-                    <th class="hide-mobile">Alamat</th>
+                    <th class="hide-mobile">Kecamatan / Kabupaten</th>
                     <th>Telepon</th>
                     <th class="hide-mobile">Rating</th>
                     <th class="hide-mobile">Ulasan</th>
                     <th class="hide-mobile">Score</th>
                     <th class="hide-mobile">Jam Ramai</th>
                     <th class="hide-mobile">WA</th>
+                    <th class="hide-mobile">Status</th>
                     <th style="text-align:right">Aksi</th>
                 </tr>
             </thead>
@@ -221,7 +237,10 @@ function filterChip($val, $label, $cls, $count, $qf) {
                             </div>
                         </div>
                     </td>
-                    <td class="hide-mobile text-muted text-sm" title="{{ $place->address }}">{{ $place->address ? Str::limit($place->address, 45) : '—' }}</td>
+                    <td class="hide-mobile" title="{{ $place->address }}">
+                        <div class="text-sm">{{ $place->kecamatan() ?? '—' }}</div>
+                        <div class="text-xs text-muted">{{ $place->kabupaten() ?? '—' }}</div>
+                    </td>
                     <td>
                         @if($place->phone)
                         <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $place->phone) }}"
@@ -297,6 +316,22 @@ function filterChip($val, $label, $cls, $count, $qf) {
                         <span class="badge badge-gray">?</span>
                         @endif
                     </td>
+                    <td class="hide-mobile">
+                        @php
+                        $statusBadge = [
+                            'sent'           => ['#dbeafe','#1d4ed8','Terkirim'],
+                            'replied'        => ['#cffafe','#0e7490','Respon'],
+                            'interested'     => ['#ffedd5','#c2410c','Berminat'],
+                            'not_interested' => ['#f3f4f6','#6b7280','Tidak Minat'],
+                            'ordered'        => ['#dcfce7','#15803d','Order ✓'],
+                        ][$place->outreach_status] ?? null;
+                        @endphp
+                        @if($statusBadge)
+                        <span style="background:{{ $statusBadge[0] }};color:{{ $statusBadge[1] }};font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap">{{ $statusBadge[2] }}</span>
+                        @else
+                        <span class="text-muted text-xs">Belum</span>
+                        @endif
+                    </td>
                     <td>
                         <div class="d-flex gap-4 justify-content:flex-end" style="justify-content:flex-end;flex-wrap:wrap">
                             @if($place->has_whatsapp === true && $place->phone)
@@ -337,7 +372,7 @@ function filterChip($val, $label, $cls, $count, $qf) {
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="9" style="text-align:center;padding:48px;color:var(--tx3)">
+                    <td colspan="11" style="text-align:center;padding:48px;color:var(--tx3)">
                         <i class="fas fa-store" style="font-size:28px;margin-bottom:8px;display:block"></i>
                         Tidak ada tempat ditemukan.<br>
                         <a href="{{ route('scraper.index') }}" class="btn btn-primary btn-sm mt-8">
