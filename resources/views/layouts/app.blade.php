@@ -258,7 +258,7 @@ code{font-size:11.5px;background:var(--bg);padding:1px 5px;border-radius:3px;bor
       </button>
       <div class="topbar-title">@yield('page-title', 'Dasbor')</div>
       <div class="topbar-actions">
-        <button onclick="openSearchCatat()" class="btn btn-ghost btn-sm" title="Cari & Catat Respon" style="color:var(--tx2)">
+        <button type="button" onclick="openSearchCatat()" class="btn btn-ghost btn-sm" title="Cari & Catat Respon" style="color:var(--tx2)">
           <i class="fas fa-search-plus"></i>
         </button>
         @stack('topbar-actions')

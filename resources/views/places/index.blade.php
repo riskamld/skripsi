@@ -290,7 +290,7 @@ function filterChip($val, $label, $cls, $count, $qf) {
                                 <i class="fab fa-whatsapp"></i>
                             </a>
                             @endif
-                            <button onclick="openGRespModal({{ $place->id }}, '{{ $place->outreach_status }}', {customer_name:'{{ addslashes($place->customer_name ?? '') }}', response_admin:'{{ addslashes($place->response_admin ?? '') }}'})"
+                            <button type="button" onclick="openGRespModal({{ $place->id }}, '{{ $place->outreach_status }}', {customer_name:'{{ addslashes($place->customer_name ?? '') }}', response_admin:'{{ addslashes($place->response_admin ?? '') }}'})"
                                 class="btn btn-ghost btn-xs" title="Catat Respon"
                                 style="color:{{ $place->customer_name ? 'var(--ac)' : 'var(--tx3)' }}">
                                 <i class="fas fa-comment-dots"></i>
@@ -301,7 +301,7 @@ function filterChip($val, $label, $cls, $count, $qf) {
                             <a href="{{ route('places.edit', $place) }}" class="btn btn-ghost btn-xs" title="Edit">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <button onclick="toggleRelevance({{ $place->id }}, {{ $place->is_valid === false ? 'true' : 'false' }}, this)"
+                            <button type="button" onclick="toggleRelevance({{ $place->id }}, {{ $place->is_valid === false ? 'true' : 'false' }}, this)"
                                 class="btn btn-ghost btn-xs"
                                 title="{{ $place->is_valid === false ? 'Aktifkan kembali' : 'Tandai tidak relevan' }}"
                                 style="color:{{ $place->is_valid === false ? '#16a34a' : '#9ca3af' }}">
