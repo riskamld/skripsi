@@ -1065,10 +1065,10 @@ async function executeSend(placeIds) {
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
     document.getElementById('send-log').textContent = '';
     document.getElementById('send-progress-wrap').style.display = 'block';
-    document.getElementById('send-progress-bar').style.width = '10%';
+    document.getElementById('send-progress-bar').style.width = '5%';
 
     try {
-        logSend(`Mengirim ke ${placeIds.length} target... (delay 3–8 detik per pesan)`);
+        logSend(`Memulai pengiriman ke ${placeIds.length} target... (delay 3–8 detik per pesan, diproses di server WA)`);
         const resp = await fetch('{{ route("whatsapp.send-outreach") }}', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
@@ -1080,23 +1080,65 @@ async function executeSend(placeIds) {
             })
         });
         const d = await resp.json();
-        if (d.status === 'ok') {
-            document.getElementById('send-progress-bar').style.width = '100%';
-            const skipNote = d.results.skipped_stale > 0 ? ` | Dilewati (basi): ${d.results.skipped_stale}` : '';
-            logSend(`✓ Terkirim: ${d.results.sent} | Gagal: ${d.results.failed}${skipNote}`);
-            logSend(`Sisa target: ${d.remaining}`);
-            document.getElementById('remaining-count').textContent = d.remaining;
-            updateDailyBar(d.sent_today, d.daily_limit);
-            refreshStats();
-        } else {
+        if (d.status !== 'ok') {
             logSend('✗ ' + (d.error || 'Gagal'));
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-eye"></i> Preview & Kirim';
+            return;
         }
+
+        if (d.skipped_stale > 0) {
+            logSend(`Dilewati (nomor basi tidak aktif): ${d.skipped_stale}`);
+        }
+        logSend(`Job dikirim ke server WA (job_id: ${d.job_id}), memantau progres...`);
+
+        await pollSendJob(d.job_id);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-eye"></i> Preview & Kirim';
+        return;
     } catch(e) {
         logSend('✗ Error: ' + e.message);
     }
 
     btn.disabled = false;
     btn.innerHTML = '<i class="fas fa-eye"></i> Preview & Kirim';
+}
+
+// Polling status job bulk — pesan diproses async di server WA (Node.js),
+// jadi request PHP tidak perlu menunggu/menahan koneksi selama proses kirim.
+async function pollSendJob(jobId) {
+    while (true) {
+        await new Promise(r => setTimeout(r, 3000));
+        let d;
+        try {
+            const resp = await fetch(`{{ route('whatsapp.send-outreach-status') }}?job_id=${jobId}`);
+            d = await resp.json();
+        } catch (e) {
+            logSend('✗ Error memantau job: ' + e.message);
+            return;
+        }
+        if (d.status !== 'ok') {
+            logSend('✗ ' + (d.error || 'Gagal memantau job'));
+            return;
+        }
+
+        if (d.job_status === 'running') {
+            const pct = d.total > 0 ? Math.round((d.sent + d.failed) / d.total * 100) : 0;
+            document.getElementById('send-progress-bar').style.width = Math.max(5, pct) + '%';
+            logSend(`… berjalan: ${d.sent + d.failed}/${d.total} (terkirim ${d.sent}, gagal ${d.failed})`);
+            continue;
+        }
+
+        // done
+        document.getElementById('send-progress-bar').style.width = '100%';
+        const skipNote = d.results.skipped_stale > 0 ? ` | Dilewati (basi): ${d.results.skipped_stale}` : '';
+        logSend(`✓ Selesai — Terkirim: ${d.results.sent} | Gagal: ${d.results.failed}${skipNote}`);
+        logSend(`Sisa target: ${d.remaining}`);
+        document.getElementById('remaining-count').textContent = d.remaining;
+        updateDailyBar(d.sent_today, d.daily_limit);
+        refreshStats();
+        return;
+    }
 }
 
 // ── target list ───────────────────────────────────────────────────────────────

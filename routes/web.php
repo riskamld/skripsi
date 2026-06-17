@@ -80,6 +80,7 @@ Route::get('/whatsapp/devices', [WhatsAppController::class, 'devices'])->name('w
 Route::get('/whatsapp/stats', [WhatsAppController::class, 'stats'])->name('whatsapp.stats');
 Route::post('/whatsapp/check-wa', [WhatsAppController::class, 'checkWA'])->name('whatsapp.check-wa');
 Route::post('/whatsapp/send-outreach', [WhatsAppController::class, 'sendOutreach'])->name('whatsapp.send-outreach');
+Route::get('/whatsapp/send-outreach-status', [WhatsAppController::class, 'sendOutreachStatus'])->name('whatsapp.send-outreach-status');
 Route::post('/whatsapp/preview-targets', [WhatsAppController::class, 'previewTargets'])->name('whatsapp.preview-targets');
 Route::post('/whatsapp/mark-status/{id}', [WhatsAppController::class, 'markStatus'])->name('whatsapp.mark-status');
 Route::post('/whatsapp/save-notes/{id}', [WhatsAppController::class, 'saveNotes'])->name('whatsapp.save-notes');

@@ -11,6 +11,7 @@ use App\Models\WaIncomingMessage;
 use App\Models\WaTemplate;
 use App\Services\TelegramService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -206,68 +207,157 @@ class WhatsAppController extends Controller
             }
         }
 
-        $results = ['sent' => 0, 'failed' => 0, 'skipped_stale' => $skippedStale];
         $placeList = collect($places);
-        $totalToSend = $placeList->count();
+        if ($placeList->isEmpty()) {
+            return response()->json(['error' => 'Tidak ada target tersisa untuk dikirim.'], 422);
+        }
 
-        foreach ($placeList as $idx => $place) {
+        // Bangun payload + simpan metadata place per nomor agar bisa di-finalisasi
+        // saat job selesai (lihat sendOutreachStatus()). Kirim sekali ke wa-api
+        // /send-bulk — proses + delay antar pesan dijalankan di sisi wa-api
+        // (Node.js, async, tidak ikut menahan request PHP ini).
+        $tplName  = $isRandom ? 'Acak' : ($single->name ?? 'Template');
+        $messages = [];
+        $placeMeta = [];
+        foreach ($placeList as $place) {
             $template = $isRandom ? $activeTemplates->random() : $single;
             $message  = $this->renderTemplate($template->body, $place);
+            $messages[] = ['number' => $place->phone, 'message' => $message];
+            $placeMeta[$place->phone] = [
+                'place_id'      => $place->id,
+                'template_id'   => $template->id,
+                'template_name' => $template->name,
+            ];
+        }
 
-            try {
-                $resp = Http::timeout(15)->post("{$this->waApiUrl}/send-message?deviceId={$deviceId}", [
-                    'number'  => $place->phone,
-                    'message' => $message,
+        try {
+            $bulkResp = Http::timeout(20)
+                ->withHeaders(['X-API-Key' => env('WA_API_KEY', '')])
+                ->post("{$this->waApiUrl}/send-bulk?deviceId={$deviceId}", [
+                    'messages'  => $messages,
+                    'delay_min' => 3000,
+                    'delay_max' => 8000,
                 ]);
+        } catch (\Exception $e) {
+            Log::warning("sendOutreach: gagal hubungi wa-api send-bulk: " . $e->getMessage());
+            return response()->json(['error' => 'Gagal menghubungi server WhatsApp.'], 502);
+        }
 
-                if ($resp->successful() && $resp->json('status')) {
-                    $place->update([
-                        'outreach_status'    => 'sent',
-                        'outreach_sent_at'   => now(),
-                        'outreach_device_id' => $deviceId,
-                    ]);
-                    OutreachLog::create([
-                        'place_id'      => $place->id,
-                        'action'        => 'sent',
-                        'status'        => 'sent',
-                        'template_id'   => $template->id,
-                        'template_name' => $template->name,
-                    ]);
-                    $results['sent']++;
+        if (!$bulkResp->successful() || !$bulkResp->json('status')) {
+            return response()->json(['error' => $bulkResp->json('message') ?? 'Gagal memulai pengiriman bulk.'], 422);
+        }
+
+        $jobId = $bulkResp->json('job_id');
+        Cache::put("wa_bulk_job_{$jobId}", [
+            'device_id'        => $deviceId,
+            'place_meta'       => $placeMeta,
+            'category_filter'  => $categoryFilter,
+            'skipped_stale'    => $skippedStale,
+            'sent_today_before'=> $sentToday,
+            'daily_limit'      => $dailyLimit,
+            'template_name'    => $tplName,
+            'finalized'        => false,
+        ], now()->addHours(2));
+
+        return response()->json([
+            'status'        => 'ok',
+            'mode'          => 'async',
+            'job_id'        => $jobId,
+            'total'         => count($messages),
+            'skipped_stale' => $skippedStale,
+        ]);
+    }
+
+    public function sendOutreachStatus(Request $request)
+    {
+        $request->validate(['job_id' => 'required|string']);
+        $jobId = $request->job_id;
+
+        $meta = Cache::get("wa_bulk_job_{$jobId}");
+        if (!$meta) {
+            return response()->json(['error' => 'Job tidak ditemukan atau sudah kedaluwarsa.'], 404);
+        }
+
+        try {
+            $resp = Http::timeout(15)
+                ->withHeaders(['X-API-Key' => env('WA_API_KEY', '')])
+                ->get("{$this->waApiUrl}/send-bulk/{$jobId}", ['deviceId' => $meta['device_id']]);
+        } catch (\Exception $e) {
+            Log::warning("sendOutreachStatus: gagal cek status job {$jobId}: " . $e->getMessage());
+            return response()->json(['error' => 'Gagal mengecek status pengiriman.'], 502);
+        }
+
+        if (!$resp->successful() || !$resp->json('status')) {
+            return response()->json(['error' => 'Job tidak ditemukan di server WhatsApp.'], 404);
+        }
+
+        $job = $resp->json();
+
+        if ($job['status'] !== 'done') {
+            return response()->json([
+                'status'     => 'ok',
+                'job_status' => 'running',
+                'total'      => $job['total'],
+                'sent'       => $job['sent'],
+                'failed'     => $job['failed'],
+            ]);
+        }
+
+        // Job selesai — finalisasi sekali saja (guard idempotent untuk polling berulang)
+        if (!$meta['finalized']) {
+            foreach ($job['results'] as $r) {
+                $pm = $meta['place_meta'][$r['number']] ?? null;
+                if (!$pm) continue;
+
+                if ($r['status'] === 'sent') {
+                    $updated = Place::where('id', $pm['place_id'])
+                        ->whereNull('outreach_status')
+                        ->update([
+                            'outreach_status'    => 'sent',
+                            'outreach_sent_at'   => now(),
+                            'outreach_device_id' => $meta['device_id'],
+                        ]);
+                    if ($updated) {
+                        OutreachLog::create([
+                            'place_id'      => $pm['place_id'],
+                            'action'        => 'sent',
+                            'status'        => 'sent',
+                            'template_id'   => $pm['template_id'],
+                            'template_name' => $pm['template_name'],
+                        ]);
+                    }
                 } else {
-                    Log::warning("sendOutreach gagal kirim place #{$place->id} {$place->phone}: " . $resp->body());
-                    $results['failed']++;
+                    Log::warning("sendOutreach (bulk) gagal kirim place #{$pm['place_id']} {$r['number']}: " . ($r['error'] ?? ''));
                 }
-            } catch (\Exception $e) {
-                Log::warning("sendOutreach exception place #{$place->id}: " . $e->getMessage());
-                $results['failed']++;
             }
 
-            // Delay acak 3–8 detik antar pesan (skip delay setelah pesan terakhir)
-            if ($idx < $totalToSend - 1) {
-                usleep(rand(3_000_000, 8_000_000));
+            $meta['finalized'] = true;
+            Cache::put("wa_bulk_job_{$jobId}", $meta, now()->addMinutes(10));
+
+            if ($job['sent'] > 0) {
+                app(TelegramService::class)->notifyOutreachSent(
+                    $job['sent'], $job['failed'], $meta['template_name'],
+                    $meta['sent_today_before'] + $job['sent'], $meta['daily_limit']
+                );
             }
         }
 
         $remaining = Place::where('has_whatsapp', true)->whereNull('outreach_status')
-            ->when($categoryFilter === 'relevant', fn($q) => $q->whereIn('category', self::RELEVANT_CATEGORIES))
-            ->when($categoryFilter && $categoryFilter !== 'relevant', fn($q) => $q->where('category', $categoryFilter))
+            ->when($meta['category_filter'] === 'relevant', fn($q) => $q->whereIn('category', self::RELEVANT_CATEGORIES))
+            ->when($meta['category_filter'] && $meta['category_filter'] !== 'relevant', fn($q) => $q->where('category', $meta['category_filter']))
             ->count();
-
-        if ($results['sent'] > 0) {
-            $tplName = $isRandom ? 'Acak' : ($single->name ?? 'Template');
-            app(TelegramService::class)->notifyOutreachSent(
-                $results['sent'], $results['failed'], $tplName,
-                $sentToday + $results['sent'], $dailyLimit
-            );
-        }
 
         return response()->json([
             'status'     => 'ok',
-            'results'    => $results,
+            'job_status' => 'done',
+            'results'    => [
+                'sent'           => $job['sent'],
+                'failed'         => $job['failed'],
+                'skipped_stale'  => $meta['skipped_stale'],
+            ],
             'remaining'  => $remaining,
-            'sent_today' => $sentToday + $results['sent'],
-            'daily_limit'=> $dailyLimit,
+            'sent_today' => $meta['sent_today_before'] + $job['sent'],
+            'daily_limit'=> $meta['daily_limit'],
         ]);
     }
 
