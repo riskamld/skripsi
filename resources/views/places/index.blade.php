@@ -290,6 +290,11 @@ function filterChip($val, $label, $cls, $count, $qf) {
                                 <i class="fab fa-whatsapp"></i>
                             </a>
                             @endif
+                            <button onclick="openGRespModal({{ $place->id }}, '{{ $place->outreach_status }}', {customer_name:'{{ addslashes($place->customer_name ?? '') }}', response_admin:'{{ addslashes($place->response_admin ?? '') }}'})"
+                                class="btn btn-ghost btn-xs" title="Catat Respon"
+                                style="color:{{ $place->customer_name ? 'var(--ac)' : 'var(--tx3)' }}">
+                                <i class="fas fa-comment-dots"></i>
+                            </button>
                             <a href="{{ route('places.show', $place) }}" class="btn btn-ghost btn-xs" title="Lihat">
                                 <i class="fas fa-eye"></i>
                             </a>

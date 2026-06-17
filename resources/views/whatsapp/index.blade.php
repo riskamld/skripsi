@@ -431,54 +431,7 @@
 </div>
 
 {{-- Modal Duplikat --}}
-{{-- Modal catat respon --}}
-<div id="resp-modal" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:16px">
-    <div class="card" style="width:min(440px,96vw)">
-        <div class="card-header" style="justify-content:space-between">
-            <span><i class="fas fa-comment-dots" style="color:var(--ac);margin-right:6px"></i>Catat Respon</span>
-            <button class="btn btn-ghost btn-xs" onclick="closeRespModal()"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
-            <input type="hidden" id="resp-place-id">
-            <div>
-                <div style="font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:4px">Status</div>
-                <div style="display:flex;gap-6px;flex-wrap:wrap;gap:6px">
-                    @foreach([
-                        ['replied','Respon','#06b6d4'],
-                        ['interested','Berminat','#f97316'],
-                        ['not_interested','Tidak Berminat','#9ca3af'],
-                        ['ordered','Order ✓','#10b981'],
-                    ] as [$val,$label,$color])
-                    <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;padding:5px 10px;border-radius:6px;border:1.5px solid var(--bdr);user-select:none" class="resp-status-opt" data-val="{{ $val }}" data-color="{{ $color }}" onclick="selectRespStatus('{{ $val }}')">
-                        <input type="radio" name="resp_status" value="{{ $val }}" style="display:none">
-                        {{ $label }}
-                    </label>
-                    @endforeach
-                </div>
-            </div>
-            <div>
-                <label style="font-size:11px;font-weight:600;color:var(--tx2);display:block;margin-bottom:4px">Nama Pelanggan</label>
-                <input type="text" id="resp-customer-name" class="form-control" placeholder="Nama kontak / pemilik toko" maxlength="100">
-            </div>
-            <div>
-                <label style="font-size:11px;font-weight:600;color:var(--tx2);display:block;margin-bottom:4px">Keterangan</label>
-                <textarea id="resp-notes" class="form-control" rows="3" placeholder="Isi percakapan, kebutuhan, atau catatan lain…" maxlength="2000" style="resize:vertical"></textarea>
-            </div>
-            <div>
-                <label style="font-size:11px;font-weight:600;color:var(--tx2);display:block;margin-bottom:4px">Admin yang mencatat</label>
-                <input type="text" id="resp-admin" class="form-control" placeholder="Nama admin" maxlength="80">
-            </div>
-        </div>
-        <div style="padding:12px 16px;border-top:1px solid var(--bdr);display:flex;justify-content:flex-end;gap:8px">
-            <button class="btn btn-secondary btn-sm" onclick="closeRespModal()">Batal</button>
-            <button id="resp-save-btn" class="btn btn-primary btn-sm" onclick="saveRespModal()">
-                <i class="fas fa-save"></i> Simpan
-            </button>
-        </div>
-    </div>
-</div>
-
-{{-- Foto hover popup (dipakai oleh preview list & target list) --}}
+{{-- Foto hover popup (preview list & target list) --}}
 <div id="ph-popup" style="display:none;position:fixed;z-index:9999;pointer-events:auto;background:#fff;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,.25);overflow:hidden;width:280px"></div>
 
 <div id="dup-modal" style="display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.5);align-items:flex-start;justify-content:center;padding:20px 12px;overflow-y:auto">
@@ -1022,73 +975,7 @@ function escHtml(s) {
 }
 
 function markStatus(id, status, btn) {
-    openRespModal(id, status);
-}
-
-// ── modal catat respon ────────────────────────────────────────────────────────
-var respPlaceId = null, respStatus = null;
-
-function openRespModal(id, preselect) {
-    respPlaceId = id;
-    respStatus  = preselect || null;
-    document.getElementById('resp-place-id').value = id;
-    document.getElementById('resp-customer-name').value = '';
-    document.getElementById('resp-notes').value = '';
-    document.getElementById('resp-admin').value = '';
-    document.querySelectorAll('.resp-status-opt').forEach(function(el) {
-        var active = el.dataset.val === preselect;
-        el.style.borderColor = active ? el.dataset.color : 'var(--bdr)';
-        el.style.background  = active ? el.dataset.color + '18' : '';
-        el.style.color       = active ? el.dataset.color : '';
-        el.style.fontWeight  = active ? '700' : '';
-    });
-    document.getElementById('resp-modal').style.display = 'flex';
-    setTimeout(function(){ document.getElementById('resp-customer-name').focus(); }, 80);
-}
-
-function closeRespModal() {
-    document.getElementById('resp-modal').style.display = 'none';
-}
-
-function selectRespStatus(val) {
-    respStatus = val;
-    document.querySelectorAll('.resp-status-opt').forEach(function(el) {
-        var active = el.dataset.val === val;
-        el.style.borderColor = active ? el.dataset.color : 'var(--bdr)';
-        el.style.background  = active ? el.dataset.color + '18' : '';
-        el.style.color       = active ? el.dataset.color : '';
-        el.style.fontWeight  = active ? '700' : '';
-    });
-}
-
-async function saveRespModal() {
-    if (!respStatus) { alert('Pilih status terlebih dahulu.'); return; }
-    var btn = document.getElementById('resp-save-btn');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan…';
-    try {
-        var resp = await fetch(`{{ url('/whatsapp/mark-status') }}/${respPlaceId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-            body: JSON.stringify({
-                status:         respStatus,
-                customer_name:  document.getElementById('resp-customer-name').value.trim(),
-                notes:          document.getElementById('resp-notes').value.trim(),
-                response_admin: document.getElementById('resp-admin').value.trim(),
-            })
-        });
-        var d = await resp.json();
-        if (d.status === 'ok') {
-            closeRespModal();
-            loadTargetList();
-        } else {
-            alert('Gagal menyimpan.');
-        }
-    } catch(e) {
-        alert('Error: ' + e.message);
-    }
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-save"></i> Simpan';
+    openGRespModal(id, status, null, function() { loadTargetList(); });
 }
 
 // ── stats refresh ─────────────────────────────────────────────────────────────

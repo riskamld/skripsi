@@ -70,6 +70,7 @@ Route::resource('places', PlaceController::class);
 Route::post('/places/clear-all', [PlaceController::class, 'clearAll'])->name('places.clear-all');
 Route::post('/places/bulk-delete', [PlaceController::class, 'bulkDelete'])->name('places.bulk-delete');
 Route::post('/places/{place}/toggle-relevance', [PlaceController::class, 'toggleRelevance'])->name('places.toggle-relevance');
+Route::get('/places/quick-search', [PlaceController::class, 'quickSearch'])->name('places.quick-search');
 
 // Scrape Logs routes
 Route::post('/scrape-logs/clear-all', [ScrapeLogController::class, 'clearAll'])->name('scrape-logs.clear-all');

@@ -188,6 +188,33 @@ class PlaceController extends Controller
             ->with('success', 'All places cleared successfully');
     }
 
+    public function quickSearch(Request $request)
+    {
+        $q = trim($request->get('q', ''));
+        if (mb_strlen($q) < 2) return response()->json([]);
+
+        $places = Place::where(fn($query) => $query
+                ->where('name', 'like', "%{$q}%")
+                ->orWhere('phone', 'like', "%{$q}%")
+            )
+            ->where(fn($query) => $query->whereNull('is_valid')->orWhere('is_valid', true))
+            ->orderByDesc('busyness_score')
+            ->limit(10)
+            ->get(['id', 'name', 'phone', 'category', 'outreach_status', 'customer_name', 'response_admin', 'image_1']);
+
+        return response()->json($places->map(fn($p) => [
+            'id'              => $p->id,
+            'name'            => $p->name,
+            'phone'           => $p->phone,
+            'category'        => $p->category,
+            'outreach_status' => $p->outreach_status,
+            'customer_name'   => $p->customer_name,
+            'response_admin'  => $p->response_admin,
+            'thumb'           => $p->image_1 ? preg_replace('/=w\d+-h\d+[^"]*$/', '=w48-h48-k-no', $p->image_1) : null,
+            'detail_url'      => route('places.show', $p->id),
+        ]));
+    }
+
     public function toggleRelevance(Place $place)
     {
         $markIrrelevant = $place->is_valid !== false;

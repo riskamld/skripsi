@@ -257,7 +257,12 @@ code{font-size:11.5px;background:var(--bg);padding:1px 5px;border-radius:3px;bor
         <i class="fas fa-bars"></i>
       </button>
       <div class="topbar-title">@yield('page-title', 'Dasbor')</div>
-      <div class="topbar-actions">@stack('topbar-actions')</div>
+      <div class="topbar-actions">
+        <button onclick="openSearchCatat()" class="btn btn-ghost btn-sm" title="Cari & Catat Respon" style="color:var(--tx2)">
+          <i class="fas fa-search-plus"></i>
+        </button>
+        @stack('topbar-actions')
+      </div>
     </header>
 
     <div class="page">
@@ -265,6 +270,62 @@ code{font-size:11.5px;background:var(--bg);padding:1px 5px;border-radius:3px;bor
     </div>
   </div>
 
+</div>
+
+{{-- ═══ Modal Global: Catat Respon ═══════════════════════════════════════════ --}}
+<div id="g-resp-modal" style="display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:16px">
+  <div style="background:var(--bg);border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.2);width:min(440px,96vw);overflow:hidden">
+    <div style="padding:14px 16px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:13px;font-weight:600"><i class="fas fa-comment-dots" style="color:var(--ac);margin-right:6px"></i>Catat Respon</span>
+      <button onclick="closeGRespModal()" style="background:none;border:none;cursor:pointer;color:var(--tx3);font-size:16px;padding:2px 6px">&times;</button>
+    </div>
+    <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
+      <input type="hidden" id="g-resp-place-id">
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:6px">Status</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <label class="g-resp-opt" data-val="replied"        data-color="#06b6d4" onclick="gSelectStatus('replied')">Sudah Respon</label>
+          <label class="g-resp-opt" data-val="interested"     data-color="#f97316" onclick="gSelectStatus('interested')">Berminat</label>
+          <label class="g-resp-opt" data-val="not_interested" data-color="#9ca3af" onclick="gSelectStatus('not_interested')">Tidak Berminat</label>
+          <label class="g-resp-opt" data-val="ordered"        data-color="#10b981" onclick="gSelectStatus('ordered')">Order ✓</label>
+        </div>
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:600;color:var(--tx2);display:block;margin-bottom:4px">Nama Pelanggan</label>
+        <input type="text" id="g-resp-customer" style="width:100%;box-sizing:border-box;border:1px solid var(--bdr);border-radius:6px;padding:7px 10px;font-size:13px;background:var(--bg2);color:var(--tx);font-family:inherit" placeholder="Nama kontak / pemilik toko" maxlength="100">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:600;color:var(--tx2);display:block;margin-bottom:4px">Keterangan</label>
+        <textarea id="g-resp-notes" rows="3" maxlength="2000" style="width:100%;box-sizing:border-box;border:1px solid var(--bdr);border-radius:6px;padding:7px 10px;font-size:13px;background:var(--bg2);color:var(--tx);font-family:inherit;resize:vertical" placeholder="Isi percakapan, kebutuhan, atau catatan…"></textarea>
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:600;color:var(--tx2);display:block;margin-bottom:4px">Admin yang mencatat</label>
+        <input type="text" id="g-resp-admin" style="width:100%;box-sizing:border-box;border:1px solid var(--bdr);border-radius:6px;padding:7px 10px;font-size:13px;background:var(--bg2);color:var(--tx);font-family:inherit" placeholder="Nama admin" maxlength="80">
+      </div>
+    </div>
+    <div style="padding:12px 16px;border-top:1px solid var(--bdr);display:flex;justify-content:flex-end;gap:8px">
+      <button onclick="closeGRespModal()" style="padding:6px 14px;border:1px solid var(--bdr);border-radius:6px;background:var(--bg2);color:var(--tx2);cursor:pointer;font-size:13px">Batal</button>
+      <button id="g-resp-save" onclick="saveGResp()" style="padding:6px 16px;border:1px solid var(--ac);border-radius:6px;background:var(--ac);color:#fff;cursor:pointer;font-size:13px;font-weight:600">
+        <i class="fas fa-save"></i> Simpan
+      </button>
+    </div>
+  </div>
+</div>
+
+{{-- ═══ Modal Global: Cari & Catat ════════════════════════════════════════════ --}}
+<div id="g-search-modal" style="display:none;position:fixed;inset:0;z-index:910;background:rgba(0,0,0,.55);align-items:flex-start;justify-content:center;padding:60px 16px 16px">
+  <div style="background:var(--bg);border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.25);width:min(520px,96vw);overflow:hidden">
+    <div style="padding:14px 16px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:10px">
+      <i class="fas fa-search-plus" style="color:var(--ac);font-size:14px"></i>
+      <input id="g-search-input" type="text" placeholder="Ketik nama atau nomor HP tempat…"
+        style="flex:1;border:none;outline:none;font-size:13px;background:transparent;color:var(--tx);font-family:inherit"
+        oninput="gSearchDebounce()">
+      <button onclick="closeSearchCatat()" style="background:none;border:none;cursor:pointer;color:var(--tx3);font-size:16px;padding:2px 6px">&times;</button>
+    </div>
+    <div id="g-search-results" style="max-height:380px;overflow-y:auto">
+      <div style="padding:24px;text-align:center;color:var(--tx3);font-size:12px">Ketik minimal 2 karakter untuk mencari</div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -276,7 +337,152 @@ function closeSidebar(){
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('overlay').classList.remove('show');
 }
+
+// ── Global Catat Respon ───────────────────────────────────────────────────────
+var gRespStatus = null;
+var gRespCallback = null;
+
+var gStatusColors = { replied:'#06b6d4', interested:'#f97316', not_interested:'#9ca3af', ordered:'#10b981' };
+
+function openGRespModal(placeId, preselect, prefill, callback) {
+  gRespStatus   = preselect || null;
+  gRespCallback = callback  || null;
+  document.getElementById('g-resp-place-id').value = placeId;
+  document.getElementById('g-resp-customer').value  = (prefill && prefill.customer_name)   || '';
+  document.getElementById('g-resp-notes').value     = (prefill && prefill.notes)            || '';
+  document.getElementById('g-resp-admin').value     = (prefill && prefill.response_admin)   || '';
+  document.querySelectorAll('.g-resp-opt').forEach(function(el) { gStyleOpt(el, el.dataset.val === preselect); });
+  document.getElementById('g-resp-modal').style.display = 'flex';
+  setTimeout(function(){ document.getElementById('g-resp-customer').focus(); }, 80);
+}
+function closeGRespModal() { document.getElementById('g-resp-modal').style.display = 'none'; }
+
+function gStyleOpt(el, active) {
+  var c = el.dataset.color;
+  el.style.borderColor = active ? c : 'var(--bdr)';
+  el.style.background  = active ? c + '20' : '';
+  el.style.color       = active ? c : '';
+  el.style.fontWeight  = active ? '700' : '';
+}
+function gSelectStatus(val) {
+  gRespStatus = val;
+  document.querySelectorAll('.g-resp-opt').forEach(function(el) { gStyleOpt(el, el.dataset.val === val); });
+}
+
+async function saveGResp() {
+  if (!gRespStatus) { alert('Pilih status terlebih dahulu.'); return; }
+  var btn = document.getElementById('g-resp-save');
+  btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+  try {
+    var id = document.getElementById('g-resp-place-id').value;
+    var resp = await fetch('/whatsapp/mark-status/' + id, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content },
+      body: JSON.stringify({
+        status:         gRespStatus,
+        customer_name:  document.getElementById('g-resp-customer').value.trim(),
+        notes:          document.getElementById('g-resp-notes').value.trim(),
+        response_admin: document.getElementById('g-resp-admin').value.trim(),
+      })
+    });
+    var d = await resp.json();
+    if (d.status === 'ok') {
+      closeGRespModal();
+      if (typeof gRespCallback === 'function') gRespCallback(d);
+    } else { alert('Gagal menyimpan.'); }
+  } catch(e) { alert('Error: ' + e.message); }
+  btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Simpan';
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') { closeGRespModal(); closeSearchCatat(); }
+});
+
+// ── Global Cari & Catat ───────────────────────────────────────────────────────
+var gSearchTimer;
+var gStatusLabel = { sent:'Terkirim', replied:'Respon', interested:'Berminat', not_interested:'Tidak Berminat', ordered:'Order ✓' };
+var gStatusColor = { sent:'#3b82f6', replied:'#06b6d4', interested:'#f97316', not_interested:'#9ca3af', ordered:'#10b981' };
+
+function openSearchCatat() {
+  document.getElementById('g-search-modal').style.display = 'flex';
+  document.getElementById('g-search-results').innerHTML = '<div style="padding:24px;text-align:center;color:var(--tx3);font-size:12px">Ketik minimal 2 karakter untuk mencari</div>';
+  setTimeout(function(){ document.getElementById('g-search-input').focus(); }, 60);
+}
+function closeSearchCatat() {
+  document.getElementById('g-search-modal').style.display = 'none';
+  document.getElementById('g-search-input').value = '';
+}
+
+function gSearchDebounce() {
+  clearTimeout(gSearchTimer);
+  var q = document.getElementById('g-search-input').value.trim();
+  if (q.length < 2) {
+    document.getElementById('g-search-results').innerHTML = '<div style="padding:24px;text-align:center;color:var(--tx3);font-size:12px">Ketik minimal 2 karakter untuk mencari</div>';
+    return;
+  }
+  document.getElementById('g-search-results').innerHTML = '<div style="padding:16px;text-align:center;color:var(--tx3);font-size:12px"><i class="fas fa-spinner fa-spin"></i> Mencari…</div>';
+  gSearchTimer = setTimeout(function(){ gDoSearch(q); }, 350);
+}
+
+async function gDoSearch(q) {
+  try {
+    var resp = await fetch('/places/quick-search?q=' + encodeURIComponent(q), {
+      headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content }
+    });
+    var data = await resp.json();
+    var el = document.getElementById('g-search-results');
+    if (!data.length) {
+      el.innerHTML = '<div style="padding:24px;text-align:center;color:var(--tx3);font-size:12px">Tidak ada tempat ditemukan.</div>';
+      return;
+    }
+    el.innerHTML = data.map(function(p) {
+      var statusHtml = p.outreach_status && gStatusLabel[p.outreach_status]
+        ? '<span style="font-size:10px;font-weight:600;color:' + gStatusColor[p.outreach_status] + '">' + gStatusLabel[p.outreach_status] + '</span>'
+        : '<span style="font-size:10px;color:var(--tx3)">Belum dikirim</span>';
+      var thumb = p.thumb
+        ? '<img src="' + p.thumb + '" style="width:36px;height:36px;border-radius:6px;object-fit:cover;flex-shrink:0;border:1px solid var(--bdr)" onerror="this.style.display=\'none\'">'
+        : '<div style="width:36px;height:36px;border-radius:6px;background:var(--bg2);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--tx3);font-size:13px"><i class=\'fas fa-store\'></i></div>';
+      var custLabel = p.customer_name ? '<span style="font-size:10px;color:var(--tx3)"> · ' + p.customer_name + '</span>' : '';
+      return '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--bdr);cursor:pointer;transition:.1s" onmouseover="this.style.background=\'var(--bg2)\'" onmouseout="this.style.background=\'\'" onclick="gPickResult(' + JSON.stringify(p).replace(/'/g, '&#39;') + ')">'
+        + thumb
+        + '<div style="flex:1;min-width:0">'
+        + '<div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + gEsc(p.name) + custLabel + '</div>'
+        + '<div style="font-size:10px;color:var(--tx3)">' + gEsc(p.category || '—') + ' · ' + gEsc(p.phone || '—') + '</div>'
+        + '</div>'
+        + '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">'
+        + statusHtml
+        + '<a href="' + p.detail_url + '" target="_blank" onclick="event.stopPropagation()" style="font-size:10px;color:var(--ac)">Detail <i class="fas fa-external-link-alt" style="font-size:9px"></i></a>'
+        + '</div>'
+        + '</div>';
+    }).join('');
+  } catch(e) {
+    document.getElementById('g-search-results').innerHTML = '<div style="padding:16px;text-align:center;color:var(--rd);font-size:12px">Gagal mencari.</div>';
+  }
+}
+
+function gPickResult(p) {
+  closeSearchCatat();
+  openGRespModal(p.id, p.outreach_status || null, { customer_name: p.customer_name, response_admin: p.response_admin }, function() {
+    // reload jika di halaman places atau whatsapp
+    if (typeof loadTargetList === 'function') loadTargetList();
+  });
+}
+
+function gEsc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 </script>
+
+{{-- Style untuk g-resp-opt labels --}}
+<style>
+.g-resp-opt {
+  display:inline-block;cursor:pointer;font-size:12px;padding:5px 11px;
+  border-radius:6px;border:1.5px solid var(--bdr);user-select:none;
+  transition:border-color .15s,background .15s,color .15s;
+}
+</style>
+
 @stack('scripts')
 </body>
 </html>

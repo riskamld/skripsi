@@ -394,7 +394,7 @@ $sl = $statusLabels[$currentStatus] ?? null;
         <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
             <span class="text-xs text-muted" style="width:80px">Ubah status:</span>
             @foreach($statusLabels as $val => $meta)
-            <button onclick="setStatus('{{ $val }}')"
+            <button onclick="openGRespModal({{ $place->id }}, '{{ $val }}', {customer_name: '{{ addslashes($place->customer_name ?? '') }}', response_admin: '{{ addslashes($place->response_admin ?? '') }}'}, function(){ location.reload(); })"
                 id="btn-status-{{ $val }}"
                 class="btn btn-sm {{ $currentStatus === $val ? '' : 'btn-ghost' }}"
                 style="{{ $currentStatus === $val ? 'background:var(--ac);color:#fff;border-color:var(--ac)' : '' }}">
@@ -405,6 +405,18 @@ $sl = $statusLabels[$currentStatus] ?? null;
                 <i class="fas fa-undo"></i> Reset
             </button>
         </div>
+
+        {{-- Nama pelanggan & admin (jika sudah dicatat) --}}
+        @if($place->customer_name || $place->response_admin)
+        <div style="display:flex;gap:16px;flex-wrap:wrap;padding:10px 12px;background:var(--bg2);border-radius:6px;font-size:12px">
+            @if($place->customer_name)
+            <div><span class="text-muted">Nama Pelanggan:</span> <strong>{{ $place->customer_name }}</strong></div>
+            @endif
+            @if($place->response_admin)
+            <div><span class="text-muted">Dicatat oleh:</span> <strong>{{ $place->response_admin }}</strong></div>
+            @endif
+        </div>
+        @endif
     </div>
 </div>
 
