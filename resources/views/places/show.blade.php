@@ -515,13 +515,19 @@ $sl = $statusLabels[$currentStatus] ?? null;
     </div>
 </div>
 
-{{-- Timeline Riwayat Respon --}}
-@if($responseTimeline->count() > 0)
+{{-- Timeline Riwayat Respon — selalu tampil (walau kosong) supaya admin tahu
+     fitur ini ada & di mana letaknya, bukan menghilang total tanpa keterangan --}}
 <div class="card mb-16">
     <div class="card-header" style="justify-content:space-between">
         <span><i class="fas fa-comments" style="color:var(--ac);margin-right:6px"></i>Riwayat Respon</span>
         <span class="badge badge-gray">{{ $responseTimeline->count() }} catatan</span>
     </div>
+    @if($responseTimeline->count() === 0)
+    <div class="card-body" style="text-align:center;padding:28px 16px;color:var(--tx3)">
+        <i class="fas fa-comment-slash" style="font-size:22px;display:block;margin-bottom:8px"></i>
+        <span class="text-sm">Belum ada riwayat respon. Klik salah satu tombol <strong>Ubah status</strong> di atas untuk mulai mencatat.</span>
+    </div>
+    @else
     <div class="card-body p-0">
         @php
         $statusLabel = ['sent'=>'Terkirim','replied'=>'Sudah Respon','interested'=>'Berminat','not_interested'=>'Tidak Berminat','ordered'=>'Sudah Order','none'=>'Di-reset'];
@@ -579,8 +585,8 @@ $sl = $statusLabels[$currentStatus] ?? null;
         </div>
         @endforeach
     </div>
+    @endif
 </div>
-@endif
 
 {{-- Riwayat Outreach --}}
 @if($outreachLogs->count() > 0)
