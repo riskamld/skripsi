@@ -93,9 +93,15 @@ class RunScheduledScraper extends Command
             $schedule->update(['last_result' => $result, 'is_running' => false]);
 
             if ($selectorBroken) {
+                // Nonaktifkan jadwal ini — notifikasi Telegram menjanjikan "dihentikan
+                // sampai scraper diperbaiki", tapi sebelumnya cuma break dari loop
+                // tanpa update enabled=false, jadi jadwal tetap aktif & akan ditarik
+                // lagi di siklus berikutnya, mengulang masalah yang sama selamanya.
+                $schedule->update(['enabled' => false]);
                 $telegram->notifySelectorBroken($schedule->name, $schedule->query);
-                $this->error("SELECTOR RUSAK: {$schedule->name} — scraping dihentikan.");
-                // Hentikan semua jadwal berikutnya — semua akan gagal dengan masalah yang sama
+                $this->error("SELECTOR RUSAK: {$schedule->name} — dinonaktifkan otomatis.");
+                // Hentikan semua jadwal berikutnya di siklus ini — semua kemungkinan
+                // akan gagal dengan masalah yang sama (selector global Google Maps).
                 break;
             } elseif ($success) {
                 if ($processed === 0) {

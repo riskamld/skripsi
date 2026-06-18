@@ -538,7 +538,14 @@ async function scrape() {
     if (skippedCount > 0) console.log(`⏭  Skip ${skippedCount} tempat (sudah di DB) → proses ${newLinks.length} tempat baru\n`);
 
     // Buka tiap tempat baru
-    let selectorChecked = false;
+    // Cek beberapa tempat pertama (bukan cuma 1) sebelum memutuskan selector
+    // rusak — 1 sampel terlalu rentan false alarm (page load lambat/transient),
+    // butuh beberapa kegagalan BERTURUT-TURUT sebagai bukti kuat sebelum
+    // auto-disable jadwal. Sekali ada yang berhasil, counter direset.
+    const NAME_CHECK_SAMPLE = 3;
+    let nameCheckCount = 0;
+    let nameCheckEmptyStreak = 0;
+
     for (let i = 0; i < newLinks.length; i++) {
       const url = newLinks[i];
       console.log(`[${i + 1}/${newLinks.length}] Buka detail...`);
@@ -547,13 +554,24 @@ async function scrape() {
         await page.goto(url, { waitUntil: "domcontentloaded", timeout: 20000 });
         await randomDelay(2000, 3500);
 
-        const detail = await extractPlaceDetail(page, url);
+        let detail = await extractPlaceDetail(page, url);
 
-        // Opsi 3: cek field utama di tempat pertama saja
-        if (!selectorChecked) {
-          selectorChecked = true;
+        // Retry sekali kalau nama kosong & masih dalam window sampel —
+        // bisa jadi cuma kurang waktu render, bukan struktur berubah.
+        if (!detail.name && nameCheckCount < NAME_CHECK_SAMPLE) {
+          await randomDelay(2000, 3000);
+          detail = await extractPlaceDetail(page, url);
+        }
+
+        if (nameCheckCount < NAME_CHECK_SAMPLE) {
+          nameCheckCount++;
           if (!detail.name) {
-            console.error(`\n⚠️ SELECTOR_BROKEN: field 'name' kosong di tempat pertama`);
+            nameCheckEmptyStreak++;
+          } else {
+            nameCheckEmptyStreak = 0;
+          }
+          if (nameCheckEmptyStreak >= NAME_CHECK_SAMPLE) {
+            console.error(`\n⚠️ SELECTOR_BROKEN: field 'name' kosong di ${NAME_CHECK_SAMPLE} tempat pertama berturut-turut (sudah dicoba retry)`);
             console.error(`   Kemungkinan struktur DOM Google Maps berubah — scraping dihentikan.\n`);
             process.exit(2);
           }
