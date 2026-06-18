@@ -11,6 +11,8 @@ class PlaceResponse extends Model
         'outreach_status',
         'customer_name',
         'notes',
+        'skor',
+        'tugas_selanjutnya',
         'response_admin',
         'responded_at',
     ];

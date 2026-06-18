@@ -364,11 +364,13 @@ class WhatsAppController extends Controller
     public function markStatus(Request $request, $id)
     {
         $request->validate([
-            'status'         => 'required|in:none,sent,replied,interested,not_interested,ordered',
-            'customer_name'  => 'nullable|string|max:100',
-            'notes'          => 'nullable|string|max:2000',
-            'response_admin' => 'nullable|string|max:80',
-            'responded_at'   => 'nullable|date',
+            'status'             => 'required|in:none,sent,replied,interested,not_interested,ordered',
+            'customer_name'      => 'nullable|string|max:100',
+            'notes'              => 'nullable|string|max:2000',
+            'skor'               => 'nullable|integer|min:0|max:100',
+            'tugas_selanjutnya'  => 'nullable|string|max:2000',
+            'response_admin'     => 'nullable|string|max:80',
+            'responded_at'       => 'nullable|date',
         ]);
         $place = Place::findOrFail($id);
         $old = $place->outreach_status;
@@ -385,14 +387,17 @@ class WhatsAppController extends Controller
         $place->update($fields);
 
         // Simpan ke timeline riwayat respon (selalu, bukan hanya saat status berubah)
-        if ($request->filled('customer_name') || $request->filled('notes') || $request->filled('response_admin')) {
+        if ($request->filled('customer_name') || $request->filled('notes') || $request->filled('response_admin')
+            || $request->filled('skor') || $request->filled('tugas_selanjutnya')) {
             PlaceResponse::create([
-                'place_id'        => $place->id,
-                'outreach_status' => $request->status,
-                'customer_name'   => $request->customer_name,
-                'notes'           => $request->notes,
-                'response_admin'  => $request->response_admin,
-                'responded_at'    => $request->filled('responded_at') ? $request->responded_at : now(),
+                'place_id'          => $place->id,
+                'outreach_status'   => $request->status,
+                'customer_name'     => $request->customer_name,
+                'notes'             => $request->notes,
+                'skor'              => $request->skor,
+                'tugas_selanjutnya' => $request->tugas_selanjutnya,
+                'response_admin'    => $request->response_admin,
+                'responded_at'      => $request->filled('responded_at') ? $request->responded_at : now(),
             ]);
         }
 

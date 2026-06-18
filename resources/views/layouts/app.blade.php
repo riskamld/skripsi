@@ -309,6 +309,14 @@ code{font-size:11.5px;background:var(--bg);padding:1px 5px;border-radius:3px;bor
         <label style="font-size:11px;font-weight:600;color:var(--tx2);display:block;margin-bottom:4px">Keterangan</label>
         <textarea id="g-resp-notes" rows="3" maxlength="2000" style="width:100%;box-sizing:border-box;border:1px solid var(--bdr);border-radius:6px;padding:7px 10px;font-size:13px;background:var(--bg2);color:var(--tx);font-family:inherit;resize:vertical" placeholder="Isi percakapan, kebutuhan, atau catatan…"></textarea>
       </div>
+      <div>
+        <label style="font-size:11px;font-weight:600;color:var(--tx2);display:block;margin-bottom:4px">Tugas Selanjutnya</label>
+        <textarea id="g-resp-tugas" rows="2" maxlength="2000" style="width:100%;box-sizing:border-box;border:1px solid var(--bdr);border-radius:6px;padding:7px 10px;font-size:13px;background:var(--bg2);color:var(--tx);font-family:inherit;resize:vertical" placeholder="Langkah berikutnya, mis. kirim harga grosir, follow up minggu depan…"></textarea>
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:600;color:var(--tx2);display:block;margin-bottom:4px">Skor Progres Closing (0–100)</label>
+        <input type="number" id="g-resp-skor" min="0" max="100" style="width:100%;box-sizing:border-box;border:1px solid var(--bdr);border-radius:6px;padding:7px 10px;font-size:13px;background:var(--bg2);color:var(--tx);font-family:inherit" placeholder="cth: 70">
+      </div>
       <div style="display:flex;gap:10px">
         <div style="flex:1">
           <label style="font-size:11px;font-weight:600;color:var(--tx2);display:block;margin-bottom:4px">Admin yang mencatat</label>
@@ -367,6 +375,8 @@ function openGRespModal(placeId, preselect, prefill, callback) {
   document.getElementById('g-resp-place-id').value = placeId;
   document.getElementById('g-resp-customer').value  = (prefill && prefill.customer_name)   || '';
   document.getElementById('g-resp-notes').value     = (prefill && prefill.notes)            || '';
+  document.getElementById('g-resp-tugas').value     = (prefill && prefill.tugas_selanjutnya) || '';
+  document.getElementById('g-resp-skor').value      = (prefill && prefill.skor != null) ? prefill.skor : '';
   document.getElementById('g-resp-admin').value     = (prefill && prefill.response_admin)   || '';
   // Default tanggal = sekarang (format datetime-local: YYYY-MM-DDTHH:mm)
   var now = new Date(); now.setSeconds(0,0);
@@ -401,11 +411,13 @@ async function saveGResp() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content },
       body: JSON.stringify({
-        status:         gRespStatus,
-        customer_name:  document.getElementById('g-resp-customer').value.trim(),
-        notes:          document.getElementById('g-resp-notes').value.trim(),
-        response_admin: document.getElementById('g-resp-admin').value.trim(),
-        responded_at:   document.getElementById('g-resp-date').value || null,
+        status:             gRespStatus,
+        customer_name:      document.getElementById('g-resp-customer').value.trim(),
+        notes:              document.getElementById('g-resp-notes').value.trim(),
+        tugas_selanjutnya:  document.getElementById('g-resp-tugas').value.trim(),
+        skor:               document.getElementById('g-resp-skor').value || null,
+        response_admin:     document.getElementById('g-resp-admin').value.trim(),
+        responded_at:       document.getElementById('g-resp-date').value || null,
       })
     });
     var d = await resp.json();

@@ -550,6 +550,12 @@ $sl = $statusLabels[$currentStatus] ?? null;
                         <i class="fas fa-user" style="font-size:9px;color:var(--tx3)"></i> {{ $resp->customer_name }}
                     </span>
                     @endif
+                    @if($resp->skor !== null)
+                    @php $skorColor = $resp->skor >= 75 ? '#16a34a' : ($resp->skor >= 40 ? '#d97706' : '#dc2626'); @endphp
+                    <span style="font-size:10px;font-weight:700;background:{{ $skorColor }}1a;color:{{ $skorColor }};padding:1px 8px;border-radius:10px">
+                        <i class="fas fa-gauge-high" style="font-size:9px"></i> Skor: {{ $resp->skor }}
+                    </span>
+                    @endif
                     <span style="font-size:10px;color:var(--tx3);margin-left:auto;white-space:nowrap">
                         {{ $resp->responded_at ? $resp->responded_at->format('d/m/Y H:i') : $resp->created_at->format('d/m/Y H:i') }}
                         @if($resp->response_admin)
@@ -558,8 +564,15 @@ $sl = $statusLabels[$currentStatus] ?? null;
                     </span>
                 </div>
                 @if($resp->notes)
-                <div style="font-size:12px;color:var(--tx2);background:var(--bg2);border-radius:6px;padding:7px 10px;border-left:3px solid {{ $color }}40">
+                <div style="font-size:12px;color:var(--tx2);background:var(--bg2);border-radius:6px;padding:7px 10px;border-left:3px solid {{ $color }}40;margin-bottom:{{ $resp->tugas_selanjutnya ? '6px' : '0' }}">
+                    <div style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Catatan</div>
                     {{ $resp->notes }}
+                </div>
+                @endif
+                @if($resp->tugas_selanjutnya)
+                <div style="font-size:12px;color:#92400e;background:#fffbeb;border-radius:6px;padding:7px 10px;border-left:3px solid #f59e0b">
+                    <div style="font-size:10px;font-weight:700;color:#b45309;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px"><i class="fas fa-list-check"></i> Tugas Selanjutnya</div>
+                    {{ $resp->tugas_selanjutnya }}
                 </div>
                 @endif
             </div>
