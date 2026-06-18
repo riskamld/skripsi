@@ -30,7 +30,4 @@ Route::prefix('ai-chat')->group(function () {
     Route::post('/query', [App\Http\Controllers\Web\AiChatController::class, 'processQuery']);
 });
 
-// WA Webhook — dipanggil wa-api saat ada pesan masuk (dari localhost, tanpa auth)
-Route::post('/wa-webhook', [App\Http\Controllers\Api\WaWebhookController::class, 'handle']);
-
 // Map API Routes moved to routes/web.php as workaround for VPS deployment

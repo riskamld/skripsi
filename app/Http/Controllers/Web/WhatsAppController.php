@@ -928,6 +928,15 @@ class WhatsAppController extends Controller
 
     public function handleWebhook(Request $request)
     {
+        // Webhook ini sebelumnya tidak punya validasi sama sekali — siapapun
+        // yang tahu URL-nya bisa kirim payload palsu (memicu update status &
+        // notifikasi Telegram palsu). wa-api tidak mengirim signature apapun,
+        // tapi query string-nya diteruskan, jadi pakai shared secret di URL.
+        if ($request->query('secret') !== env('WA_WEBHOOK_SECRET')) {
+            Log::warning('handleWebhook: secret tidak cocok atau tidak ada', ['ip' => $request->ip()]);
+            return response()->json(['ok' => false, 'error' => 'unauthorized'], 403);
+        }
+
         $event    = $request->input('event');
         $from     = preg_replace('/[^0-9]/', '', $request->input('from', ''));
         $message  = $request->input('message', '');
@@ -994,8 +1003,12 @@ class WhatsAppController extends Controller
             $urls = [];
         }
 
+        // Cocokkan berdasarkan base URL (tanpa query string) — URL yang
+        // benar-benar terdaftar sekarang membawa ?secret=... di belakangnya.
+        $registered = collect($urls)->contains(fn($u) => strtok($u, '?') === $myUrl);
+
         return response()->json([
-            'registered' => in_array($myUrl, $urls),
+            'registered' => $registered,
             'webhook_url' => $myUrl,
             'all_urls'   => $urls,
         ]);
@@ -1004,7 +1017,7 @@ class WhatsAppController extends Controller
     public function registerWebhook()
     {
         $waApiUrl = rtrim(env('WA_API_URL', 'http://localhost:8000'), '/');
-        $myUrl    = url('/whatsapp/webhook');
+        $myUrl    = url('/whatsapp/webhook') . '?secret=' . env('WA_WEBHOOK_SECRET');
 
         try {
             $resp = Http::timeout(5)->post("{$waApiUrl}/api/config/webhooks", ['url' => $myUrl]);
@@ -1017,10 +1030,15 @@ class WhatsAppController extends Controller
     public function unregisterWebhook()
     {
         $waApiUrl = rtrim(env('WA_API_URL', 'http://localhost:8000'), '/');
-        $myUrl    = url('/whatsapp/webhook');
 
         try {
-            $resp = Http::timeout(5)->post("{$waApiUrl}/api/config/webhooks", ['url' => $myUrl, 'action' => 'delete']);
+            // Hapus baik URL lama (tanpa secret, dari sebelum fix keamanan ini)
+            // maupun URL baru (dengan secret), supaya tidak ada sisa terdaftar.
+            Http::timeout(5)->post("{$waApiUrl}/api/config/webhooks", ['url' => url('/whatsapp/webhook'), 'action' => 'delete']);
+            $resp = Http::timeout(5)->post("{$waApiUrl}/api/config/webhooks", [
+                'url' => url('/whatsapp/webhook') . '?secret=' . env('WA_WEBHOOK_SECRET'),
+                'action' => 'delete',
+            ]);
             return response()->json(['status' => $resp->json('status') ? 'ok' : 'error']);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
