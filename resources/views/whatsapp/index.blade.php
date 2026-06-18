@@ -1428,6 +1428,33 @@ function loadFollowup() {
                     </tr></thead><tbody>${rows}</tbody></table></div>`;
             };
 
+            const buildOrderedTable = (items, emptyMsg) => {
+                if (!items || items.length === 0) return `<p class="text-sm text-muted" style="padding:12px 14px">${emptyMsg}</p>`;
+                const rows = items.map(p => {
+                    const waLink = p.phone ? `<a href="https://wa.me/${p.phone.replace(/\D/g,'')}" target="_blank" class="btn btn-xs" style="background:#22c55e;color:#fff;border-color:#22c55e"><i class="fab fa-whatsapp"></i></a>` : '';
+                    const detailLink = `<a href="/mafaza/public/places/${p.id}" target="_blank" class="btn btn-xs btn-ghost" title="Detail"><i class="fas fa-eye"></i></a>`;
+                    const tanggal = p.responded_at ? p.responded_at.replace('T',' ').slice(0,16) : '—';
+                    return `<tr style="border-bottom:1px solid var(--bdr)">
+                        <td style="padding:7px 12px">
+                            <div style="font-size:12px;font-weight:600">${escHtml(p.name)}</div>
+                            <div style="font-size:10px;color:var(--tx3)">${escHtml(p.category || '—')}</div>
+                        </td>
+                        <td style="padding:7px 12px;font-size:11px">${escHtml(p.customer_name || '—')}</td>
+                        <td style="padding:7px 12px;font-size:11px;color:var(--tx2)">${escHtml(p.response_admin || '—')}</td>
+                        <td style="padding:7px 12px;font-size:10px;color:var(--tx3)">${tanggal}</td>
+                        <td style="padding:7px 12px"><div style="display:flex;gap:4px">${waLink}${detailLink}</div></td>
+                    </tr>`;
+                }).join('');
+                return `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">
+                    <thead><tr style="background:var(--bg2);border-bottom:2px solid var(--bdr)">
+                        <th style="padding:6px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--tx2)">Nama / Kategori</th>
+                        <th style="padding:6px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--tx2)">Pelanggan</th>
+                        <th style="padding:6px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--tx2)">Dicatat Oleh</th>
+                        <th style="padding:6px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--tx2)">Tanggal</th>
+                        <th style="padding:6px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--tx2)">Aksi</th>
+                    </tr></thead><tbody>${rows}</tbody></table></div>`;
+            };
+
             wrap.innerHTML = `
                 <div class="card mb-12">
                     <div class="card-header" style="background:linear-gradient(135deg,#fee2e2,#fff1f2)">
@@ -1446,13 +1473,21 @@ function loadFollowup() {
                     </div>
                     <div class="card-body p-0">${buildTable(d.interested, 'Tidak ada yang berminat saat ini.')}</div>
                 </div>
-                <div class="card">
+                <div class="card mb-12">
                     <div class="card-header" style="background:linear-gradient(135deg,#eff6ff,#fff)">
                         <span><i class="fas fa-reply" style="color:var(--ac);margin-right:6px"></i>
                         Sudah Respon – Belum Berminat</span>
                         <span style="background:var(--ac);color:#fff;border-radius:10px;padding:1px 8px;font-size:11px;margin-left:6px">${d.replied.length}</span>
                     </div>
                     <div class="card-body p-0">${buildTable(d.replied, 'Tidak ada yang sudah respon saat ini.')}</div>
+                </div>
+                <div class="card">
+                    <div class="card-header" style="background:linear-gradient(135deg,#f0fdf4,#fff)">
+                        <span><i class="fas fa-shopping-cart" style="color:#16a34a;margin-right:6px"></i>
+                        Sudah Order</span>
+                        <span style="background:#16a34a;color:#fff;border-radius:10px;padding:1px 8px;font-size:11px;margin-left:6px">${d.ordered.length}</span>
+                    </div>
+                    <div class="card-body p-0">${buildOrderedTable(d.ordered, 'Belum ada yang order.')}</div>
                 </div>`;
         })
         .catch(() => { wrap.innerHTML = '<p style="padding:16px;color:var(--rd)">Gagal memuat data follow up.</p>'; });

@@ -609,11 +609,26 @@ class WhatsAppController extends Controller
                 'days_since'       => $p->outreach_sent_at ? (int) $p->outreach_sent_at->diffInDays(now()) : null,
             ]);
 
+        $ordered = Place::where('outreach_status', 'ordered')
+            ->orderByDesc('responded_at')
+            ->get(['id', 'name', 'phone', 'category', 'address', 'customer_name', 'response_admin', 'responded_at'])
+            ->map(fn($p) => [
+                'id'             => $p->id,
+                'name'           => $p->name,
+                'phone'          => $p->phone,
+                'category'       => $p->category,
+                'address'        => $p->address,
+                'customer_name'  => $p->customer_name,
+                'response_admin' => $p->response_admin,
+                'responded_at'   => $p->responded_at?->toDateTimeString(),
+            ]);
+
         return response()->json([
             'status'     => 'ok',
             'followup'   => $followup,
             'interested' => $interested,
             'replied'    => $replied,
+            'ordered'    => $ordered,
         ]);
     }
 
