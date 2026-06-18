@@ -603,7 +603,7 @@ async function stopScraper() {
     try {
         const r = await fetch('{{ route("scraper.stop") }}', {
             method: 'POST',
-            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
         }).then(r => r.json());
         if (r.status === 'ok') {
             clearInterval(pollInterval);
@@ -688,7 +688,7 @@ $('btn-start').addEventListener('click', function () {
 
     fetch('{{ route("scraper.start") }}', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
         body: JSON.stringify({ query, lat: selectedLat, lng: selectedLng, zoom: selectedZoom, limit }),
     })
     .then(r => r.json())
@@ -784,7 +784,7 @@ $('btn-rescrape').addEventListener('click', function () {
 
     fetch('{{ route("scraper.rescrape") }}', {
         method: 'POST',
-        headers: { 'Content-Type':'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
         body: JSON.stringify({ limit: rpLimit }),
     })
     .then(r => r.json())
@@ -832,7 +832,7 @@ function saveCookies() {
     $('cookie-msg').textContent = 'Menyimpan...';
     fetch('{{ route("scraper.save-cookies") }}', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
         body: JSON.stringify({ cookies: val }),
     })
     .then(r => r.json())
@@ -859,7 +859,7 @@ function checkCookies() {
     msg.textContent = 'Membuka Google Maps, tunggu ~15 detik...';
     fetch('{{ route("scraper.check-cookies") }}', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
         body: JSON.stringify({}),
     })
     .then(r => r.json())
