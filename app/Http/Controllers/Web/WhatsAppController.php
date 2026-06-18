@@ -621,22 +621,31 @@ class WhatsAppController extends Controller
 
     public function templateStats()
     {
-        $stats = OutreachLog::where('action', 'sent')
+        // Sebelumnya N+1: 4 query tambahan PER template (1+N*4 total). Diganti
+        // jadi cuma 2 query total — ambil semua log + status place sekali,
+        // lalu hitung agregat di PHP. Semantik hasil tetap identik.
+        $logs = OutreachLog::where('action', 'sent')
             ->whereNotNull('template_name')
-            ->selectRaw('template_id, template_name, COUNT(*) as sent_count')
-            ->groupBy('template_id', 'template_name')
-            ->get()
-            ->map(function ($row) {
-                $placeIds = OutreachLog::where('action', 'sent')->where('template_id', $row->template_id)->pluck('place_id');
-                return [
-                    'template_id'   => $row->template_id,
-                    'template_name' => $row->template_name,
-                    'sent'          => $row->sent_count,
-                    'replied'       => Place::whereIn('id', $placeIds)->whereIn('outreach_status', ['replied', 'responded'])->count(),
-                    'interested'    => Place::whereIn('id', $placeIds)->where('outreach_status', 'interested')->count(),
-                    'ordered'       => Place::whereIn('id', $placeIds)->where('outreach_status', 'ordered')->count(),
-                ];
-            });
+            ->get(['template_id', 'template_name', 'place_id']);
+
+        if ($logs->isEmpty()) {
+            return response()->json(['status' => 'ok', 'data' => []]);
+        }
+
+        $statusByPlace = Place::whereIn('id', $logs->pluck('place_id')->unique())
+            ->pluck('outreach_status', 'id');
+
+        $stats = $logs->groupBy('template_id')->map(function ($group) use ($statusByPlace) {
+            $statuses = $group->pluck('place_id')->map(fn($id) => $statusByPlace->get($id));
+            return [
+                'template_id'   => $group->first()->template_id,
+                'template_name' => $group->first()->template_name,
+                'sent'          => $group->count(),
+                'replied'       => $statuses->filter(fn($s) => in_array($s, ['replied', 'responded']))->count(),
+                'interested'    => $statuses->filter(fn($s) => $s === 'interested')->count(),
+                'ordered'       => $statuses->filter(fn($s) => $s === 'ordered')->count(),
+            ];
+        })->values();
 
         return response()->json(['status' => 'ok', 'data' => $stats]);
     }
