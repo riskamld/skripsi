@@ -956,7 +956,10 @@ class WhatsAppController extends Controller
             return response()->json(['ok' => true]);
         }
 
-        $receivedAt = $ts ? \Carbon\Carbon::createFromTimestamp($ts) : now();
+        // $ts kadang dikirim wa-api sebagai objek (tipe Long dari Baileys/
+        // protobuf untuk angka 64-bit), bukan int/float biasa — kalau
+        // dipaksa ke Carbon::createFromTimestamp() langsung crash (TypeError).
+        $receivedAt = (is_numeric($ts)) ? \Carbon\Carbon::createFromTimestamp($ts) : now();
 
         // Cari prospek berdasarkan nomor telepon
         $place = Place::whereNotNull('phone')
