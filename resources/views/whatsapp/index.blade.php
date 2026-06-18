@@ -81,9 +81,6 @@
 .dev-dot  { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 .dot-ready { background: #16a34a; box-shadow: 0 0 0 2px #dcfce7; }
 .dot-off   { background: #9ca3af; }
-.dev-badge { font-size: 10px; padding: 1px 6px; border-radius: 10px; font-weight: 600; }
-.badge-ready { background: #dcfce7; color: #16a34a; }
-.badge-off   { background: #f3f4f6; color: #6b7280; }
 /* ── Tabs ───────────────────────────────────────────────────────── */
 .wa-tabs-nav { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 12px; }
 .tab-btn {
@@ -237,14 +234,14 @@ $_o   = $stats['ordered'];
     </span>
     <div id="device-list" style="display:contents">
         @forelse($devices as $d)
-        <div class="dev-pill {{ ($d['status'] ?? '') !== 'ready' ? '' : '' }}"
+        <div class="dev-pill"
              onclick="selectDevice('{{ $d['id'] }}','{{ $d['name'] }}')"
              id="dev-{{ $d['id'] }}"
+             title="{{ ($d['status'] ?? '') === 'ready' ? 'Online' : 'Offline' }}"
              style="{{ ($d['status'] ?? '') !== 'ready' ? 'opacity:.5' : '' }}">
             <span class="dev-dot {{ ($d['status'] ?? '') === 'ready' ? 'dot-ready' : 'dot-off' }}"></span>
             <span>{{ $d['name'] }}</span>
             @if(!empty($d['number']))<span style="font-size:10px;color:var(--tx3)">{{ $d['number'] }}</span>@endif
-            <span class="dev-badge {{ ($d['status'] ?? '') === 'ready' ? 'badge-ready' : 'badge-off' }}">{{ ($d['status'] ?? '') === 'ready' ? 'Online' : 'Off' }}</span>
         </div>
         @empty
         <span style="font-size:12px;color:var(--tx3)">Tidak ada device. Pastikan wa-api berjalan.</span>
@@ -693,14 +690,14 @@ function refreshDevices() {
         .then(d => {
             const list = document.getElementById('device-list');
             list.innerHTML = d.devices.map(dev => `
-                <div class="dev-pill${dev.status === 'ready' ? '' : ''}"
+                <div class="dev-pill"
                      onclick="selectDevice('${dev.id}','${dev.name}')"
                      id="dev-${dev.id}"
+                     title="${dev.status === 'ready' ? 'Online' : 'Offline'}"
                      style="${dev.status !== 'ready' ? 'opacity:.5' : ''}">
                     <span class="dev-dot ${dev.status === 'ready' ? 'dot-ready' : 'dot-off'}"></span>
                     <span>${dev.name}</span>
                     ${dev.number ? `<span style="font-size:10px;color:var(--tx3)">${dev.number}</span>` : ''}
-                    <span class="dev-badge ${dev.status === 'ready' ? 'badge-ready' : 'badge-off'}">${dev.status === 'ready' ? 'Online' : 'Off'}</span>
                 </div>
             `).join('');
             if (selectedDeviceId) {
