@@ -12,6 +12,7 @@ use App\Http\Controllers\Web\ScraperController;
 use App\Http\Controllers\Web\ScraperScheduleController;
 use App\Http\Controllers\Web\TelegramController;
 use App\Http\Controllers\Web\WhatsAppController;
+use App\Http\Controllers\Web\KMeansController;
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -119,6 +120,10 @@ Route::post('/database/import/sql', [DatabaseController::class, 'importSql'])->n
 Route::post('/database/import/csv', [DatabaseController::class, 'importCsv'])->name('database.import.csv');
 Route::get('/database/download/{filename}', [DatabaseController::class, 'download'])->name('database.download');
 Route::delete('/database/files/{filename}', [DatabaseController::class, 'deleteFile'])->name('database.delete-file');
+
+// Analisis K-Means
+Route::get('/analisis-kmeans', [KMeansController::class, 'index'])->name('kmeans.index');
+Route::post('/analisis-kmeans/run', [KMeansController::class, 'run'])->name('kmeans.run');
 
 // Panduan
 Route::view('/panduan', 'panduan.index')->name('panduan.index');

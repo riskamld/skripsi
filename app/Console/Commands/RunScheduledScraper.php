@@ -14,10 +14,21 @@ class RunScheduledScraper extends Command
     protected $signature = 'scraper:run-scheduled';
     protected $description = 'Jalankan jadwal scraping yang sudah waktunya';
 
+    private function isScraperProcessRunning(): bool
+    {
+        if (PHP_OS_FAMILY === 'Windows') {
+            $out = shell_exec('wmic process where "name=\'node.exe\'" get CommandLine 2>NUL') ?? '';
+            return str_contains($out, 'gmaps-scraper.js') || str_contains($out, 'gmaps-rescraper.js');
+        }
+
+        return !empty(trim(shell_exec('pgrep -f "[g]maps-scraper.js" 2>/dev/null') ?? ''))
+            || !empty(trim(shell_exec('pgrep -f "[g]maps-rescraper.js" 2>/dev/null') ?? ''));
+    }
+
     public function handle(TelegramService $telegram): void
     {
         // Cegah tabrakan dengan scraping manual dari FE atau rescraper
-        if (!empty(trim(shell_exec('pgrep -f "[g]maps-scraper.js" 2>/dev/null') ?? '')) || !empty(trim(shell_exec('pgrep -f "[g]maps-rescraper.js" 2>/dev/null') ?? ''))) {
+        if ($this->isScraperProcessRunning()) {
             $this->warn('Scraper sedang berjalan, jadwal dilewati.');
             return;
         }
@@ -31,7 +42,7 @@ class RunScheduledScraper extends Command
             if (!$schedule->shouldRunNow()) continue;
 
             // Cek ulang sebelum tiap jadwal (mungkin ada jadwal sebelumnya yang baru selesai)
-            if (!empty(trim(shell_exec('pgrep -f "[g]maps-scraper.js" 2>/dev/null') ?? ''))) {
+            if ($this->isScraperProcessRunning()) {
                 $this->warn("Scraper baru selesai, skip jadwal: {$schedule->name}");
                 continue;
             }
@@ -50,21 +61,27 @@ class RunScheduledScraper extends Command
 
             $jobId   = uniqid('sched_', true);
             $logFile = "{$logDir}/{$jobId}.log";
-            $node    = trim(shell_exec('which node') ?: '/usr/bin/node');
+            $isWindows = PHP_OS_FAMILY === 'Windows';
+            $node    = $isWindows
+                ? 'node'
+                : trim(shell_exec('which node') ?: '/usr/bin/node');
             $query   = escapeshellarg($schedule->query);
             $area    = escapeshellarg($schedule->area ?? '');
             $limit   = (int) $schedule->limit;
 
-            $coords = ($schedule->lat && $schedule->lng)
-                ? " LAT={$schedule->lat} LNG={$schedule->lng} ZOOM={$schedule->zoom}"
-                : '';
+            putenv("MAFAZA_API_TOKEN={$token}");
+            putenv('HEADLESS=true');
+            if ($schedule->lat && $schedule->lng) {
+                putenv("LAT={$schedule->lat}");
+                putenv("LNG={$schedule->lng}");
+                putenv("ZOOM={$schedule->zoom}");
+            }
 
-            $cmd = "MAFAZA_API_TOKEN={$token} HEADLESS=true{$coords}"
-                 . " {$node} " . escapeshellarg($scraperPath)
+            $cmd = "{$node} " . escapeshellarg($scraperPath)
                  . " {$query} {$area} {$limit}"
                  . " >> " . escapeshellarg($logFile) . " 2>&1"
-                 . " && echo '__DONE_OK__' >> " . escapeshellarg($logFile)
-                 . " || echo '__DONE_ERROR__' >> " . escapeshellarg($logFile);
+                 . " && echo __DONE_OK__ >> " . escapeshellarg($logFile)
+                 . " || echo __DONE_ERROR__ >> " . escapeshellarg($logFile);
 
             $schedule->update(['last_run_at' => now(), 'is_running' => true, 'current_log_file' => $logFile]);
             $telegram->notifyScheduledStart($schedule->name, $schedule->query);

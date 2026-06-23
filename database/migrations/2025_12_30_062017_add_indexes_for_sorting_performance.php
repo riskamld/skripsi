@@ -13,9 +13,8 @@ return new class extends Migration
     {
         Schema::table('places', function (Blueprint $table) {
             // Add indexes for sortable columns to improve performance
+            // Note: rating and review_count already indexed in mirror_places_table migration
             $table->index('name');
-            $table->index('rating');
-            $table->index('review_count');
             $table->index('created_at');
             $table->index('updated_at');
 
@@ -33,8 +32,6 @@ return new class extends Migration
         Schema::table('places', function (Blueprint $table) {
             // Drop indexes
             $table->dropIndex(['name']);
-            $table->dropIndex(['rating']);
-            $table->dropIndex(['review_count']);
             $table->dropIndex(['created_at']);
             $table->dropIndex(['updated_at']);
             $table->dropIndex(['rating', 'review_count']);

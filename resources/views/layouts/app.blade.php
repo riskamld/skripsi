@@ -245,6 +245,9 @@ code{font-size:11.5px;background:var(--bg);padding:1px 5px;border-radius:3px;bor
       <a href="{{ route('map.index') }}" class="nav-link {{ request()->routeIs('map.*') ? 'active' : '' }}">
         <i class="fas fa-map nav-icon"></i> Peta
       </a>
+      <a href="{{ route('kmeans.index') }}" class="nav-link {{ request()->routeIs('kmeans.*') ? 'active' : '' }}">
+        <i class="fas fa-circle-nodes nav-icon"></i> Analisis K-Means
+      </a>
 
       <div class="nav-lbl">Sistem</div>
       <a href="{{ route('database.index') }}" class="nav-link {{ request()->routeIs('database.*') ? 'active' : '' }}">

@@ -58,3 +58,7 @@ scraper/node_modules/
 scraper/package-lock.json
 scraper/google-cookies.json
 storage/scraper-logs/
+
+# Local tooling / dev server artifacts
+.claude/
+/public/hot

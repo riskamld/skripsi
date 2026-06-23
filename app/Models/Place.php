@@ -48,6 +48,10 @@ class Place extends Model
         'customer_name',
         'response_admin',
         'responded_at',
+        'cluster',
+        'cluster_label',
+        'cluster_score',
+        'cluster_computed_at',
     ];
 
     protected $casts = [
@@ -65,6 +69,9 @@ class Place extends Model
         'lat'               => 'float',
         'lng'               => 'float',
         'popular_times'     => 'array',
+        'cluster'           => 'integer',
+        'cluster_score'     => 'float',
+        'cluster_computed_at' => 'datetime',
     ];
 
     public function scopeTargets($query)
