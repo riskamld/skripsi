@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Place;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -15,6 +16,8 @@ class KMeansService
 {
     public const K = 3;
     public const MAX_ITERATIONS = 100;
+    public const ELBOW_MAX_K = 6;
+    public const EVALUATION_CACHE_KEY = 'kmeans_evaluation';
 
     /**
      * Jalankan clustering atas seluruh data places yang valid, simpan hasil
@@ -61,11 +64,175 @@ class KMeansService
 
         $this->persistResults($deduped, $labels, $vectors, $centroids, $clusterRanking);
 
+        $evaluation = [
+            'elbow' => $this->computeElbow($vectors),
+            'silhouette' => $this->computeSilhouetteScore($vectors, $labels),
+            'k' => self::K,
+            'computed_at' => now()->toDateTimeString(),
+        ];
+        Cache::forever(self::EVALUATION_CACHE_KEY, $evaluation);
+
         return [
             'ok' => true,
             'total' => $deduped->count(),
             'clusters' => $this->summarize($deduped, $labels, $clusterRanking),
+            'evaluation' => $evaluation,
         ];
+    }
+
+    /**
+     * Ambil hasil evaluasi (Elbow Method & Silhouette Score) dari analisis terakhir.
+     */
+    public function getEvaluation(): ?array
+    {
+        return Cache::get(self::EVALUATION_CACHE_KEY);
+    }
+
+    /**
+     * Elbow Method: hitung WCSS (Within-Cluster Sum of Squares) untuk k = 1..ELBOW_MAX_K
+     * pada vektor yang sama, guna memvalidasi pemilihan k = 3 (lihat titik siku grafik).
+     */
+    private function computeElbow(array $vectors): array
+    {
+        $maxK = min(self::ELBOW_MAX_K, count($vectors));
+        $wcss = [];
+
+        for ($k = 1; $k <= $maxK; $k++) {
+            $best = INF;
+            // Beberapa kali restart centroid acak, ambil WCSS terbaik (terkecil)
+            // agar kurva elbow tidak terdistorsi oleh inisialisasi yang buruk.
+            for ($restart = 0; $restart < 5; $restart++) {
+                [$labels, $centroids] = $this->fitWithK($vectors, $k);
+                $best = min($best, $this->withinClusterSumOfSquares($vectors, $labels, $centroids));
+            }
+            $wcss[$k] = round($best, 6);
+        }
+
+        return $wcss;
+    }
+
+    private function withinClusterSumOfSquares(array $vectors, array $labels, array $centroids): float
+    {
+        $total = 0.0;
+        foreach ($vectors as $i => $v) {
+            $total += $this->euclideanDistance($v, $centroids[$labels[$i]]) ** 2;
+        }
+        return $total;
+    }
+
+    /**
+     * Silhouette Score rata-rata untuk seluruh data: mengukur seberapa baik
+     * setiap objek cocok dengan cluster-nya sendiri dibanding cluster terdekat lainnya.
+     * Nilai berkisar -1 s.d. 1; mendekati 1 berarti kualitas clustering baik.
+     */
+    private function computeSilhouetteScore(array $vectors, array $labels): float
+    {
+        $n = count($vectors);
+        if ($n < 2) {
+            return 0.0;
+        }
+
+        $clusters = [];
+        foreach ($labels as $i => $cluster) {
+            $clusters[$cluster][] = $i;
+        }
+
+        $silhouettes = [];
+        foreach ($vectors as $i => $v) {
+            $ownCluster = $labels[$i];
+            $a = $this->meanDistanceToCluster($vectors, $v, $i, $clusters[$ownCluster]);
+
+            $b = INF;
+            foreach ($clusters as $cluster => $members) {
+                if ($cluster === $ownCluster) {
+                    continue;
+                }
+                $b = min($b, $this->meanDistanceToCluster($vectors, $v, $i, $members));
+            }
+
+            if (count($clusters[$ownCluster]) <= 1) {
+                $silhouettes[] = 0.0;
+                continue;
+            }
+
+            $max = max($a, $b);
+            $silhouettes[] = $max > 0 ? ($b - $a) / $max : 0.0;
+        }
+
+        return round(array_sum($silhouettes) / count($silhouettes), 4);
+    }
+
+    private function meanDistanceToCluster(array $vectors, array $point, int $selfIndex, array $memberIndexes): float
+    {
+        $others = array_filter($memberIndexes, fn ($idx) => $idx !== $selfIndex);
+        if (empty($others)) {
+            return 0.0;
+        }
+        $sum = 0.0;
+        foreach ($others as $idx) {
+            $sum += $this->euclideanDistance($point, $vectors[$idx]);
+        }
+        return $sum / count($others);
+    }
+
+    /**
+     * Variasi fit() yang menerima k bebas, dipakai khusus untuk Elbow Method
+     * (tidak menyimpan hasil, hanya untuk menghitung WCSS per nilai k).
+     */
+    private function fitWithK(array $vectors, int $k): array
+    {
+        $n = count($vectors);
+        $k = max(1, min($k, $n));
+
+        $initialIndexes = $k === 1 ? [0] : array_rand($vectors, $k);
+        $centroids = array_map(fn ($i) => $vectors[$i], (array) $initialIndexes);
+
+        $labels = array_fill(0, $n, 0);
+
+        for ($iter = 0; $iter < self::MAX_ITERATIONS; $iter++) {
+            $changed = false;
+
+            foreach ($vectors as $i => $v) {
+                $bestCluster = 0;
+                $bestDistance = INF;
+                foreach ($centroids as $c => $centroid) {
+                    $distance = $this->euclideanDistance($v, $centroid);
+                    if ($distance < $bestDistance) {
+                        $bestDistance = $distance;
+                        $bestCluster = $c;
+                    }
+                }
+                if ($labels[$i] !== $bestCluster) {
+                    $labels[$i] = $bestCluster;
+                    $changed = true;
+                }
+            }
+
+            if (!$changed && $iter > 0) {
+                break;
+            }
+
+            $dim = count($vectors[0]);
+            $sums = array_fill(0, $k, array_fill(0, $dim, 0.0));
+            $counts = array_fill(0, $k, 0);
+
+            foreach ($vectors as $i => $v) {
+                $cluster = $labels[$i];
+                $counts[$cluster]++;
+                foreach ($v as $d => $val) {
+                    $sums[$cluster][$d] += $val;
+                }
+            }
+
+            foreach ($sums as $cluster => $sum) {
+                if ($counts[$cluster] === 0) {
+                    continue;
+                }
+                $centroids[$cluster] = array_map(fn ($s) => $s / $counts[$cluster], $sum);
+            }
+        }
+
+        return [$labels, $centroids];
     }
 
     private function fetchEligiblePlaces()

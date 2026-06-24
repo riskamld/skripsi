@@ -10,7 +10,7 @@ use Illuminate\View\View;
 
 class KMeansController extends Controller
 {
-    public function index(): View
+    public function index(KMeansService $service): View
     {
         $places = Place::query()
             ->whereNotNull('cluster')
@@ -38,6 +38,7 @@ class KMeansController extends Controller
             'summary' => $summary,
             'lastComputedAt' => $lastComputedAt,
             'eligibleCount' => $eligibleCount,
+            'evaluation' => $service->getEvaluation(),
         ]);
     }
 

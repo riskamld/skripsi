@@ -59,6 +59,34 @@
     @endforelse
 </div>
 
+@if($evaluation)
+<div class="card" style="margin-bottom:14px">
+    <div class="card-header">
+        <span>Evaluasi Model — Elbow Method &amp; Silhouette Score</span>
+        <span style="font-size:12px;color:var(--tx2)">Dihitung: {{ \Carbon\Carbon::parse($evaluation['computed_at'])->format('d M Y H:i') }}</span>
+    </div>
+    <div class="card-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start">
+            <div>
+                <div style="font-size:12.5px;color:var(--tx2);margin-bottom:8px">
+                    WCSS (Within-Cluster Sum of Squares) per nilai k — titik siku grafik menunjukkan k optimal.
+                </div>
+                <table>
+                    <thead><tr><th>k</th>@foreach($evaluation['elbow'] as $k => $w)<th>{{ $k }}</th>@endforeach</tr></thead>
+                    <tbody><tr><td>WCSS</td>@foreach($evaluation['elbow'] as $k => $w)<td>{{ number_format($w, 4) }}</td>@endforeach</tr></tbody>
+                </table>
+            </div>
+            <div>
+                <div style="font-size:12.5px;color:var(--tx2);margin-bottom:8px">
+                    Silhouette Score rata-rata untuk k = {{ $evaluation['k'] }} (rentang -1 s.d. 1, mendekati 1 = kualitas cluster baik).
+                </div>
+                <div class="metric-value" style="font-size:28px">{{ $evaluation['silhouette'] }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
 <div class="card">
     <div class="card-header">
         <span>Hasil Clustering</span>
