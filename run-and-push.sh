@@ -8,10 +8,10 @@ if [ ! -f "artisan" ]; then
     exit 1
 fi
 
-echo "[1/6] Install dependency PHP (composer)..."
+echo "[1/5] Install dependency PHP (composer)..."
 composer install
 
-echo "[2/6] Install dependency Node.js..."
+echo "[2/5] Install dependency Node.js..."
 npm install
 (cd scraper && npm install)
 
@@ -21,23 +21,12 @@ if [ ! -f ".env" ]; then
     php artisan key:generate
 fi
 
-echo "[3/6] Migrasi database..."
+echo "[3/5] Migrasi database..."
 php artisan migrate --force
 
-echo "[4/6] Build asset frontend..."
+echo "[4/5] Build asset frontend..."
 npm run build
 
-echo "[5/6] Commit perubahan ke git..."
-COMMIT_MSG="${1:-chore: update project}"
-git add -A
-if git diff --cached --quiet; then
-    echo "Tidak ada perubahan untuk di-commit."
-else
-    git commit -m "$COMMIT_MSG"
-fi
-
-echo "[6/6] Push ke GitHub..."
-git push
-
-echo ""
-echo "=== Selesai! Jalankan 'php artisan serve' untuk start server lokal ==="
+echo "[5/5] Menjalankan server Laravel di http://127.0.0.1:8000 ..."
+echo "(Tekan Ctrl+C untuk berhenti)"
+php artisan serve
