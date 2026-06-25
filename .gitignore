@@ -62,3 +62,4 @@ storage/scraper-logs/
 # Local tooling / dev server artifacts
 .claude/
 /public/hot
+user pas.png
